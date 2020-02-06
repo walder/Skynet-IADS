@@ -83,7 +83,7 @@ function SkynetIADS.evaluateContacts(self)
 				--local objectCategory = detectedObject:getCategory()
 			--	trigger.action.outText("target category: "..objectCategory, 1)
 				--if objectCategory == 1 then
-					trigger.action.outText("EWR detected: "..detectedObject:getTypeName(), 1)
+					trigger.action.outText("EWR has detected: "..detectedObject:getTypeName(), 1)
 					--TODO: shall we hand of any type of flying object to SAM, eg harms bombs, and aircraft or only aircraft?
 					self:correlateWithSamSites(detectedObject)
 				--end
@@ -167,7 +167,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 		-- we only need to find one radar and one launcher within range in a Group, the AI of DCS will then decide which launcher will fire
 		if samRadarInRange and samLauncherinRange then
 			if samSiteEntry.ai == false then
-				trigger.action.outText("AI ON", 1)
+				trigger.action.outText(samSite:getName().." activated", 1)
 				cont:setOnOff(true)
 				cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 				cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
@@ -176,7 +176,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 			end
 		else
 			if samSiteEntry.ai then
-				trigger.action.outText("AI OFF", 1)
+				trigger.action.outText(samSite:getName().." deactivated", 1)
 				cont:setOnOff(false)
 				samSiteEntry.ai = false
 			end
@@ -190,6 +190,7 @@ function SkynetIADS:isSamLauncherWithinFiringParameters(aircraft, samLauncherUni
 	local maxFiringRange = launcherData['range']
 	if distance <= maxFiringRange then
 		isInRange = true
+		trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
 	end
 	return isInRange
 end
@@ -203,6 +204,7 @@ function SkynetIADS:isSamRadarWithinTrackingParameters(aircraft, samRadarUnit, r
 	local maxDetectionAltitude = radarData['max_alt_finding_target']
 	local maxDetectionRange = radarData['max_range_finding_target']		
 	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
+		trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
 		isInRange = true
 	end
 	return isInRange
@@ -407,25 +409,5 @@ function createFalseTarget()
 	coalition.addGroup(country.id.USA,1, an30m) 
 --]]	
 end
-
----- Instanciate IADS
-
-nevadaIADS = SkynetIADS:create()
-
-local earlyWarningRadar = Unit.getByName('EWR')
-nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)
-
-local sa6Site2 = Group.getByName('SA6 Group2')
-nevadaIADS:addSamSite(sa6Site2)
-
---local sa6Site = Group.getByName('SA6 Group')
---nevadaIADS:addSamSite(sa6Site)
-
-local sa10 = Group.getByName('SA-10')
-nevadaIADS:addSamSite(sa10)
-
-nevadaIADS:activate()	
-
-createFalseTarget()
 
 end
