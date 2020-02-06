@@ -77,6 +77,7 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = self.earlyWarningRadars[i]
 		local ewRadarController = ewRadar:getController()
 		local ewContacts = ewRadarController:getDetectedTargets()
+		--TODO: it would be more efficient to store all contacts in a table first and then correlate with the sams, it could be that a target is beeing tracked by two overlapping ew radars, in this case both would trigger a correlation check
 		if #ewContacts > 0 then
 			for j = 1, #ewContacts do
 				local detectedObject = ewContacts[j].object
@@ -84,7 +85,7 @@ function SkynetIADS.evaluateContacts(self)
 			--	trigger.action.outText("target category: "..objectCategory, 1)
 				--if objectCategory == 1 then
 					trigger.action.outText("EWR has detected: "..detectedObject:getTypeName(), 1)
-					--TODO: shall we hand of any type of flying object to SAM, eg harms bombs, and aircraft or only aircraft?
+					--TODO: shall we hand of any type of flying object to SAM, eg harms, bombs, and aircraft or only aircraft?
 					self:correlateWithSamSites(detectedObject)
 				--end
 			end
@@ -142,7 +143,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 		local samRadarInRange = false
 		local samLauncherinRange = false
 		local  cont = samSite:getController()
-		--go through sam site units to check launcher and radar distance, the could be positined quite far apart, only activate if both are in reach
+		--go through sam site units to check launcher and radar distance, they could be positined quite far apart, only activate if both are in reach
 		for j = 1, #samSiteUnits do
 			local  samElement = samSiteUnits[j]
 			local typeName = samElement:getTypeName()	
@@ -151,13 +152,13 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 			-- TODO: check search radar and tracking radar, some sam sites have both!
 			local radarData = samTypesDB[samType]['searchRadar'][typeName]
 			local launcherData = samTypesDB[samType]['launchers'][typeName]
-			--if we find a radar in a SAM site, we calculate to se if it is within tracking parameters
+			--if we find a radar in a SAM site, we calculate to see if it is within tracking parameters
 			if radarData ~= nil then
 				if self:isSamRadarWithinTrackingParameters(detectedAircraft, samElement, radarData) then
 					samRadarInRange = true
 				end
 			end
-			--if we find a launcher in a SAM site, we calculate to se if it is within firing parameters
+			--if we find a launcher in a SAM site, we calculate to see if it is within firing parameters
 			if launcherData ~= nil then
 				if self:isSamLauncherWithinFiringParameters(detectedAircraft, samElement, launcherData) then
 					samLauncherinRange = true
