@@ -2,10 +2,10 @@ do
 
 
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
--- TODO: IADS Power Source optional for each EW Radar or SAM Site, if destoryed Element goes offline
--- TODO: add Command Center, if destoryed IADS is balkanised, SAM Sites will operate idependantly
+-- TODO: IADS Power Source optional for each EW Radar or SAM Site, if destroyed element goes offline
+-- TODO: add Command Center, if destroyed IADS is balkanised, SAM Sites will operate idependently
 -- TODO: IADS Connection Node, between SAM Site and Command center, if destroyed SAM Site will have to work idependently
--- TODO: Jamming Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
+-- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 
 
 SkynetIADS = {}
