@@ -52,21 +52,6 @@ end
 
 function SkynetIADSSamSite:getDBName()
 	return SkynetIADS.getDBName(self.samSite)
-	--[[
-	local unit = self.samSite:getUnits()[1]
-	local samDBName = ""
-	local typeName = unit:getTypeName()
-	local index = typeName:find(" ") - 1
-	local samNameSearch = typeName:sub(1, index)
-	for samName, samData in pairs(samTypesDB) do
-		local prefix = samName:sub(1, index)
-		if samNameSearch == prefix then
-			samDBName = samName
-			break
-		end
-	end
-	return samDBName
-	--]]
 end
 
 function SkynetIADSSamSite:goAutonomous()

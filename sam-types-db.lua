@@ -51,7 +51,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-10 Grumble',
 		},
 	},
-	['Buk'] = {
+	['sa-11'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['SA-11 Buk SR 9S18M1'] = {
