@@ -14,9 +14,12 @@ Please make sure the SAM Group in the mission editor consists only of one type. 
 The Skill level you set on a SAM Group is retained by Skynet.
 
 #  Early Warning Radar
-Skyned can handle 1-n EW Radars
+Skynet can handle 1-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet.
 
 #  Power Sources
+By default Skynet IADS will run without having to add power sources. If you want you can add power sources to SAM Units, EW Radars and Command Centers. A power source can be any Unit oder StaticUnit in DCS. Once it is fully damaged the linked Skyned IADS unit will stop working. You can add multiple power sources to a Skynet IADS unit.
+
+Taking out the power source of a command center is a real life tactic used in Suppression of Enemy Air Defence (SEAD).
 
 #  Connection Nodes
 
