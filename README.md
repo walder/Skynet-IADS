@@ -30,7 +30,7 @@ By default Skynet IADS will run without having to add connection nodes. You can 
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
 
 # Electronig Warfare
-In this release there is no electronig warfare functionallity. It will be aded in a later release.
+In this release there is no electronic warfare functionallity. It will be aded in a later release.
 
 #  Example Code
 Unlike other IADS Script Skynet requires you to define the elements with some code. In excange for that it will behave more life like. Think of yourself as the general planning the IADS.
