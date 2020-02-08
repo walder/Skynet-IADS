@@ -1,7 +1,7 @@
-do	
+do
 samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
 	-- '-' character needs special search term %
-	['S-300PS'] = {
+	['S%-300'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
@@ -51,7 +51,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-10 Grumble',
 		},
 	},
-	['sa-11'] = {
+	['Buk'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['SA-11 Buk SR 9S18M1'] = {
@@ -118,7 +118,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-3 Goa',
 		},
 	},
-    ['s_75m_volhov'] = {
+    ['s%-75'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
@@ -150,7 +150,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-2 Guideline',
 		},
 	},
-	['kub'] = {
+	['Kub'] = {
 		['type'] = 'complex',
 		['mobile'] = true,
 		['searchRadar'] = {

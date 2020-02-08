@@ -2,7 +2,6 @@ do
 
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 -- TODO: Sam sites may shut down when a missile is in the air when ordered by the IADS, check to see if that should be prevented
--- TODO: check how 2 EW Radars handle
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 
@@ -20,36 +19,25 @@ function SkynetIADS:create()
 	return iads
 end
 
--- TODO: the name search is a bit shaky names of sam sites must be looked up in a better manner
-function SkynetIADS.getDBName(group)
-	local units = group:getUnits()
-	local samDBName = ""
-	local samNameSearch = ""
-	local typeName = ""
-	local prefix = ""
-	local index = nil 
+-- TODO: a bit sloppy we through Units and Groups at the function and it deals with both
+function SkynetIADS.getDBName(groupOrUnit)
+	local units = {}
+	local samDBName = "UNKNOWN"
+	if getmetatable(groupOrUnit) == Unit then
+		table.insert(units, groupOrUnit)
+	else
+		units = groupOrUnit:getUnits()
+	end
 	for i = 1, #units do
-			typeName = units[i]:getTypeName()
-		--	trigger.action.outText(typeName, 1)
-			local index = typeName:find(" ")
-			if index == nil then
-				samNameSearch = typeName:lower()
-			else
-				index = index - 1
-				samNameSearch = typeName:sub(1, index):lower()
+		typeName = units[i]:getTypeName()
+		for samName, samData in pairs(samTypesDB) do
+			--all Sites have a search radar, if we find one, we got the internal designator of the SAM unit
+			radarData = samTypesDB[samName]['searchRadar'][typeName]
+			if radarData ~= nil then
+			--	trigger.action.outText("Element is a: "..samName, 1)
+				return samName
 			end
-			for samName, samData in pairs(samTypesDB) do
-				samName = samName:lower()
-				if index == nil then
-					prefix = samName
-				else
-					prefix = samName:sub(1, index)
-				end
-				--trigger.action.outText("Comparing: "..prefix.." to: "..samNameSearch, 1)
-				if samNameSearch == prefix then
-					samDBName = samNameSearch:lower()
-				end
-			end
+		end
 	end
 	return samDBName
 end
@@ -119,6 +107,7 @@ end
 
 --TODO: distinguish between friendly and enemy aircraft, eg only activate SAM site if enemy aircraft is aproaching
 function SkynetIADS.evaluateContacts(self) 
+	local iadsContacts = {}
 	if self:isCommandCenterAlive() == false then
 		trigger.action.outText("There is no working Command Center for the IADS", 1)
 		self:setSamSitesToAutonomousMode()
@@ -130,18 +119,18 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = self.earlyWarningRadars[i]
 		if ewRadar:hasActiveConnectionNode() == true then
 			local ewContacts = ewRadar:getDetectedTargets()
-			--TODO: it would be more efficient to store all contacts in a table first and then correlate with the sams, it could be that a target is beeing tracked by two overlapping ew radars, in this case both would trigger a correlation check
 			for j = 1, #ewContacts do
-				--local objectCategory = detectedObject:getCategory()
-				--	trigger.action.outText("target category: "..objectCategory, 1)
-				--if objectCategory == 1 then
-				trigger.action.outText("EWR has detected: "..ewContacts[j]:getTypeName(), 1)
-				--TODO: shall we hand of any type of flying object to SAM, eg harms, bombs, and aircraft or only aircraft?
-				self:correlateWithSamSites(ewContacts[j])	
+				iadsContacts[ewContacts[j]:getName()] = ewContacts[j]
+			--	trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
 			end
 		else
 			trigger.action.outText(ewRadar:getDescription().." no connection to command center", 1)
 		end
+	end
+	for unitName, unit in pairs(iadsContacts) do
+		trigger.action.outText("IADS Contact: "..unitName, 1)
+		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
+		self:correlateWithSamSites(unit)
 	end
 end
 

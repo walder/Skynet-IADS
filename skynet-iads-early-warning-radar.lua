@@ -17,8 +17,7 @@ function SkynetIADSEWRadar:getDescription()
 end
 
 function SkynetIADSEWRadar:getDBName()
-	return "EW"
-	--SkynetIADS.getDBName(self.radarUnit)
+	return SkynetIADS.getDBName(self.radarUnit)
 end
 
 function SkynetIADSEWRadar:getDetectedTargets()
