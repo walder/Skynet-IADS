@@ -33,7 +33,7 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 In this release there is no electronic warfare functionallity. It will be aded in a later release.
 
 # Using it in the mission editor
-Skynet requires MIST. A version is provided in this repository or you can download the most current version [here] (https://github.com/mrSkortch/MissionScriptingTools)
+Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 
 #  Example Code
 Unlike other IADS Scripts Skynet requires you to define the elements with some code. In excange for that it will behave more life like. Think of yourself as the general planning the IADS.
