@@ -33,7 +33,7 @@ In this release there is no electronig warfare functionallity. It will be aded i
 create an instance of the IADS:  
 `nevadaIADS = SkynetIADS:create()`
 
-Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission.  
+Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission:  
 `earlyWarningRadar = Unit.getByName('EWR')`  
 `ewPower = StaticObject.getByName("EW Power Source")`    
 `ewConnectionNode = StaticObject.getByName("EWR Connection Node")`    
@@ -52,7 +52,7 @@ The autonomous mode options are:
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DARK` = SAM Site will go dark if it looses connection to IADS  
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI` = SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
 
-You can also just add a SAM site omitting power source and connection node  
+You can also just add a SAM site omitting power source and connection node:  
 `nevadaIADS:addSamSite(sa6Site2)`
 
 Add a command center (optional):  
