@@ -34,19 +34,19 @@ create an instance of the IADS:
 `nevadaIADS = SkynetIADS:create()`
 
 Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission.  
-`local earlyWarningRadar = Unit.getByName('EWR')
-local ewPower = StaticObject.getByName("EW Power Source")
-local ewConnectionNode = StaticObject.getByName("EWR Connection Node")
-nevadaIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`
+`local earlyWarningRadar = Unit.getByName('EWR')  
+local ewPower = StaticObject.getByName("EW Power Source")  
+local ewConnectionNode = StaticObject.getByName("EWR Connection Node")  
+nevadaIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`  
 
 You can also just add an EW Radar omitting the power source and connection node:  
 `nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)`
 
 Add at a SAM Site like this:  
-`local powerSource = StaticObject.getByName("SA6-PowerSource")
-local sa6Site2 = Group.getByName('SA6 Group2')
-local connectionNode = StaticObject.getByName("Connection Node")
-nevadaIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`
+`local powerSource = StaticObject.getByName("SA6-PowerSource")  
+local sa6Site2 = Group.getByName('SA6 Group2')  
+local connectionNode = StaticObject.getByName("Connection Node")  
+nevadaIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`  
 
 The autonomous mode options are:  
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)` = SAM Site will go dark if it looses connection to IADS  
@@ -56,11 +56,11 @@ You can also just add a SAM site omitting power source and connection node
 `nevadaIADS:addSamSite(sa6Site2)`
 
 Add a command center (optional):  
-`local commandCenter = StaticObject.getByName("Command Center")
+`local commandCenter = StaticObject.getByName("Command Center")  
 nevadaIADS:addCommandCenter(commandCenter)`
 
 Wake up the IADS:  
-`nevadaIADS = SkynetIADS:create()`
+`nevadaIADS = SkynetIADS:create()`  
 
 # Thanks
 Special thaks to Spearzone for digging up a ton of obscure information on IADS and getting me up to speed on how such a system works.
