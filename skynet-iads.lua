@@ -2,11 +2,8 @@ do
 
 
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
--- TODO: IADS Power Source optional for each EW Radar or SAM Site, if destroyed element goes offline
 -- TODO: add Command Center, if destroyed IADS is balkanised, SAM Sites will operate idependently
--- TODO: IADS Connection Node, between SAM Site and Command center, if destroyed SAM Site will have to work idependently
 -- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
-
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -14,20 +11,16 @@ SkynetIADS.__index = SkynetIADS
 function SkynetIADS:create()
 	local iads = {}
 	setmetatable(iads, SkynetIADS)
-	self.earlyWarningRadars = {}
-	self.samSites = {}
-	self.ewRadarScanMistTaskID = nil
+	iads.earlyWarningRadars = {}
+	iads.samSites = {}
+	iads.commandCenters = {}
+	iads.ewRadarScanMistTaskID = nil
 	return iads
 end
 
-function SkynetIADS:addEarlyWarningRadar(earlyWarningRadar)
-	table.insert(self.earlyWarningRadars, earlyWarningRadar)
-end
-
-function SkynetIADS:getDBSamName(samGroup)
+function SkynetIADS.getDBName(unit)
 	local samDBName = ""
-	local firstElement = samGroup:getUnits()[1]
-	local typeName = firstElement:getTypeName()
+	local typeName = unit:getTypeName()
 	local index = typeName:find(" ") - 1
 	local samNameSearch = typeName:sub(1, index)
 	for samName, samData in pairs(samTypesDB) do
@@ -37,11 +30,19 @@ function SkynetIADS:getDBSamName(samGroup)
 			break
 		end
 	end
-	--trigger.action.outText(samDBName, 10)
 	return samDBName
 end
 
+function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, connectionNode)
+	trigger.action.outText("EW Setup", 1)
+	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit)
+	ewRadar:addPowerSource(powerSource)
+	ewRadar:addConnectionNode(connectionNode)
+	table.insert(self.earlyWarningRadars, ewRadar)
+end
+
 function SkynetIADS:onEvent(event)
+--[[
 	if event.id == world.event.S_EVENT_SHOT then
 		local weapon = event.weapon
 		targetOfMissile = weapon:getTarget()
@@ -49,7 +50,7 @@ function SkynetIADS:onEvent(event)
 			self:startHarmDefence(weapon)
 		end	
 	end
-
+--]]
 end
 
 function SkynetIADS.isWeaponHarm(weapon)
@@ -57,39 +58,68 @@ function SkynetIADS.isWeaponHarm(weapon)
 	return (desc.missileCategory == 6 and desc.guidance == 5)	
 end
 
-function SkynetIADS:addSamSite(samSite)
-	-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
-	cont = samSite:getController()
-	cont:setOnOff(false)
-	local samDBName = self:getDBSamName(samSite)
-	local samEntry = {}
-	---trigger.action.outText("DB Name: "..samDBName, 10)
-	samEntry.name = samDBName
-	samEntry.samSite = samSite
-	samEntry.ai = false
-	table.insert(self.samSites, samEntry)
+function SkynetIADS:addSamSite(samSite, powerSource, connectionNode, autonomousMode)
+	local samSite = SkynetIADSSamSite:create(samSite)
+	samSite:addPowerSource(powerSource)
+	samSite:addConnectionNode(connectionNode)
+	samSite:setAutonomousMode(autonomousMode)
+	table.insert(self.samSites, samSite)
+end
+
+function SkynetIADS:addCommandCenter(commandCenter)
+	table.insert(self.commandCenters, commandCenter)
+end
+
+-- generic function to theck if powerplants, command centers, connection nodes are still alive
+function SkynetIADS.genericCheckOneObjectIsAlive(objects)
+	local isAlive = (#objects == 0)
+	for i = 1, #objects do
+		local object = objects[i]
+	--	trigger.action.outText("life: "..object:getLife(), 1)
+		--if we find one object that is not fully destroyed we assume the IADS is still working
+		if object:getLife() > 0 then
+			isAlive = true
+			break
+		end
+	end
+	return isAlive
+end
+
+function SkynetIADS:isCommandCenterAlive() 
+	return SkynetIADS.genericCheckOneObjectIsAlive(self.commandCenters)
+end
+
+function SkynetIADS:setSamSitesToAutonomousMode()
+	for i= 1, #self.samSites do
+		samSite = self.samSites[i]
+		samSite:goAutonomous()
+	end
 end
 
 --TODO: distinguish between friendly and enemy aircraft, eg only activate SAM site if enemy aircraft is aproaching
 function SkynetIADS.evaluateContacts(self) 
-	--trigger.action.outText("Active EW Radars: "..#self.earlyWarningRadars, 1)
+	if self:isCommandCenterAlive() == false then
+		trigger.action.outText("There is no working Command Center for the IADS", 1)
+		self:setSamSitesToAutonomousMode()
+		return
+	end
+	trigger.action.outText("Active EW Radars: "..#self.earlyWarningRadars, 1)
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
-		local ewRadarController = ewRadar:getController()
-		local ewContacts = ewRadarController:getDetectedTargets()
-		--TODO: it would be more efficient to store all contacts in a table first and then correlate with the sams, it could be that a target is beeing tracked by two overlapping ew radars, in this case both would trigger a correlation check
-		if #ewContacts > 0 then
+		if ewRadar:hasActiveConnectionNode() == true then
+			local ewContacts = ewRadar:getDetectedTargets()
+			--TODO: it would be more efficient to store all contacts in a table first and then correlate with the sams, it could be that a target is beeing tracked by two overlapping ew radars, in this case both would trigger a correlation check
 			for j = 1, #ewContacts do
-				local detectedObject = ewContacts[j].object
 				--local objectCategory = detectedObject:getCategory()
-			--	trigger.action.outText("target category: "..objectCategory, 1)
+				--	trigger.action.outText("target category: "..objectCategory, 1)
 				--if objectCategory == 1 then
-					trigger.action.outText("EWR has detected: "..detectedObject:getTypeName(), 1)
-					--TODO: shall we hand of any type of flying object to SAM, eg harms, bombs, and aircraft or only aircraft?
-					self:correlateWithSamSites(detectedObject)
-				--end
+				trigger.action.outText("EWR has detected: "..ewContacts[j]:getTypeName(), 1)
+				--TODO: shall we hand of any type of flying object to SAM, eg harms, bombs, and aircraft or only aircraft?
+				self:correlateWithSamSites(ewContacts[j])	
 			end
-		end		
+		else
+			trigger.action.outText(ewRadar:getDescription().." no connection to command center", 1)
+		end
 	end
 end
 
@@ -98,6 +128,7 @@ function SkynetIADS:startHarmDefence(inBoundHarm)
 	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
 end
 
+--[[
 function SkynetIADS.harmDefence(self, inBoundHarm) 
 	local target = inBoundHarm:getTarget()
 	local harmDetected = false	
@@ -130,85 +161,20 @@ function SkynetIADS.harmDefence(self, inBoundHarm)
 		trigger.action.outText("target is nil", 1)
 	end
 end
+--]]
 
 -- checks to see if SAM Site can attack the tracked aircraft
 -- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range
 function SkynetIADS:correlateWithSamSites(detectedAircraft)
-	for i = 1, #self.samSites do
-		local samSiteEntry = self.samSites[i]
-		local samType = samSiteEntry.name
-		local samSite = samSiteEntry.samSite
-		local aiState = samSiteEntry.ai
-		local samSiteUnits = samSite:getUnits()
-		local samRadarInRange = false
-		local samLauncherinRange = false
-		local  cont = samSite:getController()
-		--go through sam site units to check launcher and radar distance, they could be positined quite far apart, only activate if both are in reach
-		for j = 1, #samSiteUnits do
-			local  samElement = samSiteUnits[j]
-			local typeName = samElement:getTypeName()	
-		--	trigger.action.outText(typeName, 1)
-		--trigger.action.outText(samType, 1)
-			-- TODO: check search radar and tracking radar, some sam sites have both!
-			local radarData = samTypesDB[samType]['searchRadar'][typeName]
-			local launcherData = samTypesDB[samType]['launchers'][typeName]
-			--if we find a radar in a SAM site, we calculate to see if it is within tracking parameters
-			if radarData ~= nil then
-				if self:isSamRadarWithinTrackingParameters(detectedAircraft, samElement, radarData) then
-					samRadarInRange = true
-				end
-			end
-			--if we find a launcher in a SAM site, we calculate to see if it is within firing parameters
-			if launcherData ~= nil then
-				if self:isSamLauncherWithinFiringParameters(detectedAircraft, samElement, launcherData) then
-					samLauncherinRange = true
-				end
-			end			
-		end
-		-- we only need to find one radar and one launcher within range in a Group, the AI of DCS will then decide which launcher will fire
-		if samRadarInRange and samLauncherinRange then
-			if samSiteEntry.ai == false then
-				trigger.action.outText(samSite:getName().." activated", 1)
-				cont:setOnOff(true)
-				cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-				cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-				---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
-				samSiteEntry.ai = true
-			end
+	for i= 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:hasActiveConnectionNode() == true then
+			samSite:handOff(detectedAircraft)
 		else
-			if samSiteEntry.ai then
-				trigger.action.outText(samSite:getName().." deactivated", 1)
-				cont:setOnOff(false)
-				samSiteEntry.ai = false
-			end
+			samSite:goAutonomous()
+			trigger.action.outText(samSite:getDescription().." no connection Command center", 1)
 		end
 	end
-end
-
-function SkynetIADS:isSamLauncherWithinFiringParameters(aircraft, samLauncherUnit, launcherData)
-	local isInRange = false
-	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
-	local maxFiringRange = launcherData['range']
-	if distance <= maxFiringRange then
-		isInRange = true
-		trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
-	end
-	return isInRange
-end
-
-function SkynetIADS:isSamRadarWithinTrackingParameters(aircraft, samRadarUnit, radarData)
-	local isInRange = false
-	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samRadarUnit:getPosition().p)
-	local radarHeight = samRadarUnit:getPosition().p.y
-	local aircraftHeight = aircraft:getPosition().p.y	
-	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
-	local maxDetectionAltitude = radarData['max_alt_finding_target']
-	local maxDetectionRange = radarData['max_range_finding_target']		
-	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
-		trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
-		isInRange = true
-	end
-	return isInRange
 end
 
 -- will start going through the Early Warning Radars to check what targets they have detected
@@ -216,7 +182,7 @@ function SkynetIADS:activate()
 	if self.ewRadarScanMistTaskID ~= nil then
 		mist.removeFunction(self.ewRadarScanMistTaskID)
 	end
-	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, 1)
+	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, 5)
 	world.addEventHandler(self)
 end
 
