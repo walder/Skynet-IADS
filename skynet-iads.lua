@@ -1,9 +1,9 @@
 do
 
-
+-- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
--- TODO: add Command Center, if destroyed IADS is balkanised, SAM Sites will operate idependently
 -- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
+
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -18,17 +18,36 @@ function SkynetIADS:create()
 	return iads
 end
 
-function SkynetIADS.getDBName(unit)
+-- TODO: the name search is a bit shaky names of sam sites must be looked up in a better manner
+function SkynetIADS.getDBName(group)
+	local units = group:getUnits()
 	local samDBName = ""
-	local typeName = unit:getTypeName()
-	local index = typeName:find(" ") - 1
-	local samNameSearch = typeName:sub(1, index)
-	for samName, samData in pairs(samTypesDB) do
-		local prefix = samName:sub(1, index)
-		if samNameSearch == prefix then
-			samDBName = samName
-			break
-		end
+	local samNameSearch = ""
+	local typeName = ""
+	local prefix = ""
+	local index = nil 
+	for i = 1, #units do
+			typeName = units[i]:getTypeName()
+		--	trigger.action.outText(typeName, 1)
+			local index = typeName:find(" ")
+			if index == nil then
+				samNameSearch = typeName:lower()
+			else
+				index = index - 1
+				samNameSearch = typeName:sub(1, index):lower()
+			end
+			for samName, samData in pairs(samTypesDB) do
+				samName = samName:lower()
+				if index == nil then
+					prefix = samName
+				else
+					prefix = samName:sub(1, index)
+				end
+				--trigger.action.outText("Comparing: "..prefix.." to: "..samNameSearch, 1)
+				if samNameSearch == prefix then
+					samDBName = samNameSearch:lower()
+				end
+			end
 	end
 	return samDBName
 end
@@ -104,6 +123,7 @@ function SkynetIADS.evaluateContacts(self)
 		return
 	end
 	trigger.action.outText("Active EW Radars: "..#self.earlyWarningRadars, 1)
+	trigger.action.outText("SAM Sites: "..#self.samSites, 1)
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
 		if ewRadar:hasActiveConnectionNode() == true then

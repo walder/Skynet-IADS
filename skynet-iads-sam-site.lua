@@ -51,7 +51,7 @@ function SkynetIADSSamSite:hasWorkingPowerSource()
 end
 
 function SkynetIADSSamSite:getDBName()
-	return SkynetIADS.getDBName(self.samSite:getUnits()[1])
+	return SkynetIADS.getDBName(self.samSite)
 	--[[
 	local unit = self.samSite:getUnits()[1]
 	local samDBName = ""
@@ -109,15 +109,22 @@ function SkynetIADSSamSite:handOff(aircraft)
 	local samRadarInRange = false
 	local samLauncherinRange = false
 	local  cont = self.samSite:getController()
-	--trigger.action.outText(self.samDBName, 1)
+	--trigger.action.outText("DB name: "..self:getDBName(), 1)
 	--go through sam site units to check launcher and radar distance, they could be positined quite far apart, only activate if both are in reach
 	for j = 1, #samSiteUnits do
 		local  samElement = samSiteUnits[j]
 		local typeName = samElement:getTypeName()	
-		--trigger.action.outText(typeName, 1)
-		-- TODO: check search radar and tracking radar, some sam sites have both!
+		--trigger.action.outText("type name: "..typeName, 1)
 		local radarData = samTypesDB[self:getDBName()]['searchRadar'][typeName]
 		local launcherData = samTypesDB[self:getDBName()]['launchers'][typeName]
+		local trackingData = nil
+		if radarData == nil then
+			--to decide if we should activate the sam we use the tracking radar range if it exists
+			trackingData = samTypesDB[self:getDBName()]['trackingRadar']
+			if trackingData ~= nil then
+				radarData = trackingData[typeName]
+			end
+		end
 		--if we find a radar in a SAM site, we calculate to see if it is within tracking parameters
 		if radarData ~= nil then
 			if self:isRadarWithinTrackingParameters(aircraft, samElement, radarData) then
@@ -129,7 +136,7 @@ function SkynetIADSSamSite:handOff(aircraft)
 			if self:isLauncherWithinFiringParameters(aircraft, samElement, launcherData) then
 				samLauncherinRange = true
 			end
-		end			
+		end		
 	end
 	-- we only need to find one radar and one launcher within range in a Group, the AI of DCS will then decide which launcher will fire
 	if samRadarInRange and samLauncherinRange then

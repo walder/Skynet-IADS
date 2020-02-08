@@ -16,8 +16,11 @@ nevadaIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.A
 local sa6Site = Group.getByName('SA6 Group')
 nevadaIADS:addSamSite(sa6Site)
 
-local sa10 = Group.getByName('SA-10')
-nevadaIADS:addSamSite(sa10)
+local sa2Site = Group.getByName('SA-2')
+nevadaIADS:addSamSite(sa2Site)
+
+--local sa10 = Group.getByName('SA-10')
+--nevadaIADS:addSamSite(sa10)
 
 local commandCenter = StaticObject.getByName("Command Center")
 nevadaIADS:addCommandCenter(commandCenter)

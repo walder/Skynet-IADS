@@ -17,22 +17,8 @@ function SkynetIADSEWRadar:getDescription()
 end
 
 function SkynetIADSEWRadar:getDBName()
-	return SkynetIADS.getDBName(self.radarUnit)
-	--[[
-	local unit = self.radarUnit
-	local samDBName = ""
-	local typeName = unit:getTypeName()
-	local index = typeName:find(" ") - 1
-	local samNameSearch = typeName:sub(1, index)
-	for samName, samData in pairs(samTypesDB) do
-		local prefix = samName:sub(1, index)
-		if samNameSearch == prefix then
-			samDBName = samName
-			break
-		end
-	end
-	return samDBName
-	--]]
+	return "EW"
+	--SkynetIADS.getDBName(self.radarUnit)
 end
 
 function SkynetIADSEWRadar:getDetectedTargets()

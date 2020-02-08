@@ -118,7 +118,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-3 Goa',
 		},
 	},
-    ['s%-75'] = {
+    ['s_75m_volhov'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
@@ -150,7 +150,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-2 Guideline',
 		},
 	},
-	['Kub'] = {
+	['kub'] = {
 		['type'] = 'complex',
 		['mobile'] = true,
 		['searchRadar'] = {
