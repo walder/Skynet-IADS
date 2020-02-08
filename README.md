@@ -36,7 +36,7 @@ In this release there is no electronic warfare functionallity. It will be aded i
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 
 #  Example Code
-Unlike other IADS scripts Skynet requires you to define the elements with some code. In excange for that it will behave more life like. Think of yourself as the general planning the IADS.
+Unlike other IADS scripts Skynet requires you to define the elements with some code. In exchange for that it will behave more life like. Think of yourself as the general planning the IADS.
 
 create an instance of the IADS:  
 `nevadaIADS = SkynetIADS:create()`
