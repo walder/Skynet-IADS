@@ -30,4 +30,5 @@ In this release there is no electronig warfare functionallity. It will be aded i
 #  Example Code
 
 # Thanks
-Special thaks to Spearzone for digging up the most obscure information on IADS. Also I shamelessly incorporated Grimes SAM DB.
+Special thaks to Spearzone for digging up most obscure information on IADS and getting me up to speed on how such a system works.
+Also I shamelessly incorporated Grimes SAM DB.
