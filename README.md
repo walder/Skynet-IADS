@@ -68,7 +68,7 @@ Add a command center (optional):
 `nevadaIADS:addCommandCenter(commandCenter)`
 
 Wake up the IADS:  
-`nevadaIADS = SkynetIADS:create()`  
+`nevadaIADS:activate()`  
 
 # Thanks
 Special thaks to Spearzone for digging up a ton of obscure information on IADS and getting me up to speed on how such a system works.
