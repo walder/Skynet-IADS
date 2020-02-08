@@ -1,17 +1,17 @@
 # Skynet-IADS
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
-#Abstract
+# Abstract
 This script simulates an IADS within the scripting possibilities of DCS.
 
-#Elements
+# Elements
 
-#Sam Site
+#  Sam Site
 
-#Early Warning Radar
+#  Early Warning Radar
 
-#Power Sources
+#  Power Sources
 
-#Connection Nodes
+#  Connection Nodes
 
-#Example Code
+#  Example Code
