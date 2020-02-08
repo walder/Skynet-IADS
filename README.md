@@ -14,4 +14,7 @@ This script simulates an IADS within the scripting possibilities of DCS.
 
 #  Connection Nodes
 
+# Electronig Warfare
+In this release there are is no electronig warfare functionallity. It will be aded in a later release.
+
 #  Example Code
