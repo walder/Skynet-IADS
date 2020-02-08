@@ -50,7 +50,7 @@ Add an early warning radar with a power source and a connection node. Make sure 
 You can also just add an EW Radar omitting the power source and connection node:  
 `nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)`
 
-Add at a SAM Site like this:  
+Add a SAM Site like this:  
 `powerSource = StaticObject.getByName("SA6-PowerSource")`  
 `sa6Site2 = Group.getByName('SA6 Group2')`   
 `connectionNode = StaticObject.getByName("Connection Node")`   
