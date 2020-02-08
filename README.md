@@ -30,7 +30,7 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 In this release there is no electronig warfare functionallity. It will be aded in a later release.
 
 #  Example Code
-create an instance of the IADS:
+create an instance of the IADS:  
 `nevadaIADS = SkynetIADS:create()`
 
 Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission.
