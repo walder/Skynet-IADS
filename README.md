@@ -30,6 +30,7 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 In this release there is no electronig warfare functionallity. It will be aded in a later release.
 
 #  Example Code
+`nano`
 
 # Thanks
 Special thaks to Spearzone for digging up a ton of obscure information on IADS and getting me up to speed on how such a system works.
