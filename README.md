@@ -43,8 +43,8 @@ You can also just add an EW Radar omitting the power source and connection node:
 `nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)`
 
 Add at a SAM Site like this:  
-`local powerSource = StaticObject.getByName("SA6-PowerSource")  
-local sa6Site2 = Group.getByName('SA6 Group2')  
+`powerSource = StaticObject.getByName("SA6-PowerSource")  
+sa6Site2 = Group.getByName('SA6 Group2')  
 local connectionNode = StaticObject.getByName("Connection Node")  
 nevadaIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`  
 
