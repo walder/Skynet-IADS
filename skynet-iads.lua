@@ -3,6 +3,7 @@ do
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
+-- TODO: Sam sites may shut down when a missile is in the air when ordered by the IADS, check to see if that should be prevented
 
 
 SkynetIADS = {}
