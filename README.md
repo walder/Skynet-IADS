@@ -7,6 +7,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 # Elements
 
 #  Sam Site
+By default Skynet keeps SAM Sites turned off. It calculates if a contact is within firing range of a SAM Site. Every single launcher and radar unit's distance is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placemend of radar and launcher units as in real life.
 
 #  Early Warning Radar
 
