@@ -33,7 +33,7 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 In this release there is no electronic warfare functionallity. It will be aded in a later release.
 
 #  Example Code
-Unlike other IADS Script Skynet requires you to define the elements with some code. In excange for that it will behave more life like. Think of yourself as the general planning the IADS.
+Unlike other IADS Scripts Skynet requires you to define the elements with some code. In excange for that it will behave more life like. Think of yourself as the general planning the IADS.
 
 create an instance of the IADS:  
 `nevadaIADS = SkynetIADS:create()`
