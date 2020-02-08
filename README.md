@@ -29,7 +29,7 @@ By default Skynet IADS will run without having to add connection nodes. You can 
 
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
 
-# Electronig Warfare
+# Electronic Warfare
 In this release there is no electronic warfare functionallity. It will be aded in a later release.
 
 # Using it in the mission editor
