@@ -34,10 +34,10 @@ create an instance of the IADS:
 `nevadaIADS = SkynetIADS:create()`
 
 Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission.  
-`local earlyWarningRadar = Unit.getByName('EWR')  
-local ewPower = StaticObject.getByName("EW Power Source")  
-local ewConnectionNode = StaticObject.getByName("EWR Connection Node")  
-nevadaIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`  
+`earlyWarningRadar = Unit.getByName('EWR')`  
+`ewPower = StaticObject.getByName("EW Power Source")`    
+`ewConnectionNode = StaticObject.getByName("EWR Connection Node")`    
+`nevadaIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`  
 
 You can also just add an EW Radar omitting the power source and connection node:  
 `nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)`
@@ -45,7 +45,7 @@ You can also just add an EW Radar omitting the power source and connection node:
 Add at a SAM Site like this:  
 `powerSource = StaticObject.getByName("SA6-PowerSource")`  
 `sa6Site2 = Group.getByName('SA6 Group2')`   
-`local connectionNode = StaticObject.getByName("Connection Node")`   
+`connectionNode = StaticObject.getByName("Connection Node")`   
 `nevadaIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`  
 
 The autonomous mode options are:  
@@ -56,8 +56,8 @@ You can also just add a SAM site omitting power source and connection node
 `nevadaIADS:addSamSite(sa6Site2)`
 
 Add a command center (optional):  
-`local commandCenter = StaticObject.getByName("Command Center")  
-nevadaIADS:addCommandCenter(commandCenter)`
+`commandCenter = StaticObject.getByName("Command Center")`    
+`nevadaIADS:addCommandCenter(commandCenter)`
 
 Wake up the IADS:  
 `nevadaIADS = SkynetIADS:create()`  
