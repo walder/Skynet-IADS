@@ -13,12 +13,14 @@ function SkynetIADSEWRadar:create(radarUnit)
 end
 
 function SkynetIADSEWRadar:getDescription()
-	return "EW Radar: "..self.radarUnit:getName().." Type : "..self:getDBName()
+	return "EW Radar: "..self.radarUnit:getName().." Type: "..self.radarUnit:getTypeName()
 end
 
+--[[
 function SkynetIADSEWRadar:getDBName()
 	return SkynetIADS.getDBName(self.radarUnit)
 end
+--]]
 
 function SkynetIADSEWRadar:getDetectedTargets()
 	if self:hasWorkingPowerSource() == false then
@@ -33,7 +35,7 @@ function SkynetIADSEWRadar:getDetectedTargets()
 	--trigger.action.outText("num Targets: "..#targets, 1)
 	for i = 1, #targets do
 		local target = targets[i].object
-	--	trigger.action.outText(target:getName(), 1)
+		--trigger.action.outText(target:getName(), 1)
 		table.insert(returnTargets, target)
 	end
 	return returnTargets

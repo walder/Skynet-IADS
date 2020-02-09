@@ -9,6 +9,8 @@ do
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
 
+SkynetIADS.database = samTypesDB
+
 function SkynetIADS:create()
 	local iads = {}
 	setmetatable(iads, SkynetIADS)
@@ -19,23 +21,27 @@ function SkynetIADS:create()
 	return iads
 end
 
+
 -- TODO: a bit sloppy we through Units and Groups at the function and it deals with both
-function SkynetIADS.getDBName(groupOrUnit)
-	local units = {}
+function SkynetIADS.getDBName(samGroup, natoName)
+	local units = samGroup:getUnits()
 	local samDBName = "UNKNOWN"
-	if getmetatable(groupOrUnit) == Unit then
-		table.insert(units, groupOrUnit)
-	else
-		units = groupOrUnit:getUnits()
-	end
+	local unitData = nil
+	local typeName = nil
 	for i = 1, #units do
 		typeName = units[i]:getTypeName()
-		for samName, samData in pairs(samTypesDB) do
-			--all Sites have a search radar, if we find one, we got the internal designator of the SAM unit
-			radarData = samTypesDB[samName]['searchRadar'][typeName]
-			if radarData ~= nil then
+		for samName, samData in pairs(SkynetIADS.database) do
+			--all Sites have a unique launcher, if we find one, we got the internal designator of the SAM unit
+			unitData = SkynetIADS.database[samName]
+			if unitData['launchers'] and unitData['launchers'][typeName] then
 			--	trigger.action.outText("Element is a: "..samName, 1)
-				return samName
+				if natoName then
+					return SkynetIADS.database[samName]['name']['NATO']
+				else
+					return samName
+				end	
+			else
+				--trigger.action.outText("no launcher data: "..typeName, 1)
 			end
 		end
 	end
@@ -43,7 +49,6 @@ function SkynetIADS.getDBName(groupOrUnit)
 end
 
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, connectionNode)
-	trigger.action.outText("EW Setup", 1)
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit)
 	ewRadar:addPowerSource(powerSource)
 	ewRadar:addConnectionNode(connectionNode)
@@ -120,8 +125,9 @@ function SkynetIADS.evaluateContacts(self)
 		if ewRadar:hasActiveConnectionNode() == true then
 			local ewContacts = ewRadar:getDetectedTargets()
 			for j = 1, #ewContacts do
+				--trigger.action.outText(ewContacts[j]:getName(), 1)
 				iadsContacts[ewContacts[j]:getName()] = ewContacts[j]
-			--	trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
+				trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
 			end
 		else
 			trigger.action.outText(ewRadar:getDescription().." no connection to command center", 1)

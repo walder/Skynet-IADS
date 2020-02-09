@@ -14,6 +14,7 @@ function SkynetIADSSamSite:create(samGroup)
 	sam.aiState = true
 	sam.samSite = samGroup
 	sam.isAutonomous = false
+	sam.targetsInRange = {}
 	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam:goDark()
 	return sam
@@ -26,12 +27,13 @@ function SkynetIADSSamSite:goDark()
 		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
 		cont:setOnOff(false)
 		self.aiState = false
+		trigger.action.outText("still in rannge:"..#self.targetsInRange, 1)
 		trigger.action.outText(self:getDescription().." going dark", 1)
 	end
 end
 
 function SkynetIADSSamSite:getDescription()
-	return "SAM Group: "..self.samSite:getName().." Type : "..self:getDBName()
+	return "SAM Group: "..self.samSite:getName().." Type : "..self:getDBName(true)
 end
 
 function SkynetIADSSamSite:addPowerSource(powerSource)
@@ -50,8 +52,8 @@ function SkynetIADSSamSite:hasWorkingPowerSource()
 	return SkynetIADS.genericCheckOneObjectIsAlive(self.powerSources)
 end
 
-function SkynetIADSSamSite:getDBName()
-	return SkynetIADS.getDBName(self.samSite)
+function SkynetIADSSamSite:getDBName(natoName)
+	return SkynetIADS.getDBName(self.samSite, natoName)
 end
 
 function SkynetIADSSamSite:goAutonomous()
@@ -90,47 +92,51 @@ function SkynetIADSSamSite:handOff(aircraft)
 		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
+	if self:isTargetInRange(aircraft) then
+		self.targetsInRange[aircraft:getName()] = aircraft
+		if self.aiState == false then
+			self:goLive()
+		end
+	else
+	--	table.remove(self.targetsInRange, aircraft)
+		self:goDark()
+	end
+end
+
+function SkynetIADSSamSite:isTargetInRange(target)
 	local samSiteUnits = self.samSite:getUnits()
 	local samRadarInRange = false
 	local samLauncherinRange = false
-	local  cont = self.samSite:getController()
-	--trigger.action.outText("DB name: "..self:getDBName(), 1)
 	--go through sam site units to check launcher and radar distance, they could be positined quite far apart, only activate if both are in reach
 	for j = 1, #samSiteUnits do
 		local  samElement = samSiteUnits[j]
 		local typeName = samElement:getTypeName()	
 		--trigger.action.outText("type name: "..typeName, 1)
-		local radarData = samTypesDB[self:getDBName()]['searchRadar'][typeName]
-		local launcherData = samTypesDB[self:getDBName()]['launchers'][typeName]
+		local radarData = SkynetIADS.database[self:getDBName()]['searchRadar'][typeName]
+		local launcherData = SkynetIADS.database[self:getDBName()]['launchers'][typeName]
 		local trackingData = nil
 		if radarData == nil then
 			--to decide if we should activate the sam we use the tracking radar range if it exists
-			trackingData = samTypesDB[self:getDBName()]['trackingRadar']
+			trackingData = SkynetIADS.database[self:getDBName()]['trackingRadar']
 			if trackingData ~= nil then
 				radarData = trackingData[typeName]
 			end
 		end
 		--if we find a radar in a SAM site, we calculate to see if it is within tracking parameters
 		if radarData ~= nil then
-			if self:isRadarWithinTrackingParameters(aircraft, samElement, radarData) then
+			if self:isRadarWithinTrackingParameters(target, samElement, radarData) then
 				samRadarInRange = true
 			end
 		end
 		--if we find a launcher in a SAM site, we calculate to see if it is within firing parameters
 		if launcherData ~= nil then
-			if self:isLauncherWithinFiringParameters(aircraft, samElement, launcherData) then
+			if self:isLauncherWithinFiringParameters(target, samElement, launcherData) then
 				samLauncherinRange = true
 			end
 		end		
-	end
+	end	
 	-- we only need to find one radar and one launcher within range in a Group, the AI of DCS will then decide which launcher will fire
-	if samRadarInRange and samLauncherinRange then
-		if self.aiState == false then
-			self:goLive()
-		end
-	else
-		self:goDark()
-	end
+	return ( samRadarInRange and samLauncherinRange )
 end
 
 function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLauncherUnit, launcherData)
