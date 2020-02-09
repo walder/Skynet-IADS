@@ -17,7 +17,7 @@ Please make sure the SAM Group in the mission editor consists only of one type. 
 The Skill level you set on a SAM Group is retained by Skynet.
 
 ##  Early Warning Radar
-Skynet can handle 1-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM Units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
+Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM Units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
 
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
