@@ -32,6 +32,10 @@ function SkynetIADSSamSite:goDark()
 	end
 end
 
+function SkynetIADSSamSite:isActive()
+	return self.aiState
+end
+
 function SkynetIADSSamSite:getDescription()
 	return "SAM Group: "..self.samSite:getName().." Type : "..self:getDBName(true)
 end

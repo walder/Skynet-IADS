@@ -21,8 +21,6 @@ function SkynetIADS:create()
 	return iads
 end
 
-
--- TODO: a bit sloppy we through Units and Groups at the function and it deals with both
 function SkynetIADS.getDBName(samGroup, natoName)
 	local units = samGroup:getUnits()
 	local samDBName = "UNKNOWN"
@@ -46,6 +44,43 @@ function SkynetIADS.getDBName(samGroup, natoName)
 		end
 	end
 	return samDBName
+end
+
+function SkynetIADS:printSystemStatus()
+	local ewNoPower = 0
+	local ewTotal = #self.earlyWarningRadars
+	local ewNoConnectionNode = 0
+	
+	for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		if ewRadar:hasWorkingPowerSource() == false then
+			ewNoPower = ewNoPower + 1
+		end
+		if ewRadar:hasActiveConnectionNode() == false then
+			ewNoConnectionNode = ewNoConnectionNode + 1
+		end
+	end
+	trigger.action.outText("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0| No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode, 1)
+	
+	local samSitesInactive = 0
+	local samSitesActive = 0
+	local samSitesTotal = #self.samSites
+	local samSitesNoPower = 0
+	local samSitesNoConnectionNode = 0
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:hasWorkingPowerSource() == false then
+			samSitesNoPower = samSitesNoPower + 1
+		end
+		if samSite:hasActiveConnectionNode() == false then
+			samSitesNoConnectionNode = samSitesNoConnectionNode + 1
+		end
+		if samSite:isActive() then
+			samSitesActive = samSitesActive + 1
+		end
+	end
+	samSitesInactive = samSitesTotal - samSitesActive
+	trigger.action.outText("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode, 1)
 end
 
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, connectionNode)
@@ -118,8 +153,6 @@ function SkynetIADS.evaluateContacts(self)
 		self:setSamSitesToAutonomousMode()
 		return
 	end
-	trigger.action.outText("Active EW Radars: "..#self.earlyWarningRadars, 1)
-	trigger.action.outText("SAM Sites: "..#self.samSites, 1)
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
 		if ewRadar:hasActiveConnectionNode() == true then
@@ -127,7 +160,7 @@ function SkynetIADS.evaluateContacts(self)
 			for j = 1, #ewContacts do
 				--trigger.action.outText(ewContacts[j]:getName(), 1)
 				iadsContacts[ewContacts[j]:getName()] = ewContacts[j]
-				trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
+				--trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
 			end
 		else
 			trigger.action.outText(ewRadar:getDescription().." no connection to command center", 1)
@@ -138,6 +171,7 @@ function SkynetIADS.evaluateContacts(self)
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(unit)
 	end
+	self:printSystemStatus()
 end
 
 function SkynetIADS:startHarmDefence(inBoundHarm)
