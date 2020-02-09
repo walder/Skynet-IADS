@@ -9,7 +9,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 ## IADS
 The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission. However individual IADS currently don't communicate between each other. Also don't add units to more than one Skynet IADS. You have seen the films, you know what happens when Skynet goes bananas.
 
-## Sam Site
+## SAM Site
 Skynet can handle 0-n Sam Sites. By default Skynet keeps SAM Sites turned off. It calculates if a contact is within firing range of a SAM Site. Every single launcher and radar unit's distance is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placemend of radar and launcher units as in real life.
 
 Please make sure the SAM Group in the mission editor consists only of one type. eg don't add SA-10 units with SA-6 units, this will mess up the distance calculation.
@@ -18,6 +18,9 @@ The Skill level you set on a SAM Group is retained by Skynet.
 
 ##  Early Warning Radar
 Skynet can handle 1-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM Units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
+
+## Air Resources
+Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
 
 ##  Power Sources
 By default Skynet IADS will run without having to add power sources. You can add power sources to SAM Units, EW Radars and Command Centers. A power source can be any Unit oder StaticUnit in DCS. I recomend using the electric power box StaticObject. Feel free to use the air show crowd, it will also work. Once a power source is fully damaged the linked Skynet IADS unit will stop working. You can add multiple power sources to a Skynet IADS unit.
@@ -71,5 +74,5 @@ Wake up the IADS:
 `nevadaIADS:activate()`  
 
 # Thanks
-Special thaks to Spearzone for digging up a ton of obscure information on IADS and getting me up to speed on how such a system works.
+Special thaks to Spearzone for digging up a ton of information on IADS and getting me up to speed on how such a system works.
 Also I shamelessly incorporated Grimes SAM DB.
