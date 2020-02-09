@@ -1,7 +1,9 @@
 do
 
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
--- TODO: Sam sites may shut down when a missile is in the air when ordered by the IADS, check to see if that should be prevented
+-- TODO: Command centers should be able to have a power source, if it is dammaged IADS will no longer work
+-- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
+-- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data to back to the IADS
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 
@@ -51,6 +53,17 @@ function SkynetIADS:printSystemStatus()
 	local ewTotal = #self.earlyWarningRadars
 	local ewNoConnectionNode = 0
 	
+	local numCommandCenters = #self.commandCenters
+	local activeCommandCenters = 0
+	
+	for i = 1, #self.commandCenters do
+		local commandCenter = self.commandCenters[i]
+		if commandCenter:getLife() > 0 then
+			activeCommandCenters = activeCommandCenters + 1
+		end
+	end
+	trigger.action.outText("COMMAND CENTERS: "..numCommandCenters.." | Active: "..activeCommandCenters, 1)
+	
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
 		if ewRadar:hasWorkingPowerSource() == false then
@@ -88,18 +101,6 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, con
 	ewRadar:addPowerSource(powerSource)
 	ewRadar:addConnectionNode(connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
-end
-
-function SkynetIADS:onEvent(event)
---[[
-	if event.id == world.event.S_EVENT_SHOT then
-		local weapon = event.weapon
-		targetOfMissile = weapon:getTarget()
-		if targetOfMissile ~= nil and SkynetIADS.isWeaponHarm(weapon) then
-			self:startHarmDefence(weapon)
-		end	
-	end
---]]
 end
 
 function SkynetIADS.isWeaponHarm(weapon)
@@ -179,43 +180,6 @@ function SkynetIADS:startHarmDefence(inBoundHarm)
 	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
 end
 
---[[
-function SkynetIADS.harmDefence(self, inBoundHarm) 
-	local target = inBoundHarm:getTarget()
-	local harmDetected = false	
-	if target ~= nil then
-		local targetController = target:getController()
-		trigger.action.outText("HARM TARGET IS: "..target:getName(), 1)	
-		local radarContacts = targetController:getDetectedTargets()
-		--check to see if targeted Radar Site can see the HARM with its sensors, only then start defensive action
-		for i = 1, #radarContacts do
-			local detectedObject = radarContacts[i].object
-			if SkynetIADS.isWeaponHarm(detectedObject) then
-				trigger.action.outText(target:getName().." has detected: "..detectedObject:getTypeName(), 1)
-				harmDetected = true
-			end
-		end
-		
-		local distance = mist.utils.get2DDist(inBoundHarm:getPosition().p, target:getPosition().p)
-		distance = mist.utils.round(mist.utils.metersToNM(distance),2)
-		trigger.action.outText("HARM Distance: "..distance, 1)
-		
-		--TODO: some SAM Sites have HARM defence, so they do not need help from the script
-		if distance < 5 and harmDetected then
-			local point = inBoundHarm:getPosition().p
-			point.y = point.y + 1
-			point.x = point.x - 1
-			point.z = point.z + 1
-		--	trigger.action.explosion(point, 10) 
-		end
-	else
-		trigger.action.outText("target is nil", 1)
-	end
-end
---]]
-
--- checks to see if SAM Site can attack the tracked aircraft
--- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range
 function SkynetIADS:correlateWithSamSites(detectedAircraft)
 	for i= 1, #self.samSites do
 		local samSite = self.samSites[i]
@@ -234,9 +198,10 @@ function SkynetIADS:activate()
 		mist.removeFunction(self.ewRadarScanMistTaskID)
 	end
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, 5)
-	world.addEventHandler(self)
 end
 
+-- checks to see if SAM Site can attack the tracked aircraft
+-- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range
 
 function createFalseTarget()
 --[[

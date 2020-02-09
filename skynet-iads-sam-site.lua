@@ -17,19 +17,34 @@ function SkynetIADSSamSite:create(samGroup)
 	sam.targetsInRange = {}
 	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam:goDark()
+	world.addEventHandler(sam)
 	return sam
 end
 
-function SkynetIADSSamSite:goDark()
+function SkynetIADSSamSite:goDark(enforceGoDark)
+
+	-- if the sam site has contacts in range, it will refuse to go dark
+	if ( self:getNumTargetsInRange() > 0 ) and ( enforceGoDark ~= true ) then
+		return
+	end
+
 	if self.aiState == true then
 		local sam = self.samSite
 		local cont = sam:getController()
 		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
 		cont:setOnOff(false)
 		self.aiState = false
-		trigger.action.outText("still in rannge:"..#self.targetsInRange, 1)
 		trigger.action.outText(self:getDescription().." going dark", 1)
 	end
+end
+
+function SkynetIADSSamSite:getNumTargetsInRange()
+	local contacts = 0
+	for description, aircraft in pairs(self.targetsInRange) do
+		contacts = contacts + 1
+	end
+	trigger.action.outText("num Contacts in Range: "..contacts, 1)
+	return contacts
 end
 
 function SkynetIADSSamSite:isActive()
@@ -64,7 +79,7 @@ function SkynetIADSSamSite:goAutonomous()
 	self.isAutonomous = true
 	if self.autonomousMode == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
 		self:goDark()
-		trigger.action.outText(self:getDescription().." is Autonomous: dark", 1)
+		trigger.action.outText(self:getDescription().." is Autonomous: DARK", 1)
 
 	else
 		self:goLive()
@@ -92,19 +107,27 @@ end
 function SkynetIADSSamSite:handOff(aircraft)
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
-		self:goDark()
+		self:goDark(true)
 		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
 	if self:isTargetInRange(aircraft) then
 		self.targetsInRange[aircraft:getName()] = aircraft
-		if self.aiState == false then
-			self:goLive()
-		end
+		self:goLive()
 	else
-	--	table.remove(self.targetsInRange, aircraft)
+		self:removeContact(aircraft)
 		self:goDark()
 	end
+end
+
+function SkynetIADSSamSite:removeContact(contact)
+	local updatedContacts = {}
+	for description, aircraft in pairs(self.targetsInRange) do
+		if aircraft ~= contact then
+			updatedContacts[description] = aircraft
+		end
+	end
+	self.targetsInRange = updatedContacts
 end
 
 function SkynetIADSSamSite:isTargetInRange(target)
@@ -143,10 +166,13 @@ function SkynetIADSSamSite:isTargetInRange(target)
 	return ( samRadarInRange and samLauncherinRange )
 end
 
+-- TODO: could be more acurrate it it would calculate sland range
 function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLauncherUnit, launcherData)
 	local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
 	local maxFiringRange = launcherData['range']
+--	trigger.action.outText("Launcher Range: "..maxFiringRange,1)
+--	trigger.action.outText("current distance: "..distance,1)
 	if distance <= maxFiringRange then
 		isInRange = true
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
@@ -161,12 +187,61 @@ function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUni
 	local aircraftHeight = aircraft:getPosition().p.y	
 	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
 	local maxDetectionAltitude = radarData['max_alt_finding_target']
-	local maxDetectionRange = radarData['max_range_finding_target']		
+	local maxDetectionRange = radarData['max_range_finding_target']	
+
+	--trigger.action.outText("Radar Range: "..maxDetectionRange,1)
+--	trigger.action.outText("current distance: "..distance,1)
+	
 	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
 		isInRange = true
 	end
 	return isInRange
+end
+
+function SkynetIADSSamSite:onEvent(event)
+--[[
+	if event.id == world.event.S_EVENT_SHOT then
+		local weapon = event.weapon
+		targetOfMissile = weapon:getTarget()
+		if targetOfMissile ~= nil and SkynetIADS.isWeaponHarm(weapon) then
+			self:startHarmDefence(weapon)
+		end	
+	end
+--]]
+end
+
+function SkynetIADSSamSite.harmDefence(self, inBoundHarm) 
+	local target = inBoundHarm:getTarget()
+	local harmDetected = false	
+	if target ~= nil then
+		local targetController = target:getController()
+		trigger.action.outText("HARM TARGET IS: "..target:getName(), 1)	
+		local radarContacts = targetController:getDetectedTargets()
+		--check to see if targeted Radar Site can see the HARM with its sensors, only then start defensive action
+		for i = 1, #radarContacts do
+			local detectedObject = radarContacts[i].object
+			if SkynetIADS.isWeaponHarm(detectedObject) then
+				trigger.action.outText(target:getName().." has detected: "..detectedObject:getTypeName(), 1)
+				harmDetected = true
+			end
+		end
+		
+		local distance = mist.utils.get2DDist(inBoundHarm:getPosition().p, target:getPosition().p)
+		distance = mist.utils.round(mist.utils.metersToNM(distance),2)
+		trigger.action.outText("HARM Distance: "..distance, 1)
+		
+		--TODO: some SAM Sites have HARM defence, so they do not need help from the script
+		if distance < 5 and harmDetected then
+			local point = inBoundHarm:getPosition().p
+			point.y = point.y + 1
+			point.x = point.x - 1
+			point.z = point.z + 1
+		--	trigger.action.explosion(point, 10) 
+		end
+	else
+		trigger.action.outText("target is nil", 1)
+	end
 end
 
 end

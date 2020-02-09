@@ -15,11 +15,11 @@ nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)
 local powerSource = StaticObject.getByName("SA6-PowerSource")
 local sa6Site = Group.getByName('SA-6')
 local connectionNode = StaticObject.getByName("Connection Node")
-nevadaIADS:addSamSite(sa6Site, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+--nevadaIADS:addSamSite(sa6Site, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 
 
-local sa2Site = Group.getByName('SA-2')
-nevadaIADS:addSamSite(sa2Site)
+--local sa2Site = Group.getByName('SA-2')
+--nevadaIADS:addSamSite(sa2Site)
 
 --local sa10 = Group.getByName('SA-10')
 --nevadaIADS:addSamSite(sa10)
