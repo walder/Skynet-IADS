@@ -43,7 +43,7 @@ function SkynetIADSSamSite:getNumTargetsInRange()
 	for description, aircraft in pairs(self.targetsInRange) do
 		contacts = contacts + 1
 	end
-	trigger.action.outText("num Contacts in Range: "..contacts, 1)
+	--trigger.action.outText("num Contacts in Range: "..contacts, 1)
 	return contacts
 end
 

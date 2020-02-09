@@ -73,7 +73,7 @@ function SkynetIADS:printSystemStatus()
 			ewNoConnectionNode = ewNoConnectionNode + 1
 		end
 	end
-	trigger.action.outText("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0| No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode, 1)
+	trigger.action.outText("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0 | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode, 1)
 	
 	local samSitesInactive = 0
 	local samSitesActive = 0
