@@ -78,5 +78,5 @@ Wake up the IADS:
 `nevadaIADS:activate()`  
 
 # Thanks
-Special thaks to Spearzone for researching public available information on IADS and getting me up to speed on how such a system works.
+Special thaks to Spearzone for researching public available information on IADS' and getting me up to speed on how such a system works.
 Also I shamelessly incorporated Grimes SAM DB.
