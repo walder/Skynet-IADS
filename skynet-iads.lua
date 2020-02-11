@@ -2,6 +2,8 @@ do
 
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 --- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
+-- TODO: finish adding coalition checks to all elements added to the IADS
+-- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, or ad random failures so enemy planes trigger sam activation by mistake
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
