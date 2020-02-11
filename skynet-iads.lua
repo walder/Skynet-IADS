@@ -1,11 +1,12 @@
 do
 
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
--- TODO: Command centers should be able to have a power source, if it is dammaged IADS will no longer work
+--- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
--- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data to back to the IADS
+-- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
--- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
+-- TODO: Jamming dependend on SAM Radar Type and Distance
+-- Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: if SAM site has run out of missiles shut it down
 
 SkynetIADS = {}
@@ -20,6 +21,7 @@ function SkynetIADS:create()
 	iads.samSites = {}
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
+	iads.coalition = nil
 	return iads
 end
 
@@ -46,6 +48,18 @@ function SkynetIADS.getDBName(samGroup, natoName)
 		end
 	end
 	return samDBName
+end
+
+function SkynetIADS:setCoalition(coalitionID)
+	if self.coalitionID == nil then
+		self.coalitionID = coalitionID
+	elseif self.coalitionID ~= coalitionID then
+		trigger.action.outText("WARNING: you have added different coalitions to the same IADS", 20)
+	end
+end
+
+function SkynetIADS:getSamSites()
+	return self.samSites
 end
 
 function SkynetIADS:printSystemStatus()
@@ -121,6 +135,7 @@ function SkynetIADS.isWeaponHarm(weapon)
 end
 
 function SkynetIADS:addSamSite(samSite, powerSource, connectionNode, autonomousMode)
+	self:setCoalition(samSite:getCoalition())
 	local samSite = SkynetIADSSamSite:create(samSite)
 	samSite:addPowerSource(powerSource)
 	samSite:addConnectionNode(connectionNode)

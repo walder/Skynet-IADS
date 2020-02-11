@@ -34,6 +34,9 @@ local cc2PowerSource = StaticObject.getByName("Command Center2 Power Source")
 nevadaIADS:addCommandCenter(commandCenter, cc2PowerSource)
 
 nevadaIADS:activate()	
-
+local jammerSource = Unit.getByName("Player Hornet")
+jammer = SkynetIADSJammer:create(jammerSource)
+jammer:addIADS(nevadaIADS)
+jammer:musicOn()
 
 end
