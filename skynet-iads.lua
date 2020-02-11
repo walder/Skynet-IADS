@@ -6,7 +6,7 @@ do
 -- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data to back to the IADS
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Jamming, Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
-
+-- TODO: if SAM site has run out of missiles shut it down
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -49,20 +49,32 @@ function SkynetIADS.getDBName(samGroup, natoName)
 end
 
 function SkynetIADS:printSystemStatus()
+	
+	local numComCenters = #self.commandCenters
+	local numIntactComCenters = 0
+	local numDestroyedComCenters = 0
+	local numComCentersNoPower = 0
+	local numComCentersServingIADS = 0
+	for i = 1, #self.commandCenters do
+		local commandCenter = self.commandCenters[i]
+		if commandCenter:hasWorkingPowerSource() == false then
+			numComCentersNoPower = numComCentersNoPower + 1
+		end
+		if commandCenter:getLife() > 0 then
+			numIntactComCenters = numIntactComCenters + 1
+		end
+		if commandCenter:getLife() > 0 and commandCenter:hasWorkingPowerSource() then
+			numComCentersServingIADS = numComCentersServingIADS + 1
+		end
+	end
+	
+	numDestroyedComCenters = numComCenters - numIntactComCenters
+	
+	trigger.action.outText("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower, 1)
+	
 	local ewNoPower = 0
 	local ewTotal = #self.earlyWarningRadars
 	local ewNoConnectionNode = 0
-	
-	local numCommandCenters = #self.commandCenters
-	local activeCommandCenters = 0
-	
-	for i = 1, #self.commandCenters do
-		local commandCenter = self.commandCenters[i]
-		if commandCenter:getLife() > 0 then
-			activeCommandCenters = activeCommandCenters + 1
-		end
-	end
-	trigger.action.outText("COMMAND CENTERS: "..numCommandCenters.." | Active: "..activeCommandCenters, 1)
 	
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
@@ -116,8 +128,10 @@ function SkynetIADS:addSamSite(samSite, powerSource, connectionNode, autonomousM
 	table.insert(self.samSites, samSite)
 end
 
-function SkynetIADS:addCommandCenter(commandCenter)
-	table.insert(self.commandCenters, commandCenter)
+function SkynetIADS:addCommandCenter(commandCenter, powerSource)
+	local comCenter = SkynetIADSCommandCenter:create(commandCenter)
+	comCenter:addPowerSource(powerSource)
+	table.insert(self.commandCenters, comCenter)
 end
 
 -- generic function to theck if powerplants, command centers, connection nodes are still alive
@@ -135,8 +149,18 @@ function SkynetIADS.genericCheckOneObjectIsAlive(objects)
 	return isAlive
 end
 
-function SkynetIADS:isCommandCenterAlive() 
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.commandCenters)
+function SkynetIADS:isCommandCenterAlive()
+	local hasWorkingCommandCenter = (#self.commandCenters == 0)
+	for i = 1, #self.commandCenters do
+		local comCenter = self.commandCenters[i]
+		if comCenter:getLife() > 0 then
+			hasWorkingCommandCenter = true
+			break
+		else
+			hasWorkingCommandCenter = false
+		end
+	end
+	return hasWorkingCommandCenter
 end
 
 function SkynetIADS:setSamSitesToAutonomousMode()

@@ -30,8 +30,10 @@ local commandCenter = StaticObject.getByName("Command Center")
 nevadaIADS:addCommandCenter(commandCenter)
 
 commandCenter = StaticObject.getByName("Command Center2")
-nevadaIADS:addCommandCenter(commandCenter)
+local cc2PowerSource = StaticObject.getByName("Command Center2 Power Source")
+nevadaIADS:addCommandCenter(commandCenter, cc2PowerSource)
 
 nevadaIADS:activate()	
+
 
 end
