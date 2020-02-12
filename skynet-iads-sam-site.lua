@@ -17,6 +17,7 @@ function SkynetIADSSamSite:create(samGroup)
 	sam.targetsInRange = {}
 	sam.jammerID = nil
 	sam.lastJammerUpdate = 0
+	sam.setJammerChance = true
 	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam:goDark()
 	world.addEventHandler(sam)
@@ -49,9 +50,11 @@ function SkynetIADSSamSite:getRadarUnits()
 end
 
 function SkynetIADSSamSite:jam(distance)
+	--trigger.action.outText(self.lastJammerUpdate, 1)
 	if self.lastJammerUpdate == 0 then
-		trigger.action.outText("setting jammer chance", 1)
+		trigger.action.outText("updating jammer probability", 1)
 		self.lastJammerUpdate = 10
+		self.setJammerChance = true
 		local jammerChance = math.random(0, 100)
 		mist.removeFunction(self.jammerID)
 		self.jammerID = mist.scheduleFunction(SkynetIADSSamSite.setJamState, {self, jammerChance}, 1, 1)
@@ -60,12 +63,15 @@ end
 
 function SkynetIADSSamSite.setJamState(self, jammerChance)
 	local controller = self.samSite:getController()
-	if jammerChance > 50 then
-		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-		trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon hold", 1)
-	else
-		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-		trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon free", 1)
+	if self.setJammerChance then
+		self.setJammerChance = false
+		if jammerChance > 50 then
+			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon hold", 1)
+		else
+			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon free", 1)
+		end
 	end
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end

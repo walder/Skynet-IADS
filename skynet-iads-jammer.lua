@@ -11,9 +11,14 @@ function SkynetIADSJammer:create(emitter)
 	jammer.iads = {}
 	return jammer
 end
-
+--[[
+function SkynetIADSJammer:getParameters(radar)
+	local testParams = {}
+	testParams = {[40]=100, [20] = 90, [10] = 80, }
+end
+--]]
 function SkynetIADSJammer:musicOn()
-	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 5)
+	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 1)
 end
 
 function SkynetIADSJammer:addIADS(iads)
@@ -28,16 +33,20 @@ function SkynetIADSJammer.runCycle(self)
 		local samSites = iads:getSamSites()	
 		for j = 1, #samSites do
 			local samSite = samSites[j]
-			local distance = mist.utils.get2DDist(self.emitter:getPosition().p, samSite:getRadarUnits()[1]:getPosition().p)
-			--trigger.action.outText("Distance: "..distance, 1)
-			--TODO: add line of sight check
-			-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site that is active
-			if	samSite:isActive() then
+			local radar = samSite:getRadarUnits()[1]
+			local distance = mist.utils.get2DDist(self.emitter:getPosition().p, radar:getPosition().p)
+		--	trigger.action.outText("Distance: "..distance, 1)
+			-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site it has los to is active
+			if	self:hasLineOfSightToRadar(radar) and samSite:isActive() then
 				samSite:jam(distance)
 			end
 		end
 	end
 --	trigger.action.outText("jam cycle",1)
+end
+
+function SkynetIADSJammer:hasLineOfSightToRadar(radar)
+	return land.isVisible(self.emitter:getPosition().p, radar:getPosition().p) 
 end
 
 function SkynetIADSJammer:musicOff()
