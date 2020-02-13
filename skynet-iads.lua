@@ -10,6 +10,10 @@ do
 -- TODO: Jamming dependend on SAM Radar Type and Distance
 -- Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: if SAM site has run out of missiles shut it down
+-- TODO: Update power handling autonomous sam may go live withouth power same for ew radar.
+-- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then golive
+-- TODO: check if SAM has LOS to target, if not, it should not activate
+-- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -72,6 +76,10 @@ function SkynetIADS:getSamSites()
 end
 
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, connectionNode)
+	if earlyWarningRadarUnit == nil then
+		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor", 10)
+		return
+	end
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit)
 	ewRadar:addPowerSource(powerSource)
 	ewRadar:addConnectionNode(connectionNode)
@@ -84,6 +92,10 @@ function SkynetIADS.isWeaponHarm(weapon)
 end
 
 function SkynetIADS:addSamSite(samSite, powerSource, connectionNode, autonomousMode)
+	if samSite == nil then
+		trigger.action.outText("You have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", 10)
+		return
+	end
 	self:setCoalition(samSite:getCoalition())
 	local samSite = SkynetIADSSamSite:create(samSite, self)
 	samSite:addPowerSource(powerSource)
