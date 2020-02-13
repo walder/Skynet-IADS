@@ -2,7 +2,7 @@
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
 # Abstract
-This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the the SAM Site it will become active. A modern IADS also depends on command centers and datalinks to the SAM Sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
+This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the SAM Site it will become active. A modern IADS also depends on command centers and datalinks to the SAM Sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
 # IADS Elements
 
@@ -19,9 +19,6 @@ The Skill level you set on a SAM Group is retained by Skynet.
 ##  Early Warning Radar
 Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM Units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
 
-## Air Resources
-Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
-
 ##  Power Sources
 By default Skynet IADS will run without having to add power sources. You can add power sources to SAM Units, EW Radars and Command Centers. A power source can be a unit oder static object in DCS. I recommend using the electric power box static object. Feel free to use the air show crowd, it will also work. 
 
@@ -35,6 +32,9 @@ By default Skynet IADS will run without having to add connection nodes. You can 
 When a connection node is fully damaged the the unit disconnected from the IADS will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center looses its node all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
+
+## Air Resources
+Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
 
 # Electronic Warfare
 In this release there is no electronic warfare functionallity. It will be aded in a later release.
@@ -78,5 +78,5 @@ Wake up the IADS:
 `nevadaIADS:activate()`  
 
 # Thanks
-Special thaks to Spearzone for researching public available information on IADS' and getting me up to speed on how such a system works.
+Special thaks to Spearzone for researching public available information on IADS networks and getting me up to speed on how such a system works.
 Also I shamelessly incorporated Grimes SAM DB.
