@@ -6,13 +6,14 @@ SkynetIADSSamSite.__index = SkynetIADSSamSite
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI = 0
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK = 1
 
-function SkynetIADSSamSite:create(samGroup)
+function SkynetIADSSamSite:create(samGroup, iads)
 	local sam = {}
 	setmetatable(sam, SkynetIADSSamSite)
 	sam.powerSources = {}
 	sam.connectionNodes = {}
 	sam.aiState = true
 	sam.samSite = samGroup
+	sam.iads = iads
 	sam.isAutonomous = false
 	sam.targetsInRange = {}
 	sam.jammerID = nil
@@ -26,7 +27,7 @@ end
 
 function SkynetIADSSamSite:goDark(enforceGoDark)
 
-	-- if the sam site has contacts in range, it will refuse to go dark
+	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown
 	if ( self:getNumTargetsInRange() > 0 ) and ( enforceGoDark ~= true ) then
 		return
 	end
@@ -40,15 +41,34 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
-		trigger.action.outText(self:getDescription().." going dark", 1)
+		if self.iads:getDebugSettings().samWentDark then
+			self.iads:printOutput(self:getDescription().." going dark")
+		end
 	end
 end
 
---this function is currently a simple placeholder, should read the radar units of the SAM system an return them
+function SkynetIADSSamSite:goLive()
+	if self.aiState == false then
+		local  cont = self.samSite:getController()
+		cont:setOnOff(true)
+		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
+		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+		---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
+		self.aiState = true
+		if self.iads:getDebugSettings().samWentLive then
+			self.iads:printOutput(self:getDescription().." going live")
+		end
+	end
+end
+
+--this function is currently a simple placeholder, should read all the radar units of the SAM system an return them
+--use this:
+--if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
 function SkynetIADSSamSite:getRadarUnits()
 	return self.samSite:getUnits()
 end
 
+--TODO: add time lag between the time a jammer picks up a radar emitter and the time it starts jamming (5-10 seconds)
 function SkynetIADSSamSite:jam(distance)
 	--trigger.action.outText(self.lastJammerUpdate, 1)
 	if self.lastJammerUpdate == 0 then
@@ -130,18 +150,6 @@ function SkynetIADSSamSite:setAutonomousMode(mode)
 	self.autonomousMode = mode
 end
 
-function SkynetIADSSamSite:goLive()
-	if self.aiState == false then
-		local  cont = self.samSite:getController()
-		cont:setOnOff(true)
-		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-		---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
-		self.aiState = true
-		trigger.action.outText(self:getDescription().." going live", 1)
-	end
-end
-
 function SkynetIADSSamSite:handOff(aircraft)
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
@@ -168,6 +176,8 @@ function SkynetIADSSamSite:removeContact(contact)
 	self.targetsInRange = updatedContacts
 end
 
+-- TODO: check if SAM has LOS to target, if not, it should not activate
+-- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
 function SkynetIADSSamSite:isTargetInRange(target)
 	local samSiteUnits = self.samSite:getUnits()
 	local samRadarInRange = false
@@ -183,9 +193,9 @@ function SkynetIADSSamSite:isTargetInRange(target)
 		if radarData == nil then
 			--to decide if we should activate the sam we use the tracking radar range if it exists
 			trackingData = SkynetIADS.database[self:getDBName()]['trackingRadar']
-			if trackingData ~= nil then
-				radarData = trackingData[typeName]
-			end
+		--	if trackingData ~= nil then
+		--		radarData = trackingData[typeName]
+		--	end
 		end
 		--if we find a radar in a SAM site, we calculate to see if it is within tracking parameters
 		if radarData ~= nil then

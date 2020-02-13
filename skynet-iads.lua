@@ -24,6 +24,13 @@ function SkynetIADS:create()
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
 	iads.coalition = nil
+	self.debugOutput = {}
+	self.debugOutput.IADSStatus = false
+	self.debugOutput.samWentDark = false
+	self.debugOutput.contacts = false
+	self.debugOutput.samWentLive = false
+	self.debugOutput.ewRadarNoConnection = false
+	self.debugOutput.samNoConnection = false
 	return iads
 end
 
@@ -64,66 +71,6 @@ function SkynetIADS:getSamSites()
 	return self.samSites
 end
 
-function SkynetIADS:printSystemStatus()
-	
-	local numComCenters = #self.commandCenters
-	local numIntactComCenters = 0
-	local numDestroyedComCenters = 0
-	local numComCentersNoPower = 0
-	local numComCentersServingIADS = 0
-	for i = 1, #self.commandCenters do
-		local commandCenter = self.commandCenters[i]
-		if commandCenter:hasWorkingPowerSource() == false then
-			numComCentersNoPower = numComCentersNoPower + 1
-		end
-		if commandCenter:getLife() > 0 then
-			numIntactComCenters = numIntactComCenters + 1
-		end
-		if commandCenter:getLife() > 0 and commandCenter:hasWorkingPowerSource() then
-			numComCentersServingIADS = numComCentersServingIADS + 1
-		end
-	end
-	
-	numDestroyedComCenters = numComCenters - numIntactComCenters
-	
-	trigger.action.outText("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower, 1)
-	
-	local ewNoPower = 0
-	local ewTotal = #self.earlyWarningRadars
-	local ewNoConnectionNode = 0
-	
-	for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		if ewRadar:hasWorkingPowerSource() == false then
-			ewNoPower = ewNoPower + 1
-		end
-		if ewRadar:hasActiveConnectionNode() == false then
-			ewNoConnectionNode = ewNoConnectionNode + 1
-		end
-	end
-	trigger.action.outText("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0 | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode, 1)
-	
-	local samSitesInactive = 0
-	local samSitesActive = 0
-	local samSitesTotal = #self.samSites
-	local samSitesNoPower = 0
-	local samSitesNoConnectionNode = 0
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		if samSite:hasWorkingPowerSource() == false then
-			samSitesNoPower = samSitesNoPower + 1
-		end
-		if samSite:hasActiveConnectionNode() == false then
-			samSitesNoConnectionNode = samSitesNoConnectionNode + 1
-		end
-		if samSite:isActive() then
-			samSitesActive = samSitesActive + 1
-		end
-	end
-	samSitesInactive = samSitesTotal - samSitesActive
-	trigger.action.outText("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode, 1)
-end
-
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, connectionNode)
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit)
 	ewRadar:addPowerSource(powerSource)
@@ -138,7 +85,7 @@ end
 
 function SkynetIADS:addSamSite(samSite, powerSource, connectionNode, autonomousMode)
 	self:setCoalition(samSite:getCoalition())
-	local samSite = SkynetIADSSamSite:create(samSite)
+	local samSite = SkynetIADSSamSite:create(samSite, self)
 	samSite:addPowerSource(powerSource)
 	samSite:addConnectionNode(connectionNode)
 	samSite:setAutonomousMode(autonomousMode)
@@ -191,13 +138,15 @@ end
 function SkynetIADS.evaluateContacts(self) 
 	local iadsContacts = {}
 	if self:isCommandCenterAlive() == false then
-		trigger.action.outText("There is no working Command Center for the IADS", 1)
+		if self:getDebugSettings().noWorkingCommmandCenter then
+			self:printOutput("No Working Command Center")
+		end
 		self:setSamSitesToAutonomousMode()
 		return
 	end
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
-		if ewRadar:hasActiveConnectionNode() == true then
+		if ewRadar:hasActiveConnectionNode() then
 			local ewContacts = ewRadar:getDetectedTargets()
 			for j = 1, #ewContacts do
 				--trigger.action.outText(ewContacts[j]:getName(), 1)
@@ -205,15 +154,30 @@ function SkynetIADS.evaluateContacts(self)
 				--trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
 			end
 		else
-			trigger.action.outText(ewRadar:getDescription().." no connection to command center", 1)
+			if self:getDebugSettings().ewRadarNoConnection then
+				self:printOutput(ewRadar:getDescription().." no connection to command center")
+			end
 		end
 	end
 	for unitName, unit in pairs(iadsContacts) do
-		trigger.action.outText("IADS Contact: "..unitName, 1)
+		if self:getDebugSettings().contacts then
+			self:printOutput("IADS Contact: "..unitName)
+		end
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(unit)
 	end
-	self:printSystemStatus()
+	
+	if self:getDebugSettings().IADSStatus then
+		self:printSystemStatus()
+	end	
+end
+
+function SkynetIADS:printOutput(output)
+	trigger.action.outText(output, 1)
+end
+
+function SkynetIADS:getDebugSettings()
+	return self.debugOutput
 end
 
 function SkynetIADS:startHarmDefence(inBoundHarm)
@@ -227,8 +191,10 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 		if samSite:hasActiveConnectionNode() == true then
 			samSite:handOff(detectedAircraft)
 		else
-			samSite:goAutonomous()
-			trigger.action.outText(samSite:getDescription().." no connection Command center", 1)
+			if self:getDebugSettings().samNoConnection then
+				self:printOutput(samSite:getDescription().." no connection Command center")
+				samSite:goAutonomous()
+			end
 		end
 	end
 end
@@ -241,197 +207,64 @@ function SkynetIADS:activate()
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, 5)
 end
 
--- checks to see if SAM Site can attack the tracked aircraft
--- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range
-
-function createFalseTarget()
---[[
-	local an30m = { 
-                                ["units"] = 
-                                {
-                                    [1] = 
-                                    {
-                                        ["alt"] = 4800,
-                                        ["hardpoint_racks"] = true,
-                                        ["alt_type"] = "BARO",
-                                        ["livery_id"] = "VFA-37",
-                                        ["skill"] = "Excellent",
-                                        ["speed"] = 179.86111111111,
-                                        ["AddPropAircraft"] = 
-                                        {
-                                            ["OuterBoard"] = 0,
-                                            ["InnerBoard"] = 0,
-                                        }, -- end of ["AddPropAircraft"]
-                                        ["type"] = "FA-18C_hornet",
-                                        ["Radio"] = 
-                                        {
-                                            [1] = 
-                                            {
-                                                ["modulations"] = 
-                                                {
-                                                    [1] = 0,
-                                                    [2] = 0,
-                                                    [4] = 0,
-                                                    [8] = 0,
-                                                    [16] = 0,
-                                                    [17] = 0,
-                                                    [9] = 0,
-                                                    [18] = 0,
-                                                    [5] = 0,
-                                                    [10] = 0,
-                                                    [20] = 0,
-                                                    [11] = 0,
-                                                    [3] = 0,
-                                                    [6] = 0,
-                                                    [12] = 0,
-                                                    [13] = 0,
-                                                    [7] = 0,
-                                                    [14] = 0,
-                                                    [19] = 0,
-                                                    [15] = 0,
-                                                }, -- end of ["modulations"]
-                                                ["channels"] = 
-                                                {
-                                                    [1] = 305,
-                                                    [2] = 264,
-                                                    [4] = 256,
-                                                    [8] = 257,
-                                                    [16] = 261,
-                                                    [17] = 267,
-                                                    [9] = 255,
-                                                    [18] = 251,
-                                                    [5] = 254,
-                                                    [10] = 262,
-                                                    [20] = 266,
-                                                    [11] = 259,
-                                                    [3] = 265,
-                                                    [6] = 250,
-                                                    [12] = 268,
-                                                    [13] = 269,
-                                                    [7] = 270,
-                                                    [14] = 260,
-                                                    [19] = 253,
-                                                    [15] = 263,
-                                                }, -- end of ["channels"]
-                                            }, -- end of [1]
-                                            [2] = 
-                                            {
-                                                ["modulations"] = 
-                                                {
-                                                    [1] = 0,
-                                                    [2] = 0,
-                                                    [4] = 0,
-                                                    [8] = 0,
-                                                    [16] = 0,
-                                                    [17] = 0,
-                                                    [9] = 0,
-                                                    [18] = 0,
-                                                    [5] = 0,
-                                                    [10] = 0,
-                                                    [20] = 0,
-                                                    [11] = 0,
-                                                    [3] = 0,
-                                                    [6] = 0,
-                                                    [12] = 0,
-                                                    [13] = 0,
-                                                    [7] = 0,
-                                                    [14] = 0,
-                                                    [19] = 0,
-                                                    [15] = 0,
-                                                }, -- end of ["modulations"]
-                                                ["channels"] = 
-                                                {
-                                                    [1] = 305,
-                                                    [2] = 264,
-                                                    [4] = 256,
-                                                    [8] = 257,
-                                                    [16] = 261,
-                                                    [17] = 267,
-                                                    [9] = 255,
-                                                    [18] = 251,
-                                                    [5] = 254,
-                                                    [10] = 262,
-                                                    [20] = 266,
-                                                    [11] = 259,
-                                                    [3] = 265,
-                                                    [6] = 250,
-                                                    [12] = 268,
-                                                    [13] = 269,
-                                                    [7] = 270,
-                                                    [14] = 260,
-                                                    [19] = 253,
-                                                    [15] = 263,
-                                                }, -- end of ["channels"]
-                                            }, -- end of [2]
-                                        }, -- end of ["Radio"]
-                                        ["unitId"] = 2,
-                                        ["psi"] = 0.012914190422554,
-                                        ["y"] = -55258.964143426,
-                                        ["x"] = -339019.92867398,
-                                        ["name"] = "DictKey_UnitName_7-0",
-                                        ["payload"] = 
-                                        {
-                                            ["pylons"] = 
-                                            {
-                                                [1] = 
-                                                {
-                                                    ["CLSID"] = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
-                                                }, -- end of [1]
-                                                [2] = 
-                                                {
-                                                    ["CLSID"] = "<CLEAN>",
-                                                }, -- end of [2]
-                                                [3] = 
-                                                {
-                                                    ["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
-                                                }, -- end of [3]
-                                                [5] = 
-                                                {
-                                                    ["CLSID"] = "{FPU_8A_FUEL_TANK}",
-                                                }, -- end of [5]
-                                                [7] = 
-                                                {
-                                                    ["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
-                                                }, -- end of [7]
-                                                [8] = 
-                                                {
-                                                    ["CLSID"] = "<CLEAN>",
-                                                }, -- end of [8]
-                                                [9] = 
-                                                {
-                                                    ["CLSID"] = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
-                                                }, -- end of [9]
-                                            }, -- end of ["pylons"]
-                                            ["fuel"] = 4900,
-                                            ["flare"] = 30,
-                                            ["ammo_type"] = 1,
-                                            ["chaff"] = 60,
-                                            ["gun"] = 100,
-                                        }, -- end of ["payload"]
-                                        ["heading"] = -0.012914190422554,
-                                        ["callsign"] = 
-                                        {
-                                            [1] = 1,
-                                            [2] = 1,
-                                            [3] = 1,
-                                            ["name"] = "Enfield11",
-                                        }, -- end of ["callsign"]
-                                        ["onboard_num"] = "010",
-                                    }, -- end of [1]
-                                }, -- end of ["units"]
-                                ["y"] = -55258.964143426,
-                                ["x"] = -339019.92867398,
-                                ["name"] = "DictKey_GroupName_6",
-                                ["communication"] = true,
-                                ["start_time"] = 0,
-                                ["frequency"] = 305,
-								 ["tasks"] = 
-                                {
-                                }, -- end of ["tasks"]
-
-	} 	
-	coalition.addGroup(country.id.USA,1, an30m) 
---]]	
+function SkynetIADS:printSystemStatus()
+	
+	local numComCenters = #self.commandCenters
+	local numIntactComCenters = 0
+	local numDestroyedComCenters = 0
+	local numComCentersNoPower = 0
+	local numComCentersServingIADS = 0
+	for i = 1, #self.commandCenters do
+		local commandCenter = self.commandCenters[i]
+		if commandCenter:hasWorkingPowerSource() == false then
+			numComCentersNoPower = numComCentersNoPower + 1
+		end
+		if commandCenter:getLife() > 0 then
+			numIntactComCenters = numIntactComCenters + 1
+		end
+		if commandCenter:getLife() > 0 and commandCenter:hasWorkingPowerSource() then
+			numComCentersServingIADS = numComCentersServingIADS + 1
+		end
+	end
+	
+	numDestroyedComCenters = numComCenters - numIntactComCenters
+	
+	self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower)
+	
+	local ewNoPower = 0
+	local ewTotal = #self.earlyWarningRadars
+	local ewNoConnectionNode = 0
+	
+	for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		if ewRadar:hasWorkingPowerSource() == false then
+			ewNoPower = ewNoPower + 1
+		end
+		if ewRadar:hasActiveConnectionNode() == false then
+			ewNoConnectionNode = ewNoConnectionNode + 1
+		end
+	end
+	self:printOutput("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0 | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode)
+	
+	local samSitesInactive = 0
+	local samSitesActive = 0
+	local samSitesTotal = #self.samSites
+	local samSitesNoPower = 0
+	local samSitesNoConnectionNode = 0
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:hasWorkingPowerSource() == false then
+			samSitesNoPower = samSitesNoPower + 1
+		end
+		if samSite:hasActiveConnectionNode() == false then
+			samSitesNoConnectionNode = samSitesNoConnectionNode + 1
+		end
+		if samSite:isActive() then
+			samSitesActive = samSitesActive + 1
+		end
+	end
+	samSitesInactive = samSitesTotal - samSitesActive
+	self:printOutput("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode)
 end
 
 end
