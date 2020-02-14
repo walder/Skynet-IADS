@@ -1,26 +1,28 @@
 do
 
 --V 1.0:
--- To test: different kinds of Sam types, damage to power source, command center, connection nodes
--- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- TODO: finish adding coalition checks to all elements added to the IADS
--- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, or ad random failures so enemy planes trigger sam activation by mistake
+-- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam
+-- TODO: quick add by prefix of unit or group add for IADS (GOAL: 3 lines of code for simple IADS Setup)
+-- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
--- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Jamming dependend on SAM Radar Type and Distance
+-- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
 -- TODO: after one connection node of powerplant goes down and there are others, add adelay until the sam site comes online again (configurable)
 -- TODO: check if SAM has LOS to target, if not, it should not activate
--- TODO: quick add by prefix of unit or group add for IADS (3 lines of code)
--- TODO: Sanity checks when adding elements, print errors regardless of debug state
+-- TODO: SA-10 Launch distance seems off
+
+-- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
+-- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 
 -- V 1.1:
 -- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
 -- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then golive
 -- TODO: if SAM site has run out of missiles shut it down
 -- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
-
+-- TODO: ad random failures in IFF so enemy planes trigger IADS SAM activation by mistake
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -82,7 +84,8 @@ function SkynetIADS:getSamSites()
 	return self.samSites
 end
 
-function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnit, powerSource, connectionNode)
+function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource, connectionNode)
+	local earlyWarningRadarUnit = Unit.getByName(earlyWarningRadarUnitName)
 	if earlyWarningRadarUnit == nil then
 		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor", 10)
 		return
@@ -98,7 +101,8 @@ function SkynetIADS.isWeaponHarm(weapon)
 	return (desc.missileCategory == 6 and desc.guidance == 5)	
 end
 
-function SkynetIADS:addSamSite(samSite, powerSource, connectionNode, autonomousMode)
+function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
+	local samSite = Group.getByName(samSiteName)
 	if samSite == nil then
 		trigger.action.outText("You have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", 10)
 		return

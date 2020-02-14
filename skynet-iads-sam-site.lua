@@ -185,7 +185,7 @@ function SkynetIADSSamSite:isTargetInRange(target)
 	--go through sam site units to check launcher and radar distance, they could be positined quite far apart, only activate if both are in reach
 	for j = 1, #samSiteUnits do
 		local  samElement = samSiteUnits[j]
-		local typeName = samElement:getTypeName()	
+		local typeName = samElement:getTypeName()
 		--trigger.action.outText("type name: "..typeName, 1)
 		local radarData = SkynetIADS.database[self:getDBName()]['searchRadar'][typeName]
 		local launcherData = SkynetIADS.database[self:getDBName()]['launchers'][typeName]
@@ -205,7 +205,10 @@ function SkynetIADSSamSite:isTargetInRange(target)
 		end
 		--if we find a launcher in a SAM site, we calculate to see if it is within firing parameters
 		if launcherData ~= nil then
-			if self:isLauncherWithinFiringParameters(target, samElement, launcherData) then
+			--if it's a AAA we override the check for launcher distance, otherwise the target will pass over the AAA without it firing because the AAA will become active too late
+			samLauncherinRange = SkynetIADS.database[self:getDBName()]['launchers'][typeName]['aaa']
+			-- if it's not AAA we calculate the firing distance
+			if self:isLauncherWithinFiringParameters(target, samElement, launcherData) and ( samLauncherinRange == false ) then
 				samLauncherinRange = true
 			end
 		end		

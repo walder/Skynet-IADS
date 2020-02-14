@@ -13,24 +13,25 @@ iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true
 ---end remove
 
-iranIADS:addEarlyWarningRadar(Unit.getByName('EW west'))
-iranIADS:addEarlyWarningRadar(Unit.getByName('EW east'))
-iranIADS:addEarlyWarningRadar(Unit.getByName('EW center'))
-iranIADS:addEarlyWarningRadar(Unit.getByName('EW center2'))
-iranIADS:addEarlyWarningRadar(Unit.getByName('EW center3'))
+iranIADS:addEarlyWarningRadar('EW-west')
+iranIADS:addEarlyWarningRadar('EW-west2')
+iranIADS:addEarlyWarningRadar('EW-east')
+iranIADS:addEarlyWarningRadar('EW-east2')
+iranIADS:addEarlyWarningRadar('EW-center')
+iranIADS:addEarlyWarningRadar('EW-center2')
+iranIADS:addEarlyWarningRadar('EW-center3')
 
-iranIADS:addSamSite(Group.getByName('SA-2'))
-iranIADS:addSamSite(Group.getByName('SA-3'))
-iranIADS:addSamSite(Group.getByName('SA-6'))
-iranIADS:addSamSite(Group.getByName('SA-8'))
+iranIADS:addSamSite('SAM-SA-2')
+iranIADS:addSamSite('SAM-SA-3')
+iranIADS:addSamSite('SAM-SA-6')
+iranIADS:addSamSite('SAM-SA-8')
 
-
-
---local sa10 = Group.getByName('SA-10')
---nevadaIADS:addSamSite(sa10)
-
---local sa11 = Group.getByName('SA-11')
---nevadaIADS:addSamSite(sa11)
+iranIADS:addSamSite('SAM-SA-19')
+iranIADS:addSamSite('SAM-SA-15')
+iranIADS:addSamSite('SAM-SA-13')
+iranIADS:addSamSite('SAM-SA-11')
+iranIADS:addSamSite('SAM-SA-10')
+iranIADS:addSamSite('SAM-Shilka')
 
 --local commandCenter = StaticObject.getByName("Command Center")
 --nevadaIADS:addCommandCenter(commandCenter)
