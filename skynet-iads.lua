@@ -1,19 +1,26 @@
 do
 
+--V 1.0:
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
---- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
+-- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- TODO: finish adding coalition checks to all elements added to the IADS
 -- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, or ad random failures so enemy planes trigger sam activation by mistake
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
--- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Jamming dependend on SAM Radar Type and Distance
--- Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
--- TODO: if SAM site has run out of missiles shut it down
--- TODO: Update power handling autonomous sam may go live withouth power same for ew radar.
--- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then golive
+-- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
+-- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
+-- TODO: after one connection node of powerplant goes down and there are others, add adelay until the sam site comes online again (configurable)
 -- TODO: check if SAM has LOS to target, if not, it should not activate
+-- TODO: quick add by prefix of unit or group add for IADS (3 lines of code)
+-- TODO: Sanity checks when adding elements, print errors regardless of debug state
+
+-- V 1.1:
 -- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
+-- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then golive
+-- TODO: if SAM site has run out of missiles shut it down
+-- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
+
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -185,7 +192,7 @@ function SkynetIADS.evaluateContacts(self)
 end
 
 function SkynetIADS:printOutput(output)
-	trigger.action.outText(output, 1)
+	trigger.action.outText(output, 4)
 end
 
 function SkynetIADS:getDebugSettings()
