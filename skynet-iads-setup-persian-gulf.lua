@@ -2,7 +2,7 @@ do
 
 iranIADS = SkynetIADS:create()
 
----debug settings remove here on if you do not wan't any output on what the IADS is doing
+---debug settings remove from here on if you do not wan't any output on what the IADS is doing
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
@@ -11,8 +11,14 @@ iadsDebug.samWentLive = true
 iadsDebug.noWorkingCommmandCenter = true
 iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true
----end remove
+---end remove debug ---
 
+
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
+iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:activate()	
+
+--[[
 iranIADS:addEarlyWarningRadar('EW-west')
 iranIADS:addEarlyWarningRadar('EW-west2')
 iranIADS:addEarlyWarningRadar('EW-east')
@@ -20,18 +26,22 @@ iranIADS:addEarlyWarningRadar('EW-east2')
 iranIADS:addEarlyWarningRadar('EW-center')
 iranIADS:addEarlyWarningRadar('EW-center2')
 iranIADS:addEarlyWarningRadar('EW-center3')
+--]]
 
+--[[
 iranIADS:addSamSite('SAM-SA-2')
 iranIADS:addSamSite('SAM-SA-3')
 iranIADS:addSamSite('SAM-SA-6')
 iranIADS:addSamSite('SAM-SA-8')
-
-iranIADS:addSamSite('SAM-SA-19')
-iranIADS:addSamSite('SAM-SA-15')
-iranIADS:addSamSite('SAM-SA-13')
-iranIADS:addSamSite('SAM-SA-11')
 iranIADS:addSamSite('SAM-SA-10')
+iranIADS:addSamSite('SAM-SA-11')
+iranIADS:addSamSite('SAM-SA-13')
+iranIADS:addSamSite('SAM-SA-15')
+iranIADS:addSamSite('SAM-SA-19')
 iranIADS:addSamSite('SAM-Shilka')
+--]]
+
+
 
 --local commandCenter = StaticObject.getByName("Command Center")
 --nevadaIADS:addCommandCenter(commandCenter)
@@ -40,7 +50,7 @@ iranIADS:addSamSite('SAM-Shilka')
 --local cc2PowerSource = StaticObject.getByName("Command Center2 Power Source")
 --nevadaIADS:addCommandCenter(commandCenter, cc2PowerSource)
 
-iranIADS:activate()	
+
 
 --[[
 local jammerSource = Unit.getByName("Player Hornet")

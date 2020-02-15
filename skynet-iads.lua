@@ -2,17 +2,17 @@ do
 
 --V 1.0:
 -- TODO: finish adding coalition checks to all elements added to the IADS
--- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam
--- TODO: quick add by prefix of unit or group add for IADS (GOAL: 3 lines of code for simple IADS Setup)
+-- TODO: add error message when unknown SAM group is added
 -- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: Jamming dependend on SAM Radar Type and Distance
 -- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
--- TODO: after one connection node of powerplant goes down and there are others, add adelay until the sam site comes online again (configurable)
+-- TODO: after one connection node or powerplant goes down and there are others, add adelay until the sam site comes online again (configurable)
 -- TODO: check if SAM has LOS to target, if not, it should not activate
 -- TODO: SA-10 Launch distance seems off
+-- TODO: create abstracts IADSItem class and place base function there, other elements shall inherit
 
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
@@ -23,6 +23,7 @@ do
 -- TODO: if SAM site has run out of missiles shut it down
 -- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
 -- TODO: ad random failures in IFF so enemy planes trigger IADS SAM activation by mistake
+-- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, currently only enemy aircraft are returned by a DCS radar
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -72,12 +73,34 @@ function SkynetIADS.getDBName(samGroup, natoName)
 	return samDBName
 end
 
+function SkynetIADS:addSamSitesByPrefix(prefix)
+	for groupName, groupData in pairs(mist.DBs.groupsByName) do
+		local pos = string.find(string.lower(groupName), string.lower(prefix))
+		if string.find(string.lower(groupName), string.lower(prefix)) == 1 then
+			self:addSamSite(groupName)
+		end
+	end
+end
+
+function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
+	for unitName, groupData in pairs(mist.DBs.unitsByName) do
+		local pos = string.find(string.lower(unitName), string.lower(prefix))
+		if string.find(string.lower(unitName), string.lower(prefix)) == 1 then
+			self:addEarlyWarningRadar(unitName)
+		end
+	end
+end
+
 function SkynetIADS:setCoalition(coalitionID)
 	if self.coalitionID == nil then
 		self.coalitionID = coalitionID
 	elseif self.coalitionID ~= coalitionID then
 		trigger.action.outText("WARNING: you have added different coalitions to the same IADS", 20)
 	end
+end
+
+function SkynetIADS:getCoalition()
+	return self.coalitionID
 end
 
 function SkynetIADS:getSamSites()
@@ -157,7 +180,6 @@ function SkynetIADS:setSamSitesToAutonomousMode()
 	end
 end
 
---TODO: distinguish between friendly and enemy aircraft, eg only activate SAM site if enemy aircraft is aproaching
 function SkynetIADS.evaluateContacts(self) 
 	local iadsContacts = {}
 	if self:isCommandCenterAlive() == false then
@@ -186,8 +208,11 @@ function SkynetIADS.evaluateContacts(self)
 		if self:getDebugSettings().contacts then
 			self:printOutput("IADS Contact: "..unitName)
 		end
+		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
+		--if unit:getCoalition() ~= self:getCoalition() then
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(unit)
+		--end
 	end
 	
 	if self:getDebugSettings().IADSStatus then

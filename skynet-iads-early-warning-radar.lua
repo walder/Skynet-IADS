@@ -28,8 +28,8 @@ function SkynetIADSEWRadar:getDetectedTargets()
 		return
 	end
 	local returnTargets = {}
---	trigger.action.outText("EW getTargets", 1)
---	trigger.action.outText(self.radarUnit:getName(), 1)
+	--trigger.action.outText("EW getTargets", 1)
+	--trigger.action.outText(self.radarUnit:getName(), 1)
 	local ewRadarController = self.radarUnit:getController()
 	local targets = ewRadarController:getDetectedTargets()
 	--trigger.action.outText("num Targets: "..#targets, 1)
