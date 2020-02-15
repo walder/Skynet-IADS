@@ -20,7 +20,7 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	sam.lastJammerUpdate = 0
 	sam.setJammerChance = true
 	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
-	sam:goDark()
+	sam:goDark(true)
 	world.addEventHandler(sam)
 	return sam
 end
@@ -36,7 +36,7 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 		local sam = self.samSite
 		local controller = sam:getController()
 		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
-		--cont:setOnOff(false)
+	--	controller:setOnOff(false)
 		controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
 		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
@@ -50,7 +50,7 @@ end
 function SkynetIADSSamSite:goLive()
 	if self.aiState == false then
 		local  cont = self.samSite:getController()
-		cont:setOnOff(true)
+	--	cont:setOnOff(true)
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
@@ -186,16 +186,14 @@ function SkynetIADSSamSite:isTargetInRange(target)
 	for j = 1, #samSiteUnits do
 		local  samElement = samSiteUnits[j]
 		local typeName = samElement:getTypeName()
+		local samDBData = SkynetIADS.database[self:getDBName()]
 		--trigger.action.outText("type name: "..typeName, 1)
-		local radarData = SkynetIADS.database[self:getDBName()]['searchRadar'][typeName]
-		local launcherData = SkynetIADS.database[self:getDBName()]['launchers'][typeName]
+		local radarData = samDBData['searchRadar'][typeName]
+		local launcherData = samDBData['launchers'][typeName]
 		local trackingData = nil
 		if radarData == nil then
 			--to decide if we should activate the sam we use the tracking radar range if it exists
 			trackingData = SkynetIADS.database[self:getDBName()]['trackingRadar']
-		--	if trackingData ~= nil then
-		--		radarData = trackingData[typeName]
-		--	end
 		end
 		--if we find a radar in a SAM site, we calculate to see if it is within tracking parameters
 		if radarData ~= nil then
@@ -206,9 +204,11 @@ function SkynetIADSSamSite:isTargetInRange(target)
 		--if we find a launcher in a SAM site, we calculate to see if it is within firing parameters
 		if launcherData ~= nil then
 			--if it's a AAA we override the check for launcher distance, otherwise the target will pass over the AAA without it firing because the AAA will become active too late
-			samLauncherinRange = SkynetIADS.database[self:getDBName()]['launchers'][typeName]['aaa']
+			if launcherData['aaa'] then
+				samLauncherinRange = true
+			end
 			-- if it's not AAA we calculate the firing distance
-			if self:isLauncherWithinFiringParameters(target, samElement, launcherData) and ( samLauncherinRange == false ) then
+			if self:isLauncherWithinFiringParameters(target, samElement, launcherData) and ( samLauncherinRange == false  ) then
 				samLauncherinRange = true
 			end
 		end		

@@ -16,6 +16,7 @@ iadsDebug.samNoConnection = true
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:addCommandCenter(StaticObject.getByName("Command Center"), StaticObject.getByName("Command Center Power"))
 iranIADS:activate()	
 
 --[[

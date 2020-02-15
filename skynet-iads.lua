@@ -1,18 +1,18 @@
 do
 
 --V 1.0:
--- TODO: finish adding coalition checks to all elements added to the IADS
--- TODO: add error message when unknown SAM group is added
 -- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: Jamming dependend on SAM Radar Type and Distance
--- TODO: code HARM defencce, check if SAM Site or EW sees HARM, only then start defence
+-- TODO: code HARM defence, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
 -- TODO: after one connection node or powerplant goes down and there are others, add adelay until the sam site comes online again (configurable)
 -- TODO: check if SAM has LOS to target, if not, it should not activate
 -- TODO: SA-10 Launch distance seems off
 -- TODO: create abstracts IADSItem class and place base function there, other elements shall inherit
+-- TODO: add error message when unknown SAM group is added
+-- TODO: add coalition checks for power sources, and connection nodes
 
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
@@ -113,6 +113,7 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource,
 		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor", 10)
 		return
 	end
+	self:setCoalition(earlyWarningRadarUnit:getCoalition())
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit)
 	ewRadar:addPowerSource(powerSource)
 	ewRadar:addConnectionNode(connectionNode)
@@ -139,6 +140,10 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonom
 end
 
 function SkynetIADS:addCommandCenter(commandCenter, powerSource)
+	self:setCoalition(commandCenter:getCoalition())
+	if powerSource then
+		self:setCoalition(powerSource:getCoalition())
+	end
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter)
 	comCenter:addPowerSource(powerSource)
 	table.insert(self.commandCenters, comCenter)

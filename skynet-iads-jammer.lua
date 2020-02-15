@@ -11,13 +11,13 @@ function SkynetIADSJammer:create(emitter)
 	jammer.iads = {}
 	return jammer
 end
---[[
+
 function SkynetIADSJammer:getParameters(radar)
 	local testParams = {}
 	testParams = {[40]=100, [20] = 90, [10] = 80, }
 end
---]]
-function SkynetIADSJammer:musicOn()
+
+function SkynetIADSJammer:wakeUp()
 	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 1)
 end
 
@@ -49,7 +49,7 @@ function SkynetIADSJammer:hasLineOfSightToRadar(radar)
 	return land.isVisible(self.emitter:getPosition().p, radar:getPosition().p) 
 end
 
-function SkynetIADSJammer:musicOff()
+function SkynetIADSJammer:turnOff()
 
 end
 
