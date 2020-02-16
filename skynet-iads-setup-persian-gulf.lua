@@ -4,7 +4,7 @@ iranIADS = SkynetIADS:create()
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = true
+iadsDebug.IADSStatus = false
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
 iadsDebug.samWentLive = true
@@ -18,6 +18,14 @@ iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 iranIADS:addCommandCenter(StaticObject.getByName("Command Center"), StaticObject.getByName("Command Center Power"))
 iranIADS:activate()	
+
+
+
+local jammerSource = Unit.getByName("Player Hornet")
+jammer = SkynetIADSJammer:create(jammerSource)
+jammer:addIADS(iranIADS)
+jammer:masterArmOn()
+
 
 --[[
 iranIADS:addEarlyWarningRadar('EW-west')
@@ -50,15 +58,4 @@ iranIADS:addSamSite('SAM-Shilka')
 --commandCenter = StaticObject.getByName("Command Center2")
 --local cc2PowerSource = StaticObject.getByName("Command Center2 Power Source")
 --nevadaIADS:addCommandCenter(commandCenter, cc2PowerSource)
-
-
-
---[[
-local jammerSource = Unit.getByName("Player Hornet")
-jammer = SkynetIADSJammer:create(jammerSource)
-jammer:addIADS(nevadaIADS)
-jammer:musicOn()
---]]
-
-
 end

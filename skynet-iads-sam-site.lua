@@ -36,7 +36,7 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 		local sam = self.samSite
 		local controller = sam:getController()
 		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
-	--	controller:setOnOff(false)
+		controller:setOnOff(false)
 		controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
 		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
@@ -50,7 +50,7 @@ end
 function SkynetIADSSamSite:goLive()
 	if self.aiState == false then
 		local  cont = self.samSite:getController()
-	--	cont:setOnOff(true)
+		cont:setOnOff(true)
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
@@ -69,13 +69,13 @@ function SkynetIADSSamSite:getRadarUnits()
 end
 
 --TODO: add time lag between the time a jammer picks up a radar emitter and the time it starts jamming (5-10 seconds)
-function SkynetIADSSamSite:jam(distance)
-	--trigger.action.outText(self.lastJammerUpdate, 1)
+function SkynetIADSSamSite:jam(successRate)
+	--trigger.action.outText(self.lastJammerUpdate, 2)
 	if self.lastJammerUpdate == 0 then
-		trigger.action.outText("updating jammer probability", 1)
+		--trigger.action.outText("updating jammer probability", 5)
 		self.lastJammerUpdate = 10
 		self.setJammerChance = true
-		local jammerChance = math.random(0, 100)
+		local jammerChance = successRate
 		mist.removeFunction(self.jammerID)
 		self.jammerID = mist.scheduleFunction(SkynetIADSSamSite.setJamState, {self, jammerChance}, 1, 1)
 	end
@@ -85,12 +85,14 @@ function SkynetIADSSamSite.setJamState(self, jammerChance)
 	local controller = self.samSite:getController()
 	if self.setJammerChance then
 		self.setJammerChance = false
-		if jammerChance > 50 then
+		local probability = math.random(100)
+	--	trigger.action.outText("jammer chance: "..jammerChance.."prob: "..probability, 2)
+		if jammerChance > probability then
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon hold", 1)
+			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon hold", 5)
 		else
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon free", 1)
+			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon free", 5)
 		end
 	end
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
@@ -222,8 +224,8 @@ function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLaunche
 	local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
 	local maxFiringRange = launcherData['range']
---	trigger.action.outText("Launcher Range: "..maxFiringRange,1)
---	trigger.action.outText("current distance: "..distance,1)
+	-- trigger.action.outText("Launcher Range: "..maxFiringRange,1)
+	-- trigger.action.outText("current distance: "..distance,1)
 	if distance <= maxFiringRange then
 		isInRange = true
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
@@ -239,10 +241,8 @@ function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUni
 	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
 	local maxDetectionAltitude = radarData['max_alt_finding_target']
 	local maxDetectionRange = radarData['max_range_finding_target']	
-
-	--trigger.action.outText("Radar Range: "..maxDetectionRange,1)
---	trigger.action.outText("current distance: "..distance,1)
-	
+	-- trigger.action.outText("Radar Range: "..maxDetectionRange,1)
+	-- trigger.action.outText("current distance: "..distance,1)
 	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
 		isInRange = true
