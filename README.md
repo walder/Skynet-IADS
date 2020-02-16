@@ -52,13 +52,13 @@ Think of yourself as the general planning the IADS.
 create an instance of the IADS:  
 `iranianIADS = SkynetIADS:create()` 
 
-Give all SAM groups you want to add a common prefix eg: 'SAM-SA-10 west', add this line of code:
+Give all SAM groups you want to add a common prefix eg: 'SAM-SA-10 west':  
 `iranIADS:addSamSitesByPrefix('SAM')` 
 
-Same for the EW radars, name all units with a common prefix eg: 'EW-radar-south':
+Same for the EW radars, name all units with a common prefix eg: 'EW-radar-south':  
 `iranIADS:addEarlyWarningRadarsByPrefix('EW')` 
 
-Avtivate the IADS: 
+Avtivate the IADS:  
 `iranIADS:activate()` 
 
 ## Advanced Setup
