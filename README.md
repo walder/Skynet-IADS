@@ -58,7 +58,7 @@ Give all SAM groups you want to add a common prefix eg: 'SAM-SA-10 west', add th
 Same for the EW radars, name all units with a common prefix eg: 'EW-radar-south':
 `iranIADS:addEarlyWarningRadarsByPrefix('EW')` 
 
-Avtivate the IADS:
+Avtivate the IADS: 
 `iranIADS:activate()` 
 
 ## Advanced Setup
