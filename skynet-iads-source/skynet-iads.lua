@@ -1,29 +1,33 @@
 do
 
 --V 1.0:
+-- TODO: Jamming dependening on SAM Radar Type and Distance
 -- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
--- TODO: Jamming dependend on SAM Radar Type and Distance
--- TODO: code HARM defence, check if SAM Site or EW sees HARM, only then start defence
--- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
--- TODO: after one connection node or powerplant goes down and there are others, add adelay until the sam site comes online again (configurable)
+-- TODO: after one connection node or powerplant goes down and there are others, add a delay until the sam site comes online again (configurable)
 -- TODO: check if SAM has LOS to target, if not, it should not activate
 -- TODO: SA-10 Launch distance seems off
 -- TODO: create abstracts IADSItem class and place base function there, other elements shall inherit
 -- TODO: add error message when unknown SAM group is added
 -- TODO: add coalition checks for power sources, and connection nodes
+-- TODO: Update github documentation, add graphic overview of IADS elements, screenthots of mission editor setup, code examples
+-- TODO: if jammer source dies, jammer should stop 
 
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
+-- To test: which SAM Types can engage air weapons, especially HARMs?
 
 -- V 1.1:
+-- TODO: code HARM defence, check if SAM Site or EW sees HARM, only then start defence
+-- TODO: SAM could have decoy emitters to trick HARM in to homing in to the wrong radar
 -- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
--- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then golive
+-- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then go live
 -- TODO: if SAM site has run out of missiles shut it down
--- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM Sees something the IADS does not know about, later on add this data back to the IADS
+-- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM sees something the IADS does not know about, later on add this data back to the IADS
 -- TODO: ad random failures in IFF so enemy planes trigger IADS SAM activation by mistake
 -- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, currently only enemy aircraft are returned by a DCS radar
+-- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS

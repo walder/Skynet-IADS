@@ -135,6 +135,12 @@ function SkynetIADSSamSite:getDBName(natoName)
 	return SkynetIADS.getDBName(self.samSite, natoName)
 end
 
+function SkynetIADSSamSite:getNatoName()
+	local name = self:getDBName(true)
+	local pos = name:find(" ")
+	return name:sub(1, (pos-1))
+end
+
 function SkynetIADSSamSite:goAutonomous()
 	self.isAutonomous = true
 	if self.autonomousMode == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
