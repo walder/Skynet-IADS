@@ -45,10 +45,25 @@ In this release there is no electronic warfare functionallity. It will be aded i
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 
 #  Example Code
-Unlike other IADS scripts Skynet requires you to define the elements with some code. In exchange for that it will behave more life like. Think of yourself as the general planning the IADS.
+Think of yourself as the general planning the IADS.
+
+## Quick setup
 
 create an instance of the IADS:  
-`nevadaIADS = SkynetIADS:create()`
+`iranianIADS = SkynetIADS:create()` 
+
+Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
+`iranIADS:addSamSitesByPrefix('SAM')` 
+
+Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
+`iranIADS:addEarlyWarningRadarsByPrefix('EW')` 
+
+Avtivate the IADS:  
+`iranIADS:activate()` 
+
+## Advanced Setup
+
+The advanced setup alows you to add a SAM Site individually and add connection nodes and power sources.
 
 Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission:  
 `earlyWarningRadar = Unit.getByName('EWR')`  
