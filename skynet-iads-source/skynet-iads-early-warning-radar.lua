@@ -1,26 +1,21 @@
 do
 
 SkynetIADSEWRadar = {}
-SkynetIADSEWRadar.__index = SkynetIADSEWRadar
+SkynetIADSEWRadar = inheritsFrom(SkynetIADSAbstractElement)
+--SkynetIADSEWRadar.__index = SkynetIADSEWRadar
 
 function SkynetIADSEWRadar:create(radarUnit)
-	local radar = {}
-	setmetatable(radar, SkynetIADSEWRadar)
+	local radar = self:superClass():create()
+	setmetatable(radar, self)
+	self.__index = self
 	radar.radarUnit = radarUnit
-	radar.connectionNodes = {}
-	radar.powerSources = {}
+	--trigger.action.outText("call radar", 5)
 	return radar
 end
 
 function SkynetIADSEWRadar:getDescription()
 	return "EW Radar: "..self.radarUnit:getName().." Type: "..self.radarUnit:getTypeName()
 end
-
---[[
-function SkynetIADSEWRadar:getDBName()
-	return SkynetIADS.getDBName(self.radarUnit)
-end
---]]
 
 function SkynetIADSEWRadar:getDetectedTargets()
 	if self:hasWorkingPowerSource() == false then
@@ -39,23 +34,6 @@ function SkynetIADSEWRadar:getDetectedTargets()
 		table.insert(returnTargets, target)
 	end
 	return returnTargets
-end
-
-
-function SkynetIADSEWRadar:addPowerSource(powerSource)
-	table.insert(self.powerSources, powerSource)
-end
-
-function SkynetIADSEWRadar:addConnectionNode(connectionNode)
-	table.insert(self.connectionNodes, connectionNode)
-end
-
-function SkynetIADSEWRadar:hasActiveConnectionNode()
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.connectionNodes)
-end
-
-function SkynetIADSEWRadar:hasWorkingPowerSource()
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.powerSources)
 end
 
 end

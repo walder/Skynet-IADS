@@ -1,13 +1,12 @@
 do
 
 --V 1.0:
+-- TODO: create abstracts IADSItem class and place base function there, other elements shall inherit
 -- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
--- TODO: after one connection node or powerplant goes down and there are others, add a delay until the sam site comes online again (configurable)
 -- TODO: check if SAM has LOS to target, if not, it should not activate
 -- TODO: SA-10 Launch distance seems off
--- TODO: create abstracts IADSItem class and place base function there, other elements shall inherit
 -- TODO: add error message when unknown SAM group is added
 -- TODO: add coalition checks for power sources, and connection nodes
 -- TODO: Update github documentation, add graphic overview of IADS elements, screenthots of mission editor setup, code examples
@@ -27,6 +26,8 @@ do
 -- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, currently only enemy aircraft are returned by a DCS radar
 -- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
 -- TODO: Decide if more SAM Sites need to be jammable, eg blue side.
+-- TODO: after one connection node or powerplant goes down and there are others, add a delay until the sam site comes online again (configurable)
+
 --[[
 SAM Sites that engage HARMs:
 SA-15
@@ -34,6 +35,7 @@ SA-15
 SAM Sites that ignore HARMS:
 SA-11
 SA-10
+SA-6
 ]]--
 
 
@@ -88,7 +90,7 @@ end
 function SkynetIADS:addSamSitesByPrefix(prefix)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
-		if string.find((groupName), string.lower(prefix)) == 1 then
+		if pos ~= nil and pos == 1 then
 			self:addSamSite(groupName)
 		end
 	end
@@ -97,7 +99,7 @@ end
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
 	for unitName, groupData in pairs(mist.DBs.unitsByName) do
 		local pos = string.find(string.lower(unitName), string.lower(prefix))
-		if string.find(string.lower(unitName), string.lower(prefix)) == 1 then
+		if pos ~= nil and pos == 1 then
 			self:addEarlyWarningRadar(unitName)
 		end
 	end
@@ -180,7 +182,7 @@ function SkynetIADS:isCommandCenterAlive()
 	local hasWorkingCommandCenter = (#self.commandCenters == 0)
 	for i = 1, #self.commandCenters do
 		local comCenter = self.commandCenters[i]
-		if comCenter:getLife() > 0 then
+		if comCenter:getLife() > 0 and comCenter:hasWorkingPowerSource() then
 			hasWorkingCommandCenter = true
 			break
 		else
@@ -197,7 +199,12 @@ function SkynetIADS:setSamSitesToAutonomousMode()
 	end
 end
 
-function SkynetIADS.evaluateContacts(self) 
+function SkynetIADS.evaluateContacts(self)
+
+	if self:getDebugSettings().IADSStatus then
+		self:printSystemStatus()
+	end	
+ 
 	local iadsContacts = {}
 	if self:isCommandCenterAlive() == false then
 		if self:getDebugSettings().noWorkingCommmandCenter then
@@ -231,10 +238,6 @@ function SkynetIADS.evaluateContacts(self)
 		self:correlateWithSamSites(unit)
 		--end
 	end
-	
-	if self:getDebugSettings().IADSStatus then
-		self:printSystemStatus()
-	end	
 end
 
 function SkynetIADS:printOutput(output)

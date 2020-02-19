@@ -1,16 +1,17 @@
 do
 
 SkynetIADSSamSite = {}
-SkynetIADSSamSite.__index = SkynetIADSSamSite
+SkynetIADSSamSite = inheritsFrom(SkynetIADSAbstractElement)
 
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI = 0
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK = 1
 
 function SkynetIADSSamSite:create(samGroup, iads)
-	local sam = {}
-	setmetatable(sam, SkynetIADSSamSite)
-	sam.powerSources = {}
-	sam.connectionNodes = {}
+	local sam = self:superClass():create()
+	setmetatable(sam, self)
+	self.__index = self
+--	sam.powerSources = {}
+--	sam.connectionNodes = {}
 	sam.aiState = true
 	sam.samSite = samGroup
 	sam.iads = iads
@@ -113,22 +114,6 @@ end
 
 function SkynetIADSSamSite:getDescription()
 	return "SAM Group: "..self.samSite:getName().." Type : "..self:getNatoName()
-end
-
-function SkynetIADSSamSite:addPowerSource(powerSource)
-	table.insert(self.powerSources, powerSource)
-end
-
-function SkynetIADSSamSite:addConnectionNode(connectionNode)
-	table.insert(self.connectionNodes, connectionNode)
-end
-
-function SkynetIADSSamSite:hasActiveConnectionNode()
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.connectionNodes)
-end
-
-function SkynetIADSSamSite:hasWorkingPowerSource()
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.powerSources)
 end
 
 function SkynetIADSSamSite:getDBName(natoName)

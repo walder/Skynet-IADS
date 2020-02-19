@@ -9,7 +9,7 @@ function SkynetIADSJammer:create(emitter)
 	jammer.emitter = emitter
 	jammer.jammerTaskID = nill
 	jammer.iads = {}
-	--jammer probability settins are stored here
+	--jammer probability settins are stored here, visualisation, see: https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0
 	jammer.jammerTable = {
 		['SA-2'] = {
 			['function'] = function(distanceNauticalMiles) return ( 1.4 ^ distanceNauticalMiles ) + 90 end,
