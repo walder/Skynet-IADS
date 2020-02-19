@@ -1,7 +1,6 @@
 do
 
 --V 1.0:
--- TODO: Jamming dependening on SAM Radar Type and Distance
 -- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
@@ -12,7 +11,6 @@ do
 -- TODO: add error message when unknown SAM group is added
 -- TODO: add coalition checks for power sources, and connection nodes
 -- TODO: Update github documentation, add graphic overview of IADS elements, screenthots of mission editor setup, code examples
--- TODO: if jammer source dies, jammer should stop 
 
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
@@ -28,6 +26,16 @@ do
 -- TODO: ad random failures in IFF so enemy planes trigger IADS SAM activation by mistake
 -- TODO: check contact type coalition of detected IADS target only if its an enemy trigger sam, currently only enemy aircraft are returned by a DCS radar
 -- TODO: Electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
+-- TODO: Decide if more SAM Sites need to be jammable, eg blue side.
+--[[
+SAM Sites that engage HARMs:
+SA-15
+
+SAM Sites that ignore HARMS:
+SA-11
+SA-10
+]]--
+
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -80,7 +88,7 @@ end
 function SkynetIADS:addSamSitesByPrefix(prefix)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
-		if string.find(string.lower(groupName), string.lower(prefix)) == 1 then
+		if string.find((groupName), string.lower(prefix)) == 1 then
 			self:addSamSite(groupName)
 		end
 	end

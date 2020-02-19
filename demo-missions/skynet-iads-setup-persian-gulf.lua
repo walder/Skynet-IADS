@@ -25,7 +25,7 @@ local jammerSource = Unit.getByName("Player Hornet")
 jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(iranIADS)
 jammer:masterArmOn()
-
+--jammer:disableFor('SA-2')
 
 --[[
 iranIADS:addEarlyWarningRadar('EW-west')
@@ -38,8 +38,9 @@ iranIADS:addEarlyWarningRadar('EW-center3')
 --]]
 
 --[[
-iranIADS:addSamSite('SAM-SA-2')
+
 iranIADS:addSamSite('SAM-SA-3')
+iranIADS:addSamSite('SAM-SA-2')
 iranIADS:addSamSite('SAM-SA-6')
 iranIADS:addSamSite('SAM-SA-8')
 iranIADS:addSamSite('SAM-SA-10')

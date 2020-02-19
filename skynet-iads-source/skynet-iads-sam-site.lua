@@ -112,7 +112,7 @@ function SkynetIADSSamSite:isActive()
 end
 
 function SkynetIADSSamSite:getDescription()
-	return "SAM Group: "..self.samSite:getName().." Type : "..self:getDBName(true)
+	return "SAM Group: "..self.samSite:getName().." Type : "..self:getNatoName()
 end
 
 function SkynetIADSSamSite:addPowerSource(powerSource)
@@ -137,8 +137,13 @@ end
 
 function SkynetIADSSamSite:getNatoName()
 	local name = self:getDBName(true)
+	local shortName = name
 	local pos = name:find(" ")
-	return name:sub(1, (pos-1))
+	local prefix = name:sub(1, 2)
+	if string.lower(prefix) == 'sa' then
+		shortName = name:sub(1, (pos-1))
+	end
+	return shortName
 end
 
 function SkynetIADSSamSite:goAutonomous()

@@ -9,6 +9,33 @@ function SkynetIADSJammer:create(emitter)
 	jammer.emitter = emitter
 	jammer.jammerTaskID = nill
 	jammer.iads = {}
+	--jammer probability settins are stored here
+	jammer.jammerTable = {
+		['SA-2'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.4 ^ distanceNauticalMiles ) + 90 end,
+			['canjam'] = true,
+		},
+		['SA-3'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.4 ^ distanceNauticalMiles ) + 80 end,
+			['canjam'] = true,
+		},
+		['SA-6'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.4 ^ distanceNauticalMiles ) + 23 end,
+			['canjam'] = true,
+		},
+		['SA-10'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.07 ^ (distanceNauticalMiles / 1.13) ) + 5 end,
+			['canjam'] = true,
+		},
+		['SA-11'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.25 ^ distanceNauticalMiles ) + 15 end,
+			['canjam'] = true,
+		},
+		['SA-15'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.15 ^ distanceNauticalMiles ) + 5 end,
+			['canjam'] = true,
+		},
+	}
 	return jammer
 end
 
@@ -17,31 +44,35 @@ function SkynetIADSJammer:masterArmOn()
 	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 1)
 end
 
+function SkynetIADSJammer:disableFor(natoName)
+	self.jammerTable[natoName]['canjam'] = false
+end
+
+function SkynetIADSJammer:isActiveForEmitterType(natoName)
+	return self.jammerTable[natoName]['canjam']
+end
+
 function SkynetIADSJammer:addIADS(iads)
 	table.insert(self.iads, iads)
 end
 
 function SkynetIADSJammer:getSuccessProbability(distanceNauticalMiles, natoName)
 	local probability = 0
-	
-	if natoName == 'SA-2' then
-		probability = ( 1.4 ^ distanceNauticalMiles ) + 90
-	elseif natoName == 'SA-3' then
-		probability = ( 1.4 ^ distanceNauticalMiles ) + 80
-	elseif natoName == 'SA-6' then
-		probability = ( 1.4 ^ distanceNauticalMiles ) + 23
-	elseif natoName == 'SA-10' then
-		probability =  ( 1.07 ^ (distanceNauticalMiles / 1.13) ) + 5
-	elseif natoName == 'SA-11' then
-		probability = ( 1.25 ^ distanceNauticalMiles ) + 15
-	elseif natoName == 'SA-15' then
-		probability = ( 1.15 ^ distanceNauticalMiles ) + 5
+	local jammerSettings = self.jammerTable[natoName]
+	if jammerSettings ~= nil then
+		probability = jammerSettings['function'](distanceNauticalMiles)
 	end
 	return probability
 end
 
---TODO: add types of radars the jammer can jam
 function SkynetIADSJammer.runCycle(self)
+
+	if self.emitter:getLife() == 1 then
+		self:masterArmSafe()
+	--	trigger.action.outText("emitter is dead", 1)
+		return
+	end
+
 	for i = 1, #self.iads do
 		local iads = self.iads[i]
 		local samSites = iads:getSamSites()	
@@ -50,6 +81,7 @@ function SkynetIADSJammer.runCycle(self)
 			local radars = samSite:getRadarUnits()
 			local hasLOS = false
 			local distance = 0
+			local natoName = samSite:getNatoName()
 			for l = 1, #radars do
 				local radar = radars[l]
 				distance = mist.utils.metersToNM(mist.utils.get2DDist(self.emitter:getPosition().p, radar:getPosition().p))
@@ -58,14 +90,14 @@ function SkynetIADSJammer.runCycle(self)
 					hasLOS = true
 				end
 			end
-			if samSite:isActive() then	
+			if samSite:isActive() and self:isActiveForEmitterType(natoName) then
 				trigger.action.outText("Distance: "..distance, 2)
-				trigger.action.outText("Jammer Probability: "..self:getSuccessProbability(distance, samSite:getNatoName()), 2)
-				samSite:jam(self:getSuccessProbability(distance, samSite:getNatoName()))
+				trigger.action.outText("Jammer Probability: "..self:getSuccessProbability(distance, natoName), 2)
+				samSite:jam(self:getSuccessProbability(distance, natoName))
 			end
 		end
 	end
---	trigger.action.outText("jam cycle",1)
+	--trigger.action.outText("jammer cycle",1)
 end
 
 function SkynetIADSJammer:hasLineOfSightToRadar(radar)
