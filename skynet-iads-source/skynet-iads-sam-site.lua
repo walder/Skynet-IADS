@@ -10,10 +10,7 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	local sam = self:superClass():create()
 	setmetatable(sam, self)
 	self.__index = self
---	sam.powerSources = {}
---	sam.connectionNodes = {}
 	sam.aiState = true
-	sam.samSite = samGroup
 	sam.iads = iads
 	sam.isAutonomous = false
 	sam.targetsInRange = {}
@@ -21,6 +18,7 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	sam.lastJammerUpdate = 0
 	sam.setJammerChance = true
 	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+	sam:setDCSRepresentation(samGroup)
 	sam:goDark(true)
 	world.addEventHandler(sam)
 	return sam
@@ -34,8 +32,7 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 	end
 
 	if self.aiState == true then
-		local sam = self.samSite
-		local controller = sam:getController()
+		local controller = self:getController()
 		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
 		controller:setOnOff(false)
 		controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
@@ -50,7 +47,7 @@ end
 
 function SkynetIADSSamSite:goLive()
 	if self.aiState == false then
-		local  cont = self.samSite:getController()
+		local  cont = self:getController()
 		cont:setOnOff(true)
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
@@ -66,7 +63,7 @@ end
 --use this:
 --if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
 function SkynetIADSSamSite:getRadarUnits()
-	return self.samSite:getUnits()
+	return self:getDCSRepresentation():getUnits()
 end
 
 --TODO: add time lag between the time a jammer picks up a radar emitter and the time it starts jamming (5-10 seconds)
@@ -83,17 +80,23 @@ function SkynetIADSSamSite:jam(successRate)
 end
 
 function SkynetIADSSamSite.setJamState(self, jammerChance)
-	local controller = self.samSite:getController()
+	local controller = self:getController()
 	if self.setJammerChance then
 		self.setJammerChance = false
 		local probability = math.random(100)
-	--	trigger.action.outText("jammer chance: "..jammerChance.."prob: "..probability, 2)
+		if self.iads:getDebugSettings().jammerProbability then
+			self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..jammerChance)
+		end
 		if jammerChance > probability then
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon hold", 5)
+			if self.iads:getDebugSettings().jammerProbability then
+				self.iads:printOutput("JAMMER: "..self:getDescription()..": jammend, setting to weapon hold")
+			end
 		else
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-			trigger.action.outText(self:getDescription()..": is beeing jammend, setting to weapon free", 5)
+			if self.iads:getDebugSettings().jammerProbability then
+				self.iads:printOutput("Jammer: "..self:getDescription()..": jammend, setting to weapon free")
+			end
 		end
 	end
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
@@ -110,25 +113,6 @@ end
 
 function SkynetIADSSamSite:isActive()
 	return self.aiState
-end
-
-function SkynetIADSSamSite:getDescription()
-	return "SAM Group: "..self.samSite:getName().." Type : "..self:getNatoName()
-end
-
-function SkynetIADSSamSite:getDBName(natoName)
-	return SkynetIADS.getDBName(self.samSite, natoName)
-end
-
-function SkynetIADSSamSite:getNatoName()
-	local name = self:getDBName(true)
-	local shortName = name
-	local pos = name:find(" ")
-	local prefix = name:sub(1, 2)
-	if string.lower(prefix) == 'sa' then
-		shortName = name:sub(1, (pos-1))
-	end
-	return shortName
 end
 
 function SkynetIADSSamSite:goAutonomous()
@@ -174,13 +158,11 @@ function SkynetIADSSamSite:removeContact(contact)
 	self.targetsInRange = updatedContacts
 end
 
--- TODO: check if SAM has LOS to target, if not, it should not activate
--- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
 function SkynetIADSSamSite:isTargetInRange(target)
-	local samSiteUnits = self.samSite:getUnits()
+	local samSiteUnits = self:getDCSRepresentation():getUnits()
 	local samRadarInRange = false
 	local samLauncherinRange = false
-	--go through sam site units to check launcher and radar distance, they could be positined quite far apart, only activate if both are in reach
+	--go through sam site units to check launcher and radar distance, they could be positioned quite far apart, only activate if both are in reach
 	for j = 1, #samSiteUnits do
 		local  samElement = samSiteUnits[j]
 		local typeName = samElement:getTypeName()
@@ -215,7 +197,7 @@ function SkynetIADSSamSite:isTargetInRange(target)
 	return ( samRadarInRange and samLauncherinRange )
 end
 
--- TODO: could be more acurrate it it would calculate sland range
+-- TODO: could be more acurrate if it would calculate slant range
 function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLauncherUnit, launcherData)
 	local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)

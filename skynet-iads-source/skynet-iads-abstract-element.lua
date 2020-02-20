@@ -8,9 +8,14 @@ function SkynetIADSAbstractElement:create()
 	self.__index = self
 	instance.connectionNodes = {}
 	instance.powerSources = {}
-	--trigger.action.outText("call abstract", 5)
 	return instance
 end
+
+
+function SkynetIADSAbstractElement:getLife()
+	return self:getDCSRepresentation():getLife()
+end
+
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
@@ -21,11 +26,79 @@ function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.connectionNodes)
+	return self:genericCheckOneObjectIsAlive(self.connectionNodes)
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
-	return SkynetIADS.genericCheckOneObjectIsAlive(self.powerSources)
+	return self:genericCheckOneObjectIsAlive(self.powerSources)
+end
+
+-- generic function to theck if power plants, command centers, connection nodes are still alive
+function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
+	local isAlive = (#objects == 0)
+	for i = 1, #objects do
+		local object = objects[i]
+		--trigger.action.outText("life: "..object:getLife(), 1)
+		--if we find one object that is not fully destroyed we assume the IADS is still working
+		if object:getLife() > 0 then
+			isAlive = true
+			break
+		end
+	end
+	return isAlive
+end
+
+function SkynetIADSAbstractElement:setDCSRepresentation(representation)
+	self.dcsRepresentation = representation
+end
+
+function SkynetIADSAbstractElement:getDCSRepresentation()
+	return self.dcsRepresentation
+end
+
+function SkynetIADSAbstractElement:getController()
+	return self:getDCSRepresentation():getController()
+end
+
+function SkynetIADSAbstractElement:getDBValues()
+	local units = self:getDCSRepresentation():getUnits()
+	local samDB = nil
+	local unitData = nil
+	local typeName = nil
+	local natoName = ""
+	for i = 1, #units do
+		typeName = units[i]:getTypeName()
+		for samName, samData in pairs(SkynetIADS.database) do
+			--all Sites have a unique launcher, if we find one, we got the internal designator of the SAM unit
+			unitData = SkynetIADS.database[samName]
+			if unitData['launchers'] and unitData['launchers'][typeName] then
+				samDB = {}
+				samDB['key'] =  samName
+			--	trigger.action.outText("Element is a: "..samName, 1)
+				natoName = SkynetIADS.database[samName]['name']['NATO']
+				local pos = natoName:find(" ")
+				local prefix = natoName:sub(1, 2)
+				if string.lower(prefix) == 'sa' and pos ~= nil then
+					natoName = natoName:sub(1, (pos-1))
+				end
+				samDB['nato'] = natoName
+				break
+			end
+		end
+	end
+	return samDB
+end
+
+function SkynetIADSAbstractElement:getDBName()
+	return self:getDBValues()['key']
+end
+
+function SkynetIADSAbstractElement:getNatoName()
+	return self:getDBValues()['nato']
+end
+
+function SkynetIADSAbstractElement:getDescription()
+	return "IADS ELEMENT: "..self:getDCSRepresentation():getName().." | Type : "..self:getNatoName()
 end
 
 -- helper code for class inheritance

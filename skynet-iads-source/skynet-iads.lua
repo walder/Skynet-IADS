@@ -1,11 +1,9 @@
 do
 
 --V 1.0:
--- TODO: create abstracts IADSItem class and place base function there, other elements shall inherit
 -- TODO: Sanity checks when adding elements, print errors regardless of debug state
 -- TODO: remove contact in sam site if its out of range, it could be a IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: Update power handling autonomous sam may go live withouth power same for ew radar. Same for Connection Node dammage
--- TODO: check if SAM has LOS to target, if not, it should not activate
 -- TODO: SA-10 Launch distance seems off
 -- TODO: add error message when unknown SAM group is added
 -- TODO: add coalition checks for power sources, and connection nodes
@@ -16,6 +14,7 @@ do
 -- To test: which SAM Types can engage air weapons, especially HARMs?
 
 -- V 1.1:
+-- TODO: check if SAM has LOS to target, if not, it should not activate
 -- TODO: code HARM defence, check if SAM Site or EW sees HARM, only then start defence
 -- TODO: SAM could have decoy emitters to trick HARM in to homing in to the wrong radar
 -- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
@@ -59,32 +58,8 @@ function SkynetIADS:create()
 	self.debugOutput.samWentLive = false
 	self.debugOutput.ewRadarNoConnection = false
 	self.debugOutput.samNoConnection = false
+	self.debugOutput.jammerProbability = false
 	return iads
-end
-
-function SkynetIADS.getDBName(samGroup, natoName)
-	local units = samGroup:getUnits()
-	local samDBName = "UNKNOWN"
-	local unitData = nil
-	local typeName = nil
-	for i = 1, #units do
-		typeName = units[i]:getTypeName()
-		for samName, samData in pairs(SkynetIADS.database) do
-			--all Sites have a unique launcher, if we find one, we got the internal designator of the SAM unit
-			unitData = SkynetIADS.database[samName]
-			if unitData['launchers'] and unitData['launchers'][typeName] then
-			--	trigger.action.outText("Element is a: "..samName, 1)
-				if natoName then
-					return SkynetIADS.database[samName]['name']['NATO']
-				else
-					return samName
-				end	
-			else
-				--trigger.action.outText("no launcher data: "..typeName, 1)
-			end
-		end
-	end
-	return samDBName
 end
 
 function SkynetIADS:addSamSitesByPrefix(prefix)
@@ -163,21 +138,6 @@ function SkynetIADS:addCommandCenter(commandCenter, powerSource)
 	table.insert(self.commandCenters, comCenter)
 end
 
--- generic function to theck if powerplants, command centers, connection nodes are still alive
-function SkynetIADS.genericCheckOneObjectIsAlive(objects)
-	local isAlive = (#objects == 0)
-	for i = 1, #objects do
-		local object = objects[i]
-	--	trigger.action.outText("life: "..object:getLife(), 1)
-		--if we find one object that is not fully destroyed we assume the IADS is still working
-		if object:getLife() > 0 then
-			isAlive = true
-			break
-		end
-	end
-	return isAlive
-end
-
 function SkynetIADS:isCommandCenterAlive()
 	local hasWorkingCommandCenter = (#self.commandCenters == 0)
 	for i = 1, #self.commandCenters do
@@ -230,13 +190,11 @@ function SkynetIADS.evaluateContacts(self)
 	end
 	for unitName, unit in pairs(iadsContacts) do
 		if self:getDebugSettings().contacts then
-			self:printOutput("IADS Contact: "..unitName)
+			self:printOutput("IADS CONTACT: "..unitName)
 		end
 		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-		--if unit:getCoalition() ~= self:getCoalition() then
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(unit)
-		--end
 	end
 end
 
@@ -256,7 +214,7 @@ end
 function SkynetIADS:correlateWithSamSites(detectedAircraft)
 	for i= 1, #self.samSites do
 		local samSite = self.samSites[i]
-		if samSite:hasActiveConnectionNode() == true then
+		if samSite:hasActiveConnectionNode() then
 			samSite:handOff(detectedAircraft)
 		else
 			if self:getDebugSettings().samNoConnection then
