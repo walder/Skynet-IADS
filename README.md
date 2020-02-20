@@ -53,13 +53,13 @@ create an instance of the IADS:
 `iranianIADS = SkynetIADS:create()` 
 
 Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
-`iranIADS:addSamSitesByPrefix('SAM')` 
+`iranianIADS:addSamSitesByPrefix('SAM')` 
 
 Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
-`iranIADS:addEarlyWarningRadarsByPrefix('EW')` 
+`iranianIADS:addEarlyWarningRadarsByPrefix('EW')` 
 
 Avtivate the IADS:  
-`iranIADS:activate()` 
+`iranianIADS:activate()` 
 
 ## Advanced Setup
 
