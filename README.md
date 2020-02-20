@@ -58,7 +58,7 @@ Give all SAM groups you want to add a common prefix in the mission editor eg: 'S
 Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
 `iranianIADS:addEarlyWarningRadarsByPrefix('EW')` 
 
-Avtivate the IADS:  
+Activate the IADS:  
 `iranianIADS:activate()` 
 
 ## Advanced Setup
