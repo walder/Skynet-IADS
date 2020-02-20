@@ -25,12 +25,10 @@ function SkynetIADSSamSite:create(samGroup, iads)
 end
 
 function SkynetIADSSamSite:goDark(enforceGoDark)
-
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown
 	if ( self:getNumTargetsInRange() > 0 ) and ( enforceGoDark ~= true ) then
 		return
 	end
-
 	if self.aiState == true then
 		local controller = self:getController()
 		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
@@ -46,6 +44,9 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 end
 
 function SkynetIADSSamSite:goLive()
+	if self:hasWorkingPowerSource() == false then
+		return
+	end
 	if self.aiState == false then
 		local  cont = self:getController()
 		cont:setOnOff(true)
@@ -66,7 +67,6 @@ function SkynetIADSSamSite:getRadarUnits()
 	return self:getDCSRepresentation():getUnits()
 end
 
---TODO: add time lag between the time a jammer picks up a radar emitter and the time it starts jamming (5-10 seconds)
 function SkynetIADSSamSite:jam(successRate)
 	--trigger.action.outText(self.lastJammerUpdate, 2)
 	if self.lastJammerUpdate == 0 then
@@ -90,12 +90,12 @@ function SkynetIADSSamSite.setJamState(self, jammerChance)
 		if jammerChance > probability then
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutput("JAMMER: "..self:getDescription()..": jammend, setting to weapon hold")
+				self.iads:printOutput("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
 			end
 		else
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutput("Jammer: "..self:getDescription()..": jammend, setting to weapon free")
+				self.iads:printOutput("Jammer: "..self:getDescription()..": jammed, setting to weapon free")
 			end
 		end
 	end
@@ -129,30 +129,32 @@ function SkynetIADSSamSite:goAutonomous()
 end
 
 function SkynetIADSSamSite:setAutonomousMode(mode)
-	self.autonomousMode = mode
+	if mode ~= nil then
+		self.autonomousMode = mode
+	end
 end
 
-function SkynetIADSSamSite:handOff(aircraft)
+function SkynetIADSSamSite:handOff(contact)
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
 		self:goDark(true)
 		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
-	if self:isTargetInRange(aircraft) then
-		self.targetsInRange[aircraft:getName()] = aircraft
+	if self:isTargetInRange(contact) then
+		self.targetsInRange[contact:getName()] = contact
 		self:goLive()
 	else
-		self:removeContact(aircraft)
+		self:removeContact(contact)
 		self:goDark()
 	end
 end
 
 function SkynetIADSSamSite:removeContact(contact)
 	local updatedContacts = {}
-	for description, aircraft in pairs(self.targetsInRange) do
-		if aircraft ~= contact then
-			updatedContacts[description] = aircraft
+	for id, airborneObject in pairs(self.targetsInRange) do
+		if airborneObject ~= contact then
+			updatedContacts[id] = airborneObject
 		end
 	end
 	self.targetsInRange = updatedContacts
@@ -228,12 +230,17 @@ function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUni
 	return isInRange
 end
 
+function SkynetIADSSamSite:isWeaponHarm(weapon)
+	local desc = weapon:getDesc()
+	return (desc.missileCategory == 6 and desc.guidance == 5)	
+end
+
 function SkynetIADSSamSite:onEvent(event)
 --[[
 	if event.id == world.event.S_EVENT_SHOT then
 		local weapon = event.weapon
 		targetOfMissile = weapon:getTarget()
-		if targetOfMissile ~= nil and SkynetIADS.isWeaponHarm(weapon) then
+		if targetOfMissile ~= nil and self:isWeaponHarm(weapon) then
 			self:startHarmDefence(weapon)
 		end	
 	end

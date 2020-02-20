@@ -12,12 +12,15 @@ iadsDebug.noWorkingCommmandCenter = true
 iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
+iadsDebug.addedEWRadar = true
 ---end remove debug ---
 
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 iranIADS:addCommandCenter(StaticObject.getByName("Command Center"), StaticObject.getByName("Command Center Power"))
+
+iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Ammo'), StaticObject.getByName('Ammo #002'))
 iranIADS:activate()	
 
 

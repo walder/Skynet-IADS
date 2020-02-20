@@ -16,7 +16,6 @@ function SkynetIADSAbstractElement:getLife()
 	return self:getDCSRepresentation():getLife()
 end
 
-
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
 end
@@ -31,6 +30,10 @@ end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
 	return self:genericCheckOneObjectIsAlive(self.powerSources)
+end
+
+function SkynetIADSAbstractElement:getDCSName()
+	return self:getDCSRepresentation():getName()
 end
 
 -- generic function to theck if power plants, command centers, connection nodes are still alive
@@ -61,8 +64,12 @@ function SkynetIADSAbstractElement:getController()
 end
 
 function SkynetIADSAbstractElement:getDBValues()
-	local units = self:getDCSRepresentation():getUnits()
-	local samDB = nil
+	local units = {}
+	units[1] = self:getDCSRepresentation()
+	if getmetatable(self:getDCSRepresentation()) == Group then
+		units = self:getDCSRepresentation():getUnits()
+	end
+	local samDB = {}
 	local unitData = nil
 	local typeName = nil
 	local natoName = ""
@@ -72,16 +79,11 @@ function SkynetIADSAbstractElement:getDBValues()
 			--all Sites have a unique launcher, if we find one, we got the internal designator of the SAM unit
 			unitData = SkynetIADS.database[samName]
 			if unitData['launchers'] and unitData['launchers'][typeName] then
-				samDB = {}
-				samDB['key'] =  samName
-			--	trigger.action.outText("Element is a: "..samName, 1)
-				natoName = SkynetIADS.database[samName]['name']['NATO']
-				local pos = natoName:find(" ")
-				local prefix = natoName:sub(1, 2)
-				if string.lower(prefix) == 'sa' and pos ~= nil then
-					natoName = natoName:sub(1, (pos-1))
-				end
-				samDB['nato'] = natoName
+				samDB = self:extractDBName(samName)
+				break
+			end
+			if unitData['searchRadar'] and unitData['searchRadar'][typeName] then
+				samDB = self:extractDBName(samName)
 				break
 			end
 		end
@@ -89,16 +91,38 @@ function SkynetIADSAbstractElement:getDBValues()
 	return samDB
 end
 
+function SkynetIADSAbstractElement:extractDBName(samName)
+	local samDB = {}
+	samDB['key'] =  samName
+--	trigger.action.outText("Element is a: "..samName, 1)
+	natoName = SkynetIADS.database[samName]['name']['NATO']
+	local pos = natoName:find(" ")
+	local prefix = natoName:sub(1, 2)
+	if string.lower(prefix) == 'sa' and pos ~= nil then
+		natoName = natoName:sub(1, (pos-1))
+	end
+	samDB['nato'] = natoName
+	return samDB
+end
+
 function SkynetIADSAbstractElement:getDBName()
-	return self:getDBValues()['key']
+	local dbName =  self:getDBValues()['key']
+	if dbName == nil then
+		dbName = "UNKNOWN"
+	end
+	return dbName
 end
 
 function SkynetIADSAbstractElement:getNatoName()
-	return self:getDBValues()['nato']
+	local natoName = self:getDBValues()['nato']
+	if natoName == nil then
+		natoName = "UNKNOWN"
+	end
+	return natoName
 end
 
 function SkynetIADSAbstractElement:getDescription()
-	return "IADS ELEMENT: "..self:getDCSRepresentation():getName().." | Type : "..self:getNatoName()
+	return "IADS ELEMENT: "..self:getDCSRepresentation():getName().." | Type : "..tostring(self:getNatoName())
 end
 
 -- helper code for class inheritance
