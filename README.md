@@ -60,7 +60,7 @@ The skill level you set on a SAM Group is retained by Skynet. Make sure you name
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you name the **unit** in a consistend manner with a prefix, eg 'EW-center3'.  
+You can use any type of radar as an EW radar. Make sure you name the **unit** in a consistent manner with a prefix, eg 'EW-center3'.  
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## Adding the Skynet Code
