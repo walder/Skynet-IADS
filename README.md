@@ -64,7 +64,7 @@ You can use any type of radar as an EW radar. Make sure you name the **unit** in
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## Adding the Skynet Code
-Make sure you load mist and the compiled skynet code in to a mission like this. The skynet-iads-compiled.lua and mist_4_3_74.lua is located in the /demo-mission/ folder. 
+Make sure you load mist and the compiled skynet code in to a mission like this. The skynet-iads-compiled.lua and mist_4_3_74.lua files are located in the /demo-mission/ folder. 
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
