@@ -155,7 +155,23 @@ commandCenter = StaticObject.getByName("Command Center")
 iranianIADS:addCommandCenter(commandCenter)
 ```
 
-### debug infomation
+## Adding a jammer
+The jammer is quite easy to set up. You need a unit that acts a an emitter. Once the jammer detecs an emitter it starts jamming the radar.
+Set the coresponding debug level to see what the jammer is doing.
+```
+local jammerSource = Unit.getByName("Player Hornet")
+jammer = SkynetIADSJammer:create(jammerSource)
+jammer:addIADS(iranIADS)
+-- sets the jammer to listen for emitters
+jammer:masterArmOn()
+jammer:disableFor('SA-2')
+```
+You can disable a jammer like this:
+```
+jammer:masterArmOff()
+```
+
+### Debug infomation
 When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
 
 ```
