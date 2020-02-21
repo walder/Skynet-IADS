@@ -101,8 +101,15 @@ You can also add a command center with a power source:
 iranianIADS:addCommandCenter(StaticObject.getByName("Command Center2"), StaticObject.getByName("Command Center2 Power Source"))
 ```
 
-### Adding a power source
-You can add a Unit or Static Object ad a power source to a SAM site. If its destroyed the SAM site will shut down.
+### Adding a power sources and connection nodes
+Once you have added a SAM site to the IADS you can set the power source and connection node like this:
+```
+iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Power Source'), StaticObject.getByName('Connection Node'))
+```
+There is an optional third parameter to set the autonomus mode state of a SAM site:
+```
+iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Power Source'), StaticObject.getByName('Connection Node'), SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+```
 
 ### Adding connection nodes
 
