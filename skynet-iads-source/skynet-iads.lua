@@ -1,7 +1,6 @@
 do
 
 --V 1.0:
--- TODO: write script to combine all .lua files in one compiled file for easier usage of mission developers.
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
 -- TODO: Update github documentation, add graphic overview of IADS elements, screenthots of mission editor setup, code examples
 
@@ -35,6 +34,7 @@ SA-10
 SA-6
 ]]--
 
+-- Compile Scripts: type sam-types-db.lua  skynet-iads-abstract-element.lua skynet-iads-command-center.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-site.lua skynet-iads.lua > skynet-iads-compiled.lua
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS

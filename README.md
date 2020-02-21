@@ -65,6 +65,7 @@ You can use any type of radar as an EW radar. Make sure you name the **unit** in
 
 ## Adding the Skynet Code
 Make sure you load mist and the compiled skynet code in to a mission like this:
+![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
 I recommend you create a text file eg 'my-iads-setup.lua' and ad the lines of code needed to the the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
@@ -188,7 +189,7 @@ You can turn the jammer off like this:
 jammer:masterArmOff()
 ```
 
-### Debug infomation
+### Debug information
 When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
 
 ```
@@ -203,6 +204,7 @@ local iadsDebug = iranIADS:getDebugSettings()
 	iadsDebug.jammerProbability = true  
 	iadsDebug.addedEWRadar = true
 ```
+![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-debug.png)  
 
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
