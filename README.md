@@ -157,8 +157,14 @@ iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUT
 ```
 
 The autonomous mode options are:  
-`SkynetIADSSamSite.AUTONOMOUS_STATE_DARK` = SAM Site will go dark if it looses connection to IADS  
-`SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI` = SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
+```
+SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
+```
+SAM Site will go dark if it looses connection to IADS  
+```
+SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+```
+SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
 
 You can also just add a SAM site omitting power source and connection node:  
 ```
