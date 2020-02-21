@@ -9,7 +9,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 # IADS Elements
 
 ## IADS
-The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission. However individual IADS currently don't communicate between each other. Also don't add units to more than one Skynet IADS. You have seen the films, you know what happens when Skynet goes bananas.
+The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission. However individual IADS units currently don't communicate between each other.
 
 ## Comand Center
 You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
@@ -55,7 +55,7 @@ Place the IADS elements you wish to add on the map. Currently only russian units
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be only be one SAM site type in per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be mixed up.
+There should be only be one SAM site type in per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be mixed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
 The skill level you set on a SAM Group is retained by Skynet. Make sure you name the SAM site **group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
