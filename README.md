@@ -144,7 +144,9 @@ iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
 ```
 
 You can also just add an EW Radar omitting the power source and connection node:  
-`iranIADS:addEarlyWarningRadar(earlyWarningRadar)`
+```
+iranIADS:addEarlyWarningRadar(earlyWarningRadar)
+```
 
 Add a SAM Site like this:  
 ```
