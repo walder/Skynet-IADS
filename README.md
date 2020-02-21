@@ -165,7 +165,8 @@ jammer:addIADS(iranIADS)
 -- sets the jammer to listen for emitters
 jammer:masterArmOn()
 ```
-you can disable the jammer for a certain SAM type. Curently the suppored SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15
+you can disable the jammer for a certain SAM type.  
+Curently the suppored SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15
 ```
 jammer:disableFor('SA-2')
 ```
