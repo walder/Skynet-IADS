@@ -9,7 +9,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 # IADS Elements
 
 ## IADS
-The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission. However individual IADS units currently don't communicate between each other.
+The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission.
 
 ## Comand Center
 You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
