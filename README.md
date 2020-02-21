@@ -118,15 +118,15 @@ When developing a mission I suggest you add debug output so check how the IADS r
 
 ```
 local iadsDebug = iranIADS:getDebugSettings()  
-iadsDebug.IADSStatus = true  
-iadsDebug.samWentDark = true  
-iadsDebug.contacts = true  
-iadsDebug.samWentLive = true  
-iadsDebug.noWorkingCommmandCenter = true  
-iadsDebug.ewRadarNoConnection = true  
-iadsDebug.samNoConnection = true  
-iadsDebug.jammerProbability = true  
-iadsDebug.addedEWRadar = true`  
+	iadsDebug.IADSStatus = true  
+	iadsDebug.samWentDark = true  
+	iadsDebug.contacts = true  
+	iadsDebug.samWentLive = true  
+	iadsDebug.noWorkingCommmandCenter = true  
+	iadsDebug.ewRadarNoConnection = true  
+	iadsDebug.samNoConnection = true  
+	iadsDebug.jammerProbability = true  
+	iadsDebug.addedEWRadar = true`  
 ```
 
 
