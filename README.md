@@ -100,7 +100,7 @@ You can also add a command center with a power source:
 ```
 local commandCenter = StaticObject.getByName("Command Center2")
 local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
-iranianIADS:addCommandCenter( commandCenter, comPowerSource)
+iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
 ### Adding a power sources and connection nodes
@@ -131,18 +131,18 @@ Add an early warning radar with a power source and a connection node. Make sure 
 earlyWarningRadar = Unit.getByName('EWR')  
 ewPower = StaticObject.getByName("EW Power Source")
 ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
-iranianIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
+iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
 ```
 
 You can also just add an EW Radar omitting the power source and connection node:  
-`iranianIADS:addEarlyWarningRadar(earlyWarningRadar)`
+`iranIADS:addEarlyWarningRadar(earlyWarningRadar)`
 
 Add a SAM Site like this:  
 ```
 powerSource = StaticObject.getByName("SA6-PowerSource") 
 sa6Site2 = Group.getByName('SA6 Group2')
 connectionNode = StaticObject.getByName("Connection Node") 
-iranianIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 
 The autonomous mode options are:  
@@ -151,13 +151,13 @@ The autonomous mode options are:
 
 You can also just add a SAM site omitting power source and connection node:  
 ```
-iranianIADS:addSamSite(sa6Site2)
+iranIADS:addSamSite(sa6Site2)
 ```
 
 Add a command center (optional):  
 ```
 commandCenter = StaticObject.getByName("Command Center") 
-iranianIADS:addCommandCenter(commandCenter)
+iranIADS:addCommandCenter(commandCenter)
 ```
 
 ## Adding a jammer
