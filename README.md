@@ -49,7 +49,7 @@ In the mission editro you add the jammer to a unit. I suggest you take an F-111 
 # Using Skynet in the mission editor
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools). It's quite easy to setup an IADS have a look at the demo missions in the /demo-missions/ folder.
 
-## Mission editor
+## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
 Place the IADS elements you wish to add on the map. Currently only russian units have been tested altough western units should work just as fine.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
