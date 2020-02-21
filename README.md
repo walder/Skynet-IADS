@@ -167,7 +167,7 @@ iranIADS:addSamSite(sa6Site2)
 
 Add a command center (optional):  
 ```
-commandCenter = StaticObject.getByName("Command Center") 
+local commandCenter = StaticObject.getByName("Command Center") 
 iranIADS:addCommandCenter(commandCenter)
 ```
 
