@@ -98,7 +98,9 @@ iranianIADS:addCommandCenter(StaticObject.getByName("Command Center"))
 
 You can also add a command center with a power source:
 ```
-iranianIADS:addCommandCenter(StaticObject.getByName("Command Center2"), StaticObject.getByName("Command Center2 Power Source"))
+local commandCenter = StaticObject.getByName("Command Center2")
+local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
+iranianIADS:addCommandCenter( commandCenter, comPowerSource)
 ```
 
 ### Adding a power sources and connection nodes
