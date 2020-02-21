@@ -21,8 +21,8 @@ Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, th
 Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add power sources to SAM Units, EW Radars and Command Centers.
-Once a power source is fully damaged the Skynet IADS unit will stop working. You can add multiple power sources to a Skynet IADS unit.
+By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
+Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
 Taking out the power source of a command center is a real life tactic used in Suppression of Enemy Air Defence (SEAD).
