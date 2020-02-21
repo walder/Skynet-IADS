@@ -49,9 +49,18 @@ It's quite easy to setup an IADS. have a look at the demo missions in the /demo-
 ## Mission editor
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
 Place the IADS elements you wish to add on the map. Currently only russian units have been tested altough western units should work just as fine.
-![Mission Editor](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
+![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
-## Quick setup
+## Preparing a SAM site
+There should be one SAM site of a single type in a group. Make sure you name the SAM site group in a consistent manner with a prefix eg 'SAM-SA-2'.  
+![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
+
+## Preparing an EW radar
+You can use any type of radar as an EW radar. Make sure you name the unit in a consistend manner with a prefix, eg 'EW-center3'.  
+![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
+
+## adding the Skynet IADS
+
 
 create an instance of the IADS:  
 `iranianIADS = SkynetIADS:create()` 
