@@ -111,7 +111,9 @@ The autonomous mode options are:
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI` = SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
 
 You can also just add a SAM site omitting power source and connection node:  
-```iranianIADS:addSamSite(sa6Site2)```
+```
+iranianIADS:addSamSite(sa6Site2)
+```
 
 Add a command center (optional):  
 ```
