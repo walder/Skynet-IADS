@@ -69,7 +69,7 @@ Make sure you load MIST and the compiled skynet code in to a mission. The skynet
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
-I recommend you create a text file eg 'my-iads-setup.lua' and then add the lines of code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
+I recommend you create a text file eg 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
