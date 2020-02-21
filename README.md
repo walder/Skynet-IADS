@@ -39,7 +39,7 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
 
 # Electronic Warfare
-A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need line of sight (LOS) to a radar unit. 
+A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. 
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effecitveness. 
