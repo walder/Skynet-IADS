@@ -65,16 +65,16 @@ You can use any type of radar as an EW radar. Make sure you name the **unit** in
 For the IADS to work you just need three lines of code:
 
 create an instance of the IADS:  
-`iranianIADS = SkynetIADS:create()` 
+```iranianIADS = SkynetIADS:create()``` 
 
 Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
-`iranianIADS:addSamSitesByPrefix('SAM')` 
+```iranianIADS:addSamSitesByPrefix('SAM')``` 
 
 Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
-`iranianIADS:addEarlyWarningRadarsByPrefix('EW')` 
+```iranianIADS:addEarlyWarningRadarsByPrefix('EW')``` 
 
 Activate the IADS:  
-`iranianIADS:activate()` 
+```iranianIADS:activate()```
 
 ## Advanced Features
 
