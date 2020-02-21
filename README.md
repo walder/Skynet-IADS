@@ -116,6 +116,7 @@ Add a command center (optional):
 ### debug infomation
 When developing a mission I suggest you add debug output so check how the IADS react to threats:
 
+**-
 `local iadsDebug = iranIADS:getDebugSettings()  
 iadsDebug.IADSStatus = true  
 iadsDebug.samWentDark = true  
@@ -126,6 +127,7 @@ iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true  
 iadsDebug.jammerProbability = true  
 iadsDebug.addedEWRadar = true`  
+**-
 
 
 # Thanks
