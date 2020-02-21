@@ -42,15 +42,14 @@ Currently Skynet only works with ground based units. Incorporating air units is 
 In this release there is no electronic warfare functionallity. It will be aded in a later release.
 
 # Using it in the mission editor
-Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).  
-(https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
+Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 #  set up an IADS
 It's quite easy to setup an IADS. have a look at the demo missions in the /demo-missions/ folder.
 
 ## Mission editor
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video]https://www.youtube.com/watch?v=YZPh-JNf6Ww by the Grim Reapers.
 Place the IADS elements you wish to add on the map. Currently only russian units have been tested altough western units should work just as fine.
-
+[Mission Editor](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Quick setup
 
