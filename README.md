@@ -39,11 +39,15 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
 
 # Electronic Warfare
-In this release there is no electronic warfare functionallity. It will be aded in a later release.
+A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will ned LOS to the radar unit. 
+Older SAM sites are more susceptible to jamming. Here is a [list of SAM sites currently supported](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) by the jammer and its effecitveness. 
+When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 
-# Using it in the mission editor
+
+# Using Skynet in the mission editor
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-#  set up an IADS
+
+# set up an IADS
 It's quite easy to setup an IADS. have a look at the demo missions in the /demo-missions/ folder.
 
 ## Mission editor
@@ -52,11 +56,11 @@ Place the IADS elements you wish to add on the map. Currently only russian units
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be one SAM site of a single type in a group. Make sure you name the SAM site group in a consistent manner with a prefix eg 'SAM-SA-2'.  
+There should be one SAM site of a single type in a group. Make sure you name the SAM site **group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you name the unit in a consistend manner with a prefix, eg 'EW-center3'.  
+You can use any type of radar as an EW radar. Make sure you name the **unit** in a consistend manner with a prefix, eg 'EW-center3'.  
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## adding the Skynet IADS
