@@ -78,11 +78,7 @@ function SkynetIADSAbstractElement:getDBValues()
 		for samName, samData in pairs(SkynetIADS.database) do
 			--all Sites have a unique launcher, if we find one, we got the internal designator of the SAM unit
 			unitData = SkynetIADS.database[samName]
-			if unitData['launchers'] and unitData['launchers'][typeName] then
-				samDB = self:extractDBName(samName)
-				break
-			end
-			if unitData['searchRadar'] and unitData['searchRadar'][typeName] then
+			if unitData['launchers'] and unitData['launchers'][typeName] or unitData['searchRadar'] and unitData['searchRadar'][typeName] then
 				samDB = self:extractDBName(samName)
 				break
 			end
@@ -98,6 +94,7 @@ function SkynetIADSAbstractElement:extractDBName(samName)
 	natoName = SkynetIADS.database[samName]['name']['NATO']
 	local pos = natoName:find(" ")
 	local prefix = natoName:sub(1, 2)
+	--we shorten the SA-XX names and don't return their code names eg goa, gainful
 	if string.lower(prefix) == 'sa' and pos ~= nil then
 		natoName = natoName:sub(1, (pos-1))
 	end

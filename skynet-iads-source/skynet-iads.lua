@@ -1,8 +1,8 @@
 do
 
 --V 1.0:
+-- TODO: write script to combine all .lua files in one compiled file for easier usage of mission developers.
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
--- TODO: add coalition checks for power sources, and connection nodes
 -- TODO: Update github documentation, add graphic overview of IADS elements, screenthots of mission editor setup, code examples
 
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
@@ -61,11 +61,15 @@ function SkynetIADS:create()
 	return iads
 end
 
-function SkynetIADS:setCoalition(coalitionID)
-	if self.coalitionID == nil then
-		self.coalitionID = coalitionID
-	elseif self.coalitionID ~= coalitionID then
-		trigger.action.outText("WARNING: you have added different coalitions to the same IADS", 20)
+function SkynetIADS:setCoalition(item)
+	if item then
+		local coalitionID = item:getCoalition()
+		if self.coalitionID == nil then
+			self.coalitionID = coalitionID
+		end
+		if self.coalitionID ~= coalitionID then
+			trigger.action.outText("WARNING: Element: "..item:getName().." has a different coalition than the IADS", 10)
+		end
 	end
 end
 
@@ -88,10 +92,9 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource,
 		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor", 10)
 		return
 	end
-	self:setCoalition(earlyWarningRadarUnit:getCoalition())
+	self:setCoalition(earlyWarningRadarUnit)
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
-	ewRadar:addPowerSource(powerSource)
-	ewRadar:addConnectionNode(connectionNode)
+	self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
 end
 
@@ -105,15 +108,14 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 end
 
 function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
-	local samSite = Group.getByName(samSiteName)
-	if samSite == nil then
+	local samSiteDCS = Group.getByName(samSiteName)
+	if samSiteDCS == nil then
 		trigger.action.outText("You have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", 10)
 		return
 	end
-	self:setCoalition(samSite:getCoalition())
-	local samSite = SkynetIADSSamSite:create(samSite, self)
-	samSite:addPowerSource(powerSource)
-	samSite:addConnectionNode(connectionNode)
+	self:setCoalition(samSiteDCS)
+	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
+	self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
 	samSite:setAutonomousMode(autonomousMode)
 	if samSite:getDBName() == "UNKNOWN" then
 		trigger.action.outText("You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
@@ -126,8 +128,7 @@ function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode,
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if string.lower(samSite:getDCSName()) == string.lower(groupName) then
-			samSite:addPowerSource(powerSource)
-			samSite:addConnectionNode(connectionNode)
+			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
 			samSite:setAutonomousMode(autonomousMode)
 		end
 	end
@@ -137,10 +138,21 @@ function SkynetIADS:getSamSites()
 	return self.samSites
 end
 
-function SkynetIADS:addCommandCenter(commandCenter, powerSource)
-	self:setCoalition(commandCenter:getCoalition())
+function SkynetIADS:addPowerAndConnectionNodeTo(iadsElement, powerSource, connectionNode)
 	if powerSource then
-		self:setCoalition(powerSource:getCoalition())
+		self:setCoalition(powerSource)
+		iadsElement:addPowerSource(powerSource)
+	end
+	if connectionNode then
+		self:setCoalition(connectionNode)
+		iadsElement:addConnectionNode(connectionNode)
+	end
+end
+
+function SkynetIADS:addCommandCenter(commandCenter, powerSource)
+	self:setCoalition(commandCenter)
+	if powerSource then
+		self:setCoalition(powerSource)
 	end
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter)
 	comCenter:addPowerSource(powerSource)
@@ -240,8 +252,7 @@ function SkynetIADS:activate()
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, 5)
 end
 
-function SkynetIADS:printSystemStatus()
-	
+function SkynetIADS:printSystemStatus()	
 	local numComCenters = #self.commandCenters
 	local numIntactComCenters = 0
 	local numDestroyedComCenters = 0

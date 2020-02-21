@@ -7,7 +7,6 @@ function SkynetIADSEWRadar:create(radarUnit, iads)
 	local radar = self:superClass():create()
 	setmetatable(radar, self)
 	self.__index = self
-	radar.radarUnit = radarUnit
 	radar:setDCSRepresentation(radarUnit)
 	radar.iads = iads
 	if radar.iads:getDebugSettings().addedEWRadar then
