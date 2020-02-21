@@ -19,6 +19,7 @@ iranIADS:addSamSitesByPrefix('SAM')
 iranIADS:addCommandCenter(StaticObject.getByName("Command Center"), StaticObject.getByName("Command Center Power"))
 
 iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Ammo'), StaticObject.getByName('Ammo #002'))
+iranIADS:setOptionsForEarlyWarningRadar('EW-west', StaticObject.getByName('Ammo'), StaticObject.getByName('Ammo #002'))
 iranIADS:activate()	
 
 local jammerSource = Unit.getByName("Player Hornet")

@@ -133,7 +133,13 @@ iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
 ```
 
 ### Adding a power source and connection node to a EW radar
-documentation will follow shortly
+
+Adding a power source and a connection node to an EW radar works similar to the SAM site:
+```
+local powerSource = StaticObject.getByName('Power Source')
+local connectionNode = StaticObject.getByName('Connection Node')
+iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
+```
 
 
 ### Adding a SAM site manually

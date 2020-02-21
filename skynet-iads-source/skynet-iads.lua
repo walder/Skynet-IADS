@@ -1,7 +1,6 @@
 do
 
 --V 1.0:
--- TODO add options for ewradar function
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
 -- TODO: Update github documentation, add graphic overview of IADS elements
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
@@ -95,6 +94,15 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource,
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
 	self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
+end
+
+function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connectionNode)
+		for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		if string.lower(ewRadar:getDCSName()) == string.lower(unitName) then
+			self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+		end
+	end
 end
 
 function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
