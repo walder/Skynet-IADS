@@ -2,11 +2,9 @@ do
 
 --V 1.0:
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
--- TODO: Update github documentation, add graphic overview of IADS elements, screenthots of mission editor setup, code examples
-
+-- TODO: Update github documentation, add graphic overview of IADS elements
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
--- To test: which SAM Types can engage air weapons, especially HARMs?
 
 -- V 1.1:
 -- TODO: check if SAM has LOS to target, if not, it should not activate
@@ -23,7 +21,7 @@ do
 -- TODO: remove contact in sam site if its out of range, it could be an IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: SA-10 Launch distance seems off
 -- TODO: EW Radars should also be jammable, what should the effects be on IADS target detection? eg activate sam sites in the bearing ot the jammer source, since distance calculation would be difficult, when tracked by 2 EWs, distance calculation should improve due to triangulation?
-
+-- To test: which SAM Types can engage air weapons, especially HARMs?
 --[[
 SAM Sites that engage HARMs:
 SA-15

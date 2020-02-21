@@ -51,7 +51,7 @@ Skynet requires MIST. A version is provided in this repository or you can downlo
 
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
-Place the IADS elements you wish to add on the map. Currently only russian units have been tested altough western units should work just as fine.
+Place the IADS elements you wish to add on the map. Currently only russian units have been tested although western units should work just as fine.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
