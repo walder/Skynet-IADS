@@ -117,6 +117,7 @@ end
 
 function SkynetIADSSamSite:goAutonomous()
 	self.isAutonomous = true
+	self.targetsInRange = {}
 	if self.autonomousMode == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 		trigger.action.outText(self:getDescription().." is Autonomous: DARK", 1)
@@ -153,7 +154,8 @@ end
 function SkynetIADSSamSite:removeContact(contact)
 	local updatedContacts = {}
 	for id, airborneObject in pairs(self.targetsInRange) do
-		if airborneObject ~= contact then
+		-- check to see if airborneObject still exists there are cases where the sam keeps the target in the array of contacts
+		if airborneObject ~= contact and airborneObject:isExist() then
 			updatedContacts[id] = airborneObject
 		end
 	end
