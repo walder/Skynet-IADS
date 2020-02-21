@@ -42,7 +42,7 @@ Currently Skynet only works with ground based units. Incorporating air units is 
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. 
 
-Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effecitveness. 
+Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness. 
 When setting up a jammer you can decide which SAM Sites it can able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editro you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
@@ -62,6 +62,14 @@ The skill level you set on a SAM Group is retained by Skynet. Make sure you name
 ## Preparing an EW radar
 You can use any type of radar as an EW radar. Make sure you name the **unit** in a consistend manner with a prefix, eg 'EW-center3'.  
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
+
+## Adding the Skynet Code
+Make sure you load mist and the compiled skynet code in to a mission like this:
+
+## Setting up yor IADS
+I recommend you create a text file eg 'my-iads-setup.lua' and ad the lines of code needed to the the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
+You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
+![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
 ## adding the Skynet IADS
 For the IADS to work you just need three lines of code:
