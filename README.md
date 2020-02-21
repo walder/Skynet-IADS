@@ -104,11 +104,15 @@ iranianIADS:addCommandCenter(StaticObject.getByName("Command Center2"), StaticOb
 ### Adding a power sources and connection nodes
 Once you have added a SAM site to the IADS you can set the power source and connection node like this:
 ```
-iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Power Source'), StaticObject.getByName('Connection Node'))
+local power = StaticObject.getByName('Power Source')
+local connectionNode = StaticObject.getByName('Connection Node')
+iranIADS:setOptionsForSamSite('SAM-SA-2', power, connectionNode)
 ```
 There is an optional third parameter to set the autonomus mode state of a SAM site:
 ```
-iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Power Source'), StaticObject.getByName('Connection Node'), SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+local power = StaticObject.getByName('Power Source')
+local connectionNode = StaticObject.getByName('Connection Node')
+iranIADS:setOptionsForSamSite('SAM-SA-2', power, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 
 ### Adding connection nodes
