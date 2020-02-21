@@ -88,19 +88,23 @@ You can add a Unit or Static Object ad a power source to a SAM site. If its dest
 The advanced setup alows you to add a SAM Site individually and add connection nodes and power sources.
 
 Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission:  
-`earlyWarningRadar = Unit.getByName('EWR')`  
-`ewPower = StaticObject.getByName("EW Power Source")`    
-`ewConnectionNode = StaticObject.getByName("EWR Connection Node")`    
-`iranianIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`  
+```
+earlyWarningRadar = Unit.getByName('EWR')  
+ewPower = StaticObject.getByName("EW Power Source")
+ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
+iranianIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
+```
 
 You can also just add an EW Radar omitting the power source and connection node:  
 `iranianIADS:addEarlyWarningRadar(earlyWarningRadar)`
 
 Add a SAM Site like this:  
-`powerSource = StaticObject.getByName("SA6-PowerSource")`  
-`sa6Site2 = Group.getByName('SA6 Group2')`   
-`connectionNode = StaticObject.getByName("Connection Node")`   
-`iranianIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`  
+```
+powerSource = StaticObject.getByName("SA6-PowerSource") 
+sa6Site2 = Group.getByName('SA6 Group2')
+connectionNode = StaticObject.getByName("Connection Node") 
+iranianIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+```
 
 The autonomous mode options are:  
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DARK` = SAM Site will go dark if it looses connection to IADS  
@@ -110,11 +114,13 @@ You can also just add a SAM site omitting power source and connection node:
 `iranianIADS:addSamSite(sa6Site2)`
 
 Add a command center (optional):  
-`commandCenter = StaticObject.getByName("Command Center")`    
-`iranianIADS:addCommandCenter(commandCenter)`
+```
+commandCenter = StaticObject.getByName("Command Center") 
+iranianIADS:addCommandCenter(commandCenter)
+```
 
 ### debug infomation
-When developing a mission I suggest you add debug output so check how the IADS react to threats:
+When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
 
 ```
 local iadsDebug = iranIADS:getDebugSettings()  
@@ -126,9 +132,8 @@ local iadsDebug = iranIADS:getDebugSettings()
 	iadsDebug.ewRadarNoConnection = true  
 	iadsDebug.samNoConnection = true  
 	iadsDebug.jammerProbability = true  
-	iadsDebug.addedEWRadar = true`  
+	iadsDebug.addedEWRadar = true
 ```
-
 
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
