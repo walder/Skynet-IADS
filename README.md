@@ -11,6 +11,9 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 ## IADS
 The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission. However individual IADS currently don't communicate between each other. Also don't add units to more than one Skynet IADS. You have seen the films, you know what happens when Skynet goes bananas.
 
+## Comand Center
+You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
+
 ## SAM Site
 Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placemend of radar and launcher units as in real life.
 
@@ -42,7 +45,6 @@ Older SAM sites are more susceptible to jamming.
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effecitveness. 
 When setting up a jammer you can decide which SAM Sites it can able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editro you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
-
 
 # Using Skynet in the mission editor
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools). It's quite easy to setup an IADS have a look at the demo missions in the /demo-missions/ folder.
@@ -85,6 +87,19 @@ iranianIADS:activate()
 ```
 
 ## Advanced Features
+
+### Adding a command center
+The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
+
+Add a command center like this:
+```
+iranianIADS:addCommandCenter(StaticObject.getByName("Command Center"))
+```
+
+You can also add a command center with a power source:
+```
+iranianIADS:addCommandCenter(StaticObject.getByName("Command Center2"), StaticObject.getByName("Command Center2 Power Source"))
+```
 
 ### Adding a power source
 You can add a Unit or Static Object ad a power source to a SAM site. If its destroyed the SAM site will shut down.
