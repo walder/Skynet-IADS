@@ -73,7 +73,7 @@ I recommend you create a text file eg 'my-iads-setup.lua' and then add the code 
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
-## adding the Skynet IADS
+## Adding the Skynet IADS
 For the IADS to work you just need three lines of code:
 
 create an instance of the IADS:  
@@ -113,7 +113,7 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
-### Adding a power sources and connection nodes
+### Adding a power sources and connection nodes to a SAM site
 Once you have added a SAM site to the IADS you can set the power source and connection node like this:
 ```
 local power = StaticObject.getByName('Power Source')
@@ -131,6 +131,10 @@ If you just want a connection node, add nil where the power station would be pas
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
 ```
+
+### Adding a power source and connection node to a EW radar
+documentation will follow shortly
+
 
 ### Adding a SAM site manually
 
