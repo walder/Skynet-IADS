@@ -171,12 +171,6 @@ You can also just add a SAM site omitting power source and connection node:
 iranIADS:addSamSite(sa6Site2)
 ```
 
-Add a command center (optional):  
-```
-local commandCenter = StaticObject.getByName("Command Center") 
-iranIADS:addCommandCenter(commandCenter)
-```
-
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as an emitter. Once the jammer detecs an emitter it starts jamming the radar.
 Set the coresponding debug level to see what the jammer is doing.
