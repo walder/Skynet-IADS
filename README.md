@@ -55,7 +55,7 @@ Place the IADS elements you wish to add on the map. Currently only russian units
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be only be one SAM site type in per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be mixed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
+There should be only be one SAM site type per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be messed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
 The skill level you set on a SAM Group is retained by Skynet. Make sure you name the SAM site **group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
