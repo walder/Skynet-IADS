@@ -15,7 +15,7 @@ The IADS doesn't exist as a physical object in the game world. Think of it as th
 You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Site
-Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placemend of radar and launcher units as in real life.
+Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
 
 ##  Early Warning Radar
 Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
