@@ -43,11 +43,11 @@ A simple form of jamming is part of the Skynet IADS package. It's off by default
 Older SAM sites are more susceptible to jamming. 
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness. 
-When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
-In the mission editro you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
+When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
+In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 # Using Skynet in the mission editor
-Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools). It's quite easy to setup an IADS have a look at the demo missions in the /demo-missions/ folder.
+It's quite easy to setup an IADS have a look at the demo missions in the /demo-missions/ folder.
 
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
@@ -64,6 +64,7 @@ You can use any type of radar as an EW radar. Make sure you name the **unit** in
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## Adding the Skynet Code
+Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 Make sure you load mist and the compiled skynet code in to a mission like this. The skynet-iads-compiled.lua and mist_4_3_74.lua files are located in the /demo-mission/ folder. 
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
