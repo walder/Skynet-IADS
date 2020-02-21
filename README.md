@@ -156,7 +156,7 @@ iranianIADS:addCommandCenter(commandCenter)
 ```
 
 ## Adding a jammer
-The jammer is quite easy to set up. You need a unit that acts a an emitter. Once the jammer detecs an emitter it starts jamming the radar.
+The jammer is quite easy to set up. You need a unit that acts as an emitter. Once the jammer detecs an emitter it starts jamming the radar.
 Set the coresponding debug level to see what the jammer is doing.
 ```
 local jammerSource = Unit.getByName("Player Hornet")
@@ -164,6 +164,9 @@ jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(iranIADS)
 -- sets the jammer to listen for emitters
 jammer:masterArmOn()
+```
+you can disable the jammer for a certain SAM type. Curently the suppored SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15
+```
 jammer:disableFor('SA-2')
 ```
 You can disable a jammer like this:
