@@ -44,6 +44,7 @@ Older SAM sites are more susceptible to jamming.
 
 Here is a [list of SAM sites currently supported](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) by the jammer and its effecitveness. 
 When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
+You ad the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 
 # Using Skynet in the mission editor
