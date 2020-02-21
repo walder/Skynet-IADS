@@ -30,7 +30,7 @@ Taking out the power source of a command center is a real life tactic used in Su
 ## Connection Nodes
 By default Skynet IADS will run without having to add connection nodes. You can add connection nodes to SAM Units, EW Radars and Command Centers.
 
-When a connection node is fully damaged the the unit disconnected from the IADS will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center looses its node all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
+When a connection node is fully damaged the unit disconnected from the IADS will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center looses its node all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
@@ -64,11 +64,11 @@ You can use any type of radar as an EW radar. Make sure you name the **unit** in
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## Adding the Skynet Code
-Make sure you load mist and the compiled skynet code in to a mission like this:
+Make sure you load mist and the compiled skynet code in to a mission like this. The skynet-iads-compiled.lua and mist_4_3_74.lua is located in the /demo-mission/ folder. 
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
-I recommend you create a text file eg 'my-iads-setup.lua' and ad the lines of code needed to the the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
+I recommend you create a text file eg 'my-iads-setup.lua' and ad the lines of code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
