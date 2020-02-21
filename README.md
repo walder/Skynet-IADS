@@ -47,7 +47,7 @@ When setting up a jammer you can decide which SAM Sites it is able to jam. For e
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 # Using Skynet in the mission editor
-It's quite easy to setup an IADS have a look at the demo missions in the /demo-missions/ folder.
+It's quite easy to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
 
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
