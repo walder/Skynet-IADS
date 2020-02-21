@@ -12,43 +12,40 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission. However individual IADS currently don't communicate between each other. Also don't add units to more than one Skynet IADS. You have seen the films, you know what happens when Skynet goes bananas.
 
 ## SAM Site
-Skynet can handle 0-n Sam Sites. By default Skynet keeps SAM Sites turned off. It calculates if a contact is within firing range of a SAM Site. Every single launcher and radar unit's distance is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placemend of radar and launcher units as in real life.
-
-Please make sure the SAM Group in the mission editor consists only of one type. eg don't add SA-10 units with SA-6 units, this will mess up the distance calculation.
-
-The Skill level you set on a SAM Group is retained by Skynet.
+Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placemend of radar and launcher units as in real life.
 
 ##  Early Warning Radar
-Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM Units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
+Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add power sources to SAM Units, EW Radars and Command Centers. A power source can be a unit oder static object in DCS. I recommend using the electric power box static object. Feel free to use the air show crowd, it will also work. 
+By default Skynet IADS will run without having to add power sources. You can add power sources to SAM Units, EW Radars and Command Centers.
+Once a power source is fully damaged the Skynet IADS unit will stop working. You can add multiple power sources to a Skynet IADS unit.
 
-Once a power source is fully damaged the linked Skynet IADS unit will stop working. You can add multiple power sources to a Skynet IADS unit.
-
+Nice to know:
 Taking out the power source of a command center is a real life tactic used in Suppression of Enemy Air Defence (SEAD).
 
 ## Connection Nodes
-By default Skynet IADS will run without having to add connection nodes. You can add connection nodes to SAM Units, EW Radars and Command Centers. Currently only one link between the IADS and a unit is supported. 
+By default Skynet IADS will run without having to add connection nodes. You can add connection nodes to SAM Units, EW Radars and Command Centers.
 
 When a connection node is fully damaged the the unit disconnected from the IADS will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center looses its node all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
+Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
 
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
 
 # Electronic Warfare
-A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will ned LOS to the radar unit. 
+A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need line of sight (LOS) to a radar unit. 
 Older SAM sites are more susceptible to jamming. 
 
-Here is a [list of SAM sites currently supported](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) by the jammer and its effecitveness. 
-When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
-You ad the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
+Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effecitveness. 
+When setting up a jammer you can decide which SAM Sites it can able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but it is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
+In the mission editro you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 
 # Using Skynet in the mission editor
-Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools). It's quite easy to setup an IADS. have a look at the demo missions in the /demo-missions/ folder.
+Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools). It's quite easy to setup an IADS have a look at the demo missions in the /demo-missions/ folder.
 
 ## Mission editor
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
@@ -56,7 +53,8 @@ Place the IADS elements you wish to add on the map. Currently only russian units
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be one SAM site of a single type in a group. Make sure you name the SAM site **group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
+There should be only be one SAM site type in per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be mixed up.
+The skill level you set on a SAM Group is retained by Skynet. Make sure you name the SAM site **group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
 ## Preparing an EW radar
@@ -114,6 +112,20 @@ You can also just add a SAM site omitting power source and connection node:
 Add a command center (optional):  
 `commandCenter = StaticObject.getByName("Command Center")`    
 `iranianIADS:addCommandCenter(commandCenter)`
+
+### debug infomation
+When developing a mission I suggest you add debug output so check how the IADS react to threats:
+
+`local iadsDebug = iranIADS:getDebugSettings()  
+iadsDebug.IADSStatus = true  
+iadsDebug.samWentDark = true  
+iadsDebug.contacts = true  
+iadsDebug.samWentLive = true  
+iadsDebug.noWorkingCommmandCenter = true  
+iadsDebug.ewRadarNoConnection = true  
+iadsDebug.samNoConnection = true  
+iadsDebug.jammerProbability = true  
+iadsDebug.addedEWRadar = true`  
 
 
 # Thanks
