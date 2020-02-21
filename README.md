@@ -114,8 +114,11 @@ local power = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', power, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
-
-### Adding connection nodes
+If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
+```
+local connectionNode = StaticObject.getByName('Connection Node')
+iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
+```
 
 ### Adding a SAM site manually
 
