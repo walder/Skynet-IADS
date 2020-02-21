@@ -48,10 +48,7 @@ You ad the jammer to a unit. I suggest you take an F-111 as jammer plattform and
 
 
 # Using Skynet in the mission editor
-Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-
-# set up an IADS
-It's quite easy to setup an IADS. have a look at the demo missions in the /demo-missions/ folder.
+Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools). It's quite easy to setup an IADS. have a look at the demo missions in the /demo-missions/ folder.
 
 ## Mission editor
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
@@ -67,7 +64,7 @@ You can use any type of radar as an EW radar. Make sure you name the **unit** in
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## adding the Skynet IADS
-
+For the IADS to work you just need three lines of code:
 
 create an instance of the IADS:  
 `iranianIADS = SkynetIADS:create()` 
@@ -81,7 +78,14 @@ Same for the EW radars, name all units with a common prefix in the mission edito
 Activate the IADS:  
 `iranianIADS:activate()` 
 
-## Advanced Setup
+## Advanced Features
+
+### Adding a power source
+You can add a Unit or Static Object ad a power source to a SAM site. If its destroyed the SAM site will shut down.
+
+### Adding connection nodes
+
+### Adding a SAM site manually
 
 The advanced setup alows you to add a SAM Site individually and add connection nodes and power sources.
 
@@ -89,30 +93,28 @@ Add an early warning radar with a power source and a connection node. Make sure 
 `earlyWarningRadar = Unit.getByName('EWR')`  
 `ewPower = StaticObject.getByName("EW Power Source")`    
 `ewConnectionNode = StaticObject.getByName("EWR Connection Node")`    
-`nevadaIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`  
+`iranianIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))`  
 
 You can also just add an EW Radar omitting the power source and connection node:  
-`nevadaIADS:addEarlyWarningRadar(earlyWarningRadar)`
+`iranianIADS:addEarlyWarningRadar(earlyWarningRadar)`
 
 Add a SAM Site like this:  
 `powerSource = StaticObject.getByName("SA6-PowerSource")`  
 `sa6Site2 = Group.getByName('SA6 Group2')`   
 `connectionNode = StaticObject.getByName("Connection Node")`   
-`nevadaIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`  
+`iranianIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)`  
 
 The autonomous mode options are:  
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DARK` = SAM Site will go dark if it looses connection to IADS  
 `SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI` = SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
 
 You can also just add a SAM site omitting power source and connection node:  
-`nevadaIADS:addSamSite(sa6Site2)`
+`iranianIADS:addSamSite(sa6Site2)`
 
 Add a command center (optional):  
 `commandCenter = StaticObject.getByName("Command Center")`    
-`nevadaIADS:addCommandCenter(commandCenter)`
+`iranianIADS:addCommandCenter(commandCenter)`
 
-Wake up the IADS:  
-`nevadaIADS:activate()`  
 
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
