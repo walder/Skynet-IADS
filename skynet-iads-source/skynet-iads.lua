@@ -4,7 +4,10 @@ do
 -- TODO: SAM deactivtion logic eg when sam should go dark see if there are targets the sam is detecting
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
 -- TODO: Update github documentation, add graphic overview of IADS elements
--- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
+
+-- to test: 1 command center, 1 command power source (damage each one individually): ok
+-- to test: 2 command centers, 2 command power sources (damage each one individually): ok
+-- to test: SAM 1 power source, 1 com center (damage each one individually): ok
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 
 -- V 1.1:
@@ -22,14 +25,16 @@ do
 -- TODO: remove contact in sam site if its out of range, it could be an IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: SA-10 Launch distance seems off
 -- TODO: EW Radars should also be jammable, what should the effects be on IADS target detection? eg activate sam sites in the bearing ot the jammer source, since distance calculation would be difficult, when tracked by 2 EWs, distance calculation should improve due to triangulation?
+
 -- To test: which SAM Types can engage air weapons, especially HARMs?
+-- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 --[[
 SAM Sites that engage HARMs:
 SA-15
+SA-10
 
 SAM Sites that ignore HARMS:
-SA-11
-SA-10
+SA-11 (test again)
 SA-6
 ]]--
 
@@ -52,11 +57,12 @@ function SkynetIADS:create()
 	self.debugOutput.IADSStatus = false
 	self.debugOutput.samWentDark = false
 	self.debugOutput.contacts = false
-	self.debugOutput.samWentLive = false
+	self.debugOutput.radarWentLive = false
 	self.debugOutput.ewRadarNoConnection = false
 	self.debugOutput.samNoConnection = false
 	self.debugOutput.jammerProbability = false
 	self.debugOutput.addedEWRadar = false
+	self.debugOutput.hasNoPower = false
 	return iads
 end
 
@@ -66,6 +72,10 @@ function SkynetIADS:setCoalition(item)
 		if self.coalitionID == nil then
 			self.coalitionID = coalitionID
 		end
+	--	if getmetatable(item) == StaticObject then
+	--		trigger.action.outText(item:getName(), 10)
+	--		trigger.action.outText(self.coalitionID.." "..coalitionID, 10)
+	--	end
 		if self.coalitionID ~= coalitionID then
 			trigger.action.outText("WARNING: Element: "..item:getName().." has a different coalition than the IADS", 10)
 		end
@@ -77,9 +87,11 @@ function SkynetIADS:getCoalition()
 end
 
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
-	for unitName, groupData in pairs(mist.DBs.unitsByName) do
+	for unitName, unit in pairs(mist.DBs.unitsByName) do
 		local pos = string.find(string.lower(unitName), string.lower(prefix))
-		if pos ~= nil and pos == 1 then
+		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
+		local unit = Unit.getByName(unitName)
+		if pos and pos == 1 and unit then
 			self:addEarlyWarningRadar(unitName)
 		end
 	end
@@ -88,28 +100,33 @@ end
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource, connectionNode)
 	local earlyWarningRadarUnit = Unit.getByName(earlyWarningRadarUnitName)
 	if earlyWarningRadarUnit == nil then
-		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor", 10)
+		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor: "..earlyWarningRadarUnitName, 10)
 		return
 	end
 	self:setCoalition(earlyWarningRadarUnit)
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
-	self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+	self:addPowerAndConnectionNodeTo(earlyWarningRadarUnitName, powerSource, connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
 end
 
 function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connectionNode)
+		local update = false
 		for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		if string.lower(ewRadar:getDCSName()) == string.lower(unitName) then
-			self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+			local ewRadar = self.earlyWarningRadars[i]
+			if string.lower(ewRadar:getDCSName()) == string.lower(unitName) then
+				self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+				update = true
+			end
 		end
-	end
+		if update == false then
+			trigger.action.outText("WARNING: you tried to set options for an EW radar that does not exist: "..unitName, 10)
+		end
 end
 
 function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
-		if pos ~= nil and pos == 1 then
+		if pos and pos == 1 then
 			self:addSamSite(groupName, nil, nil, autonomousMode)
 		end
 	end
@@ -123,22 +140,26 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonom
 	end
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
-	self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
-	samSite:setAutonomousMode(autonomousMode)
 	if samSite:getDBName() == "UNKNOWN" then
-		trigger.action.outText("You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
+		trigger.action.outText("WARNING: You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
 	else
 		table.insert(self.samSites, samSite)
 	end
+	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
 end
 
 function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, autonomousMode)
+	local update = false
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if string.lower(samSite:getDCSName()) == string.lower(groupName) then
 			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
-			samSite:setAutonomousMode(autonomousMode)
+			samSite:setAutonomousBehaviour(autonomousMode)
+			update = true
 		end
+	end
+	if update == false then
+		trigger.action.outText("WARNING: you tried to set options for a SAM site that does not exist: "..groupName, 10)
 	end
 end
 
@@ -162,7 +183,7 @@ function SkynetIADS:addCommandCenter(commandCenter, powerSource)
 	if powerSource then
 		self:setCoalition(powerSource)
 	end
-	local comCenter = SkynetIADSCommandCenter:create(commandCenter)
+	local comCenter = SkynetIADSCommandCenter:create(commandCenter, iads)
 	comCenter:addPowerSource(powerSource)
 	table.insert(self.commandCenters, comCenter)
 end
@@ -241,11 +262,6 @@ function SkynetIADS:getDebugSettings()
 	return self.debugOutput
 end
 
-function SkynetIADS:startHarmDefence(inBoundHarm)
-	--TODO: store ID of task so it can be stopped when sam or harm is destroyed
-	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
-end
-
 function SkynetIADS:correlateWithSamSites(detectedAircraft)
 	for i= 1, #self.samSites do
 		local samSite = self.samSites[i]
@@ -294,7 +310,9 @@ function SkynetIADS:printSystemStatus()
 	local ewNoPower = 0
 	local ewTotal = #self.earlyWarningRadars
 	local ewNoConnectionNode = 0
-	
+	local ewActive = 0
+	local ewRadarsInactive = 0
+
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
 		if ewRadar:hasWorkingPowerSource() == false then
@@ -303,8 +321,14 @@ function SkynetIADS:printSystemStatus()
 		if ewRadar:hasActiveConnectionNode() == false then
 			ewNoConnectionNode = ewNoConnectionNode + 1
 		end
+		if ewRadar:isActive() then
+			ewActive = ewActive + 1
+		end
 	end
-	self:printOutput("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0 | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode)
+	
+	ewRadarsInactive = ewTotal - ewActive
+	
+	self:printOutput("EW SITES: "..ewTotal.." | Active: "..ewActive.." | Inactive: "..ewRadarsInactive.." | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode)
 	
 	local samSitesInactive = 0
 	local samSitesActive = 0

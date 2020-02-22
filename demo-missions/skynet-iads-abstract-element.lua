@@ -36,7 +36,6 @@ function SkynetIADSAbstractElement:hasWorkingPowerSource()
 	if power == false and self.iads:getDebugSettings().hasNoPower then
 		self.iads:printOutput(self:getDescription().." has no power")
 	end
-	return power
 end
 
 function SkynetIADSAbstractElement:getDCSName()
@@ -140,19 +139,19 @@ function SkynetIADSAbstractElement:onEvent(event)
 end
 
 function SkynetIADSAbstractElement:goLive()
-	if self:hasWorkingPowerSource() == false then
+--[[	if self:hasWorkingPowerSource() == false then
 		return
 	end
 	if self.aiState == false and self:isControllableUnit() then
-		local  cont = self:getController()
+	local  cont = self:getController()
 		cont:setOnOff(true)
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		self.aiState = true
-		if  self.iads:getDebugSettings().hasNoPower then
-			self.iads:printOutput(self:getDescription().." going live")
-		end
-	end
+	--	if self.iads:getDebugSettings().radarWentLive then
+	--		self.iads:printOutput(self:getDescription().." going live")
+	--	end
+	end--]]
 end
 
 function SkynetIADSAbstractElement:isActive()

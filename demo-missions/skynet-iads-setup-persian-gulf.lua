@@ -6,12 +6,13 @@ local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
-iadsDebug.samWentLive = true
+iadsDebug.radarWentLive = true
 iadsDebug.noWorkingCommmandCenter = true
 iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
+iadsDebug.hasNoPower = true
 ---end remove debug ---
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')

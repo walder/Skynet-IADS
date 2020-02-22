@@ -768,12 +768,15 @@ do
 
 SkynetIADSAbstractElement = {}
 
-function SkynetIADSAbstractElement:create()
+function SkynetIADSAbstractElement:create(iads)
 	local instance = {}
 	setmetatable(instance, self)
 	self.__index = self
+	instance.aiState = true
 	instance.connectionNodes = {}
 	instance.powerSources = {}
+	instance.iads = iads
+	world.addEventHandler(instance)
 	return instance
 end
 
@@ -795,7 +798,11 @@ function SkynetIADSAbstractElement:hasActiveConnectionNode()
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
-	return self:genericCheckOneObjectIsAlive(self.powerSources)
+	local power = self:genericCheckOneObjectIsAlive(self.powerSources)
+	if power == false and self.iads:getDebugSettings().hasNoPower then
+		self.iads:printOutput(self:getDescription().." has no power")
+	end
+	return power
 end
 
 function SkynetIADSAbstractElement:getDCSName()
@@ -860,7 +867,7 @@ function SkynetIADSAbstractElement:extractDBName(samName)
 	natoName = SkynetIADS.database[samName]['name']['NATO']
 	local pos = natoName:find(" ")
 	local prefix = natoName:sub(1, 2)
-	--we shorten the SA-XX names and don't return their code names eg goa, gainful
+	--we shorten the SA-XX names and don't return their code names eg goa, gainful..
 	if string.lower(prefix) == 'sa' and pos ~= nil then
 		natoName = natoName:sub(1, (pos-1))
 	end
@@ -886,6 +893,49 @@ end
 
 function SkynetIADSAbstractElement:getDescription()
 	return "IADS ELEMENT: "..self:getDCSRepresentation():getName().." | Type : "..tostring(self:getNatoName())
+end
+
+function SkynetIADSAbstractElement:onEvent(event)
+	--if a unit is destroyed we check to see if its a power plant powering the unit.
+	if event.id == world.event.S_EVENT_DEAD then
+		--trigger.action.outText(self:getDCSRepresentation():getName().." "..tostring(self:hasWorkingPowerSource()), 10)
+		if self:hasWorkingPowerSource() == false then
+			self:goDark(true)
+		end
+	end
+end
+
+function SkynetIADSAbstractElement:goLive()
+	if self:hasWorkingPowerSource() == false then
+		return
+	end
+	if self.aiState == false and self:isControllableUnit() then
+		local  cont = self:getController()
+		cont:setOnOff(true)
+		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
+		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+		self.aiState = true
+		if  self.iads:getDebugSettings().hasNoPower then
+			self.iads:printOutput(self:getDescription().." going live")
+		end
+	end
+end
+
+function SkynetIADSAbstractElement:isActive()
+	return self.aiState
+end
+
+function SkynetIADSAbstractElement:isControllableUnit()
+	return getmetatable(self:getDCSRepresentation()) ~= StaticObject
+end
+
+-- can be overridden in subclasses if needed
+function SkynetIADSAbstractElement:goDark(enforceGoDark)
+	if self.aiState and self:isControllableUnit() then
+	--	trigger.action.outText("setting off:"..self:getDCSRepresentation():getName(), 10)
+		self:getController():setOnOff(false)
+		self.aiState = false
+	end
 end
 
 -- helper code for class inheritance
@@ -941,8 +991,8 @@ do
 SkynetIADSCommandCenter = {}
 SkynetIADSCommandCenter = inheritsFrom(SkynetIADSAbstractElement)
 
-function SkynetIADSCommandCenter:create(commandCenter)
-	local comCenter = self:superClass():create()
+function SkynetIADSCommandCenter:create(commandCenter, iads)
+	local comCenter = self:superClass():create(iads)
 	setmetatable(comCenter, self)
 	self.__index = self
 	comCenter:setDCSRepresentation(commandCenter)
@@ -956,11 +1006,10 @@ SkynetIADSEWRadar = {}
 SkynetIADSEWRadar = inheritsFrom(SkynetIADSAbstractElement)
 
 function SkynetIADSEWRadar:create(radarUnit, iads)
-	local radar = self:superClass():create()
+	local radar = self:superClass():create(iads)
 	setmetatable(radar, self)
 	self.__index = self
 	radar:setDCSRepresentation(radarUnit)
-	radar.iads = iads
 	if radar.iads:getDebugSettings().addedEWRadar then
 			radar.iads:printOutput(radar:getDescription().." added to IADS")
 	end
@@ -969,7 +1018,6 @@ end
 
 function SkynetIADSEWRadar:getDetectedTargets()
 	if self:hasWorkingPowerSource() == false then
-		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
 	local returnTargets = {}
@@ -1110,34 +1158,30 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI = 0
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK = 1
 
 function SkynetIADSSamSite:create(samGroup, iads)
-	local sam = self:superClass():create()
+	local sam = self:superClass():create(iads)
 	setmetatable(sam, self)
 	self.__index = self
-	sam.aiState = true
-	sam.iads = iads
-	sam.isAutonomous = false
 	sam.targetsInRange = {}
 	sam.jammerID = nil
 	sam.lastJammerUpdate = 0
 	sam.setJammerChance = true
-	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+	sam.autonomousBehaviour = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam:setDCSRepresentation(samGroup)
 	sam:goDark(true)
-	world.addEventHandler(sam)
 	return sam
 end
 
 function SkynetIADSSamSite:goDark(enforceGoDark)
-	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown
-	if ( self:getNumTargetsInRange() > 0 ) and ( enforceGoDark ~= true ) then
+	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
+	if self:getNumTargetsInRange() > 0 and enforceGoDark ~= true then
 		return
 	end
 	if self.aiState == true then
 		local controller = self:getController()
-		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
+		-- fastest way to get a radar unit to stop emitting
 		controller:setOnOff(false)
-		controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+		--controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
+		--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
 		if self.iads:getDebugSettings().samWentDark then
@@ -1146,51 +1190,32 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 	end
 end
 
-function SkynetIADSSamSite:goLive()
-	if self:hasWorkingPowerSource() == false then
-		return
-	end
-	if self.aiState == false then
-		local  cont = self:getController()
-		cont:setOnOff(true)
-		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-		---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
-		self.aiState = true
-		if self.iads:getDebugSettings().samWentLive then
-			self.iads:printOutput(self:getDescription().." going live")
-		end
-	end
-end
-
---this function is currently a simple placeholder, should read all the radar units of the SAM system an return them
---use this:
---if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
+--this function is currently a simple placeholder, should only read all the radar units of the SAM system an return them
+--use this: if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
 function SkynetIADSSamSite:getRadarUnits()
 	return self:getDCSRepresentation():getUnits()
 end
 
-function SkynetIADSSamSite:jam(successRate)
+function SkynetIADSSamSite:jam(successProbability)
 	--trigger.action.outText(self.lastJammerUpdate, 2)
 	if self.lastJammerUpdate == 0 then
 		--trigger.action.outText("updating jammer probability", 5)
 		self.lastJammerUpdate = 10
 		self.setJammerChance = true
-		local jammerChance = successRate
 		mist.removeFunction(self.jammerID)
-		self.jammerID = mist.scheduleFunction(SkynetIADSSamSite.setJamState, {self, jammerChance}, 1, 1)
+		self.jammerID = mist.scheduleFunction(SkynetIADSSamSite.setJamState, {self, successProbability}, 1, 1)
 	end
 end
 
-function SkynetIADSSamSite.setJamState(self, jammerChance)
-	local controller = self:getController()
+function SkynetIADSSamSite.setJamState(self, successProbability)
 	if self.setJammerChance then
+		local controller = self:getController()
 		self.setJammerChance = false
-		local probability = math.random(100)
+		local probability = math.random(1, 100)
 		if self.iads:getDebugSettings().jammerProbability then
-			self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..jammerChance)
+			self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
 		end
-		if jammerChance > probability then
+		if successProbability > probability then
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			if self.iads:getDebugSettings().jammerProbability then
 				self.iads:printOutput("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
@@ -1205,6 +1230,10 @@ function SkynetIADSSamSite.setJamState(self, jammerChance)
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end
 
+function SkynetIADSSamSite:clearTargetsInRange()
+	self.targetsInRange = {}
+end
+
 function SkynetIADSSamSite:getNumTargetsInRange()
 	local contacts = 0
 	for description, aircraft in pairs(self.targetsInRange) do
@@ -1214,17 +1243,11 @@ function SkynetIADSSamSite:getNumTargetsInRange()
 	return contacts
 end
 
-function SkynetIADSSamSite:isActive()
-	return self.aiState
-end
-
 function SkynetIADSSamSite:goAutonomous()
-	self.isAutonomous = true
 	self.targetsInRange = {}
-	if self.autonomousMode == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
+	if self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 		trigger.action.outText(self:getDescription().." is Autonomous: DARK", 1)
-
 	else
 		self:goLive()
 		trigger.action.outText(self:getDescription().." is Autonomous: DCS AI", 1)
@@ -1232,9 +1255,9 @@ function SkynetIADSSamSite:goAutonomous()
 	return
 end
 
-function SkynetIADSSamSite:setAutonomousMode(mode)
-	if mode ~= nil then
-		self.autonomousMode = mode
+function SkynetIADSSamSite:setAutonomousBehaviour(mode)
+	if mode then
+		self.autonomousBehaviour = mode
 	end
 end
 
@@ -1242,7 +1265,6 @@ function SkynetIADSSamSite:handOff(contact)
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
 		self:goDark(true)
-		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
 	if self:isTargetInRange(contact) then
@@ -1337,10 +1359,12 @@ end
 
 function SkynetIADSSamSite:isWeaponHarm(weapon)
 	local desc = weapon:getDesc()
+	-- should be: weapon.MissileCategory.OTHER and  weapon.GuidanceType.RADAR_PASSIVE§
 	return (desc.missileCategory == 6 and desc.guidance == 5)	
 end
 
-function SkynetIADSSamSite:onEvent(event)
+--function SkynetIADSSamSite:onEvent(event)
+
 --[[
 	if event.id == world.event.S_EVENT_SHOT then
 		local weapon = event.weapon
@@ -1350,7 +1374,7 @@ function SkynetIADSSamSite:onEvent(event)
 		end	
 	end
 --]]
-end
+--end
 
 function SkynetIADSSamSite.harmDefence(self, inBoundHarm) 
 	local target = inBoundHarm:getTarget()
@@ -1385,13 +1409,22 @@ function SkynetIADSSamSite.harmDefence(self, inBoundHarm)
 	end
 end
 
+function SkynetIADSSamSite:startHarmDefence(inBoundHarm)
+	--TODO: store ID of task so it can be stopped when sam or harm is destroyed
+	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
+end
+
 end
 do
 
 --V 1.0:
+-- TODO: SAM deactivtion logic eg when sam should go dark see if there are targets the sam is detecting
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
 -- TODO: Update github documentation, add graphic overview of IADS elements
--- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
+
+-- to test: 1 command center, 1 command power source (damage each one individually): ok
+-- to test: 2 command centers, 2 command power sources (damage each one individually): ok
+-- to test: SAM 1 power source, 1 com center (damage each one individually): ok
 -- To test: different kinds of Sam types, damage to power source, command center, connection nodes
 
 -- V 1.1:
@@ -1409,14 +1442,16 @@ do
 -- TODO: remove contact in sam site if its out of range, it could be an IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: SA-10 Launch distance seems off
 -- TODO: EW Radars should also be jammable, what should the effects be on IADS target detection? eg activate sam sites in the bearing ot the jammer source, since distance calculation would be difficult, when tracked by 2 EWs, distance calculation should improve due to triangulation?
+
 -- To test: which SAM Types can engage air weapons, especially HARMs?
+-- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
 --[[
 SAM Sites that engage HARMs:
 SA-15
+SA-10
 
 SAM Sites that ignore HARMS:
-SA-11
-SA-10
+SA-11 (test again)
 SA-6
 ]]--
 
@@ -1439,11 +1474,12 @@ function SkynetIADS:create()
 	self.debugOutput.IADSStatus = false
 	self.debugOutput.samWentDark = false
 	self.debugOutput.contacts = false
-	self.debugOutput.samWentLive = false
+	self.debugOutput.radarWentLive = false
 	self.debugOutput.ewRadarNoConnection = false
 	self.debugOutput.samNoConnection = false
 	self.debugOutput.jammerProbability = false
 	self.debugOutput.addedEWRadar = false
+	self.debugOutput.hasNoPower = false
 	return iads
 end
 
@@ -1453,6 +1489,10 @@ function SkynetIADS:setCoalition(item)
 		if self.coalitionID == nil then
 			self.coalitionID = coalitionID
 		end
+	--	if getmetatable(item) == StaticObject then
+	--		trigger.action.outText(item:getName(), 10)
+	--		trigger.action.outText(self.coalitionID.." "..coalitionID, 10)
+	--	end
 		if self.coalitionID ~= coalitionID then
 			trigger.action.outText("WARNING: Element: "..item:getName().." has a different coalition than the IADS", 10)
 		end
@@ -1464,9 +1504,11 @@ function SkynetIADS:getCoalition()
 end
 
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
-	for unitName, groupData in pairs(mist.DBs.unitsByName) do
+	for unitName, unit in pairs(mist.DBs.unitsByName) do
 		local pos = string.find(string.lower(unitName), string.lower(prefix))
-		if pos ~= nil and pos == 1 then
+		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
+		local unit = Unit.getByName(unitName)
+		if pos and pos == 1 and unit then
 			self:addEarlyWarningRadar(unitName)
 		end
 	end
@@ -1475,28 +1517,33 @@ end
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource, connectionNode)
 	local earlyWarningRadarUnit = Unit.getByName(earlyWarningRadarUnitName)
 	if earlyWarningRadarUnit == nil then
-		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor", 10)
+		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor: "..earlyWarningRadarUnitName, 10)
 		return
 	end
 	self:setCoalition(earlyWarningRadarUnit)
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
-	self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+	self:addPowerAndConnectionNodeTo(earlyWarningRadarUnitName, powerSource, connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
 end
 
 function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connectionNode)
+		local update = false
 		for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		if string.lower(ewRadar:getDCSName()) == string.lower(unitName) then
-			self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+			local ewRadar = self.earlyWarningRadars[i]
+			if string.lower(ewRadar:getDCSName()) == string.lower(unitName) then
+				self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
+				update = true
+			end
 		end
-	end
+		if update == false then
+			trigger.action.outText("WARNING: you tried to set options for an EW radar that does not exist: "..unitName, 10)
+		end
 end
 
 function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
-		if pos ~= nil and pos == 1 then
+		if pos and pos == 1 then
 			self:addSamSite(groupName, nil, nil, autonomousMode)
 		end
 	end
@@ -1510,22 +1557,26 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonom
 	end
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
-	self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
-	samSite:setAutonomousMode(autonomousMode)
 	if samSite:getDBName() == "UNKNOWN" then
-		trigger.action.outText("You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
+		trigger.action.outText("WARNING: You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
 	else
 		table.insert(self.samSites, samSite)
 	end
+	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
 end
 
 function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, autonomousMode)
+	local update = false
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if string.lower(samSite:getDCSName()) == string.lower(groupName) then
 			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
-			samSite:setAutonomousMode(autonomousMode)
+			samSite:setAutonomousBehaviour(autonomousMode)
+			update = true
 		end
+	end
+	if update == false then
+		trigger.action.outText("WARNING: you tried to set options for a SAM site that does not exist: "..groupName, 10)
 	end
 end
 
@@ -1549,7 +1600,7 @@ function SkynetIADS:addCommandCenter(commandCenter, powerSource)
 	if powerSource then
 		self:setCoalition(powerSource)
 	end
-	local comCenter = SkynetIADSCommandCenter:create(commandCenter)
+	local comCenter = SkynetIADSCommandCenter:create(commandCenter, iads)
 	comCenter:addPowerSource(powerSource)
 	table.insert(self.commandCenters, comCenter)
 end
@@ -1598,7 +1649,7 @@ function SkynetIADS.evaluateContacts(self)
 			end
 		else
 			if self:getDebugSettings().ewRadarNoConnection then
-				self:printOutput(ewRadar:getDescription().." no connection to command center")
+				self:printOutput(ewRadar:getDescription().." no connection to Command Center")
 			end
 		end
 	end
@@ -1610,6 +1661,14 @@ function SkynetIADS.evaluateContacts(self)
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(unit)
 	end
+	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested
+	if #self.iadsContacts == 0 then
+		for i= 1, #self.samSites do
+			local samSite = self.samSites[i]
+			samSite:clearTargetsInRange()
+			samSite:goDark()
+		end
+	end
 end
 
 function SkynetIADS:printOutput(output)
@@ -1620,11 +1679,6 @@ function SkynetIADS:getDebugSettings()
 	return self.debugOutput
 end
 
-function SkynetIADS:startHarmDefence(inBoundHarm)
-	--TODO: store ID of task so it can be stopped when sam or harm is destroyed
-	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
-end
-
 function SkynetIADS:correlateWithSamSites(detectedAircraft)
 	for i= 1, #self.samSites do
 		local samSite = self.samSites[i]
@@ -1632,7 +1686,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 			samSite:handOff(detectedAircraft)
 		else
 			if self:getDebugSettings().samNoConnection then
-				self:printOutput(samSite:getDescription().." no connection Command center")
+				self:printOutput(samSite:getDescription().." no connection Command Center")
 				samSite:goAutonomous()
 			end
 		end
@@ -1673,7 +1727,9 @@ function SkynetIADS:printSystemStatus()
 	local ewNoPower = 0
 	local ewTotal = #self.earlyWarningRadars
 	local ewNoConnectionNode = 0
-	
+	local ewActive = 0
+	local ewRadarsInactive = 0
+
 	for i = 1, #self.earlyWarningRadars do
 		local ewRadar = self.earlyWarningRadars[i]
 		if ewRadar:hasWorkingPowerSource() == false then
@@ -1682,8 +1738,14 @@ function SkynetIADS:printSystemStatus()
 		if ewRadar:hasActiveConnectionNode() == false then
 			ewNoConnectionNode = ewNoConnectionNode + 1
 		end
+		if ewRadar:isActive() then
+			ewActive = ewActive + 1
+		end
 	end
-	self:printOutput("EW SITES: "..ewTotal.." | Active: "..ewTotal.." | Inactive: 0 | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode)
+	
+	ewRadarsInactive = ewTotal - ewActive
+	
+	self:printOutput("EW SITES: "..ewTotal.." | Active: "..ewActive.." | Inactive: "..ewRadarsInactive.." | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode)
 	
 	local samSitesInactive = 0
 	local samSitesActive = 0

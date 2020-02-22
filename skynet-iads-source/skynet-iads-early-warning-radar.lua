@@ -4,11 +4,10 @@ SkynetIADSEWRadar = {}
 SkynetIADSEWRadar = inheritsFrom(SkynetIADSAbstractElement)
 
 function SkynetIADSEWRadar:create(radarUnit, iads)
-	local radar = self:superClass():create()
+	local radar = self:superClass():create(iads)
 	setmetatable(radar, self)
 	self.__index = self
 	radar:setDCSRepresentation(radarUnit)
-	radar.iads = iads
 	if radar.iads:getDebugSettings().addedEWRadar then
 			radar.iads:printOutput(radar:getDescription().." added to IADS")
 	end
@@ -17,7 +16,6 @@ end
 
 function SkynetIADSEWRadar:getDetectedTargets()
 	if self:hasWorkingPowerSource() == false then
-		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
 	local returnTargets = {}

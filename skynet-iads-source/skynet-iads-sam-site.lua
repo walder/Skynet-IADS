@@ -7,34 +7,30 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI = 0
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK = 1
 
 function SkynetIADSSamSite:create(samGroup, iads)
-	local sam = self:superClass():create()
+	local sam = self:superClass():create(iads)
 	setmetatable(sam, self)
 	self.__index = self
-	sam.aiState = true
-	sam.iads = iads
-	sam.isAutonomous = false
 	sam.targetsInRange = {}
 	sam.jammerID = nil
 	sam.lastJammerUpdate = 0
 	sam.setJammerChance = true
-	sam.autonomousMode = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+	sam.autonomousBehaviour = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam:setDCSRepresentation(samGroup)
 	sam:goDark(true)
-	world.addEventHandler(sam)
 	return sam
 end
 
 function SkynetIADSSamSite:goDark(enforceGoDark)
-	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown
+	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
 	if self:getNumTargetsInRange() > 0 and enforceGoDark ~= true then
 		return
 	end
 	if self.aiState == true then
 		local controller = self:getController()
-		-- we will turn off AI for all SAM Sites added to the IADS, Skynet decides when a site will go online.
+		-- fastest way to get a radar unit to stop emitting
 		controller:setOnOff(false)
-		controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-		controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+		--controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
+		--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
 		if self.iads:getDebugSettings().samWentDark then
@@ -43,51 +39,32 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 	end
 end
 
-function SkynetIADSSamSite:goLive()
-	if self:hasWorkingPowerSource() == false then
-		return
-	end
-	if self.aiState == false then
-		local  cont = self:getController()
-		cont:setOnOff(true)
-		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-		---cont:knowTarget(ewrTarget, true, true) check to see if this will help for a faster shot of the SAM
-		self.aiState = true
-		if self.iads:getDebugSettings().samWentLive then
-			self.iads:printOutput(self:getDescription().." going live")
-		end
-	end
-end
-
---this function is currently a simple placeholder, should read all the radar units of the SAM system an return them
---use this:
---if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
+--this function is currently a simple placeholder, should only read all the radar units of the SAM system an return them
+--use this: if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
 function SkynetIADSSamSite:getRadarUnits()
 	return self:getDCSRepresentation():getUnits()
 end
 
-function SkynetIADSSamSite:jam(successRate)
+function SkynetIADSSamSite:jam(successProbability)
 	--trigger.action.outText(self.lastJammerUpdate, 2)
 	if self.lastJammerUpdate == 0 then
 		--trigger.action.outText("updating jammer probability", 5)
 		self.lastJammerUpdate = 10
 		self.setJammerChance = true
-		local jammerChance = successRate
 		mist.removeFunction(self.jammerID)
-		self.jammerID = mist.scheduleFunction(SkynetIADSSamSite.setJamState, {self, jammerChance}, 1, 1)
+		self.jammerID = mist.scheduleFunction(SkynetIADSSamSite.setJamState, {self, successProbability}, 1, 1)
 	end
 end
 
-function SkynetIADSSamSite.setJamState(self, jammerChance)
-	local controller = self:getController()
+function SkynetIADSSamSite.setJamState(self, successProbability)
 	if self.setJammerChance then
+		local controller = self:getController()
 		self.setJammerChance = false
-		local probability = math.random(100)
+		local probability = math.random(1, 100)
 		if self.iads:getDebugSettings().jammerProbability then
-			self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..jammerChance)
+			self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
 		end
-		if jammerChance > probability then
+		if successProbability > probability then
 			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			if self.iads:getDebugSettings().jammerProbability then
 				self.iads:printOutput("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
@@ -115,14 +92,9 @@ function SkynetIADSSamSite:getNumTargetsInRange()
 	return contacts
 end
 
-function SkynetIADSSamSite:isActive()
-	return self.aiState
-end
-
 function SkynetIADSSamSite:goAutonomous()
-	self.isAutonomous = true
 	self.targetsInRange = {}
-	if self.autonomousMode == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
+	if self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 		trigger.action.outText(self:getDescription().." is Autonomous: DARK", 1)
 	else
@@ -132,9 +104,9 @@ function SkynetIADSSamSite:goAutonomous()
 	return
 end
 
-function SkynetIADSSamSite:setAutonomousMode(mode)
-	if mode ~= nil then
-		self.autonomousMode = mode
+function SkynetIADSSamSite:setAutonomousBehaviour(mode)
+	if mode then
+		self.autonomousBehaviour = mode
 	end
 end
 
@@ -142,7 +114,6 @@ function SkynetIADSSamSite:handOff(contact)
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
 		self:goDark(true)
-		trigger.action.outText(self:getDescription().." has no Power", 1)
 		return
 	end
 	if self:isTargetInRange(contact) then
@@ -237,10 +208,12 @@ end
 
 function SkynetIADSSamSite:isWeaponHarm(weapon)
 	local desc = weapon:getDesc()
+	-- should be: weapon.MissileCategory.OTHER and  weapon.GuidanceType.RADAR_PASSIVE§
 	return (desc.missileCategory == 6 and desc.guidance == 5)	
 end
 
-function SkynetIADSSamSite:onEvent(event)
+--function SkynetIADSSamSite:onEvent(event)
+
 --[[
 	if event.id == world.event.S_EVENT_SHOT then
 		local weapon = event.weapon
@@ -250,7 +223,7 @@ function SkynetIADSSamSite:onEvent(event)
 		end	
 	end
 --]]
-end
+--end
 
 function SkynetIADSSamSite.harmDefence(self, inBoundHarm) 
 	local target = inBoundHarm:getTarget()
@@ -283,6 +256,11 @@ function SkynetIADSSamSite.harmDefence(self, inBoundHarm)
 	else
 		trigger.action.outText("target is nil", 1)
 	end
+end
+
+function SkynetIADSSamSite:startHarmDefence(inBoundHarm)
+	--TODO: store ID of task so it can be stopped when sam or harm is destroyed
+	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
 end
 
 end
