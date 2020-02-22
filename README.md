@@ -101,7 +101,8 @@ Activate the IADS:
 iranianIADS:activate()
 ```
 
-## Advanced Features
+## Advanced setup
+This is the danger zone. Some experience with scripting is recommended.
 You can handcraft your IADS if you like, with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
 
 ### Adding a command center
