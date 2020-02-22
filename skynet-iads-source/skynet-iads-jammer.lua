@@ -86,9 +86,9 @@ function SkynetIADSJammer.runCycle(self)
 				local radar = radars[l]
 				distance = mist.utils.metersToNM(mist.utils.get2DDist(self.emitter:getPosition().p, radar:getPosition().p))
 				-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site if has line of sight to at least one radar in the group
-				if self:hasLineOfSightToRadar(radar) then
+			--	if self:hasLineOfSightToRadar(radar) then
 					hasLOS = true
-				end
+			--	end
 			end
 			if samSite:isActive() and self:isActiveForEmitterType(natoName) then
 			--	trigger.action.outText("Distance: "..distance, 2)

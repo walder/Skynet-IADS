@@ -181,8 +181,8 @@ function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLaunche
 	local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
 	local maxFiringRange = launcherData['range']
-	trigger.action.outText("Launcher Range: "..maxFiringRange,1)
-	trigger.action.outText("current distance: "..distance,1)
+	--trigger.action.outText("Launcher Range: "..maxFiringRange,1)
+	--trigger.action.outText("current distance: "..distance,1)
 	if distance <= maxFiringRange then
 		isInRange = true
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
@@ -198,8 +198,8 @@ function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUni
 	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
 	local maxDetectionAltitude = radarData['max_alt_finding_target']
 	local maxDetectionRange = radarData['max_range_finding_target']	
-	trigger.action.outText("Radar Range: "..maxDetectionRange,1)
-	trigger.action.outText("current distance: "..distance,1)
+	--trigger.action.outText("Radar Range: "..maxDetectionRange,1)
+	--trigger.action.outText("current distance: "..distance,1)
 	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
 		isInRange = true

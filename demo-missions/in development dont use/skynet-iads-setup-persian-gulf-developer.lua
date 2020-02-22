@@ -34,10 +34,10 @@ local ewWest2ConnectionNode = StaticObject.getByName('EW-west Connection Node')
 iranIADS:setOptionsForEarlyWarningRadar('EW-west', ewWest2PowerSource, ewWest2ConnectionNode)
 iranIADS:activate()	
 
---local jammerSource = Unit.getByName("Player Hornet")
---jammer = SkynetIADSJammer:create(jammerSource)
---jammer:addIADS(iranIADS)
---jammer:masterArmOn()
+local jammerSource = Unit.getByName("Player Hornet")
+jammer = SkynetIADSJammer:create(jammerSource)
+jammer:addIADS(iranIADS)
+jammer:masterArmOn()
 --jammer:disableFor('SA-2')
 
 

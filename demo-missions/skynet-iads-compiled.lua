@@ -915,7 +915,7 @@ function SkynetIADSAbstractElement:goLive()
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		self.aiState = true
-		if  self.iads:getDebugSettings().hasNoPower then
+		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
 		end
 	end
@@ -1123,9 +1123,9 @@ function SkynetIADSJammer.runCycle(self)
 				local radar = radars[l]
 				distance = mist.utils.metersToNM(mist.utils.get2DDist(self.emitter:getPosition().p, radar:getPosition().p))
 				-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site if has line of sight to at least one radar in the group
-				if self:hasLineOfSightToRadar(radar) then
+			--	if self:hasLineOfSightToRadar(radar) then
 					hasLOS = true
-				end
+			--	end
 			end
 			if samSite:isActive() and self:isActiveForEmitterType(natoName) then
 			--	trigger.action.outText("Distance: "..distance, 2)
@@ -1296,7 +1296,8 @@ function SkynetIADSSamSite:isTargetInRange(target)
 		local  samElement = samSiteUnits[j]
 		local typeName = samElement:getTypeName()
 		local samDBData = SkynetIADS.database[self:getDBName()]
-		--trigger.action.outText("type name: "..typeName, 1)
+	--	trigger.action.outText("type name: "..typeName, 1)
+	--	trigger.action.outText("type name: "..self:getDBName(), 1)
 		local radarData = samDBData['searchRadar'][typeName]
 		local launcherData = samDBData['launchers'][typeName]
 		local trackingData = nil
@@ -1331,8 +1332,8 @@ function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLaunche
 	local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
 	local maxFiringRange = launcherData['range']
-	-- trigger.action.outText("Launcher Range: "..maxFiringRange,1)
-	-- trigger.action.outText("current distance: "..distance,1)
+	--trigger.action.outText("Launcher Range: "..maxFiringRange,1)
+	--trigger.action.outText("current distance: "..distance,1)
 	if distance <= maxFiringRange then
 		isInRange = true
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
@@ -1348,8 +1349,8 @@ function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUni
 	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
 	local maxDetectionAltitude = radarData['max_alt_finding_target']
 	local maxDetectionRange = radarData['max_range_finding_target']	
-	-- trigger.action.outText("Radar Range: "..maxDetectionRange,1)
-	-- trigger.action.outText("current distance: "..distance,1)
+	--trigger.action.outText("Radar Range: "..maxDetectionRange,1)
+	--trigger.action.outText("current distance: "..distance,1)
 	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
 		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
 		isInRange = true
