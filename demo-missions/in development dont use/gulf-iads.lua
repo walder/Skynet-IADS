@@ -27,7 +27,7 @@ end
 --]]
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
-iranIADS:addSamSitesByPrefix('PD')
+--iranIADS:addSamSitesByPrefix('PD')
 
 local c21 = StaticObject.getByName('C2-1')
 iranIADS:addCommandCenter(c21)
