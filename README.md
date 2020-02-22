@@ -10,10 +10,11 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
 
 ## IADS
-The IADS doesn't exist as a physical object in the game world. Think of it as the network holding everything together. You can have multiple IADS instances in a DCS Mission.
+The IADS doesn't exist as a physical object in the game world. IADS is a complete operational network.
+You can have multiple IADS instances in a DCS Mission acting as independent sectional groups.
 
 ## Comand Center
-You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
+You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Site
 Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
@@ -21,17 +22,20 @@ Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, th
 ##  Early Warning Radar
 Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
 
+Nice to know:
+Terrain elevation around the EW will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
+
 ##  Power Sources
 By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
-Taking out the power source of a command center is a real life tactic used in Suppression of Enemy Air Defence (SEAD).
+Taking out the power source of a command center is a real life tactic used in SEAD (Suppression of Enemy Air Defence).
 
 ## Connection Nodes
-By default Skynet IADS will run without having to add connection nodes. You can add connection nodes to SAM Units, EW Radars and Command Centers.
+By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM Units, EW Radars and Command Centers.
 
-When a connection node is fully damaged the unit disconnected from the IADS will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center is destroyed all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
+When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center is destroyed all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
@@ -41,7 +45,7 @@ Currently Skynet only works with ground based units. Incorporating air units is 
 
 # Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
-Older SAM sites are more susceptible to jamming. 
+Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness. 
 When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
@@ -104,7 +108,8 @@ The command center represents the place where information is collected and analy
 
 Add a command center like this:
 ```
-iranianIADS:addCommandCenter(StaticObject.getByName("Command Center"))
+local commandCenter = StaticObject.getByName("Command Center")
+iranianIADS:addCommandCenter(commandCenter)
 ```
 
 You can also add a command center with a power source:
@@ -115,7 +120,7 @@ iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
 ### Adding a power sources and connection nodes to a SAM site
-Once you have added a SAM site to the IADS you can set the power source and connection node like this:
+Once you have added a SAM site to the IADS you can set the power source and connection node like this. Call the function multiple times to add more than one power source or connection node:
 ```
 local power = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
@@ -194,7 +199,7 @@ jammer:addIADS(iranIADS)
 jammer:masterArmOn()
 ```
 You can disable the jammer for a certain SAM type.  
-Curently the suppored SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15:
+The jammable SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15:
 ```
 jammer:disableFor('SA-2')
 ```
