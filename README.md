@@ -11,7 +11,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 ## IADS
 The IADS doesn't exist as a physical object in the game world. IADS is a complete operational network.
-You can have multiple IADS instances in a DCS Mission acting as independent sectional groups.
+You can have multiple IADS instances in a DCS mission acting as independent sectional groups.
 
 ## Comand Center
 You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
@@ -23,10 +23,10 @@ Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, th
 Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
 
 Nice to know:
-Terrain elevation around the EW will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
+Terrain elevation around a EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
+By default Skynet IADS will run without having to add power sources. You can add 0-n power sources to SAM units, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
@@ -52,7 +52,7 @@ When setting up a jammer you can decide which SAM Sites it is able to jam. For e
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 # Using Skynet in the mission editor
-It's quite easy to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
+It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
 
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
@@ -61,16 +61,16 @@ Place the IADS elements you wish to add on the map. Currently only russian units
 
 ## Preparing a SAM site
 There should be only be one SAM site type per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be messed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
-The skill level you set on a SAM Group is retained by Skynet. Make sure you name the SAM site **group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
+The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you name the **unit** in a consistent manner with a prefix, eg 'EW-center3'.  
+You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, eg 'EW-center3'.  
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## Adding the Skynet Code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-Make sure you load MIST and the compiled skynet code in to a mission. The skynet-iads-compiled.lua and mist_4_3_74.lua files are located in the /demo-mission/ folder. 
+Make sure you load MIST and the compiled skynet code in to a mission. The skynet-iads-compiled.lua and mist_4_3_74.lua files are located in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder. 
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
@@ -79,7 +79,7 @@ You can also add the code directly in the mission editor, however that input fie
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
 ## Adding the Skynet IADS
-For the IADS to work you just need three lines of code:
+For the IADS to work you need three lines of code:
 
 create an instance of the IADS:  
 ```
@@ -102,6 +102,7 @@ iranianIADS:activate()
 ```
 
 ## Advanced Features
+You can handcraft your IADS if you like, with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
 
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
@@ -122,15 +123,15 @@ iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ### Adding a power sources and connection nodes to a SAM site
 Once you have added a SAM site to the IADS you can set the power source and connection node like this. Call the function multiple times to add more than one power source or connection node:
 ```
-local power = StaticObject.getByName('Power Source')
+local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', power, connectionNode)
+iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode)
 ```
-There is an optional third parameter to set the autonomus mode state of a SAM site:
+There is an optional third parameter to set the autonomus state of a SAM site:
 ```
-local power = StaticObject.getByName('Power Source')
+local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', power, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
 ```
@@ -148,11 +149,12 @@ iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
 ```
 
 
-### Adding a SAM site manually
+### Adding units manually
 
 The advanced setup alows you to add a SAM Site individually and add connection nodes and power sources.
+Use this if of you want to add units based on some progress in a mission.
 
-Add an early warning radar with a power source and a connection node. Make sure the Units and StaticObjects exist in the mission:  
+Add an early warning radar with a power source and a connection node:
 ```
 earlyWarningRadar = Unit.getByName('EWR')  
 ewPower = StaticObject.getByName("EW Power Source")
@@ -165,12 +167,18 @@ You can also just add an EW Radar omitting the power source and connection node:
 iranIADS:addEarlyWarningRadar(earlyWarningRadar)
 ```
 
-Add a SAM Site like this:  
+Add a SAM Site with a power source and a connection node:  
 ```
 powerSource = StaticObject.getByName("SA6-PowerSource") 
 sa6Site2 = Group.getByName('SA6 Group2')
 connectionNode = StaticObject.getByName("Connection Node") 
 iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+```
+
+Add a SAM site (no power source, connection node):
+```
+sa6Site2 = Group.getByName('SA6 Group2')
+iranIADS:addSamSite(sa6Site2)
 ```
 
 The autonomous mode options are:  
@@ -216,7 +224,7 @@ local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true  
 iadsDebug.samWentDark = true  
 iadsDebug.contacts = true  
-iadsDebug.samWentLive = true  
+iadsDebug.radarWentLive = true  
 iadsDebug.noWorkingCommmandCenter = true  
 iadsDebug.ewRadarNoConnection = true  
 iadsDebug.samNoConnection = true  
