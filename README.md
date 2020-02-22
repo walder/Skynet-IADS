@@ -134,7 +134,12 @@ local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
-The autonomous mode options are:  
+If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
+```
+local connectionNode = StaticObject.getByName('Connection Node')
+iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
+```
+#### The autonomous mode options are:  
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
@@ -144,13 +149,6 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
 SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
 
-
-If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
-```
-local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
-```
-
 ### Adding a power source and connection node to a EW radar already in the Skynet IADS
 Adding a power source and a connection node to an EW radar works similar to the SAM site:
 ```
@@ -158,7 +156,6 @@ local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
 ```
-
 
 ### Adding units manually
 You can add IADS elements individually including connection nodes, power sources and autonomous behaviour.
