@@ -25,9 +25,9 @@ for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		end
 end
 --]]
-iranIADS:addSamSite('Bandar Abbas Hawk Site')
-iranIADS:addEarlyWarningRadar('EW-Radar')
-
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
+iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:addSamSitesByPrefix('PD')
 iranIADS:activate()
 
 end
