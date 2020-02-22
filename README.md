@@ -134,6 +134,17 @@ local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
+The autonomous mode options are:  
+```
+SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
+```
+SAM Site will go dark if it looses connection to IADS  
+```
+SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+```
+SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
+
+
 If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
 ```
 local connectionNode = StaticObject.getByName('Connection Node')
@@ -179,16 +190,6 @@ Add a SAM site (no power source, no connection node, will use default autonomous
 sa6Site2 = Group.getByName('SA6 Group2')
 iranIADS:addSamSite(sa6Site2)
 ```
-
-The autonomous mode options are:  
-```
-SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
-```
-SAM Site will go dark if it looses connection to IADS  
-```
-SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
-```
-SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
 
 You can also just add a SAM site omitting power source and connection node:  
 ```
