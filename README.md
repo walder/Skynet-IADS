@@ -150,7 +150,7 @@ SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weap
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
 ### Adding a power source and connection node to a EW radar already in the Skynet IADS
-Adding a power source and a connection node to an EW radar works similar to the SAM site:
+Works just like the sam site:
 ```
 local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
