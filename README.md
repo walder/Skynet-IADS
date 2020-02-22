@@ -233,4 +233,4 @@ iadsDebug.hasNoPower = true
 
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
-Also I shamelessly incorporated ![Grimes SAM DB](https://forums.eagle.ru/showthread.php?t=118175) from his IADS script.
+Also I shamelessly incorporated [Grimes SAM DB](https://forums.eagle.ru/showthread.php?t=118175) from his IADS script.
