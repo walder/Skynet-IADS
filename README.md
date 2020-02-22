@@ -128,16 +128,16 @@ local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode)
 ```
+If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
+```
+local connectionNode = StaticObject.getByName('Connection Node')
+iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
+```
 There is an optional third parameter to set the autonomus state of a SAM site:
 ```
 local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
-```
-If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
-```
-local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
 ```
 #### The autonomous mode options are:  
 ```
