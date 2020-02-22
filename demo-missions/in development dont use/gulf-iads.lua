@@ -16,18 +16,8 @@ iadsDebug.addedEWRadar = false
 iadsDebug.ewRadarNoPower = true
 ---end remove debug ---
 
----load red assets:
---[[
-for groupName, groupData in pairs(mist.DBs.groupsByName) do
-		local group = Group.getByName(groupName) 
-		if group and group:getCoalition() == coalition.side.RED and group:getName() ~= 'EW-RADAR' then
-			iranIADS:addSamSite(groupName, nil, nil)
-		end
-end
---]]
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
---iranIADS:addSamSitesByPrefix('PD')
 
 local c21 = StaticObject.getByName('C2-1')
 iranIADS:addCommandCenter(c21)
