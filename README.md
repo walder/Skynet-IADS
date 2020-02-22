@@ -141,15 +141,14 @@ local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 #### The autonomous mode options are:  
+SAM Site will go dark if it looses connection to IADS:
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
-SAM Site will go dark if it looses connection to IADS  
+SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free:
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
-SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free.
-
 ### Adding a power source and connection node to a EW radar already in the Skynet IADS
 Adding a power source and a connection node to an EW radar works similar to the SAM site:
 ```
