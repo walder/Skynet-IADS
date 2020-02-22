@@ -26,7 +26,7 @@ end
 
 function SkynetIADSSamSite:goDark(enforceGoDark)
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown
-	if ( self:getNumTargetsInRange() > 0 ) and ( enforceGoDark ~= true ) then
+	if self:getNumTargetsInRange() > 0 and enforceGoDark ~= true then
 		return
 	end
 	if self.aiState == true then
@@ -102,6 +102,10 @@ function SkynetIADSSamSite.setJamState(self, jammerChance)
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end
 
+function SkynetIADSSamSite:clearTargetsInRange()
+	self.targetsInRange = {}
+end
+
 function SkynetIADSSamSite:getNumTargetsInRange()
 	local contacts = 0
 	for description, aircraft in pairs(self.targetsInRange) do
@@ -121,7 +125,6 @@ function SkynetIADSSamSite:goAutonomous()
 	if self.autonomousMode == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 		trigger.action.outText(self:getDescription().." is Autonomous: DARK", 1)
-
 	else
 		self:goLive()
 		trigger.action.outText(self:getDescription().." is Autonomous: DCS AI", 1)

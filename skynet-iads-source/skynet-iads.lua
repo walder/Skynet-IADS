@@ -1,6 +1,7 @@
 do
 
 --V 1.0:
+-- TODO: SAM deactivtion logic eg when sam should go dark see if there are targets the sam is detecting
 -- TODO: when SAM or EW Radar is active and looses its power source it should go dark
 -- TODO: Update github documentation, add graphic overview of IADS elements
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
@@ -210,7 +211,7 @@ function SkynetIADS.evaluateContacts(self)
 			end
 		else
 			if self:getDebugSettings().ewRadarNoConnection then
-				self:printOutput(ewRadar:getDescription().." no connection to command center")
+				self:printOutput(ewRadar:getDescription().." no connection to Command Center")
 			end
 		end
 	end
@@ -221,6 +222,14 @@ function SkynetIADS.evaluateContacts(self)
 		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(unit)
+	end
+	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested
+	if #self.iadsContacts == 0 then
+		for i= 1, #self.samSites do
+			local samSite = self.samSites[i]
+			samSite:clearTargetsInRange()
+			samSite:goDark()
+		end
 	end
 end
 
@@ -244,7 +253,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 			samSite:handOff(detectedAircraft)
 		else
 			if self:getDebugSettings().samNoConnection then
-				self:printOutput(samSite:getDescription().." no connection Command center")
+				self:printOutput(samSite:getDescription().." no connection Command Center")
 				samSite:goAutonomous()
 			end
 		end

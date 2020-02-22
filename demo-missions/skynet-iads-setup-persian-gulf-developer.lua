@@ -16,5 +16,14 @@ iadsDebug.addedEWRadar = true
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:addCommandCenter(StaticObject.getByName("Command Center"), StaticObject.getByName("Command Center Power"))
+iranIADS:setOptionsForSamSite('SAM-SA-2', StaticObject.getByName('Ammo'), StaticObject.getByName('Ammo #002'))
+
 iranIADS:activate()	
+
+--local jammerSource = Unit.getByName("Player Hornet")
+--jammer = SkynetIADSJammer:create(jammerSource)
+--jammer:addIADS(iranIADS)
+--jammer:masterArmOn()
+--jammer:disableFor('SA-2')
 end
