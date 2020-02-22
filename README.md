@@ -103,7 +103,7 @@ iranianIADS:activate()
 
 ## Advanced setup
 This is the danger zone. Call Kenny Loggins. Some experience with scripting is recommended.
-You can handcraft your IADS if you like, with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
+You can handcraft your IADS with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
 
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
@@ -121,7 +121,7 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
-### Adding a power sources and connection nodes to a SAM site
+### Adding a power sources and connection nodes to a SAM site already in the Skynet IADS
 Once you have added a SAM site to the IADS you can set the power source and connection node like this. Call the function multiple times to add more than one power source or connection node:
 ```
 local powerSource = StaticObject.getByName('Power Source')
@@ -140,8 +140,7 @@ local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
 ```
 
-### Adding a power source and connection node to a EW radar
-
+### Adding a power source and connection node to a EW radar already in the Skynet IADS
 Adding a power source and a connection node to an EW radar works similar to the SAM site:
 ```
 local powerSource = StaticObject.getByName('Power Source')
@@ -151,9 +150,8 @@ iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
 
 
 ### Adding units manually
-
-The advanced setup alows you to add a SAM Site individually and add connection nodes and power sources.
-Use this if of you want to add units based on some progress in a mission.
+You can add IADS elements individually including connection nodes, power sources and autonomous behaviour.
+Use this if of you want to add units based on kind of some progress in a mission.
 
 Add an early warning radar with a power source and a connection node:
 ```
@@ -176,7 +174,7 @@ connectionNode = StaticObject.getByName("Connection Node")
 iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 
-Add a SAM site (no power source, connection node):
+Add a SAM site (no power source, no connection node, will use default autonomous behaviour):
 ```
 sa6Site2 = Group.getByName('SA6 Group2')
 iranIADS:addSamSite(sa6Site2)
