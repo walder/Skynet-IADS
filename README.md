@@ -104,6 +104,7 @@ iranianIADS:activate()
 ## Advanced setup
 This is the danger zone. Call Kenny Loggins. Some experience with scripting is recommended.
 You can handcraft your IADS with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
+The following examples use adding static objects for command centers and power sources, you can also use units instead.
 
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
