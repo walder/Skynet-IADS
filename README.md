@@ -233,7 +233,7 @@ Also I shamelessly incorporated [Grimes SAM DB](https://forums.eagle.ru/showthre
 
 # FAQ
 
-## What air defence types shall I add to the Skynet IADS?
+## What air defence units shall I add to the Skynet IADS?
 In theory you can add all the types that are listed in the [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua) file. 
 Types without a radar (some AAA, Manpads) won't really benefit from the IADS. These are better just placed in a mission and handeled by the default AI of DCS. 
 This is due to the short range of their weapons. By the time the IADS wakes them up, the contact has likely passed their engagement range.
