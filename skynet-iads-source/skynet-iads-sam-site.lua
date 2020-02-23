@@ -177,7 +177,7 @@ function SkynetIADSSamSite:isTargetInRange(target)
 	return ( samRadarInRange and samLauncherinRange )
 end
 
--- TODO: could be more acurrate if it would calculate slant range
+-- TODO: could be more acurrate if it would calculate slant range -> use: https://wiki.hoggitworld.com/view/MIST_get3DDist
 function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLauncherUnit, launcherData)
 	local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
@@ -215,6 +215,7 @@ function SkynetIADSSamSite:isWeaponHarm(weapon)
 end
 
 -- this function needs to be able to handle all types of HARMS currently only the AGM 88 is handeled
+-- impact point calculation: see: https://wiki.hoggitworld.com/view/DCS_func_getIP
 function SkynetIADSSamSite:scanForHarms()
 	
 	local targets = self:getDetectedTargets(Controller.Detection.VISUAL) 
