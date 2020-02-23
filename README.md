@@ -47,7 +47,7 @@ Currently Skynet only works with ground based units. Incorporating air units is 
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
-Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness. 
+Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness on them. 
 When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
