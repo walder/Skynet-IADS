@@ -10,8 +10,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
 
 ## IADS
-The IADS doesn't exist as a physical object in the game world. IADS is a complete operational network.
-You can have multiple IADS instances in a DCS mission acting as independent sectional groups.
+A Skynet IADS is a complete operational network. You can have multiple Skynet IADS instances per coalition in a DCS mission. A simple setup would be one IADS for the blue side and one IADS for the red side.
 
 ## Comand Center
 You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
