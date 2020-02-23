@@ -11,7 +11,7 @@ iadsDebug.noWorkingCommmandCenter = true
 iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = true
-iadsDebug.addedEWRadar = false
+iadsDebug.addedEWRadar = true
 iadsDebug.ewRadarNoPower = true
 ---end remove debug ---
 
