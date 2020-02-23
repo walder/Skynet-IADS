@@ -233,14 +233,14 @@ Also I shamelessly incorporated [Grimes SAM DB](https://forums.eagle.ru/showthre
 
 # FAQ
 
-## what air defence types shall I add to the Skynet IADS
+## What air defence types shall I add to the Skynet IADS?
 In theory you can add all the types that are listes in the [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua) file. 
 Types without a radar (AAA, Manpads) won't really benefit from the IADS. These are better just placed in a mission and handeled by the default AI of DCS. 
 This is due to the short range of their weapons. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 
-## Can I add a SAMM Site in an EW radar role?
+## Can I add a SAM site in an EW radar role?
 You can use a search radar from a SAM system. However in the current implementation a SAM Site cant act as EW radar and intercept airborne targets at the same time.
 This is due to the fact, that a SAM site is off by default and only triggered when the IADS determines a target is in range. You can however add a single unit containing the SAM search radar
 and add that to the IADS as an EW radar.
