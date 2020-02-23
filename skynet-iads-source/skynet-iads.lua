@@ -1,34 +1,34 @@
 do
 
 --V 1.0:
--- TODO: SAM deactivtion logic eg when sam should go dark see if there are targets the sam is detecting
--- TODO: when SAM or EW Radar is active and looses its power source it should go dark
--- TODO: Update github documentation, add graphic overview of IADS elements
+-- TODO: check if jammer should be scripted with LOS, SAM sites in urban area don't always return a propper LOS, maybe just add the height +10 m for LOS calcualtion?
 
 -- to test: 1 command center, 1 command power source (damage each one individually): ok
 -- to test: 2 command centers, 2 command power sources (damage each one individually): ok
 -- to test: SAM 1 power source, 1 com center (damage each one individually): ok
--- To test: different kinds of Sam types, damage to power source, command center, connection nodes
+-- to test: EW Radar, 1 connection node, 2 power source (damage each one individually): ok
 
 -- V 1.1:
--- TODO: check if SAM has LOS to target, if not, it should not activate
--- TODO: code HARM defence, check if SAM Site or EW sees HARM, only then start defence
+-- TODO: code HARM defence, check if SAM Site or EW sees HARM, only then start defence -> SAM Sites with no HARM defence would shut down, and if mobile move the emitter 50 - 100 m. code lag ~30 secs until unit moves
+-- TODO: SAM Sites could go active if a bandit is within visual detection range, e.g. > 10 nm.
 -- TODO: SAM could have decoy emitters to trick HARM in to homing in to the wrong radar
+-- TODO: if SAM site has run out of missiles shut it down
+
+-- V1.2:
+-- TODO: decide if more SAM Sites need to be jammable, eg blue side.
 -- TODO: extrapolate flight path to get SAM to active so that it can fire as aircraft aproaches max range	
 -- TODO: add sneaky sam tactics, like stay dark until bandit has passed the sam then go live
--- TODO: if SAM site has run out of missiles shut it down
 -- TODO: merge SAM contacts with the ones it gets from the IADS, it could be that the SAM sees something the IADS does not know about, later on add this data back to the IADS
 -- TODO: add random failures in IFF so enemy planes trigger IADS SAM activation by mistake
 -- TODO: electronic Warfare: add multiple planes via script around the Jamming Group, get SAM to target those
--- TODO: decide if more SAM Sites need to be jammable, eg blue side.
 -- TODO: after one connection node or powerplant goes down and there are others, add a delay until the sam site comes online again (configurable)
--- TODO: remove contact in sam site if its out of range, it could be an IADS stops working while a SAM site is tracking a target --> or does this not matter due to DCS AI?
 -- TODO: SA-10 Launch distance seems off
 -- TODO: EW Radars should also be jammable, what should the effects be on IADS target detection? eg activate sam sites in the bearing ot the jammer source, since distance calculation would be difficult, when tracked by 2 EWs, distance calculation should improve due to triangulation?
--- TODO: check if jammer should be scripted with LOS
+-- TODO: check if SAM has LOS to target, if not, it should not activate -> not quite sure of that is a good idea due to LOS calcualtion issues
 
 -- To test: which SAM Types can engage air weapons, especially HARMs?
 -- To test: shall sam turn ai off or set state to green, when going dark? Does one method have an advantage?
+
 --[[
 SAM Sites that engage HARMs:
 SA-15

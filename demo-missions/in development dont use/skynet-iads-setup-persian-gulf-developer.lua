@@ -37,7 +37,7 @@ iranIADS:activate()
 local jammerSource = Unit.getByName("Player Hornet")
 jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(iranIADS)
-jammer:masterArmOn()
+--jammer:masterArmOn()
 --jammer:disableFor('SA-2')
 
 

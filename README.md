@@ -4,7 +4,7 @@
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
 # Abstract
-This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the SAM Site it will become active. A modern IADS also depends on command centers and datalinks to the SAM Sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
+This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the SAM site it will become active. A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
 # IADS Elements
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
@@ -17,10 +17,11 @@ You can have multiple IADS instances in a DCS mission acting as independent sect
 You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Site
-Skynet can handle 0-n Sam Sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
+Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
 
 ##  Early Warning Radar
-Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for EW in Skynet. Some modern SAM units have longer range radars then the EW Radars, eg S300 vs EWR 55G6.
+Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for an EW role in Skynet. 
+Some modern SAM radars have a greater detection range than older EW Radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
 Nice to know:
 Terrain elevation around a EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
@@ -35,10 +36,10 @@ Taking out the power source of a command center is a real life tactic used in SE
 ## Connection Nodes
 By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM Units, EW Radars and Command Centers.
 
-When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM Unit this means it will behave in its autonomous mode setting. If a command center is destroyed all SAM Sites will go autonomous. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
+When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
 Nice to know:
-A single node can be used to connect an arbitrary number of Skynet IADS units. This way cou can add a single point of failure in to an IADS.
+A single node can be used to connect an arbitrary number of Skynet IADS units. This way can add a single point of failure in to an IADS.
 
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
@@ -48,7 +49,7 @@ A simple form of jamming is part of the Skynet IADS package. It's off by default
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness. 
-When setting up a jammer you can decide which SAM Sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
+When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 # Using Skynet in the mission editor
@@ -61,11 +62,11 @@ Place the IADS elements you wish to add on the map. Currently only russian units
 
 ## Preparing a SAM site
 There should be only be one SAM site type per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be messed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
-The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix eg 'SAM-SA-2'.  
+The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, eg 'EW-center3'.  
+You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'.  
 ![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
 
 ## Adding the Skynet Code
@@ -74,7 +75,7 @@ Make sure you load MIST and the compiled skynet code in to a mission. The skynet
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
-I recommend you create a text file eg 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
+I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
@@ -104,7 +105,7 @@ iranianIADS:activate()
 ## Advanced setup
 This is the danger zone. Call Kenny Loggins. Some experience with scripting is recommended.
 You can handcraft your IADS with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
-The following examples use adding static objects for command centers and power sources, you can also use units instead.
+The following examples use static objects for command centers and power sources, you can also use units instead.
 
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
@@ -124,12 +125,12 @@ iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 
 ### Adding a power sources and connection nodes to a SAM site already in the Skynet IADS
 Once you have added a SAM site to the IADS you can set the power source and connection node like this. Call the function multiple times to add more than one power source or connection node:
-```
 local powerSource = StaticObject.getByName('Power Source')
+```
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode)
 ```
-If you just want a connection node, add nil where the power station would be passed. The same will work for a connection node.
+If you just want to add a connection node add nil where the power station would be passed. If you just want to add a power station pass nil for the connection node parameter.
 ```
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
@@ -158,12 +159,12 @@ iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
 ```
 
 ### Adding units manually
-You can add IADS elements individually including connection nodes, power sources and autonomous behaviour.
+You can add IADS elements individually including connection nodes, power sources and the autonomous behaviour.
 Use this if of you want to add units based on kind of some progress in a mission.
 
 Add an early warning radar with a power source and a connection node:
 ```
-earlyWarningRadar = Unit.getByName('EWR')  
+local earlyWarningRadar = Unit.getByName('EWR')  
 ewPower = StaticObject.getByName("EW Power Source")
 ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
 iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
@@ -171,6 +172,7 @@ iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
 
 You can also just add an EW Radar omitting the power source and connection node:  
 ```
+local earlyWarningRadar = Unit.getByName('EWR')  
 iranIADS:addEarlyWarningRadar(earlyWarningRadar)
 ```
 
@@ -184,12 +186,7 @@ iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUT
 
 Add a SAM site (no power source, no connection node, will use default autonomous behaviour):
 ```
-sa6Site2 = Group.getByName('SA6 Group2')
-iranIADS:addSamSite(sa6Site2)
-```
-
-You can also just add a SAM site omitting power source and connection node:  
-```
+local sa6Site2 = Group.getByName('SA6 Group2')
 iranIADS:addSamSite(sa6Site2)
 ```
 
