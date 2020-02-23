@@ -111,6 +111,7 @@ function SkynetIADSSamSite:setAutonomousBehaviour(mode)
 end
 
 function SkynetIADSSamSite:handOff(contact)
+	self:scanForHarms()
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
 		self:goDark(true)
@@ -209,22 +210,31 @@ end
 
 function SkynetIADSSamSite:isWeaponHarm(weapon)
 	local desc = weapon:getDesc()
-	-- should be: weapon.MissileCategory.OTHER and  weapon.GuidanceType.RADAR_PASSIVE§
+	-- should be: weapon.MissileCategory.OTHER and  weapon.GuidanceType.RADAR_PASSIVE
 	return (desc.missileCategory == 6 and desc.guidance == 5)	
 end
 
---function SkynetIADSSamSite:onEvent(event)
+-- this function needs to be able to handle all types of HARMS currently only the AGM 88 is handeled
+function SkynetIADSSamSite:scanForHarms()
+	
+	local targets = self:getDetectedTargets(Controller.Detection.VISUAL) 
+	self:isHarmKnownToSamSite(targets, "VISUAL")
+	
+	local targets = self:getDetectedTargets(Controller.Detection.RADAR) 
+	self:isHarmKnownToSamSite(targets, "RADAR")
+end
 
---[[
-	if event.id == world.event.S_EVENT_SHOT then
-		local weapon = event.weapon
-		targetOfMissile = weapon:getTarget()
-		if targetOfMissile ~= nil and self:isWeaponHarm(weapon) then
-			self:startHarmDefence(weapon)
-		end	
+function SkynetIADSSamSite:isHarmKnownToSamSite(targets, detectionType)
+	for i = 1, #targets do
+		local target = targets[i]
+		if target:getTypeName() == 'weapons.missiles.AGM_88' then
+			trigger.action.outText("Detection Type: "..detectionType, 1)
+			trigger.action.outText(target:getTypeName(), 1)
+			trigger.action.outText("Is Type Known: "..tostring(target:isTypeKnown()), 1)
+			-- what should the crteria be for a harm detection. Type known, visual?
+		end
 	end
---]]
---end
+end
 
 function SkynetIADSSamSite.harmDefence(self, inBoundHarm) 
 	local target = inBoundHarm:getTarget()

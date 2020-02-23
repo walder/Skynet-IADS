@@ -8,10 +8,11 @@ do
 --[[
 SAM Sites that engage HARMs:
 SA-15
-SA-10
+
 
 SAM Sites that ignore HARMS:
 SA-11 (test again)
+SA-10 (didn't react)
 SA-6
 ]]--
 

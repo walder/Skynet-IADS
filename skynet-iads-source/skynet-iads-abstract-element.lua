@@ -70,6 +70,23 @@ function SkynetIADSAbstractElement:getController()
 	return self:getDCSRepresentation():getController()
 end
 
+function SkynetIADSAbstractElement:getDetectedTargets(detectionType)
+	if self:hasWorkingPowerSource() == false then
+		return
+	end
+	local returnTargets = {}
+	--trigger.action.outText("EW getTargets", 1)
+	--trigger.action.outText(self.radarUnit:getName(), 1)
+	local targets = self:getController():getDetectedTargets(detectionType)
+	--trigger.action.outText("num Targets: "..#targets, 1)
+	for i = 1, #targets do
+		local target = targets[i]
+		local iadsTarget = SkynetIADSContact:create(target)
+		table.insert(returnTargets, iadsTarget)
+	end
+	return returnTargets
+end
+
 function SkynetIADSAbstractElement:getDBValues()
 	local units = {}
 	units[1] = self:getDCSRepresentation()
