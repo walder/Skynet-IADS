@@ -31,4 +31,13 @@ function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type
 end
 
+function SkynetIADSContact:getPosition()
+	return self.dcsContact:getPosition()
 end
+
+function SkynetIADSContact:isDistanceKnown()
+	return self.dcsRadarTarget.distance
+end
+
+end
+

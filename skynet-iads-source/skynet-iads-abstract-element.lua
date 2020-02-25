@@ -9,7 +9,9 @@ function SkynetIADSAbstractElement:create(iads)
 	instance.aiState = true
 	instance.connectionNodes = {}
 	instance.powerSources = {}
+	instance.objectsIdentifiedasHarms = {}
 	instance.iads = iads
+	instance.shutdownforHarmDefence = false
 	world.addEventHandler(instance)
 	return instance
 end
@@ -157,7 +159,7 @@ function SkynetIADSAbstractElement:onEvent(event)
 end
 
 function SkynetIADSAbstractElement:goLive()
-	if self:hasWorkingPowerSource() == false then
+	if self:hasWorkingPowerSource() == false or self.shutdownforHarmDefence == true then
 		return
 	end
 	if self.aiState == false and self:isControllableUnit() then
@@ -166,9 +168,61 @@ function SkynetIADSAbstractElement:goLive()
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		self.aiState = true
+	--	self:scanForHarms()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
 		end
+	end
+end
+
+function SkynetIADSAbstractElement:scanForHarms()
+	mist.removeFunction(self.harmScanID)
+	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractElement.evaluateIfTargetsContainHarms, {self}, 1, 5)
+end
+
+
+--Todo: detection of HARM ist to perfect, add randomisation, add reactivation time or the IADS could give SAM green lights, when no Strikers are in the area of the sam anymore.
+function SkynetIADSAbstractElement.evaluateIfTargetsContainHarms(self, detectionType)
+	local targets = self:getDetectedTargets(detectionType) 
+	for i = 1, #targets do
+		local target = targets[i]
+		--if target:getTypeName() == 'weapons.missiles.AGM_88' then
+		--	trigger.action.outText("Detection Type: "..detectionType, 1)
+		--	trigger.action.outText(target:getTypeName(), 1)
+		--	trigger.action.outText("Is Type Known: "..tostring(target:isTypeKnown()), 1)
+		--	trigger.action.outText("Distance is Known: "..tostring(target:isDistanceKnown()), 1)
+			local radars = self:getRadarUnits()
+			for j = 1, #radars do
+				local radar = radars[j]
+				local distance = mist.utils.get3DDist(target:getPosition().p, radar:getPosition().p)
+			--	trigger.action.outText("Missile to SAM distance: "..distance, 1)
+				-- distance needs to be incremented by a certain value for ip calculation to work, check why
+				local impactPoint = land.getIP(target:getPosition().p, target:getPosition().x, distance+100)
+				if impactPoint then
+					local diststanceToSam = mist.utils.get2DDist(radar:getPosition().p, impactPoint)
+				--	trigger.action.outText("Impact Point distance to SAM site: "..diststanceToSam, 1)
+				--	trigger.action.outText("detected Object Name: "..target:getName(), 1)
+					--trigger.action.outText("Impact Point X: "..impactPoint.x.."Y: "..impactPoint.y.."Z: "..impactPoint.z, 1)
+					if diststanceToSam <= 100 then
+						local numDetections = 0
+						if self.objectsIdentifiedasHarms[target:getName()] then
+							numDetections = self.objectsIdentifiedasHarms[target:getName()]
+							numDetections = numDetections + 1
+							self.objectsIdentifiedasHarms[target:getName()] = numDetections
+						else
+							self.objectsIdentifiedasHarms[target:getName()] = 1
+							numDetections = self.objectsIdentifiedasHarms[target:getName()]
+						end
+					--	trigger.action.outText("detection Cycle: "..numDetections, 1)
+						-- this may still be too perfect, add some kind of randomisation, but where?
+						if numDetections >= 3 then
+							self:goDark(true)
+							self.shutdownforHarmDefence = true
+						end
+					end
+				end
+			end
+	--	end
 	end
 end
 

@@ -4,7 +4,7 @@ iranIADS = SkynetIADS:create()
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = false
+iadsDebug.samWentDark = true
 iadsDebug.contacts = false
 iadsDebug.radarWentLive = false
 iadsDebug.noWorkingCommmandCenter = true

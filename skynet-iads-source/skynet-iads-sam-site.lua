@@ -14,6 +14,7 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	sam.jammerID = nil
 	sam.lastJammerUpdate = 0
 	sam.setJammerChance = true
+	sam.harmScanID = nil
 	sam.autonomousBehaviour = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam:setDCSRepresentation(samGroup)
 	sam:goDark(true)
@@ -33,6 +34,7 @@ function SkynetIADSSamSite:goDark(enforceGoDark)
 		--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
+		mist.removeFunction(self.harmScanID)
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
 		end
@@ -111,7 +113,6 @@ function SkynetIADSSamSite:setAutonomousBehaviour(mode)
 end
 
 function SkynetIADSSamSite:handOff(contact)
-	self:scanForHarms()
 	-- if the sam has no power, it won't do anything
 	if self:hasWorkingPowerSource() == false then
 		self:goDark(true)
@@ -130,7 +131,7 @@ function SkynetIADSSamSite:removeContact(contact)
 	local updatedContacts = {}
 	for id, airborneObject in pairs(self.targetsInRange) do
 		-- check to see if airborneObject still exists there are cases where the sam keeps the target in the array of contacts
-		if airborneObject ~= contact and airborneObject:isExist() then
+		if airborneObject:getName() ~= contact:getName() and airborneObject:isExist() then
 			updatedContacts[id] = airborneObject
 		end
 	end
@@ -179,20 +180,20 @@ end
 
 -- TODO: could be more acurrate if it would calculate slant range -> use: https://wiki.hoggitworld.com/view/MIST_get3DDist
 function SkynetIADSSamSite:isLauncherWithinFiringParameters(aircraft, samLauncherUnit, launcherData)
-	local isInRange = false
+	--local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samLauncherUnit:getPosition().p)
 	local maxFiringRange = launcherData['range']
 	--trigger.action.outText("Launcher Range: "..maxFiringRange,1)
 	--trigger.action.outText("current distance: "..distance,1)
-	if distance <= maxFiringRange then
-		isInRange = true
-		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
-	end
-	return isInRange
+	return distance <= maxFiringRange --then
+	--	isInRange = true
+	--	trigger.action.outText(aircraft:getTypeName().." in range of:"..samLauncherUnit:getTypeName(),1)
+	--end
+	--return isInRange
 end
 
 function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUnit, radarData)
-	local isInRange = false
+	--local isInRange = false
 	local distance = mist.utils.get2DDist(aircraft:getPosition().p, samRadarUnit:getPosition().p)
 	local radarHeight = samRadarUnit:getPosition().p.y
 	local aircraftHeight = aircraft:getPosition().p.y	
@@ -201,78 +202,18 @@ function SkynetIADSSamSite:isRadarWithinTrackingParameters(aircraft, samRadarUni
 	local maxDetectionRange = radarData['max_range_finding_target']	
 	--trigger.action.outText("Radar Range: "..maxDetectionRange,1)
 	--trigger.action.outText("current distance: "..distance,1)
-	if altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange then
-		--trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
-		isInRange = true
-	end
-	return isInRange
+	return altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange --then
+	--	trigger.action.outText(aircraft:getTypeName().." in range of:"..samRadarUnit:getTypeName(),1)
+	--	isInRange = true
+--	end
+--	return isInRange
 end
 
+--[[
 function SkynetIADSSamSite:isWeaponHarm(weapon)
 	local desc = weapon:getDesc()
 	-- should be: weapon.MissileCategory.OTHER and  weapon.GuidanceType.RADAR_PASSIVE
 	return (desc.missileCategory == 6 and desc.guidance == 5)	
 end
-
--- this function needs to be able to handle all types of HARMS currently only the AGM 88 is handeled
--- impact point calculation: see: https://wiki.hoggitworld.com/view/DCS_func_getIP
-function SkynetIADSSamSite:scanForHarms()
-	
-	local targets = self:getDetectedTargets(Controller.Detection.VISUAL) 
-	self:isHarmKnownToSamSite(targets, "VISUAL")
-	
-	local targets = self:getDetectedTargets(Controller.Detection.RADAR) 
-	self:isHarmKnownToSamSite(targets, "RADAR")
-end
-
-function SkynetIADSSamSite:isHarmKnownToSamSite(targets, detectionType)
-	for i = 1, #targets do
-		local target = targets[i]
-		if target:getTypeName() == 'weapons.missiles.AGM_88' then
-			trigger.action.outText("Detection Type: "..detectionType, 1)
-			trigger.action.outText(target:getTypeName(), 1)
-			trigger.action.outText("Is Type Known: "..tostring(target:isTypeKnown()), 1)
-			-- what should the crteria be for a harm detection. Type known, visual?
-		end
-	end
-end
-
-function SkynetIADSSamSite.harmDefence(self, inBoundHarm) 
-	local target = inBoundHarm:getTarget()
-	local harmDetected = false	
-	if target ~= nil then
-		local targetController = target:getController()
-		trigger.action.outText("HARM TARGET IS: "..target:getName(), 1)	
-		local radarContacts = targetController:getDetectedTargets()
-		--check to see if targeted Radar Site can see the HARM with its sensors, only then start defensive action
-		for i = 1, #radarContacts do
-			local detectedObject = radarContacts[i].object
-			if SkynetIADS.isWeaponHarm(detectedObject) then
-				trigger.action.outText(target:getName().." has detected: "..detectedObject:getTypeName(), 1)
-				harmDetected = true
-			end
-		end
-		
-		local distance = mist.utils.get2DDist(inBoundHarm:getPosition().p, target:getPosition().p)
-		distance = mist.utils.round(mist.utils.metersToNM(distance),2)
-		trigger.action.outText("HARM Distance: "..distance, 1)
-		
-		--TODO: some SAM Sites have HARM defence, so they do not need help from the script
-		if distance < 5 and harmDetected then
-			local point = inBoundHarm:getPosition().p
-			point.y = point.y + 1
-			point.x = point.x - 1
-			point.z = point.z + 1
-		--	trigger.action.explosion(point, 10) 
-		end
-	else
-		trigger.action.outText("target is nil", 1)
-	end
-end
-
-function SkynetIADSSamSite:startHarmDefence(inBoundHarm)
-	--TODO: store ID of task so it can be stopped when sam or harm is destroyed
-	mist.scheduleFunction(SkynetIADS.harmDefence, {self, inBoundHarm}, 1, 1)	
-end
-
+--]]
 end
