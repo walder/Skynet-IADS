@@ -2,7 +2,7 @@ do
 
 SkynetIADSAbstractElement = {}
 
-function SkynetIADSAbstractElement:create(iads)
+function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	local instance = {}
 	setmetatable(instance, self)
 	self.__index = self
@@ -12,6 +12,12 @@ function SkynetIADSAbstractElement:create(iads)
 	instance.objectsIdentifiedasHarms = {}
 	instance.iads = iads
 	instance.shutdownforHarmDefence = false
+	instance.launchers = {}
+	instance.trackingRadars = {}
+	instance.searchRadars = {}
+	instance.natoName = "UNKNOWN"
+	instance:setDCSRepresentation(dcsRepresentation)
+	instance:setupElements()
 	world.addEventHandler(instance)
 	return instance
 end
@@ -89,6 +95,90 @@ function SkynetIADSAbstractElement:getDetectedTargets(detectionType)
 	return returnTargets
 end
 
+function SkynetIADSAbstractElement:setupElements()
+	local units = {}
+	local natoName = self.natoName
+	units[1] = self:getDCSRepresentation()
+	if getmetatable(self:getDCSRepresentation()) == Group then
+		units = self:getDCSRepresentation():getUnits()
+	end
+	local unitTypes = {}
+	trigger.action.outText("-----"..self:getDCSName().."--------", 1)
+	for i = 1, #units do
+		local unitName = units[i]:getTypeName()
+		if unitTypes[unitName] then
+			unitTypes[unitName]['count'] = unitTypes[unitName]['count'] + 1
+		else
+			unitTypes[unitName] = {}
+			unitTypes[unitName]['count'] = 1
+			unitTypes[unitName]['found'] = 0
+		end
+	end
+	local allUnitsFound = true
+	for i = 1, #units do
+		local unit = units[i]
+		local unitTypeName = unit:getTypeName()
+		for typeName, dataType in pairs(SkynetIADS.database) do
+			for unitType, unitData in pairs(dataType) do
+				if unitType == 'searchRadar' then
+					for unitName, unitPerformanceData in pairs(unitData) do
+						if unitName == unitTypeName then
+							local searchRadar = SkynetIADSSAMSearchRadar:create(unit, unitPerformanceData)
+							table.insert(self.searchRadars, searchRadar)
+							--trigger.action.outText("added search radar", 1)
+							unitTypes[unitName]['found'] = unitTypes[unitName]['count']
+						end
+					end
+				elseif unitType == 'launchers' then
+					for unitName, unitPerformanceData in pairs(unitData) do
+						if unitName == unitTypeName then
+							local launcher = SkynetIADSSAMLauncher:create(unit, unitPerformanceData)
+							table.insert(self.launchers, launcher)
+							unitTypes[unitName]['found'] = unitTypes[unitName]['count']
+							--trigger.action.outText(launcher:getRange(), 1)
+						end
+					end
+				elseif unitType == 'trackingRadar' then
+					for unitName, unitPerformanceData in pairs(unitData) do
+						if unitName == unitTypeName then
+							local trackingRadar = SkynetIADSSAMTrackingRadar:create(unit, unitPerformanceData)
+							table.insert(self.trackingRadars, trackingRadar)
+							unitTypes[unitName]['found'] = unitTypes[unitName]['count']
+							--trigger.action.outText("added tracking radar", 1)
+						end
+					end
+				end
+			end
+			allUnitsFound = true
+			for name, countData in pairs(unitTypes) do
+				if countData['count'] ~= countData['found'] then
+					allUnitsFound = false
+					countData['found'] = 0
+				end
+			end
+			if allUnitsFound then
+		--		trigger.action.outText("break", 1)
+				natoName = dataType['name']['NATO']
+				break
+			end
+		end
+	end
+	local countNatoNames = 0
+	for name, countData in pairs(unitTypes) do
+		if countData['count'] ~= countData['found'] then
+			trigger.action.outText("MISMATCH: "..name.." "..countData['count'].." "..countData['found'], 1)
+		end
+	end
+	--we shorten the SA-XX names and don't return their code names eg goa, gainful..
+	local pos = natoName:find(" ")
+	local prefix = natoName:sub(1, 2)
+	if string.lower(prefix) == 'sa' and pos ~= nil then
+		natoName = natoName:sub(1, (pos-1))
+	end
+	self.natoName = natoName
+	trigger.action.outText(self:getDCSName().." nato name: "..natoName, 1)
+end
+
 function SkynetIADSAbstractElement:getDBValues()
 	local units = {}
 	units[1] = self:getDCSRepresentation()
@@ -129,7 +219,7 @@ function SkynetIADSAbstractElement:extractDBName(samName)
 end
 
 function SkynetIADSAbstractElement:getDBName()
-	local dbName =  self:getDBValues()['key']
+	local dbName = self:getDBValues()['key']
 	if dbName == nil then
 		dbName = "UNKNOWN"
 	end
@@ -137,11 +227,7 @@ function SkynetIADSAbstractElement:getDBName()
 end
 
 function SkynetIADSAbstractElement:getNatoName()
-	local natoName = self:getDBValues()['nato']
-	if natoName == nil then
-		natoName = "UNKNOWN"
-	end
-	return natoName
+	return self.natoName
 end
 
 function SkynetIADSAbstractElement:getDescription()

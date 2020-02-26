@@ -23,7 +23,7 @@ Skynet can handle 0-n EW Radars. For detection of a target the DCS radar detecti
 Some modern SAM radars have a greater detection range than older EW Radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
 Nice to know:
-Terrain elevation around a EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
+Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
 ##  Power Sources
 By default Skynet IADS will run without having to add power sources. You can add 0-n power sources to SAM units, EW radars and command centers.
@@ -35,7 +35,7 @@ Taking out the power source of a command center is a real life tactic used in SE
 ## Connection Nodes
 By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM Units, EW Radars and Command Centers.
 
-When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If a EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
+When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way can add a single point of failure in to an IADS.
@@ -149,7 +149,7 @@ SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weap
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
-### Adding a power source and connection node to a EW radar already in the Skynet IADS
+### Adding a power source and connection node to an EW radar already in the Skynet IADS
 Works just like the sam site:
 ```
 local powerSource = StaticObject.getByName('Power Source')

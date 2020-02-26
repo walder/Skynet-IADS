@@ -1,38 +1,18 @@
 do
 
 SkynetIADSContact = {}
+SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 
 function SkynetIADSContact:create(dcsRadarTarget)
-	local instance = {}
+	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.dcsContact = dcsRadarTarget.object
 	return instance
-end
-
-function SkynetIADSContact:getName()
-	return self.dcsContact:getName()
-end
-
-function SkynetIADSContact:getTypeName()
-	return self.dcsContact:getTypeName()
-end
-
-function SkynetIADSContact:getPosition()
-	return self.dcsContact:getPosition()
-end
-
-function SkynetIADSContact:isExist()
-	return self.dcsContact:isExist()
 end
 
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type
-end
-
-function SkynetIADSContact:getPosition()
-	return self.dcsContact:getPosition()
 end
 
 function SkynetIADSContact:isDistanceKnown()

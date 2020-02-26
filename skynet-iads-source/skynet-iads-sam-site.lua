@@ -7,7 +7,7 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI = 0
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK = 1
 
 function SkynetIADSSamSite:create(samGroup, iads)
-	local sam = self:superClass():create(iads)
+	local sam = self:superClass():create(samGroup, iads)
 	setmetatable(sam, self)
 	self.__index = self
 	sam.targetsInRange = {}
@@ -16,14 +16,13 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	sam.setJammerChance = true
 	sam.harmScanID = nil
 	sam.autonomousBehaviour = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
-	sam:setDCSRepresentation(samGroup)
 	sam:goDark(true)
 	return sam
 end
 
 function SkynetIADSSamSite:goDark(enforceGoDark)
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
-	if self:getNumTargetsInRange() > 0 and enforceGoDark ~= true then
+	if	self:getNumTargetsInRange() > 0 and enforceGoDark ~= true then
 		return
 	end
 	if self.aiState == true then
