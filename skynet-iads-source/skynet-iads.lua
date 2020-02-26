@@ -223,7 +223,7 @@ function SkynetIADS.evaluateContacts(self)
 		self:correlateWithSamSites(unit)
 	end
 	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested
-	if #self.iadsContacts == 0 then
+	if iadsContacts == 0 then
 		for i= 1, #self.samSites do
 			local samSite = self.samSites[i]
 			samSite:clearTargetsInRange()
