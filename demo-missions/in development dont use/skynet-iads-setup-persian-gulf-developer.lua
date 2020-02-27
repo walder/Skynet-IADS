@@ -3,7 +3,7 @@ iranIADS = SkynetIADS:create()
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = false
+iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = false
 iadsDebug.contacts = false
 iadsDebug.radarWentLive = false
@@ -13,9 +13,10 @@ iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = false
 iadsDebug.addedEWRadar = false
 iadsDebug.ewRadarNoPower = false
+iadsDebug.addedSAMSite = true
 ---end remove debug ---
 
---iranIADS:addEarlyWarningRadarsByPrefix('EW')
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 
 local powerStation1 = StaticObject.getByName("Command Center Power")
@@ -24,7 +25,7 @@ local commandCenter1 = StaticObject.getByName("Command Center")
 local commandCenter2 = StaticObject.getByName("Command Center2")
 iranIADS:addCommandCenter(commandCenter1, powerStation1)
 iranIADS:addCommandCenter(commandCenter2, powerStation2)
---[[
+
 local sa6PowerStation = StaticObject.getByName('SA-6 Power')
 local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode)
@@ -33,7 +34,7 @@ local ewWest2PowerSource = StaticObject.getByName('EW-west Power Source')
 local ewWest2ConnectionNode = StaticObject.getByName('EW-west Connection Node')
 iranIADS:setOptionsForEarlyWarningRadar('EW-west', ewWest2PowerSource, ewWest2ConnectionNode)
 iranIADS:activate()	
---]]
+
 local jammerSource = Unit.getByName("Player Hornet")
 jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(iranIADS)

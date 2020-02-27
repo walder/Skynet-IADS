@@ -41,6 +41,7 @@ function SkynetIADS:create()
 	self.debugOutput.jammerProbability = false
 	self.debugOutput.addedEWRadar = false
 	self.debugOutput.hasNoPower = false
+	self.debugOutput.addedSAMSite = false
 	return iads
 end
 
@@ -85,6 +86,9 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource,
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
 	self:addPowerAndConnectionNodeTo(earlyWarningRadarUnitName, powerSource, connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
+	if self:getDebugSettings().addedEWRadar then
+			self:printOutput(ewRadar:getDescription().." added to IADS")
+	end
 end
 
 function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connectionNode)
@@ -118,10 +122,13 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonom
 	end
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
-	if samSite:getDBName() == "UNKNOWN" then
+	if samSite:getNatoName() == "UNKNOWN" then
 		trigger.action.outText("WARNING: You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
 	else
 		table.insert(self.samSites, samSite)
+		if self:getDebugSettings().addedSAMSite then
+			self:printOutput(samSite:getDescription().." added to IADS")
+		end
 	end
 	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
 end

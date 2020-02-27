@@ -3,10 +3,11 @@ SkynetIADSCommandCenter = {}
 SkynetIADSCommandCenter = inheritsFrom(SkynetIADSAbstractElement)
 
 function SkynetIADSCommandCenter:create(commandCenter, iads)
-	local comCenter = self:superClass():create(commandCenter, iads)
-	setmetatable(comCenter, self)
+	local instance = self:superClass():create(commandCenter, iads)
+	setmetatable(instance, self)
 	self.__index = self
-	return comCenter
+	instance.natoName = "Command Center"
+	return instance
 end
 
 end
