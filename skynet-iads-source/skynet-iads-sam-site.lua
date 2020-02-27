@@ -16,7 +16,7 @@ function SkynetIADSSamSite:create(samGroup, iads)
 end
 
 function SkynetIADSSamSite:goAutonomous()
-	self.targetsInRange = {}
+	--self.targetsInRange = {}
 	if self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 		--trigger.action.outText(self:getDescription().." is Autonomous: DARK", 1)
@@ -40,7 +40,7 @@ function SkynetIADSSamSite:handOff(contact)
 		return
 	end
 	if self:isTargetInRange(contact) then
-		self.targetsInRange[contact:getName()] = contact
+	--	self.targetsInRange[contact:getName()] = contact
 		self:goLive()
 	else
 		self:removeContact(contact)

@@ -5,7 +5,7 @@ iranIADS = SkynetIADS:create()
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = false
-iadsDebug.contacts = false
+iadsDebug.contacts = true
 iadsDebug.radarWentLive = false
 iadsDebug.noWorkingCommmandCenter = false
 iadsDebug.ewRadarNoConnection = false
@@ -15,7 +15,6 @@ iadsDebug.addedEWRadar = false
 iadsDebug.ewRadarNoPower = false
 iadsDebug.addedSAMSite = true
 ---end remove debug ---
-
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 

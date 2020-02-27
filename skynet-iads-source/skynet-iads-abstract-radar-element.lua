@@ -7,7 +7,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
 	self.__index = self
-	instance.targetsInRange = {}
+	--instance.targetsInRange = {}
 	instance.jammerID = nil
 	instance.lastJammerUpdate = 0
 	instance.setJammerChance = true
@@ -165,7 +165,7 @@ end
 
 function SkynetIADSAbstractRadarElement:goDark(enforceGoDark)
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
-	if	self:getNumTargetsInRange() > 0 and enforceGoDark ~= true then
+	if	self:getDetectedTargets() > 0 and enforceGoDark ~= true then
 		return
 	end
 	if self.aiState == true then
@@ -223,9 +223,11 @@ function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end
 
+--[[
 function SkynetIADSAbstractRadarElement:clearTargetsInRange()
 	self.targetsInRange = {}
 end
+--]]
 
 function SkynetIADSAbstractRadarElement:getNumTargetsInRange()
 	local contacts = 0
@@ -235,7 +237,7 @@ function SkynetIADSAbstractRadarElement:getNumTargetsInRange()
 	--trigger.action.outText("num Contacts in Range: "..contacts, 1)
 	return contacts
 end
-
+--[[
 function SkynetIADSAbstractRadarElement:removeContact(contact)
 	local updatedContacts = {}
 	for id, airborneObject in pairs(self.targetsInRange) do
@@ -246,24 +248,25 @@ function SkynetIADSAbstractRadarElement:removeContact(contact)
 	end
 	self.targetsInRange = updatedContacts
 end
-
+--]]
 function SkynetIADSAbstractRadarElement:scanForHarms()
 	mist.removeFunction(self.harmScanID)
 	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms, {self}, 1, 5)
 end
 
-function SkynetIADSAbstractRadarElement:getDetectedTargets(detectionType)
+function SkynetIADSAbstractRadarElement:getDetectedTargets()
 	if self:hasWorkingPowerSource() == false then
 		return
 	end
 	local returnTargets = {}
 	--trigger.action.outText("EW getTargets", 1)
 	--trigger.action.outText(self.radarUnit:getName(), 1)
-	local targets = self:getController():getDetectedTargets(detectionType)
+	local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
 	--trigger.action.outText("num Targets: "..#targets, 1)
 	for i = 1, #targets do
 		local target = targets[i]
 		local iadsTarget = SkynetIADSContact:create(target)
+		iadsTarget:refresh()
 		table.insert(returnTargets, iadsTarget)
 	end
 	return returnTargets

@@ -31,6 +31,7 @@ function SkynetIADS:create()
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
 	iads.coalition = nil
+	iads.contacts = {}
 	self.debugOutput = {}
 	self.debugOutput.IADSStatus = false
 	self.debugOutput.samWentDark = false
@@ -211,8 +212,10 @@ function SkynetIADS.evaluateContacts(self)
 		if ewRadar:hasActiveConnectionNode() then
 			local ewContacts = ewRadar:getDetectedTargets()
 			for j = 1, #ewContacts do
+				local contact = ewContacts[j]
 				--trigger.action.outText(ewContacts[j]:getName(), 1)
-				iadsContacts[ewContacts[j]:getName()] = ewContacts[j]
+				self:mergeContact(contact)
+			--	iadsContacts[ewContacts[j]:getName()] = ewContacts[j]
 				--trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
 			end
 		else
@@ -221,21 +224,48 @@ function SkynetIADS.evaluateContacts(self)
 			end
 		end
 	end
-	for unitName, unit in pairs(iadsContacts) do
+	
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:hasActiveConnectionNode() then
+			local samContacts = samSite:getDetectedTargets()
+			for j = 1, #samContacts do
+				local contact = samContacts[j]
+				self:mergeContact(contact)
+			end
+		end
+	end
+	
+	for i = 1, #self.contacts do
+		local contact = self.contacts[i]
 		if self:getDebugSettings().contacts then
-			self:printOutput("IADS CONTACT: "..unitName.." | TYPE: "..unit:getTypeName())
+			self:printOutput("IADS CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName())
 		end
 		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
-		self:correlateWithSamSites(unit)
+		self:correlateWithSamSites(contact)
 	end
 	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested
-	if iadsContacts == 0 then
+	if self.contacts == 0 then
 		for i= 1, #self.samSites do
 			local samSite = self.samSites[i]
-			samSite:clearTargetsInRange()
+		--	samSite:clearTargetsInRange()
 			samSite:goDark()
 		end
+	end
+end
+
+function SkynetIADS:mergeContact(contact)
+	local existingContact = false
+	for i = 1, #self.contacts do
+		local iadsContact = self.contacts[i]
+		if iadsContact:getName() == contact:getName() then
+			iadsContact:refresh()
+			existingContact = true
+		end
+	end
+	if existingContact == false then
+		table.insert(self.contacts, contact)
 	end
 end
 
@@ -253,10 +283,10 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 		if samSite:hasActiveConnectionNode() then
 			samSite:handOff(detectedAircraft)
 		else
-			if self:getDebugSettings().samNoConnection then
-				self:printOutput(samSite:getDescription().." no connection Command Center")
-				samSite:goAutonomous()
-			end
+		if self:getDebugSettings().samNoConnection then
+			self:printOutput(samSite:getDescription().." no connection Command Center")
+			samSite:goAutonomous()
+		end
 		end
 	end
 end
