@@ -165,7 +165,7 @@ end
 
 function SkynetIADSAbstractRadarElement:goDark(enforceGoDark)
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
-	if	self:getDetectedTargets() > 0 and enforceGoDark ~= true then
+	if	#self:getDetectedTargets(true) > 0 and enforceGoDark ~= true then
 		return
 	end
 	if self.aiState == true then
@@ -223,12 +223,6 @@ function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end
 
---[[
-function SkynetIADSAbstractRadarElement:clearTargetsInRange()
-	self.targetsInRange = {}
-end
---]]
-
 function SkynetIADSAbstractRadarElement:getNumTargetsInRange()
 	local contacts = 0
 	for description, aircraft in pairs(self.targetsInRange) do
@@ -237,44 +231,38 @@ function SkynetIADSAbstractRadarElement:getNumTargetsInRange()
 	--trigger.action.outText("num Contacts in Range: "..contacts, 1)
 	return contacts
 end
---[[
-function SkynetIADSAbstractRadarElement:removeContact(contact)
-	local updatedContacts = {}
-	for id, airborneObject in pairs(self.targetsInRange) do
-		-- check to see if airborneObject still exists there are cases where the sam keeps the target in the array of contacts
-		if airborneObject:getName() ~= contact:getName() and airborneObject:isExist() then
-			updatedContacts[id] = airborneObject
-		end
-	end
-	self.targetsInRange = updatedContacts
-end
---]]
+
 function SkynetIADSAbstractRadarElement:scanForHarms()
 	mist.removeFunction(self.harmScanID)
 	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms, {self}, 1, 5)
 end
 
-function SkynetIADSAbstractRadarElement:getDetectedTargets()
-	if self:hasWorkingPowerSource() == false then
-		return
-	end
+function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
 	local returnTargets = {}
-	--trigger.action.outText("EW getTargets", 1)
-	--trigger.action.outText(self.radarUnit:getName(), 1)
-	local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
-	--trigger.action.outText("num Targets: "..#targets, 1)
-	for i = 1, #targets do
-		local target = targets[i]
-		local iadsTarget = SkynetIADSContact:create(target)
-		iadsTarget:refresh()
-		table.insert(returnTargets, iadsTarget)
+	if self:hasWorkingPowerSource() then
+		--trigger.action.outText("EW getTargets", 1)
+		--trigger.action.outText(self.radarUnit:getName(), 1)
+		local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
+		--trigger.action.outText("num Targets: "..#targets, 1)
+		for i = 1, #targets do
+			local target = targets[i]
+			local iadsTarget = SkynetIADSContact:create(target)
+			iadsTarget:refresh()
+			if inKillZone then
+				if self:isTargetInRange(iadsTarget) then
+					table.insert(returnTargets, iadsTarget)
+				end
+			else
+				table.insert(returnTargets, iadsTarget)
+			end
+		end
 	end
 	return returnTargets
 end
 
 --Todo: detection of HARM ist to perfect, add randomisation, add reactivation time or the IADS could give SAM green lights, when no Strikers are in the area of the sam anymore.
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, detectionType)
-	local targets = self:getDetectedTargets(detectionType) 
+	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]
 		--if target:getTypeName() == 'weapons.missiles.AGM_88' then

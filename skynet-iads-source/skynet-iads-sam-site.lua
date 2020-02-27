@@ -43,7 +43,6 @@ function SkynetIADSSamSite:handOff(contact)
 	--	self.targetsInRange[contact:getName()] = contact
 		self:goLive()
 	else
-		self:removeContact(contact)
 		self:goDark()
 	end
 end
