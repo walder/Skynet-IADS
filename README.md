@@ -134,6 +134,7 @@ If you just want to add a connection node add nil where the power station would 
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
 ```
+<a id="sam-ew">
 The fourth parameter sets up the SAM Site a an EW radar, meaning that it will be on by default. There is an optional 5th parameter to set the autonomus state of a SAM site:
 ```
 local powerSource = StaticObject.getByName('Power Source')
@@ -246,7 +247,7 @@ There are two ways to use a SAM site in an EW role:
 
 You can just add a long range sam search radar unit as an EW radar to the IADS.
 
-Or you can set a boolean value when adding a SAM site [advanced setup](#Adding a power sources and connection nodes to a SAM site already in the Skynet IADS).
+Or you can <a href="sam-ew">set a boolean value when adding a SAM site</a>.
 
 
 
