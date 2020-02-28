@@ -166,7 +166,7 @@ Add an early warning radar with a power source and a connection node:
 local earlyWarningRadar = Unit.getByName('EWR')  
 local ewPower = StaticObject.getByName("EW Power Source")  
 local ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
-iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
+iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode)
 ```
 
 You can also just add an EW Radar omitting the power source and connection node:  
