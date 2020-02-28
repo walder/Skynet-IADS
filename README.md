@@ -246,7 +246,7 @@ There are two ways to use a SAM site in an EW role:
 
 You can just add a long range sam search radar unit as an EW radar to the IADS.
 
-Or you can set a boolean value when adding a SAM site [advanced setup](### Adding a power sources and connection nodes to a SAM site already in the Skynet IADS).
+Or you can set a boolean value when adding a SAM site [advanced setup](#Adding a power sources and connection nodes to a SAM site already in the Skynet IADS).
 
 
 
