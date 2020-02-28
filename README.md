@@ -38,7 +38,7 @@ By default Skynet IADS will run without having to add connection nodes. You can 
 When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
 Nice to know:
-A single node can be used to connect an arbitrary number of Skynet IADS units. This way can add a single point of failure in to an IADS.
+A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
 
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
@@ -164,8 +164,8 @@ Use this if of you want to add units based on kind of some progress in a mission
 Add an early warning radar with a power source and a connection node:
 ```
 local earlyWarningRadar = Unit.getByName('EWR')  
-ewPower = StaticObject.getByName("EW Power Source")
-ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
+local ewPower = StaticObject.getByName("EW Power Source")  
+local ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
 iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode))
 ```
 
