@@ -7,7 +7,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
 	self.__index = self
-	--instance.targetsInRange = {}
+	instance.aiState = true
 	instance.jammerID = nil
 	instance.lastJammerUpdate = 0
 	instance.setJammerChance = true
@@ -117,7 +117,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 	if self:hasWorkingPowerSource() == false or self.shutdownforHarmDefence == true then
 		return
 	end
-	if self.aiState == false and self:isControllableUnit() then
+	if self.aiState == false then
 		local  cont = self:getController()
 		cont:setOnOff(true)
 		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
@@ -143,14 +143,6 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 		end
 	end
 	
-	local isLauncherInRange = ( #self.launchers == 0 )
-	for i = 1, #self.launchers do
-		local launcher = self.launchers[i]
-		if launcher:isInRange(target) then
-			isLauncherInRange = true
-		end
-	end
-	
 	local isTrackingRadarInRange = ( #self.trackingRadars == 0 )
 	for i = 1, #self.trackingRadars do
 		local trackingRadar = self.trackingRadars[i]
@@ -158,8 +150,16 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 			isTrackingRadarInRange = true
 		end
 	end
+	
+	local isLauncherInRange = ( #self.launchers == 0 )
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		if launcher:isInRange(target) or launcher:isAAA() then
+			isLauncherInRange = true
+		end
+	end
+	
 	--trigger.action.outText(self:getNatoName()..": in Range of Search Radar: "..tostring(isSearchRadarInRange).." Launcher: "..tostring(isLauncherInRange).." Tracking Radar: "..tostring(isTrackingRadarInRange), 1)
-	--TODO: handle special case for AAA to go live when in Search Range not firing Range
 	return  (isSearchRadarInRange and isTrackingRadarInRange and isLauncherInRange )
 end
 
@@ -186,7 +186,7 @@ end
 --this function is currently a simple placeholder, should only read all the radar units of the SAM system an return them
 --use this: if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
 function SkynetIADSAbstractRadarElement:getRadarUnits()
-	return self:getDCSRepresentation():getUnits()
+	return self.searchRadars -- and add tracking radars!
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)
@@ -260,7 +260,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
 	return returnTargets
 end
 
---Todo: detection of HARM ist to perfect, add randomisation, add reactivation time or the IADS could give SAM green lights, when no Strikers are in the area of the sam anymore.
+--Todo: detection of HARM ist too perfect, add randomisation, add reactivation time or the IADS could give SAM green lights, when no Strikers are in the area of the sam anymore.
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, detectionType)
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do

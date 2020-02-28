@@ -6,7 +6,6 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	local instance = {}
 	setmetatable(instance, self)
 	self.__index = self
-	instance.aiState = true
 	instance.connectionNodes = {}
 	instance.powerSources = {}
 	instance.iads = iads

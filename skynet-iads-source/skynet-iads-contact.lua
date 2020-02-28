@@ -7,6 +7,7 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
 	self.__index = self
+	self.firstContactTime = timer.getAbsTime()
 	self.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
 	return instance
@@ -22,6 +23,10 @@ end
 
 function SkynetIADSContact:refresh()
 	self.lastTimeSeen = timer.getAbsTime()
+end
+
+function SkynetIADSContact:getAge()
+	return timer.getAbsTime() - self.lastTimeSeen
 end
 
 end

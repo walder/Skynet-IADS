@@ -134,11 +134,11 @@ If you just want to add a connection node add nil where the power station would 
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
 ```
-There is an optional third parameter to set the autonomus state of a SAM site:
+The fourth parameter sets up the SAM Site a an EW radar, meaning that it will be on by default. There is an optional 5th parameter to set the autonomus state of a SAM site:
 ```
 local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 #### The autonomous mode options are:  
 SAM Site will go dark if it looses connection to IADS:
@@ -175,12 +175,12 @@ local earlyWarningRadar = Unit.getByName('EWR')
 iranIADS:addEarlyWarningRadar(earlyWarningRadar)
 ```
 
-Add a SAM Site with a power source and a connection node:  
+Add a SAM Site with a power source and a connection node, SAM site shall not be used as an EW radar (parameter false):
 ```
 powerSource = StaticObject.getByName("SA6-PowerSource") 
 sa6Site2 = Group.getByName('SA6 Group2')
 connectionNode = StaticObject.getByName("Connection Node") 
-iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 
 Add a SAM site (no power source, no connection node, will use default autonomous behaviour):
@@ -242,8 +242,11 @@ The strength of the Skynet IADS lies with handling long range systems that opera
 
 
 ## Can I add a SAM site in an EW radar role?
-You can use a search radar from a SAM system. However in the current implementation a SAM site can't act as EW radar and intercept airborne targets at the same time.
-This is due to the fact that a SAM site is off by default and only triggered when the IADS determines a target is in range. You can however add a single unit containing the SAM search radar
-and add that to the IADS as an EW radar.
+There are two ways to use a SAM site in an EW role:
+
+You can just add a long range sam search radar unit as an EW radar to the IADS.
+
+Or you can set a boolean value when adding a SAM site [advanced setup](### Adding a power sources and connection nodes to a SAM site already in the Skynet IADS).
+
 
 

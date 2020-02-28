@@ -52,10 +52,6 @@ function SkynetIADS:setCoalition(item)
 		if self.coalitionID == nil then
 			self.coalitionID = coalitionID
 		end
-	--	if getmetatable(item) == StaticObject then
-	--		trigger.action.outText(item:getName(), 10)
-	--		trigger.action.outText(self.coalitionID.." "..coalitionID, 10)
-	--	end
 		if self.coalitionID ~= coalitionID then
 			trigger.action.outText("WARNING: Element: "..item:getName().." has a different coalition than the IADS", 10)
 		end
@@ -115,7 +111,7 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	end
 end
 
-function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
+function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode)
 	local samSiteDCS = Group.getByName(samSiteName)
 	if samSiteDCS == nil then
 		trigger.action.outText("You have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", 10)
@@ -126,21 +122,23 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, autonom
 	if samSite:getNatoName() == "UNKNOWN" then
 		trigger.action.outText("WARNING: You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
 	else
+		samSite:goDark(true)
 		table.insert(self.samSites, samSite)
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutput(samSite:getDescription().." added to IADS")
 		end
 	end
-	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, autonomousMode)
+	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode)
 end
 
-function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, autonomousMode)
+function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, actAsEW, autonomousMode)
 	local update = false
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if string.lower(samSite:getDCSName()) == string.lower(groupName) then
 			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
 			samSite:setAutonomousBehaviour(autonomousMode)
+			samSite:setActAsEW(actAsEW)
 			update = true
 		end
 	end
@@ -239,20 +237,19 @@ function SkynetIADS.evaluateContacts(self)
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
 		if self:getDebugSettings().contacts then
-			self:printOutput("IADS CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName())
+			self:printOutput("IADS CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | LAST SEEN: "..contact:getAge())
 		end
 		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(contact)
 	end
-	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested
-	if self.contacts == 0 then
+	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested, probally no longer needed, since sam does not store a local array of contacts, that need so be cleared
+--[[	if self.contacts == 0 then
 		for i= 1, #self.samSites do
 			local samSite = self.samSites[i]
-		--	samSite:clearTargetsInRange()
 			samSite:goDark()
 		end
-	end
+	end--]]
 end
 
 function SkynetIADS:mergeContact(contact)
@@ -281,7 +278,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 	for i= 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if samSite:hasActiveConnectionNode() then
-			samSite:handOff(detectedAircraft)
+			samSite:informOfContact(detectedAircraft)
 		else
 		if self:getDebugSettings().samNoConnection then
 			self:printOutput(samSite:getDescription().." no connection Command Center")
@@ -291,7 +288,7 @@ function SkynetIADS:correlateWithSamSites(detectedAircraft)
 	end
 end
 
--- will start going through the Early Warning Radars to check what targets they have detected
+-- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS:activate()
 	if self.ewRadarScanMistTaskID ~= nil then
 		mist.removeFunction(self.ewRadarScanMistTaskID)

@@ -29,9 +29,14 @@ local sa6PowerStation = StaticObject.getByName('SA-6 Power')
 local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode)
 
+
+
+iranIADS:setOptionsForSamSite('SAM-SA-10', nil, nil, true)
+
 local ewWest2PowerSource = StaticObject.getByName('EW-west Power Source')
 local ewWest2ConnectionNode = StaticObject.getByName('EW-west Connection Node')
 iranIADS:setOptionsForEarlyWarningRadar('EW-west', ewWest2PowerSource, ewWest2ConnectionNode)
+
 iranIADS:activate()	
 
 local jammerSource = Unit.getByName("Player Hornet")
