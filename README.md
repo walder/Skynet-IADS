@@ -177,9 +177,9 @@ iranIADS:addEarlyWarningRadar(earlyWarningRadar)
 
 Add a SAM Site with a power source and a connection node:  
 ```
-powerSource = StaticObject.getByName("SA6-PowerSource") 
-sa6Site2 = Group.getByName('SA6 Group2')
-connectionNode = StaticObject.getByName("Connection Node") 
+local powerSource = StaticObject.getByName("SA6-PowerSource") 
+local sa6Site2 = Group.getByName('SA6 Group2')
+local connectionNode = StaticObject.getByName("Connection Node") 
 iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 
