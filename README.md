@@ -247,7 +247,7 @@ There are two ways to use a SAM site in an EW role:
 
 You can just add a long range sam search radar unit as an EW radar to the IADS.
 
-Or you can <a href="sam-ew">set a boolean value when adding a SAM site</a>.
+Or you can <a href="#sam-ew">set a boolean value when adding a SAM site</a>.
 
 
 
