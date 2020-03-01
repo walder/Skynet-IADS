@@ -29,13 +29,6 @@ You can also designate SAM Sites to act as EW radars, in this case the SAM site 
 Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
-## HARM defence
-SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
-The SAM site will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. The site will shut down between 1 and 3 minutes.
-
-There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
-
-
 ##  Power Sources
 By default Skynet IADS will run without having to add power sources. You can add 0-n power sources to SAM units, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
@@ -51,8 +44,16 @@ When all the unit's connection nodes are fully damaged the unit will go in to au
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
 
+# Tacticts
+
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
+
+## HARM defence
+SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
+The SAM site will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. The site will shut down between 1 and 3 minutes. This implementation is closer to real life. SAM Sites like the patriot calculate flight paths and radar cross sections to figure out it a contact heading inbound is a HARM.
+
+There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
