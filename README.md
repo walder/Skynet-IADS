@@ -24,9 +24,9 @@ You can add 0-n command centers to a Skynet IADS. Once all command centers are d
 ## SAM Site
 Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
 
-##  Early Warning Radar
-Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar for an EW role in Skynet. 
-Some modern SAM radars have a greater detection range than older EW Radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
+## Early Warning Radar
+Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
+Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
 You can also designate SAM Sites to act as EW radars, in this case the SAM site will be constantly emitting radar waves. Long range systems like the S-300 are used as EW radars in real life.
 
