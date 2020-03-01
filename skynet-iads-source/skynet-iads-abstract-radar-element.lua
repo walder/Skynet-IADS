@@ -12,11 +12,13 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.lastJammerUpdate = 0
 	instance.setJammerChance = true
 	instance.harmScanID = nil
-	instance.objectsIdentifiedasHarms = {}
+	instance.objectsIdentifiedAsHarms = {}
 	instance.shutdownforHarmDefence = false
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
+	instance.harmDetectionChance = 0
+	instance.harmShutdownTime = math.random(1, 3) * 60
 	instance:setupElements()
 	return instance
 end
@@ -67,6 +69,9 @@ function SkynetIADSAbstractRadarElement:setupElements()
 							--trigger.action.outText("added search radar", 1)
 							unitTypes[unitName]['found'] = unitTypes[unitName]['count']
 							natoName = dataType['name']['NATO']
+							if dataType['harm_detection_chance'] ~= nil then
+								self.harmDetectionChance = dataType['harm_detection_chance']
+							end
 						end
 					end
 				elseif entry == 'launchers' then
@@ -76,6 +81,9 @@ function SkynetIADSAbstractRadarElement:setupElements()
 							table.insert(self.launchers, launcher)
 							unitTypes[unitName]['found'] = unitTypes[unitName]['count']
 							natoName = dataType['name']['NATO']
+							if dataType['harm_detection_chance'] ~= nil then
+								self.harmDetectionChance = dataType['harm_detection_chance']
+							end
 							--trigger.action.outText(launcher:getRange(), 1)
 						end
 					end
@@ -86,6 +94,9 @@ function SkynetIADSAbstractRadarElement:setupElements()
 							table.insert(self.trackingRadars, trackingRadar)
 							unitTypes[unitName]['found'] = unitTypes[unitName]['count']
 							natoName = dataType['name']['NATO']
+							if dataType['harm_detection_chance'] ~= nil then
+								self.harmDetectionChance = dataType['harm_detection_chance']
+							end
 							--trigger.action.outText("added tracking radar", 1)
 						end
 					end
@@ -106,7 +117,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		natoName = natoName:sub(1, (pos-1))
 	end
 	self.natoName = natoName
---	trigger.action.outText(self:getDCSName().." nato name: "..natoName, 1)
+	--trigger.action.outText(self:getDCSName().." nato name: "..natoName.." HARM detection chance: "..tostring(self.harmDetectionChance), 1)
 end
 
 function SkynetIADSAbstractRadarElement:getController()
@@ -126,6 +137,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
 		end
+		self:scanForHarms()
 	end
 end
 
@@ -158,8 +170,10 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 			isLauncherInRange = true
 		end
 	end
-	
-	--trigger.action.outText(self:getNatoName()..": in Range of Search Radar: "..tostring(isSearchRadarInRange).." Launcher: "..tostring(isLauncherInRange).." Tracking Radar: "..tostring(isTrackingRadarInRange), 1)
+--	if self.natoName == 'SA-6' then
+--		trigger.action.outText(target:getName(), 1)
+--		trigger.action.outText(self:getNatoName()..": in Range of Search Radar: "..tostring(isSearchRadarInRange).." Launcher: "..tostring(isLauncherInRange).." Tracking Radar: "..tostring(isTrackingRadarInRange), 1)
+--	end
 	return  (isSearchRadarInRange and isTrackingRadarInRange and isLauncherInRange )
 end
 
@@ -176,7 +190,7 @@ function SkynetIADSAbstractRadarElement:goDark(enforceGoDark)
 		--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
-		mist.removeFunction(self.harmScanID)
+		self:stopScanningForHarms()
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
 		end
@@ -186,7 +200,14 @@ end
 --this function is currently a simple placeholder, should only read all the radar units of the SAM system an return them
 --use this: if samUnit:hasSensors(Unit.SensorType.RADAR, Unit.RadarType.AS) or samUnit:hasAttribute("SAM SR") or samUnit:hasAttribute("EWR") or samUnit:hasAttribute("SAM TR") or samUnit:hasAttribute("Armed ships") then
 function SkynetIADSAbstractRadarElement:getRadarUnits()
-	return self.searchRadars -- and add tracking radars!
+	local radarUnits = {}	
+	for i = 1, #self.searchRadars do
+		table.insert(radarUnits, self.searchRadars[i])
+	end	
+	for i = 1, #self.trackingRadars do
+		table.insert(radarUnits, self.trackingRadars[i])
+	end
+	return radarUnits
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)
@@ -223,18 +244,25 @@ function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
 	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end
 
-function SkynetIADSAbstractRadarElement:getNumTargetsInRange()
-	local contacts = 0
-	for description, aircraft in pairs(self.targetsInRange) do
-		contacts = contacts + 1
-	end
-	--trigger.action.outText("num Contacts in Range: "..contacts, 1)
-	return contacts
-end
-
 function SkynetIADSAbstractRadarElement:scanForHarms()
 	mist.removeFunction(self.harmScanID)
-	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms, {self}, 1, 5)
+	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms, {self}, 1, 2)
+end
+
+function SkynetIADSAbstractRadarElement:stopScanningForHarms()
+	mist.removeFunction(self.harmScanID)
+end
+
+function SkynetIADSAbstractRadarElement:goSilentToEvadeHarm()
+	self.shutdownforHarmDefence = true
+	self.objectsIdentifiedAsHarms = {}
+	self:goDark(true)
+	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, 1, self.harmShutdownTime)
+end
+
+function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
+	self.shutdownforHarmDefence = false
+	mist.removeFunction(self.harmScanID)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
@@ -246,14 +274,17 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
 		--trigger.action.outText("num Targets: "..#targets, 1)
 		for i = 1, #targets do
 			local target = targets[i]
-			local iadsTarget = SkynetIADSContact:create(target)
-			iadsTarget:refresh()
-			if inKillZone then
-				if self:isTargetInRange(iadsTarget) then
+			-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors in the sam firing code
+			if target.object then
+				local iadsTarget = SkynetIADSContact:create(target)
+				iadsTarget:refresh()
+				if inKillZone then
+					if self:isTargetInRange(iadsTarget) then
+						table.insert(returnTargets, iadsTarget)
+					end
+				else
 					table.insert(returnTargets, iadsTarget)
 				end
-			else
-				table.insert(returnTargets, iadsTarget)
 			end
 		end
 	end
@@ -279,24 +310,23 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, dete
 				local impactPoint = land.getIP(target:getPosition().p, target:getPosition().x, distance+100)
 				if impactPoint then
 					local diststanceToSam = mist.utils.get2DDist(radar:getPosition().p, impactPoint)
-				--	trigger.action.outText("Impact Point distance to SAM site: "..diststanceToSam, 1)
-				--	trigger.action.outText("detected Object Name: "..target:getName(), 1)
+					--trigger.action.outText("Impact Point distance to SAM site: "..diststanceToSam, 1)
+					---trigger.action.outText("detected Object Name: "..target:getName(), 1)
 					--trigger.action.outText("Impact Point X: "..impactPoint.x.."Y: "..impactPoint.y.."Z: "..impactPoint.z, 1)
 					if diststanceToSam <= 100 then
 						local numDetections = 0
-						if self.objectsIdentifiedasHarms[target:getName()] then
-							numDetections = self.objectsIdentifiedasHarms[target:getName()]
+						if self.objectsIdentifiedAsHarms[target:getName()] then
+							numDetections = self.objectsIdentifiedAsHarms[target:getName()]
 							numDetections = numDetections + 1
-							self.objectsIdentifiedasHarms[target:getName()] = numDetections
+							self.objectsIdentifiedAsHarms[target:getName()] = numDetections
 						else
-							self.objectsIdentifiedasHarms[target:getName()] = 1
-							numDetections = self.objectsIdentifiedasHarms[target:getName()]
+							self.objectsIdentifiedAsHarms[target:getName()] = 1
+							numDetections = self.objectsIdentifiedAsHarms[target:getName()]
 						end
 					--	trigger.action.outText("detection Cycle: "..numDetections, 1)
-						-- this may still be too perfect, add some kind of randomisation, but where?
-						if numDetections >= 3 then
-							self:goDark(true)
-							self.shutdownforHarmDefence = true
+						local randomReaction = math.random(1, 100)
+						if numDetections == 3 and self.harmDetectionChance > randomReaction then
+							self:goSilentToEvadeHarm()
 						end
 					end
 				end

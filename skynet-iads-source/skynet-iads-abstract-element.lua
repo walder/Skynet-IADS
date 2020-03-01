@@ -84,9 +84,16 @@ function SkynetIADSAbstractElement:onEvent(event)
 	end
 end
 
+--placeholder method, is implemented by subclasses
+function SkynetIADSAbstractElement:goDark(enforce)
+	
+end
+
+--[[
 function SkynetIADSAbstractElement:isControllableUnit()
 	return getmetatable(self:getDCSRepresentation()) ~= StaticObject
 end
+--]]
 
 -- helper code for class inheritance
 function inheritsFrom( baseClass )

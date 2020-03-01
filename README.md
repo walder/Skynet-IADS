@@ -6,6 +6,9 @@ An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator
 # Abstract
 This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the SAM site it will become active. A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
+This video gives you a pretty good idea what an IADS is:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kHV12DPE1kk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 # IADS Elements
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
 
@@ -52,6 +55,12 @@ Older SAM sites are more susceptible to jamming. EW radars are currently not jam
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness on them. 
 When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
+
+# SAM site HARM defence
+SAM sites will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
+The SAM site will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way.
+
+There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
 
 # Using Skynet in the mission editor
 It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.

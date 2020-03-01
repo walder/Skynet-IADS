@@ -16,7 +16,7 @@ SA-10 (didn't react)
 SA-6
 ]]--
 
--- Compile Scripts: type sam-types-db.lua  skynet-iads-abstract-element.lua skynet-iads-command-center.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-site.lua skynet-iads.lua > skynet-iads-compiled.lua
+-- Compile Scripts: type sam-types-db.lua skynet-iads.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua skynet-iads-sam-types-db-extension.lua syknet-iads-sam-launcher.lua > skynet-iads-compiled.lua
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -32,6 +32,7 @@ function SkynetIADS:create()
 	iads.ewRadarScanMistTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
+	iads.maxTargetAge = 32
 	self.debugOutput = {}
 	self.debugOutput.IADSStatus = false
 	self.debugOutput.samWentDark = false
@@ -167,7 +168,7 @@ function SkynetIADS:addCommandCenter(commandCenter, powerSource)
 	if powerSource then
 		self:setCoalition(powerSource)
 	end
-	local comCenter = SkynetIADSCommandCenter:create(commandCenter, iads)
+	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
 	comCenter:addPowerSource(powerSource)
 	table.insert(self.commandCenters, comCenter)
 end
@@ -234,6 +235,21 @@ function SkynetIADS.evaluateContacts(self)
 		end
 	end
 	
+	local contactsToKeep = {}
+	for i = 1, #self.contacts do
+		local contact = self.contacts[i]
+		if contact:getAge() < self.maxTargetAge then
+			table.insert(contactsToKeep, contact)
+		end
+	end
+	self.contacts = contactsToKeep
+	
+	--see if this can be written with better code. we inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		samSite:targetCycleUpdateStart()
+	end
+	
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
 		if self:getDebugSettings().contacts then
@@ -243,13 +259,13 @@ function SkynetIADS.evaluateContacts(self)
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(contact)
 	end
-	-- special case if no contacts are found by the EW radars, then shut down all the sams, this needs to be tested, probally no longer needed, since sam does not store a local array of contacts, that need so be cleared
---[[	if self.contacts == 0 then
-		for i= 1, #self.samSites do
-			local samSite = self.samSites[i]
-			samSite:goDark()
-		end
-	end--]]
+	
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		samSite:targetCycleUpdateEnd()
+	end
+	
+	
 end
 
 function SkynetIADS:mergeContact(contact)
@@ -274,16 +290,16 @@ function SkynetIADS:getDebugSettings()
 	return self.debugOutput
 end
 
-function SkynetIADS:correlateWithSamSites(detectedAircraft)
-	for i= 1, #self.samSites do
-		local samSite = self.samSites[i]
+function SkynetIADS:correlateWithSamSites(detectedAircraft)	
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]		
 		if samSite:hasActiveConnectionNode() then
 			samSite:informOfContact(detectedAircraft)
 		else
-		if self:getDebugSettings().samNoConnection then
-			self:printOutput(samSite:getDescription().." no connection Command Center")
-			samSite:goAutonomous()
-		end
+			if self:getDebugSettings().samNoConnection then
+				self:printOutput(samSite:getDescription().." no connection Command Center")
+				samSite:goAutonomous()
+			end
 		end
 	end
 end

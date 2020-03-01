@@ -12,6 +12,7 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	self.__index = self
 	sam.autonomousBehaviour = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 	sam.actAsEW = false
+	sam.targetsInRange = false
 	return sam
 end
 
@@ -26,9 +27,11 @@ function SkynetIADSSamSite:goAutonomous()
 	return
 end
 
-function SkynetIADSSamSite:setActAsEW(EWstate)
-	self.actAsEW = EWstate
-	if self.actAsEW then
+function SkynetIADSSamSite:setActAsEW(ewState)
+	if ewState == true or ewState == false then
+		self.actAsEW = ewState
+	end
+	if self.actAsEW == true then
 		self:goLive()
 	else
 		self:goDark()
@@ -41,16 +44,20 @@ function SkynetIADSSamSite:setAutonomousBehaviour(mode)
 	end
 end
 
-function SkynetIADSSamSite:informOfContact(contact)
-	-- if the sam has no power, it won't do anything
-	if self:hasWorkingPowerSource() == false then
-		self:goDark(true)
-		return
+function SkynetIADSSamSite:targetCycleUpdateStart()
+	self.targetsInRange = false
+end
+
+function SkynetIADSSamSite:targetCycleUpdateEnd()
+	if self.targetsInRange == false and self.actAsEW == false then
+		self:goDark()
 	end
+end
+
+function SkynetIADSSamSite:informOfContact(contact)
 	if self:isTargetInRange(contact) or self.actAsEW then
 		self:goLive()
-	else
-		self:goDark()
+		self.targetsInRange = true
 	end
 end
 
