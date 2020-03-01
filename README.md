@@ -28,7 +28,7 @@ Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, th
 Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
 Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
-You can also designate SAM Sites to act as EW radars, in this case the SAM site will be constantly emitting radar waves. Long range systems like the S-300 are used as EW radars in real life.
+You can also designate SAM Sites to act as EW radars, in this case a SAM site will constantly have their radar on. Long range systems like the S-300 are used as EW radars in real life.
 
 Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
