@@ -133,9 +133,10 @@ iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
 ### Adding a power sources and connection nodes to a SAM site already in the Skynet IADS
+
 Once you have added a SAM site to the IADS you can set the power source and connection node like this. Call the function multiple times to add more than one power source or connection node:
-local powerSource = StaticObject.getByName('Power Source')
 ```
+local powerSource = StaticObject.getByName('Power Source')
 local connectionNode = StaticObject.getByName('Connection Node')
 iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode)
 ```
