@@ -29,6 +29,13 @@ You can also designate SAM Sites to act as EW radars, in this case the SAM site 
 Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
+## HARM defence
+SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
+The SAM site will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. The site will shut down between 1 and 3 minutes.
+
+There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
+
+
 ##  Power Sources
 By default Skynet IADS will run without having to add power sources. You can add 0-n power sources to SAM units, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
@@ -47,19 +54,13 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
 
-# Electronic Warfare
+## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness on them. 
 When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
-
-# SAM site HARM defence
-SAM sites will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
-The SAM site will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way.
-
-There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
 
 # Using Skynet in the mission editor
 It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
