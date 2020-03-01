@@ -3,9 +3,9 @@ iranIADS = SkynetIADS:create()
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = true
+iadsDebug.IADSStatus = false
 iadsDebug.samWentDark = true
-iadsDebug.contacts = true
+iadsDebug.contacts = false
 iadsDebug.radarWentLive = true
 iadsDebug.noWorkingCommmandCenter = false
 iadsDebug.ewRadarNoConnection = false
@@ -16,7 +16,7 @@ iadsDebug.ewRadarNoPower = false
 iadsDebug.addedSAMSite = false
 ---end remove debug ---
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
-iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:addSamSitesByPrefix('SAM6')
 
 local powerStation1 = StaticObject.getByName("Command Center Power")
 local powerStation2 = StaticObject.getByName("Command Center Power2")
@@ -27,7 +27,7 @@ iranIADS:addCommandCenter(commandCenter2, powerStation2)
 
 local sa6PowerStation = StaticObject.getByName('SA-6 Power')
 local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode)
+iranIADS:setOptionsForSamSite('SAM6-SA-6', sa6PowerStation, sa6ConnectionNode, false, nil, 150)
 
 
 
@@ -42,7 +42,7 @@ iranIADS:activate()
 local jammerSource = Unit.getByName("Growler")
 jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(iranIADS)
-jammer:masterArmOn()
+--jammer:masterArmOn()
 --jammer:disableFor('SA-2')
 
 

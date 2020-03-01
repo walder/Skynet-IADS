@@ -39,7 +39,7 @@ function SkynetIADSSamSite:setActAsEW(ewState)
 end
 
 function SkynetIADSSamSite:setAutonomousBehaviour(mode)
-	if mode then
+	if mode ~= nil then
 		self.autonomousBehaviour = mode
 	end
 end

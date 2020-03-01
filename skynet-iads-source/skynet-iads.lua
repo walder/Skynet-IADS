@@ -33,6 +33,7 @@ function SkynetIADS:create()
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
+	iads.contactUpdateInterval = 5
 	self.debugOutput = {}
 	self.debugOutput.IADSStatus = false
 	self.debugOutput.samWentDark = false
@@ -44,6 +45,7 @@ function SkynetIADS:create()
 	self.debugOutput.addedEWRadar = false
 	self.debugOutput.hasNoPower = false
 	self.debugOutput.addedSAMSite = false
+	self.debugOutput.warnings = true
 	return iads
 end
 
@@ -54,7 +56,7 @@ function SkynetIADS:setCoalition(item)
 			self.coalitionID = coalitionID
 		end
 		if self.coalitionID ~= coalitionID then
-			trigger.action.outText("WARNING: Element: "..item:getName().." has a different coalition than the IADS", 10)
+			self:printOutput("element: "..item:getName().." has a different coalition than the IADS", true)
 		end
 	end
 end
@@ -77,7 +79,7 @@ end
 function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource, connectionNode)
 	local earlyWarningRadarUnit = Unit.getByName(earlyWarningRadarUnitName)
 	if earlyWarningRadarUnit == nil then
-		trigger.action.outText("WARNING: You have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor: "..earlyWarningRadarUnitName, 10)
+		self:printOutput("you have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor: "..earlyWarningRadarUnitName, true)
 		return
 	end
 	self:setCoalition(earlyWarningRadarUnit)
@@ -99,7 +101,7 @@ function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connec
 			end
 		end
 		if update == false then
-			trigger.action.outText("WARNING: you tried to set options for an EW radar that does not exist: "..unitName, 10)
+			self:printOutput("you tried to set options for an EW radar that does not exist: "..unitName, true)
 		end
 end
 
@@ -112,16 +114,16 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	end
 end
 
-function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode)
+function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
 	local samSiteDCS = Group.getByName(samSiteName)
 	if samSiteDCS == nil then
-		trigger.action.outText("You have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", 10)
+		self:printOutput("you have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", true)
 		return
 	end
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
 	if samSite:getNatoName() == "UNKNOWN" then
-		trigger.action.outText("WARNING: You have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), 10)
+		self:printOutput("you have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
 	else
 		samSite:goDark(true)
 		table.insert(self.samSites, samSite)
@@ -129,10 +131,10 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW
 			self:printOutput(samSite:getDescription().." added to IADS")
 		end
 	end
-	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode)
+	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
 end
 
-function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, actAsEW, autonomousMode)
+function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
 	local update = false
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
@@ -140,16 +142,30 @@ function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode,
 			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
 			samSite:setAutonomousBehaviour(autonomousMode)
 			samSite:setActAsEW(actAsEW)
+			samSite:setFiringRangePercent(firingRangePercent)
 			update = true
 		end
 	end
 	if update == false then
-		trigger.action.outText("WARNING: you tried to set options for a SAM site that does not exist: "..groupName, 10)
+		self:printOutput("you tried to set options for a SAM site that does not exist: "..groupName, true)
 	end
 end
 
-function SkynetIADS:getSamSites()
-	return self.samSites
+function SkynetIADS:getUsableSamSites()
+	local usableSamSites = {}
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() then
+			table.insert(usableSamSites, samSite)
+		end
+		if samSite:hasActiveConnectionNode() == false then
+			if self:getDebugSettings().samNoConnection then
+				self:printOutput(samSite:getDescription().." no connection Command Center")
+			end
+			samSite:goAutonomous()
+		end
+	end
+	return usableSamSites
 end
 
 function SkynetIADS:addPowerAndConnectionNodeTo(iadsElement, powerSource, connectionNode)
@@ -212,10 +228,7 @@ function SkynetIADS.evaluateContacts(self)
 			local ewContacts = ewRadar:getDetectedTargets()
 			for j = 1, #ewContacts do
 				local contact = ewContacts[j]
-				--trigger.action.outText(ewContacts[j]:getName(), 1)
 				self:mergeContact(contact)
-			--	iadsContacts[ewContacts[j]:getName()] = ewContacts[j]
-				--trigger.action.outText(ewRadar:getDescription().." has detected: "..ewContacts[j]:getName(), 1)	
 			end
 		else
 			if self:getDebugSettings().ewRadarNoConnection then
@@ -224,14 +237,16 @@ function SkynetIADS.evaluateContacts(self)
 		end
 	end
 	
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		if samSite:hasActiveConnectionNode() then
-			local samContacts = samSite:getDetectedTargets()
-			for j = 1, #samContacts do
-				local contact = samContacts[j]
-				self:mergeContact(contact)
-			end
+	local usableSamSites = self:getUsableSamSites()
+	
+	for i = 1, #usableSamSites do
+		local samSite = usableSamSites[i]
+		samSite:targetCycleUpdateStart()
+		--see if this can be written with better code. We inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
+		local samContacts = samSite:getDetectedTargets()
+		for j = 1, #samContacts do
+			local contact = samContacts[j]
+			self:mergeContact(contact)
 		end
 	end
 	
@@ -244,28 +259,21 @@ function SkynetIADS.evaluateContacts(self)
 	end
 	self.contacts = contactsToKeep
 	
-	--see if this can be written with better code. we inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		samSite:targetCycleUpdateStart()
-	end
 	
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
 		if self:getDebugSettings().contacts then
-			self:printOutput("IADS CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | LAST SEEN: "..contact:getAge())
+			self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().."| GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
 		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
 		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
 		self:correlateWithSamSites(contact)
 	end
 	
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
+	for i = 1, #usableSamSites do
+		local samSite = usableSamSites[i]
 		samSite:targetCycleUpdateEnd()
 	end
-	
-	
 end
 
 function SkynetIADS:mergeContact(contact)
@@ -282,8 +290,13 @@ function SkynetIADS:mergeContact(contact)
 	end
 end
 
-function SkynetIADS:printOutput(output)
-	trigger.action.outText(output, 4)
+function SkynetIADS:printOutput(output, typeWarning)
+	if typeWarning == true and self.debugOutput.warnings or typeWarning == nil then
+		if typeWarning == true then
+			output = "WARNING: "..output
+		end
+		trigger.action.outText(output, 4)
+	end
 end
 
 function SkynetIADS:getDebugSettings()
@@ -291,16 +304,10 @@ function SkynetIADS:getDebugSettings()
 end
 
 function SkynetIADS:correlateWithSamSites(detectedAircraft)	
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]		
-		if samSite:hasActiveConnectionNode() then
-			samSite:informOfContact(detectedAircraft)
-		else
-			if self:getDebugSettings().samNoConnection then
-				self:printOutput(samSite:getDescription().." no connection Command Center")
-				samSite:goAutonomous()
-			end
-		end
+	local usableSamSites = self:getUsableSamSites()
+	for i = 1, #usableSamSites do
+		local samSite = usableSamSites[i]		
+		samSite:informOfContact(detectedAircraft)
 	end
 end
 
@@ -309,7 +316,7 @@ function SkynetIADS:activate()
 	if self.ewRadarScanMistTaskID ~= nil then
 		mist.removeFunction(self.ewRadarScanMistTaskID)
 	end
-	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, 5)
+	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 end
 
 function SkynetIADS:printSystemStatus()	
