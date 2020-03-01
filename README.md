@@ -171,7 +171,7 @@ iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
 
 ### Adding units manually
 You can add IADS elements individually including connection nodes, power sources and the autonomous behaviour.
-Use this if of you want to add units based on kind of some progress in a mission.
+Use this if of you want to add units based on some kind of some progress in a mission.
 
 Add an early warning radar with a power source and a connection node:
 ```
