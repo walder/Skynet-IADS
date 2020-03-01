@@ -44,10 +44,10 @@ When all the unit's connection nodes are fully damaged the unit will go in to au
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
 
-# Tacticts
-
 ## Air Resources
 Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
+
+# Tacticts
 
 ## HARM defence
 SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
