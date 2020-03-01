@@ -10,7 +10,7 @@ iadsDebug.radarWentLive = true
 iadsDebug.noWorkingCommmandCenter = false
 iadsDebug.ewRadarNoConnection = false
 iadsDebug.samNoConnection = false
-iadsDebug.jammerProbability = false
+iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = false
 iadsDebug.ewRadarNoPower = false
 iadsDebug.addedSAMSite = false
@@ -39,10 +39,10 @@ iranIADS:setOptionsForEarlyWarningRadar('EW-west', ewWest2PowerSource, ewWest2Co
 
 iranIADS:activate()	
 
-local jammerSource = Unit.getByName("Player Hornet")
+local jammerSource = Unit.getByName("Growler")
 jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(iranIADS)
---jammer:masterArmOn()
+jammer:masterArmOn()
 --jammer:disableFor('SA-2')
 
 
