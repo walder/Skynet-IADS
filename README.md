@@ -8,9 +8,9 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
-Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
-
 This all sounds gibberish to you? Watch [this video by Covert Cabal](https://www.youtube.com/watch?v=kHV12DPE1kk) on modern IADS.
+
+Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
 
 # Skynet IADS Elements
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
