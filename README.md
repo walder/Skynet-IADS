@@ -4,13 +4,13 @@
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
 # Abstract
-This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the SAM site it will become active. A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
+This script simulates an IADS within the scripting possibilities of DCS. Early Warning Radar Stations (EW Radar) scan the sky for contacts. These contacts are correlated with SAM (Surface to Air Missile) Sites. If a contact is within firing range of the SAM site it will become active. 
+A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS. [This video by Covert Cabal](https://www.youtube.com/watch?v=kHV12DPE1kk) explaines an IADS very well.
 
-This video gives you a pretty good idea what an IADS is:
 [![Covert Cabal on SEAD and IADS](https://github.com/walder/Skynet-IADS/raw/master/images/sead-youtube.png)](https://www.youtube.com/watch?v=kHV12DPE1kk)
 
 
-# IADS Elements
+# Skynet IADS Elements
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
 
 ## IADS
