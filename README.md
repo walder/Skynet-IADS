@@ -8,7 +8,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
-This all sounds gibberish to you? Watch [this video by Covert Cabal](https://www.youtube.com/watch?v=kHV12DPE1kk) on modern IADS.
+This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=kHV12DPE1kk).
 
 Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
 
