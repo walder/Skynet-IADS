@@ -8,6 +8,8 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS. [This video by Covert Cabal](https://www.youtube.com/watch?v=kHV12DPE1kk) explaines an IADS very well.
 
+Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
+
 # Skynet IADS Elements
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
 
@@ -254,14 +256,6 @@ In theory you can add all the types that are listed in the [sam-types-db.lua](ht
 Types without a radar (some AAA, Manpads) won't really benefit from the IADS. These are better just placed in a mission and handeled by the default AI of DCS. 
 This is due to the short range of their weapons. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
-
-
-## Can I add a SAM site in an EW radar role?
-There are two ways to use a SAM site in an EW role:
-
-You can just add a long range sam search radar unit as an EW radar to the IADS.
-
-Or you can <a href="#sam-ew">set a boolean value when adding a SAM site</a>.
 
 
 
