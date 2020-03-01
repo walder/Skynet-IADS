@@ -59,7 +59,7 @@ In the mission editor you add the jammer to a unit. I suggest you take an F-111 
 SAM sites will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with it's radar. The SAM site will then calculate the impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
 The SAM site will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way.
 
-There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
+There is also a probability calculation involved for each HARM inbound, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
 
 # Using Skynet in the mission editor
 It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
