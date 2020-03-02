@@ -19,21 +19,6 @@ iadsDebug.addedSAMSite = false
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 
-powerStation1 = StaticObject.getByName("Command Center Power")
-powerStation2 = StaticObject.getByName("Command Center Power2")
-commandCenter1 = StaticObject.getByName("Command Center")
-commandCenter2 = StaticObject.getByName("Command Center2")
-iranIADS:addCommandCenter(commandCenter1, powerStation1)
-iranIADS:addCommandCenter(commandCenter2, powerStation2)
-
-sa6PowerStation = StaticObject.getByName('SA-6 Power')
-sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode, false, nil, 150)
-
-sa6ConnectionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, sa6ConnectionNode2, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
-
-
 iranIADS:setOptionsForSamSite('SAM-SA-10', nil, nil, true)
 
 ewWest2PowerSource = StaticObject.getByName('EW-west Power Source')
@@ -60,6 +45,11 @@ function TestIADS:test3NumberOfEWRadars()
 end
 
 function TestIADS:test4SAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
+
+	local sa6PowerStation = StaticObject.getByName('SA-6 Power')
+	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
+	iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode, false, nil, 150)
+
 	lu.assertEquals(#iranIADS:getUsableSamSites(), 11)
 	trigger.action.explosion(sa6ConnectionNode:getPosition().p, 100)
 	lu.assertEquals(#iranIADS:getUsableSamSites(), 10)
@@ -75,6 +65,10 @@ function TestIADS:test4SAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 end
 
 function TestIADS:test5SAMSiteSA62ConnectionNodeLostAutonomusStateDark()
+
+	local sa6ConnectionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
+	iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, sa6ConnectionNode2, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+
 	local samSite = iranIADS:getSamSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSite:hasActiveConnectionNode(), true)
 	trigger.action.explosion(sa6ConnectionNode2:getPosition().p, 100)
@@ -87,6 +81,14 @@ function TestIADS:test5SAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 end
 
 function TestIADS:test6CommandCenterAliveAndThenDead()
+
+	local powerStation1 = StaticObject.getByName("Command Center Power")
+	local powerStation2 = StaticObject.getByName("Command Center Power2")
+	local commandCenter1 = StaticObject.getByName("Command Center")
+	local commandCenter2 = StaticObject.getByName("Command Center2")
+	iranIADS:addCommandCenter(commandCenter1, powerStation1)
+	iranIADS:addCommandCenter(commandCenter2, powerStation2)
+
 	lu.assertEquals(#iranIADS:getCommandCenters(), 2)
 	lu.assertEquals(iranIADS:isCommandCenterAlive(), true)
 	trigger.action.explosion(commandCenter1:getPosition().p, 10000)
