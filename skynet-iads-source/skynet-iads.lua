@@ -109,6 +109,15 @@ function SkynetIADS:getEarlyWarningRadars()
 	return self.earlyWarningRadars
 end
 
+function SkynetIADS:getEarlyWarningRadarByUnitName(unitName)
+	for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		if ewRadar:getDCSName() == unitName then
+			return ewRadar
+		end
+	end
+end
+
 function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
@@ -206,7 +215,7 @@ function SkynetIADS:addCommandCenter(commandCenter, powerSource)
 	table.insert(self.commandCenters, comCenter)
 end
 
-function SkynetIADS:isCommandCenterAlive()
+function SkynetIADS:isCommandCenterUsable()
 	local hasWorkingCommandCenter = (#self.commandCenters == 0)
 	for i = 1, #self.commandCenters do
 		local comCenter = self.commandCenters[i]
@@ -236,7 +245,7 @@ function SkynetIADS.evaluateContacts(self)
 		self:printSystemStatus()
 	end	
 	local iadsContacts = {}
-	if self:isCommandCenterAlive() == false then
+	if self:isCommandCenterUsable() == false then
 		if self:getDebugSettings().noWorkingCommmandCenter then
 			self:printOutput("No Working Command Center")
 		end
