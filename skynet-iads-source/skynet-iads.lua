@@ -105,6 +105,10 @@ function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connec
 		end
 end
 
+function SkynetIADS:getEarlyWarningRadars()
+	return self.earlyWarningRadars
+end
+
 function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
@@ -168,6 +172,19 @@ function SkynetIADS:getUsableSamSites()
 	return usableSamSites
 end
 
+function SkynetIADS:getSamSites()
+	return self.samSites
+end
+
+function SkynetIADS:getSamSiteByGroupName(groupName)
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:getDCSName() == groupName then
+			return samSite
+		end
+	end
+end
+
 function SkynetIADS:addPowerAndConnectionNodeTo(iadsElement, powerSource, connectionNode)
 	if powerSource then
 		self:setCoalition(powerSource)
@@ -201,6 +218,10 @@ function SkynetIADS:isCommandCenterAlive()
 		end
 	end
 	return hasWorkingCommandCenter
+end
+
+function SkynetIADS:getCommandCenters()
+	return self.commandCenters
 end
 
 function SkynetIADS:setSamSitesToAutonomousMode()

@@ -31,8 +31,8 @@ end
 function SkynetIADSSAMLauncher:isInRange(target)
 	local distance = mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
 	local maxFiringRange = (self:getRange() / 100 * self.firingRangePercent)
-	trigger.action.outText("Launcher Range: "..maxFiringRange,1)
-	trigger.action.outText("current distance: "..distance,1)
+	--trigger.action.outText("Launcher Range: "..maxFiringRange,1)
+	--trigger.action.outText("current distance: "..distance,1)
 	return distance <= maxFiringRange
 end
 
