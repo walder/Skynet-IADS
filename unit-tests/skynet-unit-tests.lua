@@ -3,8 +3,7 @@ do
 
 --[[
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing
-local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = true
+
 iadsDebug.samWentDark = true
 iadsDebug.contacts = false
 iadsDebug.radarWentLive = true
@@ -35,6 +34,8 @@ function TestIADS:setUp()
 	self.iranIADS = SkynetIADS:create()
 	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
 	self.iranIADS:addSamSitesByPrefix('SAM')
+	local iadsDebug = self.iranIADS:getDebugSettings()
+	iadsDebug.IADSStatus = true
 end
 
 function TestIADS:testNumberOfSamSitesAndEWRadars()
@@ -69,7 +70,7 @@ end
 function TestIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	local sa6PowerStation = StaticObject.getByName('SA-6 Power')
 	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode, false, nil, 150)
+	self.iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode, false, nil)
 
 	lu.assertEquals(#self.iranIADS:getSamSites(), 11)
 	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 11)
@@ -166,5 +167,12 @@ end
 TestSamSites = {}
 
 lu.LuaUnit.run()
+
+iranIADS = SkynetIADS:create()
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
+iranIADS:addSamSitesByPrefix('SAM')
+local iadsDebug = iranIADS:getDebugSettings()
+iadsDebug.IADSStatus = true
+iranIADS:activate()
 
 end

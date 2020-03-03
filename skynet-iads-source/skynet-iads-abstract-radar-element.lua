@@ -7,7 +7,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
 	self.__index = self
-	instance.aiState = false
+	instance.aiState = true
 	instance.jammerID = nil
 	instance.lastJammerUpdate = 0
 	instance.setJammerChance = true
@@ -122,7 +122,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		natoName = natoName:sub(1, (pos-1))
 	end
 	self.natoName = natoName
-	trigger.action.outText(self:getDCSName().." nato name: "..natoName.." HARM detection chance: "..tostring(self.harmDetectionChance), 1)
+	--trigger.action.outText(self:getDCSName().." nato name: "..natoName.." HARM detection chance: "..tostring(self.harmDetectionChance), 1)
 end
 
 function SkynetIADSAbstractRadarElement:setFiringRangePercent(percent)
@@ -207,10 +207,10 @@ end
 
 function SkynetIADSAbstractRadarElement:goDark(enforceGoDark)
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
-	if	( #self:getDetectedTargets(true) > 0 and enforceGoDark ~= true ) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI ) then
+	if #self:getDetectedTargets(true) > 0 or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI ) then
 		return
 	end
-	if self.aiState == true then
+	if self.aiState == true or enforceGoDark == true then
 		local controller = self:getController()
 		-- fastest way to get a radar unit to stop emitting
 		controller:setOnOff(false)

@@ -1,10 +1,4 @@
 do
-
--- to test: 1 command center, 1 command power source (damage each one individually): ok
--- to test: 2 command centers, 2 command power sources (damage each one individually): ok
--- to test: SAM 1 power source, 1 com center (damage each one individually): ok
--- to test: EW Radar, 1 connection node, 2 power source (damage each one individually): ok
-
 --[[
 SAM Sites that engage HARMs:
 SA-15
@@ -16,7 +10,11 @@ SA-10 (didn't react)
 SA-6
 ]]--
 
--- Compile Scripts: type sam-types-db.lua skynet-iads.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua skynet-iads-sam-types-db-extension.lua syknet-iads-sam-launcher.lua > skynet-iads-compiled.lua
+--[[ Compile Scripts:
+
+echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type sam-types-db.lua skynet-iads.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua skynet-iads-sam-types-db-extension.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
+
+--]]
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
