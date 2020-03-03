@@ -61,7 +61,6 @@ function TestIADS:test2EarlyWarningRadarLoosesPower()
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
 end
 
-
 function TestIADS:test4SAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	local sa6PowerStation = StaticObject.getByName('SA-6 Power')
 	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')

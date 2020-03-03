@@ -9,25 +9,7 @@ License: BSD License, see LICENSE.txt
 ]]--
 
 --require("math")
-local M={}
-
---- update for DCS
-ioWrapper = {}
-
-ioWrapper.stdout = {}
-
-function ioWrapper.stdout:write(str)
-	if self.string == nil then
-		self.string = str
-	else
-		self.string = self.string..str
-	end
-end
-function ioWrapper.stdout:flush()
-	env.info(self.string)
-	self.string = nil
-end
---- end update for DCS
+M={}
 
 -- private exported functions (for testing)
 M.private = {}
@@ -128,7 +110,7 @@ local function pcall_or_abort(func, ...)
         env.info(result[2]) -- error message
         env.info()
         env.info(M.USAGE)
-      --  os.exit(-1)
+       -- os.exit(-1)
     end
     return unpack(result, 2)
 end
@@ -1800,7 +1782,7 @@ function M.wrapFunctions()
     -- a test function inside the global test suite. Nowadays, the functions
     -- are simply run directly as part of the test discovery process.
     -- so just do nothing !
-    ioWrapper.stderr:write[[Use of WrapFunctions() is no longer needed.
+    io.stderr:write[[Use of WrapFunctions() is no longer needed.
 Just prefix your test function names with "test" or "Test" and they
 will be picked up and run by LuaUnit.
 ]]
@@ -2049,11 +2031,11 @@ TapOutput.__class__ = 'TapOutput'
 
     function TapOutput:updateStatus( node )
         if node:isSkipped() then
-            ioWrapper.stdout:write("ok "..self.result.currentTestNumber.."\t# SKIP "..node.msg.."\n" )
+            env.info("ok ", self.result.currentTestNumber, "\t# SKIP ", node.msg, "\n" )
             return
         end
 
-        ioWrapper.stdout:write("not ok "..self.result.currentTestNumber.."\t"..node.testName.."\n")
+        env.info("not ok ", self.result.currentTestNumber, "\t", node.testName, "\n")
         if self.verbosity > M.VERBOSITY_LOW then
            env.info( prefixString( '#   ', node.msg ) )
         end
@@ -2064,7 +2046,7 @@ TapOutput.__class__ = 'TapOutput'
 
     function TapOutput:endTest( node )
         if node:isSuccess() then
-            ioWrapper.stdout:write("ok     "..self.result.currentTestNumber.."\t"..node.testName.."\n")
+            env.info("ok     ", self.result.currentTestNumber, "\t", node.testName, "\n")
         end
     end
 
@@ -2099,7 +2081,7 @@ JUnitOutput.__class__ = 'JUnitOutput'
         if string.sub(self.fname,-4) ~= '.xml' then
             self.fname = self.fname..'.xml'
         end
-        self.fd = ioWrapper.open(self.fname, "w")
+        self.fd = io.open(self.fname, "w")
         if self.fd == nil then
             error("Could not open file for writing: "..self.fname)
         end
@@ -2285,18 +2267,17 @@ TextOutput.__class__ = 'TextOutput'
 
     function TextOutput:startTest(testName)
         if self.verbosity > M.VERBOSITY_DEFAULT then
-            ioWrapper.stdout:write( "    "..self.result.currentNode.testName.." ... " )
+            env.info( " "..self.result.currentNode.testName.." ... " )
         end
     end
 
     function TextOutput:endTest( node )
         if node:isSuccess() then
             if self.verbosity > M.VERBOSITY_DEFAULT then
-                ioWrapper.stdout:write("Ok\n")
-				ioWrapper.stdout:flush()
+                env.info("Ok\n")
             else
-                ioWrapper.stdout:write(".")
-                ioWrapper.stdout:flush()
+                env.info(".")
+              --  io.stdout:flush()
             end
         else
             if self.verbosity > M.VERBOSITY_DEFAULT then
@@ -2310,8 +2291,8 @@ TextOutput.__class__ = 'TextOutput'
                 ]]
             else
                 -- write only the first character of status E, F or S
-                ioWrapper.stdout:write(string.sub(node.status, 1, 1))
-                ioWrapper.stdout:flush()
+                env.info(string.sub(node.status, 1, 1))
+              --  io.stdout:flush()
             end
         end
     end
@@ -2579,7 +2560,7 @@ end
         end
 
         if state ~= nil then
-            error('Missing argument after '..cmdLine[ #cmdLine ],2 )
+            env.info('Missing argument after '..cmdLine[ #cmdLine ],2 )
         end
 
         return result
@@ -2587,12 +2568,12 @@ end
 
     function M.LuaUnit.help()
         env.info(M.USAGE)
-  --      os.exit(0)
+        os.exit(0)
     end
 
     function M.LuaUnit.version()
         env.info('LuaUnit v'..M.VERSION..' by Philippe Fremy <phil@freehackers.org>')
-     --   os.exit(0)
+        os.exit(0)
     end
 
 ----------------------------------------------------------------
@@ -2727,9 +2708,9 @@ end
             currentClassName = "",
             currentNode = nil,
             suiteStarted = true,
-            startTime = timer.getTime0(), ---os.clock(),
-            startDate = 'Date',--os.date(os.getenv('LUAUNIT_DATEFMT')),
-            startIsodate = 'Date',--os.date('%Y-%m-%dT%H:%M:%S'),
+            startTime = timer.getTime0(), --os.clock(),
+            startDate = 'Date', --os.date(os.getenv('LUAUNIT_DATEFMT')),
+            startIsodate = 'DATE', --os.date('%Y-%m-%dT%H:%M:%S'),
             patternIncludeFilter = self.patternIncludeFilter,
 
             -- list of test node status
@@ -2762,7 +2743,7 @@ end
             testName,
             self.result.currentClassName
         )
-        self.result.currentNode.startTime = timer.getTime() --os.clock()
+        self.result.currentNode.startTime = timer.getTime()--os.clock()
         table.insert( self.result.allTests, self.result.currentNode )
         self.output:startTest( testName )
     end
@@ -2810,7 +2791,7 @@ end
         local node = self.result.currentNode
         -- env.info( 'endTest() '..prettystr(node))
         -- env.info( 'endTest() '..prettystr(node:isNotSuccess()))
-        node.duration = timer.getTime() --os.clock() - node.startTime
+        node.duration = timer.getAbsTime() --os.clock() - node.startTime
         node.startTime = nil
         self.output:endTest( node )
 
@@ -2848,7 +2829,7 @@ end
         if self.result.suiteStarted == false then
             error('LuaUnit:endSuite() -- suite was already ended' )
         end
-        self.result.duration = timer.getTime() --os.clock()-self.result.startTime
+        self.result.duration = timer.getAbsTime() --os.clock()-self.result.startTime
         self.result.suiteStarted = false
 
         -- Expose test counts for outputter's endSuite(). This could be managed
@@ -2942,7 +2923,7 @@ end
         -- When executing a class method, all parameters must be set
 
         if type(methodInstance) ~= 'function' then
-            error( tostring(methodName)..' must be a function, not '..type(methodInstance))
+            env.info( tostring(methodName)..' must be a function, not '..type(methodInstance))
         end
 
         local prettyFuncName
@@ -3127,16 +3108,16 @@ end
                 instance = _G[instanceName]
 
                 if instance == nil then
-                    error( "No such name in global space: "..instanceName )
+                    env.info( "No such name in global space: "..instanceName )
                 end
 
                 if type(instance) ~= 'table' then
-                    error( 'Instance of '..instanceName..' must be a table, not '..type(instance))
+                    env.info( 'Instance of '..instanceName..' must be a table, not '..type(instance))
                 end
 
                 local methodInstance = instance[methodName]
                 if methodInstance == nil then
-                    error( "Could not find method in class "..tostring(className).." for method "..tostring(methodName) )
+                    env.info( "Could not find method in class "..tostring(className).." for method "..tostring(methodName) )
                 end
 
             else
@@ -3146,11 +3127,11 @@ end
             end
 
             if instance == nil then
-                error( "No such name in global space: "..instanceName )
+                env.info( "No such name in global space: "..instanceName )
             end
 
             if (type(instance) ~= 'table' and type(instance) ~= 'function') then
-                error( 'Name must match a function or a table: '..instanceName )
+                env.info( 'Name must match a function or a table: '..instanceName )
             end
 
             table.insert( listOfNameAndInst, { name, instance } )
@@ -3186,11 +3167,11 @@ end
             args = cmdline_argv
         end
 
-        local options = pcall_or_abort( M.LuaUnit.parseCmdLine, args )
+        local options =  pcall_or_abort( M.LuaUnit.parseCmdLine, {} )
 
         -- We expect these option fields to be either `nil` or contain
         -- valid values, so it's safe to always copy them directly.
-        self.verbosity     = M.VERBOSITY_VERBOSE
+        self.verbosity     = M.VERBOSITY_VERBOSE--options.verbosity
         self.quitOnError   = options.quitOnError
         self.quitOnFailure = options.quitOnFailure
 
@@ -3222,7 +3203,6 @@ end
 M.set_verbosity = M.setVerbosity
 M.SetVerbosity = M.setVerbosity
 
-lu = {}
 lu = M
 
-return
+return M
