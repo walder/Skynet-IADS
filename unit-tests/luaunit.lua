@@ -2317,7 +2317,7 @@ TextOutput.__class__ = 'TextOutput'
     end
 
     function TextOutput:displayOneFailedTest( index, fail )
-        env.info(index..") "..fail.testName )
+        env.info(index..")  "..fail.testName )
         env.info( fail.msg )
         env.info( fail.stackTrace )
         env.info()

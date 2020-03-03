@@ -28,7 +28,11 @@ function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
-	return self:genericCheckOneObjectIsAlive(self.connectionNodes)
+	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
+	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
+		self.iads:printOutput(samSite:getDescription().." no connection Command Center")
+	end
+	return connectionNode
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
@@ -75,25 +79,26 @@ function SkynetIADSAbstractElement:getDescription()
 end
 
 function SkynetIADSAbstractElement:onEvent(event)
-	--if a unit is destroyed we check to see if its a power plant powering the unit.
+	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
 	if event.id == world.event.S_EVENT_DEAD then
-		--trigger.action.outText(self:getDCSRepresentation():getName().." "..tostring(self:hasWorkingPowerSource()), 10)
 		if self:hasWorkingPowerSource() == false then
 			self:goDark(true)
+		end
+		if self:hasActiveConnectionNode() == false then
+			self:goAutonomous()
 		end
 	end
 end
 
---placeholder method, is implemented by subclasses
+--placeholder method, can be implemented by subclasses
 function SkynetIADSAbstractElement:goDark(enforce)
 	
 end
 
---[[
-function SkynetIADSAbstractElement:isControllableUnit()
-	return getmetatable(self:getDCSRepresentation()) ~= StaticObject
+--placeholder method, can be implemented by subclasses
+function SkynetIADSAbstractElement:goAutonomous()
+
 end
---]]
 
 -- helper code for class inheritance
 function inheritsFrom( baseClass )

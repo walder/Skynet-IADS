@@ -34,18 +34,18 @@ function SkynetIADS:create()
 	iads.contacts = {}
 	iads.maxTargetAge = 32
 	iads.contactUpdateInterval = 5
-	self.debugOutput = {}
-	self.debugOutput.IADSStatus = false
-	self.debugOutput.samWentDark = false
-	self.debugOutput.contacts = false
-	self.debugOutput.radarWentLive = false
-	self.debugOutput.ewRadarNoConnection = false
-	self.debugOutput.samNoConnection = false
-	self.debugOutput.jammerProbability = false
-	self.debugOutput.addedEWRadar = false
-	self.debugOutput.hasNoPower = false
-	self.debugOutput.addedSAMSite = false
-	self.debugOutput.warnings = true
+	iads.debugOutput = {}
+	iads.debugOutput.IADSStatus = false
+	iads.debugOutput.samWentDark = false
+	iads.debugOutput.contacts = false
+	iads.debugOutput.radarWentLive = false
+	iads.debugOutput.ewRadarNoConnection = false
+	iads.debugOutput.samNoConnection = false
+	iads.debugOutput.jammerProbability = false
+	iads.debugOutput.addedEWRadar = false
+	iads.debugOutput.hasNoPower = false
+	iads.debugOutput.addedSAMSite = false
+	iads.debugOutput.warnings = true
 	return iads
 end
 
@@ -170,12 +170,6 @@ function SkynetIADS:getUsableSamSites()
 		local samSite = self.samSites[i]
 		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() then
 			table.insert(usableSamSites, samSite)
-		end
-		if samSite:hasActiveConnectionNode() == false then
-			if self:getDebugSettings().samNoConnection then
-				self:printOutput(samSite:getDescription().." no connection Command Center")
-			end
-			samSite:goAutonomous()
 		end
 	end
 	return usableSamSites
@@ -318,6 +312,10 @@ function SkynetIADS:mergeContact(contact)
 	if existingContact == false then
 		table.insert(self.contacts, contact)
 	end
+end
+
+function SkynetIADS:getContacts()
+	return self.contacts
 end
 
 function SkynetIADS:printOutput(output, typeWarning)

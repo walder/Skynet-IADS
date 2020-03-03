@@ -7,7 +7,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
 	self.__index = self
-	instance.aiState = true
+	instance.aiState = false
 	instance.jammerID = nil
 	instance.lastJammerUpdate = 0
 	instance.setJammerChance = true
@@ -17,6 +17,8 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
+	instance.autonomousBehaviour = SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+	instance.isAutonomous = false
 	instance.harmDetectionChance = 0
 	instance.minHarmShutdownTime = 0
 	instance.maxHarmShutDownTime = 0
@@ -139,7 +141,7 @@ function SkynetIADSAbstractRadarElement:getController()
 end
 
 function SkynetIADSAbstractRadarElement:goLive()
-	if self:hasWorkingPowerSource() == false or self.harmSilenceID ~= nil then
+	if self:hasWorkingPowerSource() == false or self.harmSilenceID ~= nil or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DARK ) then
 		return
 	end
 	if self.aiState == false then
@@ -191,9 +193,21 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 	return  (isSearchRadarInRange and isTrackingRadarInRange and isLauncherInRange )
 end
 
+function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
+	if mode ~= nil then
+		self.autonomousBehaviour = mode
+	end
+end
+
+function SkynetIADSAbstractRadarElement:goAutonomous()
+	self.isAutonomous = true
+	self:goDark()
+	self:goLive()
+end
+
 function SkynetIADSAbstractRadarElement:goDark(enforceGoDark)
 	-- if the sam site has contacts in range, it will refuse to go dark, unless we enforce shutdown (power failure)
-	if	#self:getDetectedTargets(true) > 0 and enforceGoDark ~= true then
+	if	( #self:getDetectedTargets(true) > 0 and enforceGoDark ~= true ) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI ) then
 		return
 	end
 	if self.aiState == true then
