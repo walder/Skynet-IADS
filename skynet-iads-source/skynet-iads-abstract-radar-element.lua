@@ -187,7 +187,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
-	if ( self.aiState == true ) and ( ( #self:getDetectedTargets() == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
+	if ( self.aiState == true ) and ( ( #self:getDetectedTargets(true) == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
 			-- fastest way to get a radar unit to stop emitting
