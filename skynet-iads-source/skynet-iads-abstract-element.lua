@@ -19,6 +19,11 @@ function SkynetIADSAbstractElement:getLife()
 	return self:getDCSRepresentation():getLife()
 end
 
+--- implemented in subclasses
+function SkynetIADSAbstractElement:isDestroyed()
+
+end
+
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
 end
@@ -30,7 +35,7 @@ end
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
 	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
-		self.iads:printOutput(samSite:getDescription().." no connection Command Center")
+		self.iads:printOutput(self:getDescription().." no connection Command Center")
 	end
 	return connectionNode
 end

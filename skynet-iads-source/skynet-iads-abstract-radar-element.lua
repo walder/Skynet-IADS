@@ -128,6 +128,15 @@ function SkynetIADSAbstractRadarElement:setupElements()
 	--trigger.action.outText(self:getDCSName().." nato name: "..natoName.." HARM detection chance: "..tostring(self.harmDetectionChance), 1)
 end
 
+function SkynetIADSAbstractRadarElement:getController()
+	local dcsRepresentation = self:getDCSRepresentation()
+	if dcsRepresentation:isExist() then
+		return dcsRepresentation:getController()
+	else
+		return nil
+	end
+end
+
 function SkynetIADSAbstractRadarElement:getLaunchers()
 	return self.launchers
 end
@@ -161,17 +170,14 @@ function SkynetIADSAbstractRadarElement:setFiringRangePercent(percent)
 	end
 end
 
-
-function SkynetIADSAbstractRadarElement:getController()
-	return self:getDCSRepresentation():getController()
-end
-
 function SkynetIADSAbstractRadarElement:goLive()
 	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil ) and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) ) then
-		local  cont = self:getController()
-		cont:setOnOff(true)
-		cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-		cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+		if self:isDestroyed() == false then
+			local  cont = self:getController()
+			cont:setOnOff(true)
+			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
+			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+		end
 		self.aiState = true
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
@@ -181,12 +187,14 @@ function SkynetIADSAbstractRadarElement:goLive()
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
-	if self.aiState == true and ( ( #self:getDetectedTargets() == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
-		local controller = self:getController()
-		-- fastest way to get a radar unit to stop emitting
-		controller:setOnOff(false)
-		--controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-		--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+	if ( self.aiState == true ) and ( ( #self:getDetectedTargets() == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
+		if self:isDestroyed() == false then
+			local controller = self:getController()
+			-- fastest way to get a radar unit to stop emitting
+			controller:setOnOff(false)
+			--controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
+			--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+		end
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
 		self:stopScanningForHarms()
@@ -198,6 +206,10 @@ end
 
 function SkynetIADSAbstractRadarElement:isActive()
 	return self.aiState
+end
+
+function SkynetIADSAbstractElement:isDestroyed()
+	return self:getController() == nil
 end
 
 function SkynetIADSAbstractRadarElement:isTargetInRange(target)
@@ -257,21 +269,23 @@ end
 
 function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
 	if self.setJammerChance then
-		local controller = self:getController()
-		self.setJammerChance = false
-		local probability = math.random(1, 100)
-		if self.iads:getDebugSettings().jammerProbability then
-			self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
-		end
-		if successProbability > probability then
-			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+		if self:isDestroyed() == false then
+			local controller = self:getController()
+			self.setJammerChance = false
+			local probability = math.random(1, 100)
 			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutput("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
+				self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
 			end
-		else
-			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutput("Jammer: "..self:getDescription()..": jammed, setting to weapon free")
+			if successProbability > probability then
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+				if self.iads:getDebugSettings().jammerProbability then
+					self.iads:printOutput("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
+				end
+			else
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+				if self.iads:getDebugSettings().jammerProbability then
+					self.iads:printOutput("Jammer: "..self:getDescription()..": jammed, setting to weapon free")
+				end
 			end
 		end
 	end
@@ -312,11 +326,8 @@ end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
 	local returnTargets = {}
-	if self:hasWorkingPowerSource() then
-		--trigger.action.outText("EW getTargets", 1)
-		--trigger.action.outText(self.radarUnit:getName(), 1)
+	if self:hasWorkingPowerSource() and self:isDestroyed() == false then
 		local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
-		--trigger.action.outText("num Targets: "..#targets, 1)
 		for i = 1, #targets do
 			local target = targets[i]
 			-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors in the sam firing code

@@ -63,13 +63,25 @@ function TestIADS:testEarlyWarningRadarLoosesPower()
 	--simulate update cycle of IADS
 	self.iranIADS.evaluateContacts(self.iranIADS)
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
+	lu.assertEquals(ewRadar:isActive(), false)
+end
+
+function TestIADS:testSamSiteLoosesPower()
+	local powerSource = StaticObject.getByName('SA-6 Power')
+	self.iranIADS:setOptionsForSamSite('SAM-SA-6', powerSource)
+	local samSite = self.iranIADS:getSamSiteByGroupName('SAM-SA-6')
+	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 11)
+	lu.assertEquals(samSite:isActive(), false)
+	samSite:goLive()
+	lu.assertEquals(samSite:isActive(), true)
+	trigger.action.explosion(powerSource:getPosition().p, 100)
+	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 10)
+	lu.assertEquals(samSite:isActive(), false)
 end
 
 function TestIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
-	local sa6PowerStation = StaticObject.getByName('SA-6 Power')
 	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6', sa6PowerStation, sa6ConnectionNode, false, nil)
-
+	self.iranIADS:setOptionsForSamSite('SAM-SA-6', nil, sa6ConnectionNode, false, nil)
 	lu.assertEquals(#self.iranIADS:getSamSites(), 11)
 	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 11)
 	trigger.action.explosion(sa6ConnectionNode:getPosition().p, 100)
@@ -185,6 +197,30 @@ function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoN
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
 	lu.assertEquals(#self.samSite:getRadars(), 3)
 	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
+end
+
+TestEarlyWarningRadars = {}
+
+function TestEarlyWarningRadars:setUp()
+	if self.ewRadarName then
+		local ewRadar = Unit.getByName(self.ewRadarName)
+		self.iads = SkynetIADS:create()
+		self.iads:addEarlyWarningRadarsByPrefix('EW')
+		self.ewRadar = self.iads:getEarlyWarningRadarByUnitName('EW-west22')
+	end
+end
+
+function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
+		self.ewRadarName = "EW-west22"
+		self:setUp()
+		lu.assertEquals(self.ewRadar:isActive(), true)
+		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), true)
+		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 9)
+		trigger.action.explosion(self.ewRadar:getDCSRepresentation():getPosition().p, 10000)
+		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), false)
+		self.ewRadar:goDark()
+		lu.assertEquals(self.ewRadar:isActive(), false)
+		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 8)	
 end
 
 lu.LuaUnit.run()

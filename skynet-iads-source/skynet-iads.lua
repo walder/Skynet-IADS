@@ -173,6 +173,17 @@ function SkynetIADS:getUsableSamSites()
 	return usableSamSites
 end
 
+function SkynetIADS:getUsableEarlyWarningRadars()
+	local usable = {}
+	for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		if ewRadar:hasActiveConnectionNode() and ewRadar:hasWorkingPowerSource() and ewRadar:isDestroyed() == false then
+			table.insert(usable, ewRadar)
+		end
+	end
+	return usable
+end
+
 function SkynetIADS:getSamSites()
 	return self.samSites
 end
