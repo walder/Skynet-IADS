@@ -78,7 +78,7 @@ function SkynetIADSJammer.runCycle(self)
 		local samSites = iads:getSamSites()	
 		for j = 1, #samSites do
 			local samSite = samSites[j]
-			local radars = samSite:getRadarUnits()
+			local radars = samSite:getRadars()
 			local hasLOS = false
 			local distance = 0
 			local natoName = samSite:getNatoName()

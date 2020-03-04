@@ -136,7 +136,7 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutput("you have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
 	else
-		samSite:goDark(true)
+		samSite:goDark()
 		table.insert(self.samSites, samSite)
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutput(samSite:getDescription().." added to IADS")
@@ -263,8 +263,8 @@ function SkynetIADS.evaluateContacts(self)
 	
 	for i = 1, #usableSamSites do
 		local samSite = usableSamSites[i]
-		samSite:targetCycleUpdateStart()
 		--see if this can be written with better code. We inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
+		samSite:targetCycleUpdateStart()
 		local samContacts = samSite:getDetectedTargets()
 		for j = 1, #samContacts do
 			local contact = samContacts[j]

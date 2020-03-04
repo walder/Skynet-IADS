@@ -34,8 +34,6 @@ function TestIADS:setUp()
 	self.iranIADS = SkynetIADS:create()
 	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
 	self.iranIADS:addSamSitesByPrefix('SAM')
-	local iadsDebug = self.iranIADS:getDebugSettings()
-	iadsDebug.IADSStatus = true
 end
 
 function TestIADS:testNumberOfSamSitesAndEWRadars()
@@ -91,7 +89,7 @@ function TestIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 	local sa6ConnectionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
 	local samSite = self.iranIADS:getSamSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSite:isActive(), false)
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, sa6ConnectionNode2, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+	self.iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, sa6ConnectionNode2, false, SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), true)
 	trigger.action.explosion(sa6ConnectionNode2:getPosition().p, 100)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), false)
@@ -118,15 +116,12 @@ function TestIADS:testSetSamSitesToAutonomous()
 	local samSiteActive = self.iranIADS:getSamSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), false)
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6', nil, nil, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, nil, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI)
+	self.iranIADS:setOptionsForSamSite('SAM-SA-6', nil, nil, false, SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	self.iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, nil, false, SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
 	self.iranIADS:setSamSitesToAutonomousMode()
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), true)
-	--simulate update cycle of IADS
-	self.iranIADS.evaluateContacts(self.iranIADS)
-	lu.assertEquals(samSiteDark:isActive(), false)
-	lu.assertEquals(samSiteActive:isActive(), true)
+	--dont call an update of the IADS in this test, its just to test setSamSitesToAutonomousMode()
 end
 
 function TestIADS:testOneCommandCenterLoosesPower()
@@ -166,8 +161,35 @@ end
 
 TestSamSites = {}
 
+function TestSamSites:setUp()
+	if self.samSiteName then
+		local mockIADS = {}
+		local samSite = Group.getByName(self.samSiteName)
+		self.samSite = SkynetIADSSamSite:create(samSite, mockIADS)
+	end
+end
+
+function TestSamSites:testCheckSA6GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getLaunchers(), 2)
+	lu.assertEquals(#self.samSite:getSearchRadars(), 3)
+	lu.assertEquals(self.samSite:getNatoName(), "SA-6")
+end
+
+function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getLaunchers(), 2)
+	lu.assertEquals(#self.samSite:getSearchRadars(), 2)
+	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
+	lu.assertEquals(#self.samSite:getRadars(), 3)
+	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
+end
+
 lu.LuaUnit.run()
 
+--- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
 iranIADS = SkynetIADS:create()
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')

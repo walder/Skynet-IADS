@@ -3,9 +3,6 @@ do
 SkynetIADSSamSite = {}
 SkynetIADSSamSite = inheritsFrom(SkynetIADSAbstractRadarElement)
 
-SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI = 0
-SkynetIADSSamSite.AUTONOMOUS_STATE_DARK = 1
-
 function SkynetIADSSamSite:create(samGroup, iads)
 	local sam = self:superClass():create(samGroup, iads)
 	setmetatable(sam, self)

@@ -52,7 +52,6 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	local isAlive = (#objects == 0)
 	for i = 1, #objects do
 		local object = objects[i]
-		--trigger.action.outText("life: "..object:getLife(), 1)
 		--if we find one object that is not fully destroyed we assume the IADS is still working
 		if object:getLife() > 0 then
 			isAlive = true
@@ -82,7 +81,7 @@ function SkynetIADSAbstractElement:onEvent(event)
 	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
 	if event.id == world.event.S_EVENT_DEAD then
 		if self:hasWorkingPowerSource() == false then
-			self:goDark(true)
+			self:goDark()
 		end
 		if self:hasActiveConnectionNode() == false then
 			self:goAutonomous()
@@ -91,7 +90,7 @@ function SkynetIADSAbstractElement:onEvent(event)
 end
 
 --placeholder method, can be implemented by subclasses
-function SkynetIADSAbstractElement:goDark(enforce)
+function SkynetIADSAbstractElement:goDark()
 	
 end
 
