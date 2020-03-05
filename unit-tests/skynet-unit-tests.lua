@@ -36,7 +36,7 @@ function TestIADS:setUp()
 	self.iranIADS:addSamSitesByPrefix('SAM')
 end
 
-function TestIADS:testNumberOfSamSitesAndEWRadars()
+function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self.iranIADS = SkynetIADS:create()
 	lu.assertEquals(#self.iranIADS:getSamSites(), 0)
 	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 0)
@@ -171,13 +171,35 @@ function TestIADS:testMergeContacts()
 	
 end
 
+function TestIADS:testCompleteDestructionOfSamSite()
+	local samSiteDCS = Group.getByName("Destruction-test-sam")
+	local iads = SkynetIADS:create()
+	local samSite = iads:addSamSite("Destruction-test-sam")
+	lu.assertEquals(samSite:isDestroyed(), false)
+	samSite:goLive()
+	lu.assertEquals(samSite:isActive(), true)
+	local radars = samSite:getRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		trigger.action.explosion(radar:getDCSRepresentation():getPosition().p, 500)
+	end	
+	local launchers = samSite:getLaunchers()
+	for i = 1, #launchers do
+		local launcher = launchers[i]
+		trigger.action.explosion(launcher:getDCSRepresentation():getPosition().p, 500)
+	end	
+	lu.assertEquals(samSite:isActive(), false)
+	lu.assertEquals(samSite:isDestroyed(), true)
+	lu.assertEquals(#iads:getDestroyedSamSites(), 1)
+end	
+
 TestSamSites = {}
 
 function TestSamSites:setUp()
 	if self.samSiteName then
-		local mockIADS = {}
+		local skynetIADS = SkynetIADS:create()
 		local samSite = Group.getByName(self.samSiteName)
-		self.samSite = SkynetIADSSamSite:create(samSite, mockIADS)
+		self.samSite = SkynetIADSSamSite:create(samSite, skynetIADS)
 	end
 end
 
@@ -197,6 +219,126 @@ function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoN
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
 	lu.assertEquals(#self.samSite:getRadars(), 3)
 	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
+end
+
+
+function TestSamSites:testCreateSamSiteFromInvalidGroup()
+	self.samSiteName = "Invalid-for-sam"
+	self:setUp()
+	lu.assertStrMatches(self.samSite:getNatoName(), "UNKNOWN")
+	lu.assertEquals(#self.samSite:getRadars(), 0)
+	lu.assertEquals(#self.samSite:getLaunchers(), 0)
+	lu.assertEquals(#self.samSite:getSearchRadars(), 0)
+	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
+end
+
+--finish this test
+function TestSamSites:testSamSiteGroupContainingOfOneUnitOnly()
+	
+end
+
+function TestSamSites:testHARMDefenceStates()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(self.samSite:isScanningForHarms(), true)
+	self.samSite:goSilentToEvadeHarm()
+	lu.assertEquals(self.samSite:isScanningForHarms(), false)
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+function TestSamSites:testTimeToImpactCalculation()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	lu.assertEquals(self.samSite:getSecondsToImpact(100, 10), 36000)
+	lu.assertEquals(self.samSite:getSecondsToImpact(10, 400), 90)
+	lu.assertEquals(self.samSite:getSecondsToImpact(0, 400), 0)
+	lu.assertEquals(self.samSite:getSecondsToImpact(400, 0), 0)
+end
+
+function TestSamSites:testActAsEarlyWarningRadar()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:setActAsEW(true)
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:targetCycleUpdateEnd()
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:setActAsEW(false)
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+function TestSamSites:testInformOfContactInRangeWhenEarlyWaringRadar()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	self.samSite:setActAsEW(true)
+	local mockContact = {}
+	function self.samSite:isTargetInRange(target)
+		lu.assertIs(target, mockContact)
+		return false
+	end
+	self.samSite:goDark()
+	self.samSite:targetCycleUpdateStart()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:informOfContact(mockContact)
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:targetCycleUpdateEnd()
+	lu.assertEquals(self.samSite:isActive(), true)
+end
+
+function TestSamSites:testInformOfContactInRange()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	local mockContact = {}
+	function self.samSite:isTargetInRange(target)
+		lu.assertIs(target, mockContact)
+		return true
+	end
+	self.samSite:goDark()
+	self.samSite:targetCycleUpdateStart()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:informOfContact(mockContact)
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:targetCycleUpdateEnd()
+	lu.assertEquals(self.samSite:isActive(), true)
+end
+
+function TestSamSites:testInformOfContactNotInRange()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	local mockContact = {}
+	function self.samSite:isTargetInRange(target)
+		lu.assertIs(target, mockContact)
+		return false
+	end
+	self.samSite:goDark()
+	self.samSite:targetCycleUpdateStart()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:informOfContact(mockContact)
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:targetCycleUpdateEnd()
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+
+function TestSamSites:testGetDistanceNMToContact()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	contact = Unit.getByName('Distance Calculation do not move')
+	lu.assertEquals(self.samSite:getDistanceNMToContact(self.samSite:getRadars()[1], contact), 20.33)
+end
+
+function TestSamSites:testShutDownTimes()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	lu.assertEquals(self.samSite:calculateMinimalShutdownTimeInSeconds(30), 60)
+	local saveRandom = mist.random
+	function mist.random(low, high)
+		return 10
+	end
+	lu.assertEquals(self.samSite:calculateMaximalShutdownTimeInSeconds(20), 30)
+	mist.random = saveRandom
 end
 
 TestEarlyWarningRadars = {}
@@ -222,6 +364,7 @@ function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 		lu.assertEquals(self.ewRadar:isActive(), false)
 		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 8)	
 end
+
 
 lu.LuaUnit.run()
 

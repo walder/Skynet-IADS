@@ -23,6 +23,24 @@ function SkynetIADSSamSite:setActAsEW(ewState)
 	end
 end
 
+function SkynetIADSSamSite:isDestroyed()
+	local isDestroyed = true
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		if launcher:isExist() == true then
+			isDestroyed = false
+		end
+	end
+	local radars = self:getRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		if radar:isExist() == true then
+			isDestroyed = false
+		end
+	end	
+	return isDestroyed
+end
+
 function SkynetIADSSamSite:targetCycleUpdateStart()
 	self.targetsInRange = false
 end

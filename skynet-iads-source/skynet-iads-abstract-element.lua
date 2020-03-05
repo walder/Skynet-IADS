@@ -21,7 +21,7 @@ end
 
 --- implemented in subclasses
 function SkynetIADSAbstractElement:isDestroyed()
-
+	return self:getDCSRepresentation():isExist() == false
 end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
@@ -85,7 +85,7 @@ end
 function SkynetIADSAbstractElement:onEvent(event)
 	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
 	if event.id == world.event.S_EVENT_DEAD then
-		if self:hasWorkingPowerSource() == false then
+		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
 			self:goDark()
 		end
 		if self:hasActiveConnectionNode() == false then

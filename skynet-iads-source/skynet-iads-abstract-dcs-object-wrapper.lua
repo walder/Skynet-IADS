@@ -26,4 +26,9 @@ function SkynetIADSAbstractDCSObjectWrapper:isExist()
 	return self.dcsObject:isExist()
 end
 
+function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
+	return self.dcsObject
 end
+
+end
+

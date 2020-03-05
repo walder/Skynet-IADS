@@ -141,8 +141,9 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutput(samSite:getDescription().." added to IADS")
 		end
-	end
-	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
+		self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
+		return samSite
+	end 
 end
 
 function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
@@ -182,6 +183,17 @@ function SkynetIADS:getUsableEarlyWarningRadars()
 		end
 	end
 	return usable
+end
+
+function SkynetIADS:getDestroyedSamSites()
+	local destroyedSites = {}
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:isDestroyed() then
+			table.insert(destroyedSites, samSite)
+		end
+	end
+	return destroyedSites
 end
 
 function SkynetIADS:getSamSites()
@@ -420,7 +432,9 @@ function SkynetIADS:printSystemStatus()
 		end
 	end
 	samSitesInactive = samSitesTotal - samSitesActive
-	self:printOutput("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode)
+	
+	local numSamSitesDestroyed = #self:getDestroyedSamSites()
+	self:printOutput("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | Destroyed: "..numSamSitesDestroyed.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode)
 end
 
 end
