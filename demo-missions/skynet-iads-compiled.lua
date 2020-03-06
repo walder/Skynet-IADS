@@ -1,4 +1,4 @@
--- BUILD Timestamp: 04.03.2020 23:12:30.82  
+-- BUILD Timestamp: 06.03.2020 22:30:59.07  
 do
 samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
 	-- '-' character needs special search term %
@@ -866,7 +866,7 @@ function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connec
 			end
 		end
 		if update == false then
-			self:printOutput("you tried to set options for an EW radar that does not exist: "..unitName, true)
+			self:printOutput("you tried to set options for an EW radar that does not exist: "..tostring(unitName), true)
 		end
 end
 
@@ -887,7 +887,10 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
 		if pos and pos == 1 then
-			self:addSamSite(groupName, nil, nil, autonomousMode)
+			local dcsObject = Group.getByName(groupName)
+			if dcsObject then
+				self:addSamSite(groupName, nil, nil, autonomousMode)
+			end
 		end
 	end
 end
@@ -895,7 +898,7 @@ end
 function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
 	local samSiteDCS = Group.getByName(samSiteName)
 	if samSiteDCS == nil then
-		self:printOutput("you have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", true)
+		self:printOutput("you have added an SAM Site that does not exist, check name of Group in Setup and Mission editor: "..tostring(samSiteName), true)
 		return
 	end
 	self:setCoalition(samSiteDCS)
@@ -908,8 +911,9 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutput(samSite:getDescription().." added to IADS")
 		end
-	end
-	self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
+		self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
+		return samSite
+	end 
 end
 
 function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
@@ -949,6 +953,17 @@ function SkynetIADS:getUsableEarlyWarningRadars()
 		end
 	end
 	return usable
+end
+
+function SkynetIADS:getDestroyedSamSites()
+	local destroyedSites = {}
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:isDestroyed() then
+			table.insert(destroyedSites, samSite)
+		end
+	end
+	return destroyedSites
 end
 
 function SkynetIADS:getSamSites()
@@ -1187,7 +1202,9 @@ function SkynetIADS:printSystemStatus()
 		end
 	end
 	samSitesInactive = samSitesTotal - samSitesActive
-	self:printOutput("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode)
+	
+	local numSamSitesDestroyed = #self:getDestroyedSamSites()
+	self:printOutput("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | Destroyed: "..numSamSitesDestroyed.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode)
 end
 
 end
@@ -1219,7 +1236,12 @@ function SkynetIADSAbstractDCSObjectWrapper:isExist()
 	return self.dcsObject:isExist()
 end
 
+function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
+	return self.dcsObject
 end
+
+end
+
 do
 
 SkynetIADSAbstractElement = {}
@@ -1243,7 +1265,7 @@ end
 
 --- implemented in subclasses
 function SkynetIADSAbstractElement:isDestroyed()
-
+	return self:getDCSRepresentation():isExist() == false
 end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
@@ -1280,7 +1302,7 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	for i = 1, #objects do
 		local object = objects[i]
 		--if we find one object that is not fully destroyed we assume the IADS is still working
-		if object:getLife() > 0 then
+		if object:isExist() then
 			isAlive = true
 			break
 		end
@@ -1307,7 +1329,7 @@ end
 function SkynetIADSAbstractElement:onEvent(event)
 	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
 	if event.id == world.event.S_EVENT_DEAD then
-		if self:hasWorkingPowerSource() == false then
+		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
 			self:goDark()
 		end
 		if self:hasActiveConnectionNode() == false then
@@ -1387,7 +1409,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
 	self.__index = self
-	instance.aiState = true
+	instance.aiState = false
 	instance.jammerID = nil
 	instance.lastJammerUpdate = 0
 	instance.setJammerChance = true
@@ -1402,9 +1424,11 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.harmDetectionChance = 0
 	instance.minHarmShutdownTime = 0
 	instance.maxHarmShutDownTime = 0
-	instance.maxHarmPresetShuttdownTime = 180
+	instance.minHarmPresetShutdownTime = 30
+	instance.maxHarmPresetShutdownTime = 180
 	instance.firingRangePercent = 100
 	instance:setupElements()
+	instance:goLive()
 	return instance
 end
 
@@ -1585,10 +1609,6 @@ function SkynetIADSAbstractRadarElement:isActive()
 	return self.aiState
 end
 
-function SkynetIADSAbstractElement:isDestroyed()
-	return self:getController() == nil
-end
-
 function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 	
 	local isSearchRadarInRange = ( #self.searchRadars == 0 )
@@ -1674,6 +1694,10 @@ function SkynetIADSAbstractRadarElement:scanForHarms()
 	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms, {self}, 1, 2)
 end
 
+function SkynetIADSAbstractElement:isScanningForHarms()
+	return self.harmScanID ~= nil
+end
+
 function SkynetIADSAbstractRadarElement:stopScanningForHarms()
 	mist.removeFunction(self.harmScanID)
 	self.harmScanID = nil
@@ -1682,9 +1706,9 @@ end
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHarm()
 	self:finishHarmDefence(self)
 	self.objectsIdentifiedAsHarms = {}
+	local harmTime = self:getHarmShutDownTime()
 	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
 	self:goDark()
-	local harmTime = self:getHarmShutDownTime()
 	--trigger.action.outText(tostring(self.harmSilenceID), 1)
 	--trigger.action.outText(tostring(harmTime), 1)
 end
@@ -1724,6 +1748,31 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
 	return returnTargets
 end
 
+function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)
+	local tti = 0
+	if speedKT > 0 then
+		tti = mist.utils.round((distanceNM / speedKT) * 3600, 0)
+		if tti < 0 then
+			tti = 0
+		end
+	end
+	return tti
+end
+
+function SkynetIADSAbstractRadarElement:getDistanceNMToContact(radarUnit, contact)
+	local distanceMeters = mist.utils.metersToNM(mist.utils.get2DDist(contact:getPosition().p, radarUnit:getPosition().p))
+	return mist.utils.round(distanceMeters, 2)
+end
+
+function SkynetIADSAbstractRadarElement:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+	return timeToImpact + self.minHarmPresetShutdownTime
+end
+
+function SkynetIADSAbstractRadarElement:calculateMaximalShutdownTimeInSeconds(minShutdownTime)	
+	return minShutdownTime + mist.random(1, self.maxHarmPresetShutdownTime)
+end
+
+
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, detectionType)
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
@@ -1736,9 +1785,9 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, dete
 			local radars = self:getRadars()
 			for j = 1, #radars do
 				local radar = radars[j]
-				local distance = mist.utils.get3DDist(target:getPosition().p, radar:getPosition().p)
+				local distance = self:getDistanceNMToContact(target, radar)
 			--	trigger.action.outText("Missile to SAM distance: "..distance, 1)
-				-- distance needs to be incremented by a certain value for ip calculation to work, check why
+				-- distance needs to be incremented by a certain value for ip calculation to work, check why, distance needs to be m here!
 				local impactPoint = land.getIP(target:getPosition().p, target:getPosition().x, distance + 100)
 				if impactPoint then
 					local diststanceToSam = mist.utils.get2DDist(radar:getPosition().p, impactPoint)
@@ -1761,12 +1810,12 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, dete
 						local targetHarm = self.objectsIdentifiedAsHarms[target:getName()]['target']
 						targetHarm:refresh()
 						local speed = targetHarm:getGroundSpeedInKnots()
-						local timeToImpact =  mist.utils.round((mist.utils.metersToNM(distance) / speed) * 3600, 0)
+						local timeToImpact = self:getSecondsToImpact(distance, speed )
 						trigger.action.outText("detection Cycle: "..numDetections.." Random: "..randomReaction.." GS: "..targetHarm:getGroundSpeedInKnots().."TTI: "..timeToImpact, 1)
 						---use distance and speed of harm to determine min shutdown time
 						if numDetections == 3 and self.harmDetectionChance > randomReaction then
-							self.minHarmShutdownTime = timeToImpact + 30
-							self.maxHarmShutDownTime = self.minHarmShutdownTime + math.random(1, self.maxHarmPresetShuttdownTime)
+							self.minHarmShutdownTime = self:calculateShutdownTimeInSeconds(timeToImpact)
+							self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
 							trigger.action.outText("SAM EVADING HARM", 1)
 							self:goSilentToEvadeHarm()
 						end
@@ -2050,6 +2099,24 @@ function SkynetIADSSamSite:setActAsEW(ewState)
 	else
 		self:goDark()
 	end
+end
+
+function SkynetIADSSamSite:isDestroyed()
+	local isDestroyed = true
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		if launcher:isExist() == true then
+			isDestroyed = false
+		end
+	end
+	local radars = self:getRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		if radar:isExist() == true then
+			isDestroyed = false
+		end
+	end	
+	return isDestroyed
 end
 
 function SkynetIADSSamSite:targetCycleUpdateStart()

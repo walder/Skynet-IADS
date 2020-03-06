@@ -99,7 +99,7 @@ function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connec
 			end
 		end
 		if update == false then
-			self:printOutput("you tried to set options for an EW radar that does not exist: "..unitName, true)
+			self:printOutput("you tried to set options for an EW radar that does not exist: "..tostring(unitName), true)
 		end
 end
 
@@ -120,7 +120,10 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
 		if pos and pos == 1 then
-			self:addSamSite(groupName, nil, nil, autonomousMode)
+			local dcsObject = Group.getByName(groupName)
+			if dcsObject then
+				self:addSamSite(groupName, nil, nil, autonomousMode)
+			end
 		end
 	end
 end
@@ -128,7 +131,7 @@ end
 function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
 	local samSiteDCS = Group.getByName(samSiteName)
 	if samSiteDCS == nil then
-		self:printOutput("you have added an SAM Site that does not exist, check name of Group in Setup and Mission editor", true)
+		self:printOutput("you have added an SAM Site that does not exist, check name of Group in Setup and Mission editor: "..tostring(samSiteName), true)
 		return
 	end
 	self:setCoalition(samSiteDCS)

@@ -193,13 +193,24 @@ function TestIADS:testCompleteDestructionOfSamSite()
 	lu.assertEquals(#iads:getDestroyedSamSites(), 1)
 end	
 
+function TestIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsWithSamePrefix()
+	local iads = SkynetIADS:create()
+	local calledPrint = false
+	function iads:printOutput(str, isWarning)
+		calledPrint = true
+	end
+	iads:addSamSitesByPrefix('prefixtest')
+	lu.assertEquals(#iads:getSamSites(), 1)
+	lu.assertEquals(calledPrint, false)
+end
+
 TestSamSites = {}
 
 function TestSamSites:setUp()
 	if self.samSiteName then
-		local skynetIADS = SkynetIADS:create()
+		self.skynetIADS = SkynetIADS:create()
 		local samSite = Group.getByName(self.samSiteName)
-		self.samSite = SkynetIADSSamSite:create(samSite, skynetIADS)
+		self.samSite = SkynetIADSSamSite:create(samSite, self.skynetIADS)
 	end
 end
 
@@ -325,8 +336,41 @@ end
 function TestSamSites:testGetDistanceNMToContact()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()
-	contact = Unit.getByName('Distance Calculation do not move')
+	local contact = Unit.getByName('Distance Calculation do not move')
 	lu.assertEquals(self.samSite:getDistanceNMToContact(self.samSite:getRadars()[1], contact), 20.33)
+end
+
+function TestSamSites:testPowerSourceStaticObjectGroundVehiclesAndDestrutionSuccessful()
+	self.samSiteName = "test-samsite-with-unit-as-power-source"
+	self:setUp()
+	local powerSource = StaticObject.getByName("test-ground-vehicle-power-source")
+	local connectionNode = StaticObject.getByName("test-ground-vehicle-connection-node")
+	self.samSite:addPowerSource(powerSource)
+	self.samSite:addConnectionNode(connectionNode)
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
+	trigger.action.explosion(powerSource:getPosition().p, 3000)
+	trigger.action.explosion(connectionNode:getPosition().p, 500)
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
+	local event = {}
+	event.id = world.event.S_EVENT_DEAD
+	self.samSite:onEvent(event)
+	self.skynetIADS.evaluateContacts(self.skynetIADS)
+end
+
+function TestSamSites:testPowerSourceUnitAndDescrutionSuccessful()
+	self.samSiteName = "test-samsite-with-unit-as-power-source"
+	self:setUp()
+	local powerSource = Unit.getByName("test-unit-as-sam-power-source")
+	local connectionNode = Unit.getByName("test-unit-as-sam-connection-node")
+	--self.samSite:addPowerSource(powerSource)
+	self.samSite:addConnectionNode(connectionNode)
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
+	trigger.action.explosion(powerSource:getPosition().p, 500)
+	trigger.action.explosion(connectionNode:getPosition().p, 3000)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
+	self.skynetIADS.evaluateContacts(self.skynetIADS)
 end
 
 function TestSamSites:testShutDownTimes()
@@ -358,7 +402,7 @@ function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 		lu.assertEquals(self.ewRadar:isActive(), true)
 		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), true)
 		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 9)
-		trigger.action.explosion(self.ewRadar:getDCSRepresentation():getPosition().p, 10000)
+		trigger.action.explosion(self.ewRadar:getDCSRepresentation():getPosition().p, 500)
 		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), false)
 		self.ewRadar:goDark()
 		lu.assertEquals(self.ewRadar:isActive(), false)

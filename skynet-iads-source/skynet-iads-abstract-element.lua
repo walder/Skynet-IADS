@@ -58,7 +58,7 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	for i = 1, #objects do
 		local object = objects[i]
 		--if we find one object that is not fully destroyed we assume the IADS is still working
-		if object:getLife() > 0 then
+		if object:isExist() then
 			isAlive = true
 			break
 		end
