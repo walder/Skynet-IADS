@@ -251,10 +251,11 @@ function TestSamSites:testCheckSA3GroupNumberOfLaunchersAndSearchRadarsAndNatoNa
 	local launcher = array[1]
 	lu.assertEquals(launcher:getMaxRangeFindingTarget(), 100000)
 	
---	lu.assertEquals(#self.samSite:getLaunchers(), 1)
---	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
---	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
-	--lu.assertEquals(#self.samSite:getRadars(), 2)
+	lu.assertEquals(#self.samSite:getLaunchers(), 1)	
+	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
+	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
+	lu.assertEquals(#self.samSite:getRadars(), 2)
+	lu.assertEquals(self.samSite:getHarmDetectionChance(), 40)
 	
 	lu.assertEquals(self.samSite:getNatoName(), "SA-3")
 end

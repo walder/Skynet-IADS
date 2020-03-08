@@ -47,12 +47,19 @@ function SkynetIADSAbstractRadarElement:getUnitsToAnalyse()
 	return units
 end
 
+function SkynetIADSAbstractRadarElement:getHarmDetectionChance()
+	return self.harmDetectionChance
+end
+
 function SkynetIADSAbstractRadarElement:setupElements()
 	local numUnits = #self:getUnitsToAnalyse()
 	for typeName, dataType in pairs(SkynetIADS.database) do
 		local hasSearchRadar = false
 		local hasTrackingRadar = false
 		local hasLauncher = false
+		self.searchRadars = {}
+		self.trackingRadars = {}
+		self.launchers = {}
 		for entry, unitData in pairs(dataType) do
 			if entry == 'searchRadar' then
 				self:analyseAndAddUnit(SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
@@ -70,6 +77,10 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		
 		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
+			local harmDetection = dataType['harm_detection_chance']
+			if harmDetection then
+				self.harmDetectionChance = harmDetection
+			end
 			local natoName = dataType['name']['NATO']
 			--we shorten the SA-XX names and don't return their code names eg goa, gainful..
 			local pos = natoName:find(" ")

@@ -23,7 +23,7 @@ sa6['harm_detection_chance'] = 10
 local sa11 = samTypesDB['Buk']
 sa11['harm_detection_chance'] = 70
 
-local sa19 = samTypesDB['s%-125']
+local sa19 = samTypesDB['2S6 Tunguska']
 sa19['harm_detection_chance'] = 10
 
 end
