@@ -1,14 +1,13 @@
 do
 
 SkynetIADSSAMLauncher = {}
-SkynetIADSSAMLauncher = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
+SkynetIADSSAMLauncher = inheritsFrom(SkynetIADSSAMSearchRadar)
 
 function SkynetIADSSAMLauncher:create(unit, performanceData)
 	local instance = self:superClass():create(unit)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.performanceData = performanceData
-	instance.firingRangePercent = 100
 	return instance
 end
 
@@ -22,10 +21,6 @@ function SkynetIADSSAMLauncher:isAAA()
 		isAAA = false
 	end
 	return isAAA
-end
-
-function SkynetIADSSAMLauncher:setFiringRangePercent(percent)
-	self.firingRangePercent = percent
 end
 
 function SkynetIADSSAMLauncher:isInRange(target)

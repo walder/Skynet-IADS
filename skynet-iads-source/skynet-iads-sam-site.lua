@@ -21,7 +21,12 @@ function SkynetIADSSamSite:setActAsEW(ewState)
 	else
 		self:goDark()
 	end
+	return self
 end
+
+function SkynetIADSSamSite:getActAsEW()
+	return self.actAsEW
+end	
 
 function SkynetIADSSamSite:isDestroyed()
 	local isDestroyed = true

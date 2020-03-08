@@ -26,10 +26,12 @@ end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
+	return self
 end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
+	return self
 end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()

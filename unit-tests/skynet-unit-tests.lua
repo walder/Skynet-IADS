@@ -363,22 +363,36 @@ function TestSamSites:testInformOfContactNotInRange()
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
-function TestSamSites:testInformOfContactTargetInRangeMethod()
+function TestSamSites:testSA2InformOfContactTargetInRangeMethod()
 	self.samSiteName = "SAM-SA-2"
 	self:setUp()
+	--DCS AI radar instantly detects contact in test, so Site will not go dark, therefore we overrwite the method in this test
+	function self.samSite:getDetectedTargets()
+		return {}
+	end
 	self.samSite:goDark()
-	self.samSite:informOfContact(IADSContactFactory('test-in-firing-range-of-sa-2'))
+	lu.assertEquals(self.samSite:isActive(), false)
+	local target = IADSContactFactory('test-in-firing-range-of-sa-2')
+	self.samSite:informOfContact(target)
 	lu.assertEquals(self.samSite:isActive(), true)
-	
+	lu.assertEquals(self.samSite:isTargetInRange(target), true)
+end
+
+function TestSamSites:testSA2InformOfContactTargetNotInRange()
+	self.samSiteName = "test-SAM-SA-2-test"
+	self:setUp()
 	self.samSite:goDark()
-	self.samSite:informOfContact(IADSContactFactory('test-not-in-firing-range-of-sa-2'))
+	local target = IADSContactFactory('test-not-in-firing-range-of-sa-2')
+	self.samSite:informOfContact(target)
+	lu.assertEquals(self.samSite:isTargetInRange(target), false)
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
-function TestSamSites:testInforOfContactInSearchRangeSAMSiteGoLiveWhenSetToSearchRange()
-	self.samSiteName = "SAM-SA-2"
+function TestSamSites:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWhenSetToSearchRange()
+	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
 	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
 	lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE)
 	self.samSite.goLiveRange = nil
 	self.samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
@@ -386,25 +400,40 @@ function TestSamSites:testInforOfContactInSearchRangeSAMSiteGoLiveWhenSetToSearc
 	local target = IADSContactFactory('test-not-in-firing-range-of-sa-2')
 	self.samSite:informOfContact(target)
 	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(self.samSite:isTargetInRange(target), true)
 end
 
-function TestSamSites:testGoLiveRangeInPercentSA2()
+function TestSamSites:testSA2GoLiveRangeInPercentInKillZone()
 	self.samSiteName = "SAM-SA-2"
 	self:setUp()
-	self.samSite:goDark()
 	lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE)
 	self.samSite:setGoLiveRangeInPercent(60)
 	
 	local target = IADSContactFactory('test-in-firing-range-of-sa-2')
-	self.samSite:informOfContact(target)
 	
 	local launcher = self.samSite:getLaunchers()[1]
 	lu.assertEquals(launcher:isInRange(target), false)
-	lu.assertEquals(self.samSite:isActive(), false)
-	
+	lu.assertEquals(self.samSite:isTargetInRange(target), false)
 end
 
-function TestSamSites:testGoLiveRangeInPercentSA8()	
+function TestSamSites:testSA2GoLiveRangeInPercentSearchRange()
+	self.samSiteName = "test-SAM-SA-2-test-2"
+	self:setUp()
+	self.samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+	self.samSite:setGoLiveRangeInPercent(80)
+	
+	local target = IADSContactFactory('test-outer-search-range')
+
+	local radars = self.samSite:getSearchRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		lu.assertEquals(radar:isInRange(target), false)
+	end
+	lu.assertEquals(self.samSite:isTargetInRange(target), false)
+end
+
+
+function TestSamSites:testSA8GoLiveRangeInPercent()	
 	self.samSiteName = 'SAM-SA-8'
 	self:setUp()
 	self.samSite:goDark()
@@ -471,6 +500,16 @@ function TestSamSites:testShutDownTimes()
 	end
 	lu.assertEquals(self.samSite:calculateMaximalShutdownTimeInSeconds(20), 30)
 	mist.random = saveRandom
+end
+
+function TestSamSites:testDaisychainSAMOptions()
+	self.samSiteName = "SAM-SA-11"
+	self:setUp()
+	local powerSource = StaticObject.getByName('SA-11-power-source')
+	local connectionNode = StaticObject.getByName('SA-11-connection-node')
+	self.samSite:setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertEquals(self.samSite:getActAsEW(), true)
+	---complete further assertions here!
 end
 
 TestEarlyWarningRadars = {}

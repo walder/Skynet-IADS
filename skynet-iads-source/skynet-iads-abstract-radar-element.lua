@@ -91,8 +91,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 				self.natoName = natoName
 			end
 			break
-		end
-		
+		end	
 	end
 end
 
@@ -108,103 +107,6 @@ function SkynetIADSAbstractRadarElement:analyseAndAddUnit(class, tableToAdd, uni
 			end
 		end
 	end
-end
-
-function SkynetIADSAbstractRadarElement:_setupElements()
-	local units = {}
-	local natoName = self.natoName
-	local allUnitsFound = false
-	units[1] = self:getDCSRepresentation()
-	if getmetatable(self:getDCSRepresentation()) == Group then
-		units = self:getDCSRepresentation():getUnits()
-	end
-	local unitTypes = {}
-	--trigger.action.outText("-----"..self:getDCSName().."--------", 1)
-	for i = 1, #units do
-		local unitName = units[i]:getTypeName()
-		if unitTypes[unitName] then
-			unitTypes[unitName]['count'] = unitTypes[unitName]['count'] + 1
-		else
-			unitTypes[unitName] = {}
-			unitTypes[unitName]['count'] = 1
-			unitTypes[unitName]['found'] = 0
-		end
-	end
-	for i = 1, #units do
-		local unit = units[i]
-		local unitTypeName = unit:getTypeName()
-		for typeName, dataType in pairs(SkynetIADS.database) do
-		
-			allUnitsFound = true
-			for name, countData in pairs(unitTypes) do
-				if countData['count'] ~= countData['found'] then
-					allUnitsFound = false
-					countData['found'] = 0
-				end
-			end
-			if allUnitsFound then
-		--		trigger.action.outText("break", 1)
-				break
-			end
-		
-			for entry, unitData in pairs(dataType) do
-				if entry == 'searchRadar' then
-					for unitName, unitPerformanceData in pairs(unitData) do
-						if unitName == unitTypeName then
-							local searchRadar = SkynetIADSSAMSearchRadar:create(unit, unitPerformanceData)
-							table.insert(self.searchRadars, searchRadar)
-							--trigger.action.outText("added search radar", 1)
-							unitTypes[unitName]['found'] = unitTypes[unitName]['found'] + 1
-							natoName = dataType['name']['NATO']
-							if dataType['harm_detection_chance'] ~= nil then
-								self.harmDetectionChance = dataType['harm_detection_chance']
-							end
-						end
-					end
-				elseif entry == 'launchers' then
-					for unitName, unitPerformanceData in pairs(unitData) do
-						if unitName == unitTypeName then
-							local launcher = SkynetIADSSAMLauncher:create(unit, unitPerformanceData)
-							table.insert(self.launchers, launcher)
-							unitTypes[unitName]['found'] = unitTypes[unitName]['found'] + 1
-							natoName = dataType['name']['NATO']
-							if dataType['harm_detection_chance'] ~= nil then
-								self.harmDetectionChance = dataType['harm_detection_chance']
-							end
-							--trigger.action.outText(launcher:getRange(), 1)
-						end
-					end
-				elseif entry == 'trackingRadar' then
-					for unitName, unitPerformanceData in pairs(unitData) do
-						if unitName == unitTypeName then
-							local trackingRadar = SkynetIADSSAMTrackingRadar:create(unit, unitPerformanceData)
-							table.insert(self.trackingRadars, trackingRadar)
-							unitTypes[unitName]['found'] = unitTypes[unitName]['found'] + 1
-							natoName = dataType['name']['NATO']
-							if dataType['harm_detection_chance'] ~= nil then
-								self.harmDetectionChance = dataType['harm_detection_chance']
-							end
-							--trigger.action.outText("added tracking radar", 1)
-						end
-					end
-				end
-			end
-		end
-	end
---	local countNatoNames = 0
---	for name, countData in pairs(unitTypes) do
-	--	if countData['count'] ~= countData['found'] then
-		--	trigger.action.outText("MISMATCH: "..name.." "..countData['count'].." "..countData['found'], 1)
-	--	end
---	end
-	--we shorten the SA-XX names and don't return their code names eg goa, gainful..
-	local pos = natoName:find(" ")
-	local prefix = natoName:sub(1, 2)
-	if string.lower(prefix) == 'sa' and pos ~= nil then
-		natoName = natoName:sub(1, (pos-1))
-	end
-	self.natoName = natoName
-	--trigger.action.outText(self:getDCSName().." nato name: "..natoName.." HARM detection chance: "..tostring(self.harmDetectionChance), 1)
 end
 
 function SkynetIADSAbstractRadarElement:getController()
@@ -246,7 +148,12 @@ function SkynetIADSAbstractRadarElement:setGoLiveRangeInPercent(percent)
 			local launcher = self.launchers[i]
 			launcher:setFiringRangePercent(self.firingRangePercent)
 		end
+		for i = 1, #self.searchRadars do
+			local radar = self.searchRadars[i]
+			radar:setFiringRangePercent(self.firingRangePercent)
+		end
 	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:setEngagementZone(engagementZone)
@@ -255,6 +162,7 @@ function SkynetIADSAbstractRadarElement:setEngagementZone(engagementZone)
 	elseif engagementZone == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE then
 		self.goLiveRange = engagementZone
 	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:getEngagementZone()
@@ -278,7 +186,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
-	if ( self.aiState == true ) and ( ( #self:getDetectedTargets(true) == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
+	if ( self.aiState == true ) and ( ( #self:getDetectedTargets() == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
 			-- fastest way to get a radar unit to stop emitting
@@ -314,13 +222,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 	end
 	
 	if self.goLiveRange == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE then
-		isTrackingRadarInRange = ( #self.trackingRadars == 0 )
-		for i = 1, #self.trackingRadars do
-			local trackingRadar = self.trackingRadars[i]
-			if trackingRadar:isInRange(target) then
-				isTrackingRadarInRange = true
-			end
-		end
+		
 		isLauncherInRange = ( #self.launchers == 0 )
 		for i = 1, #self.launchers do
 			local launcher = self.launchers[i]
@@ -328,9 +230,17 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 				isLauncherInRange = true
 			end
 		end
+		
+		isTrackingRadarInRange = ( #self.trackingRadars == 0 )
+		for i = 1, #self.trackingRadars do
+			local trackingRadar = self.trackingRadars[i]
+			if trackingRadar:isInRange(target) then
+				isTrackingRadarInRange = true
+			end
+		end
 	else
-		isTrackingRadarInRange = true
 		isLauncherInRange = true
+		isTrackingRadarInRange = true
 	end
 	return  (isSearchRadarInRange and isTrackingRadarInRange and isLauncherInRange )
 end
@@ -339,6 +249,7 @@ function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
 	if mode ~= nil then
 		self.autonomousBehaviour = mode
 	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
@@ -419,7 +330,7 @@ function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 	self.harmSilenceID = nil
 end
 
-function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
+function SkynetIADSAbstractRadarElement:getDetectedTargets()
 	local returnTargets = {}
 	if self:hasWorkingPowerSource() and self:isDestroyed() == false then
 		local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
@@ -429,11 +340,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets(inKillZone)
 			if target.object then
 				local iadsTarget = SkynetIADSContact:create(target)
 				iadsTarget:refresh()
-				if inKillZone then
-					if self:isTargetInRange(iadsTarget) then
-						table.insert(returnTargets, iadsTarget)
-					end
-				else
+				if self:isTargetInRange(iadsTarget) then
 					table.insert(returnTargets, iadsTarget)
 				end
 			end
