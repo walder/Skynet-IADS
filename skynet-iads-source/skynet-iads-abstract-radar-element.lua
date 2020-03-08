@@ -156,6 +156,10 @@ function SkynetIADSAbstractRadarElement:setGoLiveRangeInPercent(percent)
 	return self
 end
 
+function SkynetIADSAbstractRadarElement:getGoLiveRangeInPercent()
+	return self.firingRangePercent
+end
+
 function SkynetIADSAbstractRadarElement:setEngagementZone(engagementZone)
 	if engagementZone == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE then
 		self.goLiveRange = engagementZone

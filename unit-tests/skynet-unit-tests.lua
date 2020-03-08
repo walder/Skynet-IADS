@@ -509,6 +509,8 @@ function TestSamSites:testDaisychainSAMOptions()
 	local connectionNode = StaticObject.getByName('SA-11-connection-node')
 	self.samSite:setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(self.samSite:getActAsEW(), true)
+	lu.assertEquals(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+	lu.assertEquals(self.samSite:getGoLiveRangeInPercent(), 90)
 	---complete further assertions here!
 end
 
