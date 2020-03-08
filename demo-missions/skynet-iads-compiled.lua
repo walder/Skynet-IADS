@@ -1,4 +1,4 @@
--- BUILD Timestamp: 06.03.2020 22:30:59.07  
+-- BUILD Timestamp: 08.03.2020 11:31:05.81  
 do
 samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
 	-- '-' character needs special search term %
@@ -887,6 +887,7 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
 		if pos and pos == 1 then
+			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
 			if dcsObject then
 				self:addSamSite(groupName, nil, nil, autonomousMode)
@@ -924,7 +925,7 @@ function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode,
 			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
 			samSite:setAutonomousBehaviour(autonomousMode)
 			samSite:setActAsEW(actAsEW)
-			samSite:setFiringRangePercent(firingRangePercent)
+			samSite:setGoLiveRangeInPercent(firingRangePercent)
 			update = true
 		end
 	end
@@ -1402,8 +1403,11 @@ do
 SkynetIADSAbstractRadarElement = {}
 SkynetIADSAbstractRadarElement = inheritsFrom(SkynetIADSAbstractElement)
 
-SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI = 0
-SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK = 1
+SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI = 1
+SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK = 2
+
+SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE = 1
+SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE = 2
 
 function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
@@ -1420,6 +1424,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
+	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = false
 	instance.harmDetectionChance = 0
 	instance.minHarmShutdownTime = 0
@@ -1432,7 +1437,69 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	return instance
 end
 
+
+function SkynetIADSAbstractRadarElement:getUnitsToAnalyse()
+	local units = {}
+	units[1] = self:getDCSRepresentation()
+	if getmetatable(self:getDCSRepresentation()) == Group then
+		units = self:getDCSRepresentation():getUnits()
+	end
+	return units
+end
+
 function SkynetIADSAbstractRadarElement:setupElements()
+	local numUnits = #self:getUnitsToAnalyse()
+	for typeName, dataType in pairs(SkynetIADS.database) do
+		local hasSearchRadar = false
+		local hasTrackingRadar = false
+		local hasLauncher = false
+		for entry, unitData in pairs(dataType) do
+			if entry == 'searchRadar' then
+				self:analyseAndAddUnit(SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
+				hasSearchRadar = true
+			end
+			if entry == 'launchers' then
+				self:analyseAndAddUnit(SkynetIADSSAMLauncher, self.launchers, unitData)
+				hasLauncher = true
+			end
+			if entry == 'trackingRadar' then
+				self:analyseAndAddUnit(SkynetIADSSAMTrackingRadar, self.trackingRadars, unitData)
+				hasTrackingRadar = true
+			end
+		end
+		
+		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
+		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
+			local natoName = dataType['name']['NATO']
+			--we shorten the SA-XX names and don't return their code names eg goa, gainful..
+			local pos = natoName:find(" ")
+			local prefix = natoName:sub(1, 2)
+			if string.lower(prefix) == 'sa' and pos ~= nil then
+				self.natoName = natoName:sub(1, (pos-1))
+			else
+				self.natoName = natoName
+			end
+			break
+		end
+		
+	end
+end
+
+function SkynetIADSAbstractRadarElement:analyseAndAddUnit(class, tableToAdd, unitData)
+	local units = self:getUnitsToAnalyse()
+	for i = 1, #units do
+		local unit = units[i]
+		local unitTypeName = unit:getTypeName()
+		for unitName, unitPerformanceData in pairs(unitData) do
+			if unitName == unitTypeName then
+				samElement = class:create(unit, unitPerformanceData)
+				table.insert(tableToAdd, samElement)
+			end
+		end
+	end
+end
+
+function SkynetIADSAbstractRadarElement:_setupElements()
 	local units = {}
 	local natoName = self.natoName
 	local allUnitsFound = false
@@ -1561,7 +1628,7 @@ function SkynetIADSAbstractRadarElement:getRadars()
 	return radarUnits
 end
 
-function SkynetIADSAbstractRadarElement:setFiringRangePercent(percent)
+function SkynetIADSAbstractRadarElement:setGoLiveRangeInPercent(percent)
 	if percent ~= nil then
 		self.firingRangePercent = percent	
 		for i = 1, #self.launchers do
@@ -1569,6 +1636,18 @@ function SkynetIADSAbstractRadarElement:setFiringRangePercent(percent)
 			launcher:setFiringRangePercent(self.firingRangePercent)
 		end
 	end
+end
+
+function SkynetIADSAbstractRadarElement:setEngagementZone(engagementZone)
+	if engagementZone == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE then
+		self.goLiveRange = engagementZone
+	elseif engagementZone == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE then
+		self.goLiveRange = engagementZone
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getEngagementZone()
+	return self.goLiveRange
 end
 
 function SkynetIADSAbstractRadarElement:goLive()
@@ -1610,6 +1689,10 @@ function SkynetIADSAbstractRadarElement:isActive()
 end
 
 function SkynetIADSAbstractRadarElement:isTargetInRange(target)
+
+	local isSearchRadarInRange = false
+	local isTrackingRadarInRange = false
+	local isLauncherInRange = false
 	
 	local isSearchRadarInRange = ( #self.searchRadars == 0 )
 	for i = 1, #self.searchRadars do
@@ -1619,25 +1702,25 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 		end
 	end
 	
-	local isTrackingRadarInRange = ( #self.trackingRadars == 0 )
-	for i = 1, #self.trackingRadars do
-		local trackingRadar = self.trackingRadars[i]
-		if trackingRadar:isInRange(target) then
-			isTrackingRadarInRange = true
+	if self.goLiveRange == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE then
+		isTrackingRadarInRange = ( #self.trackingRadars == 0 )
+		for i = 1, #self.trackingRadars do
+			local trackingRadar = self.trackingRadars[i]
+			if trackingRadar:isInRange(target) then
+				isTrackingRadarInRange = true
+			end
 		end
-	end
-	
-	local isLauncherInRange = ( #self.launchers == 0 )
-	for i = 1, #self.launchers do
-		local launcher = self.launchers[i]
-		if launcher:isInRange(target) or launcher:isAAA() then
-			isLauncherInRange = true
+		isLauncherInRange = ( #self.launchers == 0 )
+		for i = 1, #self.launchers do
+			local launcher = self.launchers[i]
+			if launcher:isInRange(target) or launcher:isAAA() then
+				isLauncherInRange = true
+			end
 		end
+	else
+		isTrackingRadarInRange = true
+		isLauncherInRange = true
 	end
-	--if self.natoName == 'SA-11' then
-	--	trigger.action.outText(target:getName(), 1)
-	--	trigger.action.outText(self:getNatoName()..": in Range of Search Radar: "..tostring(isSearchRadarInRange).." Launcher: "..tostring(isLauncherInRange).." Tracking Radar: "..tostring(isTrackingRadarInRange), 1)
-	--end
 	return  (isSearchRadarInRange and isTrackingRadarInRange and isLauncherInRange )
 end
 
@@ -1715,7 +1798,7 @@ end
 
 function SkynetIADSAbstractRadarElement:getHarmShutDownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
-	trigger.action.outText("shutdowntime: "..shutDownTime, 1)
+	--trigger.action.outText("shutdowntime: "..shutDownTime, 1)
 	return shutDownTime
 end
 
@@ -2064,7 +2147,7 @@ function SkynetIADSSAMSearchRadar:getMinAltFindingTarget()
 end
 
 function SkynetIADSSAMSearchRadar:isInRange(target)
-	local distance = mist.utils.get3DDist(target:getPosition().p, self.dcsObject:getPosition().p)
+	local distance = mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
 	local radarHeight = self.dcsObject:getPosition().p.y
 	local aircraftHeight = target:getPosition().p.y	
 	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
@@ -2130,7 +2213,7 @@ function SkynetIADSSamSite:targetCycleUpdateEnd()
 end
 
 function SkynetIADSSamSite:informOfContact(contact)
-	if self:isTargetInRange(contact) or self.actAsEW then
+	if self:isTargetInRange(contact) then
 		self:goLive()
 		self.targetsInRange = true
 	end

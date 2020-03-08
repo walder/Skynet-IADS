@@ -1,32 +1,5 @@
+
 do
-
-
---[[
----debug settings remove from here on if you do not wan't any output on what the IADS is doing
-
-iadsDebug.samWentDark = true
-iadsDebug.contacts = false
-iadsDebug.radarWentLive = true
-iadsDebug.noWorkingCommmandCenter = false
-iadsDebug.ewRadarNoConnection = false
-iadsDebug.samNoConnection = false
-iadsDebug.jammerProbability = true
-iadsDebug.addedEWRadar = false
-iadsDebug.ewRadarNoPower = false
-iadsDebug.addedSAMSite = false
----end remove debug ---
---]]
-
---iranIADS:setOptionsForSamSite('SAM-SA-10', nil, nil, true)
---ewWest2ConnectionNode = StaticObject.getByName('EW-west Connection Node')
---iranIADS:activate()	
-
---jammerSource = Unit.getByName("Growler")
---jammer = SkynetIADSJammer:create(jammerSource)
---jammer:addIADS(iranIADS)
---jammer:masterArmOn()
---jammer:disableFor('SA-2')
-
 ---IADS Unit Tests
 TestIADS = {}
 
@@ -150,23 +123,14 @@ function TestIADS:testOneCommandCenterLoosesPower()
 end
 
 function TestIADS:testMergeContacts()
-	local radarContact = {}
-	radarContact.object = Unit.getByName("Player Hornet")
-	local contact = SkynetIADSContact:create(radarContact)
 	lu.assertEquals(#self.iranIADS:getContacts(), 0)
-	self.iranIADS:mergeContact(contact)
+	self.iranIADS:mergeContact(IADSContactFactory('Player Hornet'))
 	lu.assertEquals(#self.iranIADS:getContacts(), 1)
 	
-	local radarContact2 = {}
-	radarContact2.object = Unit.getByName("Player Hornet")
-	local contact2 = SkynetIADSContact:create(radarContact2)
-	self.iranIADS:mergeContact(contact2)
+	self.iranIADS:mergeContact(IADSContactFactory('Player Hornet'))
 	lu.assertEquals(#self.iranIADS:getContacts(), 1)
 	
-	local radarContact3 = {}
-	radarContact3.object = Unit.getByName("Harrier Pilot")
-	local contact3 = SkynetIADSContact:create(radarContact3)
-	self.iranIADS:mergeContact(contact3)
+	self.iranIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
 	lu.assertEquals(#self.iranIADS:getContacts(), 2)
 	
 end
@@ -193,7 +157,7 @@ function TestIADS:testCompleteDestructionOfSamSite()
 	lu.assertEquals(#iads:getDestroyedSamSites(), 1)
 end	
 
-function TestIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsWithSamePrefix()
+function TestIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsOrStaticObjectsWithSamePrefix()
 	local iads = SkynetIADS:create()
 	local calledPrint = false
 	function iads:printOutput(str, isWarning)
@@ -201,6 +165,17 @@ function TestIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsWithSamePre
 	end
 	iads:addSamSitesByPrefix('prefixtest')
 	lu.assertEquals(#iads:getSamSites(), 1)
+	lu.assertEquals(calledPrint, false)
+end
+
+function TestIADS:testOnlyLoadUnitsWithPrefixForEWSiteNotStaticObjectssWithSamePrefix()
+	local iads = SkynetIADS:create()
+	local calledPrint = false
+	function iads:printOutput(str, isWarning)
+		calledPrint = true
+	end
+	iads:addEarlyWarningRadarsByPrefix('prefixewtest')
+	lu.assertEquals(#iads:getEarlyWarningRadars(), 1)
 	lu.assertEquals(calledPrint, false)
 end
 
@@ -232,6 +207,57 @@ function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoN
 	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
 end
 
+function TestSamSites:testCheckSA3GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
+	self.samSiteName = "test-SA-3"
+	self:setUp()
+	
+	local array = {}
+	local unitData = {
+		['p-19 s-125 sr'] = {
+			['max_range_finding_target'] = 80000,
+			['min_range_finding_target'] = 1500,
+			['max_alt_finding_target'] = 20000,
+			['min_alt_finding_target'] = 25,
+			['height'] = 5.841,
+			['radar_rotation_period'] = 6.0,
+		},
+	}
+	self.samSite:analyseAndAddUnit(SkynetIADSSAMSearchRadar, array, unitData)
+	local searchRadar = array[1]
+	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 80000)
+	
+	array = {}
+	unitData = {
+		['5p73 s-125 ln'] = {
+				['range'] = 18000,
+				['missiles'] = 4,
+		},
+	}
+	self.samSite:analyseAndAddUnit(SkynetIADSSAMLauncher, array, unitData)
+	local launcher = array[1]
+	lu.assertEquals(launcher:getRange(), 18000)
+	
+	array = {}
+	unitData = {
+		['snr s-125 tr'] = {
+			['max_range_finding_target'] = 100000,
+			['min_range_finding_target'] = 1500,
+			['max_alt_finding_target'] = 20000,
+			['min_alt_finding_target'] = 25,
+			['height'] = 3,
+		},
+	}
+	self.samSite:analyseAndAddUnit(SkynetIADSSAMTrackingRadar, array, unitData)
+	local launcher = array[1]
+	lu.assertEquals(launcher:getMaxRangeFindingTarget(), 100000)
+	
+--	lu.assertEquals(#self.samSite:getLaunchers(), 1)
+--	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
+--	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
+	--lu.assertEquals(#self.samSite:getRadars(), 2)
+	
+	lu.assertEquals(self.samSite:getNatoName(), "SA-3")
+end
 
 function TestSamSites:testCreateSamSiteFromInvalidGroup()
 	self.samSiteName = "Invalid-for-sam"
@@ -243,9 +269,14 @@ function TestSamSites:testCreateSamSiteFromInvalidGroup()
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
 end
 
---finish this test
-function TestSamSites:testSamSiteGroupContainingOfOneUnitOnly()
-	
+function TestSamSites:testSamSiteGroupContainingOfOneUnitOnlySA8()
+	self.samSiteName = "SAM-SA-8"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getRadars(), 1)
+	lu.assertEquals(#self.samSite:getLaunchers(), 1)
+	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
+	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
+	lu.assertEquals(self.samSite:getNatoName(), "SA-8")
 end
 
 function TestSamSites:testHARMDefenceStates()
@@ -289,9 +320,8 @@ function TestSamSites:testInformOfContactInRangeWhenEarlyWaringRadar()
 		lu.assertIs(target, mockContact)
 		return false
 	end
-	self.samSite:goDark()
 	self.samSite:targetCycleUpdateStart()
-	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(self.samSite:isActive(), true)
 	self.samSite:informOfContact(mockContact)
 	lu.assertEquals(self.samSite:isActive(), true)
 	self.samSite:targetCycleUpdateEnd()
@@ -332,11 +362,67 @@ function TestSamSites:testInformOfContactNotInRange()
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
+function TestSamSites:testInformOfContactTargetInRangeMethod()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	self.samSite:goDark()
+	self.samSite:informOfContact(IADSContactFactory('test-in-firing-range-of-sa-2'))
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+	self.samSite:goDark()
+	self.samSite:informOfContact(IADSContactFactory('test-not-in-firing-range-of-sa-2'))
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+function TestSamSites:testInforOfContactInSearchRangeSAMSiteGoLiveWhenSetToSearchRange()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	self.samSite:goDark()
+	lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE)
+	self.samSite.goLiveRange = nil
+	self.samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+	lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+	local target = IADSContactFactory('test-not-in-firing-range-of-sa-2')
+	self.samSite:informOfContact(target)
+	lu.assertEquals(self.samSite:isActive(), true)
+end
+
+function TestSamSites:testGoLiveRangeInPercentSA2()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	self.samSite:goDark()
+	lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE)
+	self.samSite:setGoLiveRangeInPercent(60)
+	
+	local target = IADSContactFactory('test-in-firing-range-of-sa-2')
+	self.samSite:informOfContact(target)
+	
+	local launcher = self.samSite:getLaunchers()[1]
+	lu.assertEquals(launcher:isInRange(target), false)
+	lu.assertEquals(self.samSite:isActive(), false)
+	
+end
+
+function TestSamSites:testGoLiveRangeInPercentSA8()	
+	self.samSiteName = 'SAM-SA-8'
+	self:setUp()
+	self.samSite:goDark()
+	local target = IADSContactFactory('test-sa-8-will-go-active')
+	self.samSite:informOfContact(target)
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+	local launcher = self.samSite:getLaunchers()[1]
+	self.samSite:setGoLiveRangeInPercent(20)
+	self.samSite:goDark()
+	self.samSite:informOfContact(target)
+	lu.assertEquals(launcher:isInRange(target), false)
+	lu.assertEquals(self.samSite:isActive(), false)
+end
 
 function TestSamSites:testGetDistanceNMToContact()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()
-	local contact = Unit.getByName('Distance Calculation do not move')
+	local contact = Unit.getByName('test-distance-calculation')
 	lu.assertEquals(self.samSite:getDistanceNMToContact(self.samSite:getRadars()[1], contact), 20.33)
 end
 
@@ -364,12 +450,13 @@ function TestSamSites:testPowerSourceUnitAndDescrutionSuccessful()
 	self:setUp()
 	local powerSource = Unit.getByName("test-unit-as-sam-power-source")
 	local connectionNode = Unit.getByName("test-unit-as-sam-connection-node")
-	--self.samSite:addPowerSource(powerSource)
+	self.samSite:addPowerSource(powerSource)
 	self.samSite:addConnectionNode(connectionNode)
 	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
 	trigger.action.explosion(powerSource:getPosition().p, 500)
 	trigger.action.explosion(connectionNode:getPosition().p, 3000)
 	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
 	self.skynetIADS.evaluateContacts(self.skynetIADS)
 end
 
@@ -409,6 +496,13 @@ function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 8)	
 end
 
+function IADSContactFactory(unitName)
+	local contact = Unit.getByName(unitName)
+	local radarContact = {}
+	radarContact.object = contact
+	local iadsContact = SkynetIADSContact:create(radarContact)
+	return  iadsContact
+end
 
 lu.LuaUnit.run()
 

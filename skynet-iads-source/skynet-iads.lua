@@ -120,6 +120,7 @@ function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
 		if pos and pos == 1 then
+			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
 			if dcsObject then
 				self:addSamSite(groupName, nil, nil, autonomousMode)
@@ -157,7 +158,7 @@ function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode,
 			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
 			samSite:setAutonomousBehaviour(autonomousMode)
 			samSite:setActAsEW(actAsEW)
-			samSite:setFiringRangePercent(firingRangePercent)
+			samSite:setGoLiveRangeInPercent(firingRangePercent)
 			update = true
 		end
 	end

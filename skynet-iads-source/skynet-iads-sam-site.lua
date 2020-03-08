@@ -52,7 +52,7 @@ function SkynetIADSSamSite:targetCycleUpdateEnd()
 end
 
 function SkynetIADSSamSite:informOfContact(contact)
-	if self:isTargetInRange(contact) or self.actAsEW then
+	if self:isTargetInRange(contact) then
 		self:goLive()
 		self.targetsInRange = true
 	end

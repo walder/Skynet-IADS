@@ -28,7 +28,7 @@ function SkynetIADSSAMSearchRadar:getMinAltFindingTarget()
 end
 
 function SkynetIADSSAMSearchRadar:isInRange(target)
-	local distance = mist.utils.get3DDist(target:getPosition().p, self.dcsObject:getPosition().p)
+	local distance = mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
 	local radarHeight = self.dcsObject:getPosition().p.y
 	local aircraftHeight = target:getPosition().p.y	
 	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
