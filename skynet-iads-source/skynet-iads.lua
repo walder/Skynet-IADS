@@ -74,7 +74,7 @@ function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
 	end
 end
 
-function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource, connectionNode)
+function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	local earlyWarningRadarUnit = Unit.getByName(earlyWarningRadarUnitName)
 	if earlyWarningRadarUnit == nil then
 		self:printOutput("you have added an EW Radar that does not exist, check name of Unit in Setup and Mission editor: "..earlyWarningRadarUnitName, true)
@@ -82,25 +82,11 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName, powerSource,
 	end
 	self:setCoalition(earlyWarningRadarUnit)
 	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
-	self:addPowerAndConnectionNodeTo(earlyWarningRadarUnitName, powerSource, connectionNode)
 	table.insert(self.earlyWarningRadars, ewRadar)
 	if self:getDebugSettings().addedEWRadar then
 			self:printOutput(ewRadar:getDescription().." added to IADS")
 	end
-end
-
-function SkynetIADS:setOptionsForEarlyWarningRadar(unitName, powerSource, connectionNode)
-		local update = false
-		for i = 1, #self.earlyWarningRadars do
-			local ewRadar = self.earlyWarningRadars[i]
-			if string.lower(ewRadar:getDCSName()) == string.lower(unitName) then
-				self:addPowerAndConnectionNodeTo(ewRadar, powerSource, connectionNode)
-				update = true
-			end
-		end
-		if update == false then
-			self:printOutput("you tried to set options for an EW radar that does not exist: "..tostring(unitName), true)
-		end
+	return ewRadar
 end
 
 function SkynetIADS:getEarlyWarningRadars()
@@ -116,20 +102,20 @@ function SkynetIADS:getEarlyWarningRadarByUnitName(unitName)
 	end
 end
 
-function SkynetIADS:addSamSitesByPrefix(prefix, autonomousMode)
+function SkynetIADS:addSamSitesByPrefix(prefix)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = string.find(string.lower(groupName), string.lower(prefix))
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
 			if dcsObject then
-				self:addSamSite(groupName, nil, nil, autonomousMode)
+				self:addSamSite(groupName)
 			end
 		end
 	end
 end
 
-function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
+function SkynetIADS:addSamSite(samSiteName)
 	local samSiteDCS = Group.getByName(samSiteName)
 	if samSiteDCS == nil then
 		self:printOutput("you have added an SAM Site that does not exist, check name of Group in Setup and Mission editor: "..tostring(samSiteName), true)
@@ -145,26 +131,8 @@ function SkynetIADS:addSamSite(samSiteName, powerSource, connectionNode, actAsEW
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutput(samSite:getDescription().." added to IADS")
 		end
-		self:setOptionsForSamSite(samSiteName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
 		return samSite
 	end 
-end
-
-function SkynetIADS:setOptionsForSamSite(groupName, powerSource, connectionNode, actAsEW, autonomousMode, firingRangePercent)
-	local update = false
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		if string.lower(samSite:getDCSName()) == string.lower(groupName) then
-			self:addPowerAndConnectionNodeTo(samSite, powerSource, connectionNode)
-			samSite:setAutonomousBehaviour(autonomousMode)
-			samSite:setActAsEW(actAsEW)
-			samSite:setGoLiveRangeInPercent(firingRangePercent)
-			update = true
-		end
-	end
-	if update == false then
-		self:printOutput("you tried to set options for a SAM site that does not exist: "..groupName, true)
-	end
 end
 
 function SkynetIADS:getUsableSamSites()
@@ -204,7 +172,7 @@ function SkynetIADS:getSamSites()
 	return self.samSites
 end
 
-function SkynetIADS:getSamSiteByGroupName(groupName)
+function SkynetIADS:getSAMSiteByGroupName(groupName)
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if samSite:getDCSName() == groupName then
@@ -213,15 +181,15 @@ function SkynetIADS:getSamSiteByGroupName(groupName)
 	end
 end
 
-function SkynetIADS:addPowerAndConnectionNodeTo(iadsElement, powerSource, connectionNode)
-	if powerSource then
-		self:setCoalition(powerSource)
-		iadsElement:addPowerSource(powerSource)
+function SkynetIADS:getSAMSitesByNatoName(natoName)
+	local selectedSAMSites = SkynetIADSTableDelegator:create()
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		if samSite:getNatoName() == natoName then
+			table.insert(selectedSAMSites, samSite)
+		end
 	end
-	if connectionNode then
-		self:setCoalition(connectionNode)
-		iadsElement:addConnectionNode(connectionNode)
-	end
+	return selectedSAMSites
 end
 
 function SkynetIADS:addCommandCenter(commandCenter, powerSource)
@@ -238,7 +206,7 @@ function SkynetIADS:isCommandCenterUsable()
 	local hasWorkingCommandCenter = (#self.commandCenters == 0)
 	for i = 1, #self.commandCenters do
 		local comCenter = self.commandCenters[i]
-		if comCenter:getLife() > 0 and comCenter:hasWorkingPowerSource() then
+		if comCenter:isDestroyed() == false and comCenter:hasWorkingPowerSource() then
 			hasWorkingCommandCenter = true
 			break
 		else
@@ -383,10 +351,10 @@ function SkynetIADS:printSystemStatus()
 		if commandCenter:hasWorkingPowerSource() == false then
 			numComCentersNoPower = numComCentersNoPower + 1
 		end
-		if commandCenter:getLife() > 0 then
+		if commandCenter:isDestroyed() == false then
 			numIntactComCenters = numIntactComCenters + 1
 		end
-		if commandCenter:getLife() > 0 and commandCenter:hasWorkingPowerSource() then
+		if commandCenter:isDestroyed() == false and commandCenter:hasWorkingPowerSource() then
 			numComCentersServingIADS = numComCentersServingIADS + 1
 		end
 	end

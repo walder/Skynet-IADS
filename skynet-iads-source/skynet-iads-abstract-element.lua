@@ -15,23 +15,27 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	return instance
 end
 
-function SkynetIADSAbstractElement:getLife()
-	return self:getDCSRepresentation():getLife()
-end
-
 --- implemented in subclasses
 function SkynetIADSAbstractElement:isDestroyed()
 	return self:getDCSRepresentation():isExist() == false
 end
 
-function SkynetIADSAbstractElement:addPowerSource(powerSource)
+function SkynetIADSAbstractElement.addPowerSource(self, powerSource)
 	table.insert(self.powerSources, powerSource)
 	return self
+end
+
+function SkynetIADSAbstractElement:getPowerSources()
+	return self.powerSources
 end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
 	return self
+end
+
+function SkynetIADSAbstractElement:getConnectionNodes()
+	return self.connectionNodes
 end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()

@@ -17,8 +17,6 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self.iranIADS:addSamSitesByPrefix('SAM')
 	lu.assertEquals(#self.iranIADS:getSamSites(), 11)
 	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 9)
-	local ewRadar = self.iranIADS:getEarlyWarningRadarByUnitName('EW-west')
-	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
 end
 
 function TestIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
@@ -28,7 +26,7 @@ end
 
 function TestIADS:testEarlyWarningRadarLoosesPower()
 	ewWest2PowerSource = StaticObject.getByName('EW-west Power Source')
-	self.iranIADS:setOptionsForEarlyWarningRadar('EW-west', ewWest2PowerSource)
+	self.iranIADS:getEarlyWarningRadarByUnitName('EW-west'):addPowerSource(ewWest2PowerSource)
 	local ewRadar = self.iranIADS:getEarlyWarningRadarByUnitName('EW-west')
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
 	trigger.action.explosion(ewWest2PowerSource:getPosition().p, 100)
@@ -41,8 +39,7 @@ end
 
 function TestIADS:testSamSiteLoosesPower()
 	local powerSource = StaticObject.getByName('SA-6 Power')
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6', powerSource)
-	local samSite = self.iranIADS:getSamSiteByGroupName('SAM-SA-6')
+	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):addPowerSource(powerSource)
 	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 11)
 	lu.assertEquals(samSite:isActive(), false)
 	samSite:goLive()
@@ -54,7 +51,7 @@ end
 
 function TestIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6', nil, sa6ConnectionNode, false, nil)
+	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):addConnectionNode(sa6ConnectionNode)
 	lu.assertEquals(#self.iranIADS:getSamSites(), 11)
 	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 11)
 	trigger.action.explosion(sa6ConnectionNode:getPosition().p, 100)
@@ -63,7 +60,7 @@ function TestIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	self.iranIADS.evaluateContacts(self.iranIADS)
 	lu.assertEquals(#self.iranIADS:getUsableSamSites(), 10)
 	lu.assertEquals(#self.iranIADS:getSamSites(), 11)
-	local samSite = self.iranIADS:getSamSiteByGroupName('SAM-SA-6')
+	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6')
 	lu.assertEquals(samSite:isActive(), true)
 	--simulate update cycle of IADS
 	self.iranIADS.evaluateContacts(self.iranIADS)
@@ -72,9 +69,9 @@ end
 
 function TestIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 	local sa6ConnectionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
-	local samSite = self.iranIADS:getSamSiteByGroupName('SAM-SA-6-2')
+	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSite:isActive(), false)
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, sa6ConnectionNode2, false, SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(sa6ConnectionNode2):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), true)
 	trigger.action.explosion(sa6ConnectionNode2:getPosition().p, 100)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), false)
@@ -97,16 +94,34 @@ function TestIADS:testOneCommandCenterIsDestroyed()
 end
 
 function TestIADS:testSetSamSitesToAutonomous()
-	local samSiteDark = self.iranIADS:getSamSiteByGroupName('SAM-SA-6')
-	local samSiteActive = self.iranIADS:getSamSiteByGroupName('SAM-SA-6-2')
+	local samSiteDark = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6')
+	local samSiteActive = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), false)
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6', nil, nil, false, SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-	self.iranIADS:setOptionsForSamSite('SAM-SA-6-2', nil, nil, false, SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
+	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
 	self.iranIADS:setSamSitesToAutonomousMode()
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), true)
 	--dont call an update of the IADS in this test, its just to test setSamSitesToAutonomousMode()
+end
+
+function TestIADS:testSetOptionsForSAMSiteType()
+	local powerSource = StaticObject.getByName('SA-11-power-source')
+	local connectionNode = StaticObject.getByName('SA-11-connection-node')
+	lu.assertEquals(#self.iranIADS:getSAMSitesByNatoName('SA-6'), 2)
+	--lu.assertIs(getmetatable(self.iranIADS:getSAMSitesByNatoName('SA-6')), SkynetIADSTableForwarder)
+	local samSites = self.iranIADS:getSAMSitesByNatoName('SA-6'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertEquals(#samSites, 2)
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		lu.assertEquals(samSite:getActAsEW(), true)
+		lu.assertEquals(samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+		lu.assertEquals(samSite:getGoLiveRangeInPercent(), 90)
+		lu.assertEquals(samSite:getAutonomousBehaviour(), SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+		lu.assertIs(samSite:getConnectionNodes()[1], connectionNode)
+		lu.assertIs(samSite:getPowerSources()[1], powerSource)
+	end
 end
 
 function TestIADS:testOneCommandCenterLoosesPower()
@@ -507,13 +522,59 @@ function TestSamSites:testDaisychainSAMOptions()
 	self:setUp()
 	local powerSource = StaticObject.getByName('SA-11-power-source')
 	local connectionNode = StaticObject.getByName('SA-11-connection-node')
-	self.samSite:setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	local returnValue = self.samSite:setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertIs(self.samSite, returnValue)
 	lu.assertEquals(self.samSite:getActAsEW(), true)
 	lu.assertEquals(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 	lu.assertEquals(self.samSite:getGoLiveRangeInPercent(), 90)
-	---complete further assertions here!
+	lu.assertEquals(self.samSite:getAutonomousBehaviour(), SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertIs(self.samSite:getConnectionNodes()[1], connectionNode)
+	lu.assertIs(self.samSite:getPowerSources()[1], powerSource)
 end
+--[[
+function TestSamSites:testCallMethodOnTableElements()
+	local test = {}
+	function test:theMethod(value)
+		env.info("call there: "..value)
+		return {}
+	end
 
+	function test:theOtherMethod(value)
+		env.info("call here: "..value)
+		return {}
+	end
+	
+	test.__index = test
+	setmetatable(test, test)
+
+	local testContainer = {}
+	local handler = {}
+	
+	handler.__index = function(tbl, name)
+		tbl[name] = function(self, ...)
+				for i = 1, #self do
+					self[i][name](self[i], ...)
+				end
+				return self
+			end
+		return tbl[name]
+	end
+	
+	setmetatable(testContainer, handler)
+	
+	local tast = {}
+	setmetatable(tast, test)
+	tast.__index = test
+	
+	table.insert(testContainer, test)
+	table.insert(testContainer, tast)
+	
+	tast['theOtherMethod'](tast, '101')
+	
+	lu.assertIs(testContainer:theMethod("99"), testContainer)
+	lu.assertIs(testContainer:theOtherMethod("100"), testContainer)
+end
+--]]
 TestEarlyWarningRadars = {}
 
 function TestEarlyWarningRadars:setUp()
