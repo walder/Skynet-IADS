@@ -294,17 +294,17 @@ When developing a mission I suggest you add debug output to check how the IADS r
 
 ```
 local iadsDebug = redIADS:getDebugSettings()  
-iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
-iadsDebug.contacts = true
-iadsDebug.radarWentLive = true
-iadsDebug.noWorkingCommmandCenter = true
-iadsDebug.ewRadarNoConnection = true
-iadsDebug.samNoConnection = true
-iadsDebug.jammerProbability = true
-iadsDebug.addedEWRadar = true
-iadsDebug.hasNoPower = true
-iadsDebug.addedSAMSite = true
+iadsDebug.IADSStatus = false
+iadsDebug.samWentDark = false
+iadsDebug.contacts = false
+iadsDebug.radarWentLive = false
+iadsDebug.ewRadarNoConnection = false
+iadsDebug.samNoConnection = false
+iadsDebug.jammerProbability = false
+iadsDebug.addedEWRadar = false
+iadsDebug.hasNoPower = false
+iadsDebug.addedSAMSite = false
+iadsDebug.warnings = true
 ```
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-debug.png)  
 
