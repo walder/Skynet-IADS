@@ -257,33 +257,16 @@ Returns all EW sites in the IADS:
 redIADS:getEarlyWarningRadars()
 ```
 
-### Adding units manually
-You can add IADS elements individually including connection nodes, power sources and the autonomous behaviour.
-Use this if of you want to add units based on some kind of some progress in a mission.
+## Adding units manually
+You can add IADS elements individually. Use this if of you want to add units based on some kind of some progress in a mission.
 
-Add an early warning radar with a power source and a connection node:
-```
-local earlyWarningRadar = Unit.getByName('EWR')  
-local ewPower = StaticObject.getByName("EW Power Source")  
-local ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
-redIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode)
-```
-
-You can also just add an EW Radar omitting the power source and connection node:  
+Add an EW radar:  
 ```
 local earlyWarningRadar = Unit.getByName('EWR')  
 redIADS:addEarlyWarningRadar(earlyWarningRadar)
 ```
 
-Add a SAM Site with a power source and a connection node, SAM site shall not be used as an EW radar (parameter false):
-```
-powerSource = StaticObject.getByName("SA6-PowerSource") 
-sa6Site2 = Group.getByName('SA6 Group2')
-connectionNode = StaticObject.getByName("Connection Node") 
-redIADS:addSamSite(sa6Site2, powerSource, connectionNode, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
-```
-
-Add a SAM site (no power source, no connection node, will use default autonomous behaviour):
+Add a SAM site:
 ```
 local sa6Site2 = Group.getByName('SA6 Group2')
 redIADS:addSamSite(sa6Site2)
