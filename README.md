@@ -18,6 +18,9 @@ Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) 
 ## IADS
 A Skynet IADS is a complete operational network. You can have multiple Skynet IADS instances per coalition in a DCS mission. A simple setup would be one IADS for the blue side and one IADS for the red side.
 
+## Track file
+Skynet keeps a global track file of all detected targets. It queries all its units with radars and deduplicates contacts. By default lost contacts are stored up to 32 seconds in memory. 
+
 ## Comand Center
 You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
@@ -87,7 +90,7 @@ You can use any type of radar as an EW radar. Make sure you **name the unit** in
 
 ## Adding the Skynet Code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-Make sure you load MIST and the compiled skynet code in to a mission. The skynet-iads-compiled.lua and mist_4_3_74.lua files are located in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder. 
+Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](https://github.com/walder/Skynet-IADS/tree/master/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](https://github.com/walder/Skynet-IADS/tree/master/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder. 
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
 
 ## Setting up yor IADS
