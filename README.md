@@ -227,15 +227,18 @@ Returns all SAM sites in the IADS:
 redIADS:getSamSites()
 ```
 
+
 Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once:
 ```
 redIADS:addSamSitesByPrefix('SAM')
 ```
 
+
 Returns a SAM site with the specified group name:
 ```
 redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
+
 
 ## EW radar options
 EW radars support the following options:
