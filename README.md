@@ -180,7 +180,7 @@ SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 
 ```
 
-This option sets the range in relation to the zone you set in setEngagementZone when a SAM site will go live. Be carefull not to set the value to low. Some SAM sites need up to 30 seconds until they can fire. If you set this to low, the target will pass over the cone of silence of a SAM site.
+This option sets the range in relation to the zone you set in setEngagementZone when a SAM site wil go live. Be carefull not to set the value to low. Some SAM sites need up to 30 seconds until they can fire. If you set this to low, the target will pass over the cone of silence of a SAM site.
 ```
 samSite:setGoLiveRangeInPercent(90)
 ```
@@ -191,7 +191,7 @@ Set how the SAM site will behave if it looses connection to the IADS:
 samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
-***The autonomous mode options are: *** 
+***The autonomous mode options are:*** 
 
 SAM Site will go dark if it looses connection to IADS:
 ```
