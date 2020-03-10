@@ -337,7 +337,7 @@ This is due to the short range of their weapons. By the time the IADS wakes them
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## How do I set up a point defence?
-As of March 2020 only the Tor (Nato name SA-15 Gauntlet) is able to engage HARMs. Place the SA-15s as separate SAM groups next to a larger SAM group like the S-300. Skynet will turn off the SA-15's radar. Once a HARM is in range of the SA-15 it will go live and engage the inbound HARM.
+As of March 2020 only the Tor (Nato name SA-15 Gauntlet) is able to engage HARMs on the red side. Place the SA-15s as separate SAM groups next to a larger SAM group like the S-300. Skynet will turn off the SA-15's radar. Once a HARM is in range of the SA-15 it will go live and engage the inbound HARM.
 
 
 
