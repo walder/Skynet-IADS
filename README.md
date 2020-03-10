@@ -212,7 +212,7 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 
 The following functions exist to access SAM sites added to the IADS, these all support daisy chaining options:
 
-Returns all SAM sites with the corresponding nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names Grumble, Gainful, just wite: SA-6, SA-9.
+Returns all SAM sites with the corresponding nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names like Grumble, Gainful, just wite SA-6, SA-9.
 ```
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
