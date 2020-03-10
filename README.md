@@ -12,6 +12,9 @@ This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IA
 
 Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
 
+# Quick start
+Tired of reading already? Download the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map. More complex demo missions will follow soon.
+
 # Skynet IADS Elements
 ![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
 
