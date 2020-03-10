@@ -167,7 +167,7 @@ Set the distance at which a SAM site wil switch on its radar.
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
-***The Options are:***
+***The engagement zone options are:***
 
 SAM site will go live when target is within the yelow circle in the mission editor: 
 ```
@@ -177,7 +177,6 @@ SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 SAM site will go live when target is within the red circle in the mission editor: 
 ```
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
-
 ```
 
 This option sets the range in relation to the zone you set in setEngagementZone when a SAM site wil go live. Be carefull not to set the value to low. Some SAM sites need up to 30 seconds until they can fire. If you set this to low, the target will pass over the cone of silence of a SAM site.
