@@ -28,7 +28,7 @@ Skynet keeps a global track file of all detected targets. It queries all its uni
 You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Site
-Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
+Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
 
 ## Early Warning Radar
 Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
