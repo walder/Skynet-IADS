@@ -179,7 +179,7 @@ SAM site will go live when target is within the yelow circle in the mission edit
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 ```
 
-This option sets the range in relation to the zone you set in setEngagementZone when a SAM site wil go live. Be carefull not to set the value to low. Some SAM sites need up to 30 seconds until they can fire. If you set this to low, the target will pass over the cone of silence of a SAM site.
+This option sets the range in relation to the zone you set in setEngagementZone when a SAM site wil go live. Be carefull not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. If you set this too low, the target will pass over the cone of silence of a SAM site.
 ```
 samSite:setGoLiveRangeInPercent(90)
 ```
@@ -209,7 +209,7 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 
 ### Accessing SAM sites in the IADS
 
-The following functions exist to access SAM sites added to the IADS, they all support daisy chaining options:
+The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
 Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names like Grumble, Gainful, just wite SA-6, SA-9.
 ```
@@ -249,7 +249,7 @@ ewRadar:addConnectionNode(connectionNode)
 
 ### Accessing EW radars in the IADS
 
-The following functions exist to access EW radars added to the IADS, these all support daisy chaining options:  
+The following functions exist to access EW radars added to the IADS. They all support daisy chaining options:  
 
 Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once.
 ```
