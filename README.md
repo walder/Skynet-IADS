@@ -102,7 +102,7 @@ You can also add the code directly in the mission editor, however that input fie
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
 ## Adding the Skynet IADS
-For the IADS to work you need four lines of code:
+For the IADS to work you need four lines of code.
 
 create an instance of the IADS:  
 ```
@@ -178,7 +178,6 @@ samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_
 ```
 
 ***The engagement zone options are:***
-
 SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
 ```
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
@@ -218,7 +217,6 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 ```
 
 ### Accessing SAM sites in the IADS
-
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
 Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
@@ -245,7 +243,7 @@ redIADS:getSAMSiteByGroupName('SAM-SA-6')
 
 
 ## EW radar options
-EW radars support the following options:
+EW radars support the following options.
 
 ### Power sources and connection nodes
 Add a power source to a EW site. You can add units and static objects. Call the function multiple times to add more than one power source:
@@ -261,7 +259,6 @@ ewRadar:addConnectionNode(connectionNode)
 ```
 
 ### Accessing EW radars in the IADS
-
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
 
 Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once:
