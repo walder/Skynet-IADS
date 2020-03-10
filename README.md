@@ -100,22 +100,22 @@ For the IADS to work you need three lines of code:
 
 create an instance of the IADS:  
 ```
-iranianIADS = SkynetIADS:create()
+redIADS = SkynetIADS:create()
 ``` 
 
 Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
 ```
-iranianIADS:addSamSitesByPrefix('SAM')
+redIADS:addSamSitesByPrefix('SAM')
 ``` 
 
 Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
 ```
-iranianIADS:addEarlyWarningRadarsByPrefix('EW')
+redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
 
 Activate the IADS:  
 ```
-iranianIADS:activate()
+redIADS:activate()
 ```
 
 ## Advanced setup
@@ -129,14 +129,14 @@ The command center represents the place where information is collected and analy
 Add a command center like this:
 ```
 local commandCenter = StaticObject.getByName("Command Center")
-iranianIADS:addCommandCenter(commandCenter)
+redIADS:addCommandCenter(commandCenter)
 ```
 
 You can also add a command center with a power source:
 ```
 local commandCenter = StaticObject.getByName("Command Center2")
 local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
-iranianIADS:addCommandCenter(commandCenter, comPowerSource)
+redIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
 ## SAM site options
