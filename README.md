@@ -189,7 +189,7 @@ SAM site will go live when target is within the yelow circle in the mission edit
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 ```
 
-This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300.
+This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300:
 ```
 samSite:setGoLiveRangeInPercent(90)
 ```
@@ -221,7 +221,7 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
-Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names like Grumble, Gainful, just wite SA-6, SA-9.
+Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6.
 ```
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
