@@ -219,12 +219,12 @@ redIADS:getSAMSitesByNatoName('SA-6')
 
 Returns all SAM sites in the IADS:
 ```
-self.redIADS:getSamSites()
+redIADS:getSamSites()
 ```
 
 Adds SAM sites with prefix in Group name to the IADS. Make sure you only call this method once.
 ```
-iads:addSamSitesByPrefix('SAM')
+redIADS:addSamSitesByPrefix('SAM')
 ```
 
 ### Adding units manually
