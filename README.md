@@ -290,8 +290,7 @@ redIADS:addSamSite('SA-6 Group2')
 ```
 
 ## Adding a jammer
-The jammer is quite easy to set up. You need a unit that acts as an emitter. Once the jammer detects an emitter it starts jamming the radar.
-Set the coresponding debug level to see what the jammer is doing.
+The jammer is quite easy to set up. You need a unit that acts as a jammer source. Once the jammer detects an emitter it starts jamming the radar. Set the coresponding debug level to see what the jammer is doing.
 ```
 local jammerSource = Unit.getByName("Player Hornet")
 jammer = SkynetIADSJammer:create(jammerSource)
