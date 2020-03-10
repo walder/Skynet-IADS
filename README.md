@@ -139,7 +139,7 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
-### SAM site options
+## SAM site options
 You can set the following options for a SAM site: 
 
 ### Act as EW radar
