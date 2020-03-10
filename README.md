@@ -102,7 +102,7 @@ You can also add the code directly in the mission editor, however that input fie
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
 
 ## Adding the Skynet IADS
-For the IADS to work you need three lines of code:
+For the IADS to work you need four lines of code:
 
 create an instance of the IADS:  
 ```
