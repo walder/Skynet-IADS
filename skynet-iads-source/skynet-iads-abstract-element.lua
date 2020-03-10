@@ -20,7 +20,7 @@ function SkynetIADSAbstractElement:isDestroyed()
 	return self:getDCSRepresentation():isExist() == false
 end
 
-function SkynetIADSAbstractElement.addPowerSource(self, powerSource)
+function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
 	return self
 end

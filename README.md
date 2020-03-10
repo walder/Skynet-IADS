@@ -139,27 +139,54 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
-### Adding a power sources and connection nodes to a SAM site already in the Skynet IADS
+### SAM site options
+You can set the following options for a SAM site: 
 
-Once you have added a SAM site to the IADS you can set the power source and connection node like this. Call the function multiple times to add more than one power source or connection node:
+Wil set the SAM Site to act as an EW radar. This will result in the SAM site always having its radar on contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300. 
 ```
-local powerSource = StaticObject.getByName('Power Source')
-local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode)
-```
-If you just want to add a connection node add nil where the power station would be passed. If you just want to add a power station pass nil for the connection node parameter.
-```
-local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', nil, connectionNode)
+samSite:setActAsEW(true)
 ```
 
-<a id="sam-ew">The fourth parameter sets up the SAM Site as an EW radar, meaning that it will be on by default.</a> There is an optional 5th parameter to set the autonomus state of a SAM site:
+Add a power source to a SAM Site. You can add Units and StaticObjects. Call the function multiple times to add more than one power source:
 ```
-local powerSource = StaticObject.getByName('Power Source')
-local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForSamSite('SAM-SA-2', powerSource, connectionNode, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+samSite:addPowerSource(powerSource)
 ```
-#### The autonomous mode options are:  
+
+Add a connection node to a SAM Site. You can add Units and StaticObjects. Call the function multiple times to add more than one connection node:
+```
+samSite:addConnectionNode(connectionNode)
+```
+
+Set the distance at which a SAM site wil switch on its radar.
+```
+samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+```
+
+The Options are:
+
+SAM site will go live when target is within the yelow circle in the mission editor: 
+```
+SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
+```
+
+SAM site will go live when target is within the red circle in the mission editor: 
+```
+SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
+
+```
+
+This option sets the range in relation to the zone you set in setEngagementZone when a SAM site will go live. Be carefull not to set the value to low. Some SAM sites need up to 30 seconds until they can fire. If you set this to low, the target will pass over the cone of silence of a SAM site.
+```
+samSite:setGoLiveRangeInPercent(90)
+```
+
+Set how the SAM site will behave if it looses connection to the IADS:
+```
+samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+```
+
+The autonomous mode options are:  
+
 SAM Site will go dark if it looses connection to IADS:
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
@@ -168,12 +195,28 @@ SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weap
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
-### Adding a power source and connection node to an EW radar already in the Skynet IADS
-Works just like the sam site:
+You can daisy chain the values like this:
 ```
-local powerSource = StaticObject.getByName('Power Source')
-local connectionNode = StaticObject.getByName('Connection Node')
-iranIADS:setOptionsForEarlyWarningRadar('EW-west', powerSource , connectionNode)
+iranIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+```
+
+Accessing SAM sites:
+
+The following functions exist to access SAM sites of the IADS, these all support daisy chaining options:
+
+Returns all SAM sites with the corresponding nato name:
+```
+iranIADS:getSAMSitesByNatoName('SA-6')
+```
+
+Returns all SAM sites in the IADS:
+```
+self.iranIADS:getSamSites()
+```
+
+Adds SAM sites with prefix in Group name to the IADS. Make sure you only call this method once.
+```
+iads:addSamSitesByPrefix('SAM')
 ```
 
 ### Adding units manually
