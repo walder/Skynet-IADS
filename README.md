@@ -18,7 +18,7 @@ Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) 
 ## IADS
 A Skynet IADS is a complete operational network. You can have multiple Skynet IADS instances per coalition in a DCS mission. A simple setup would be one IADS for the blue side and one IADS for the red side.
 
-## Track file
+## Track files
 Skynet keeps a global track file of all detected targets. It queries all its units with radars and deduplicates contacts. By default lost contacts are stored up to 32 seconds in memory. 
 
 ## Comand Center
