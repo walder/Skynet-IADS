@@ -228,7 +228,7 @@ redIADS:addSamSitesByPrefix('SAM')
 ```
 
 ## EW radar options
-EW radars support the following options, they work the same as described for the SAM site:
+EW radars support the following options:
 
 ### Power sources and connection nodes
 Add a power source to a EW Site. You can add Units and StaticObjects. Call the function multiple times to add more than one power source:
@@ -243,7 +243,7 @@ local connectionNode = Unit.getByName("EW connection node")
 ewRadar:addConnectionNode(connectionNode)
 ```
 
-## Accessing EW radars in the IADS
+### Accessing EW radars in the IADS
 
 The following functions exist to access EW radars added to the IADS, these all support daisy chaining options:  
 
@@ -260,16 +260,14 @@ redIADS:getEarlyWarningRadars()
 ## Adding units manually
 You can add IADS elements individually. Use this if of you want to add units based on some kind of some progress in a mission.
 
-Add an EW radar:  
+Add an EW radar, must be a unit name:  
 ```
-local earlyWarningRadar = Unit.getByName('EWR')  
-redIADS:addEarlyWarningRadar(earlyWarningRadar)
+redIADS:addEarlyWarningRadar('EWR West')
 ```
 
-Add a SAM site:
+Add a SAM site, must be a group name:
 ```
-local sa6Site2 = Group.getByName('SA6 Group2')
-redIADS:addSamSite(sa6Site2)
+redIADS:addSamSite('SA-6 Group2')
 ```
 
 ## Adding a jammer
