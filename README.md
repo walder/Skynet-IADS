@@ -142,27 +142,30 @@ iranianIADS:addCommandCenter(commandCenter, comPowerSource)
 ### SAM site options
 You can set the following options for a SAM site: 
 
-Wil set the SAM Site to act as an EW radar. This will result in the SAM site always having its radar on contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300. 
+### Act as EW radar
+Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300. 
 ```
 samSite:setActAsEW(true)
 ```
 
+### Power sources and connection nodes
 Add a power source to a SAM Site. You can add Units and StaticObjects. Call the function multiple times to add more than one power source:
 ```
 samSite:addPowerSource(powerSource)
 ```
 
-Add a connection node to a SAM Site. You can add Units and StaticObjects. Call the function multiple times to add more than one connection node:
+Add a connection node to a SAM site. You can add Units and StaticObjects. Call the function multiple times to add more than one connection node:
 ```
 samSite:addConnectionNode(connectionNode)
 ```
 
+### Engagement zone
 Set the distance at which a SAM site wil switch on its radar.
 ```
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
-The Options are:
+***The Options are:***
 
 SAM site will go live when target is within the yelow circle in the mission editor: 
 ```
@@ -180,12 +183,13 @@ This option sets the range in relation to the zone you set in setEngagementZone 
 samSite:setGoLiveRangeInPercent(90)
 ```
 
+### Autonomous mode behaviour
 Set how the SAM site will behave if it looses connection to the IADS:
 ```
 samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
-The autonomous mode options are:  
+***The autonomous mode options are: *** 
 
 SAM Site will go dark if it looses connection to IADS:
 ```
@@ -195,12 +199,14 @@ SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weap
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
+
+### How to set the options
 You can daisy chain the values like this:
 ```
 iranIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
-Accessing SAM sites:
+### Accessing SAM sites in the IADS
 
 The following functions exist to access SAM sites of the IADS, these all support daisy chaining options:
 
