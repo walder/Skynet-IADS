@@ -169,7 +169,7 @@ samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_
 
 ***The engagement zone options are:***
 
-SAM site will go live when target is within the red circle in the mission editor (default skynet behaviour): 
+SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
 ```
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 ```
