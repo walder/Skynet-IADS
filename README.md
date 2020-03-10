@@ -169,14 +169,14 @@ samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_
 
 ***The engagement zone options are:***
 
+SAM site will go live when target is within the red circle in the mission editor (default skynet behaviour): 
+```
+SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
+```
+
 SAM site will go live when target is within the yelow circle in the mission editor: 
 ```
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
-```
-
-SAM site will go live when target is within the red circle in the mission editor: 
-```
-SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 ```
 
 This option sets the range in relation to the zone you set in setEngagementZone when a SAM site wil go live. Be carefull not to set the value to low. Some SAM sites need up to 30 seconds until they can fire. If you set this to low, the target will pass over the cone of silence of a SAM site.
@@ -191,14 +191,14 @@ samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_D
 ```
 
 ***The autonomous mode options are:*** 
+SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour):
+```
+SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+```
 
 SAM Site will go dark if it looses connection to IADS:
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
-```
-SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free:
-```
-SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
 
 ### How to set the options
@@ -209,9 +209,9 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 
 ### Accessing SAM sites in the IADS
 
-The following functions exist to access SAM sites added to the IADS, these all support daisy chaining options:
+The following functions exist to access SAM sites added to the IADS, they all support daisy chaining options:
 
-Returns all SAM sites with the corresponding nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names like Grumble, Gainful, just wite SA-6, SA-9.
+Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names like Grumble, Gainful, just wite SA-6, SA-9.
 ```
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
@@ -221,9 +221,14 @@ Returns all SAM sites in the IADS:
 redIADS:getSamSites()
 ```
 
-Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once.
+Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once:
 ```
 redIADS:addSamSitesByPrefix('SAM')
+```
+
+Returns a SAM site with the specified group name:
+```
+redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
 ## EW radar options
@@ -254,6 +259,11 @@ redIADS:addEarlyWarningRadarsByPrefix("EW")
 Returns all EW sites in the IADS:
 ```
 redIADS:getEarlyWarningRadars()
+```
+
+Returns the EW site with the specified unit name:
+```
+redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
 ## Adding units manually
