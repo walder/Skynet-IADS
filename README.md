@@ -159,13 +159,13 @@ samSite:setActAsEW(true)
 ```
 
 ### Power sources and connection nodes
-Add a power source to a SAM Site. You can add Units and StaticObjects. Call the function multiple times to add more than one power source:
+Add a power source to a SAM site. You can add units and static objects. Call the function multiple times to add more than one power source:
 ```
 local powerSource = StaticObject.getByName("SA-6 Power Source")  
 samSite:addPowerSource(powerSource)
 ```
 
-Add a connection node to a SAM site. You can add Units and StaticObjects. Call the function multiple times to add more than one connection node:
+Add a connection node to a SAM site. You can add units and static objects. Call the function multiple times to add more than one connection node:
 ```
 local connectionNode = Unit.getByName("SA-6 connection node") 
 samSite:addConnectionNode(connectionNode)
@@ -248,13 +248,13 @@ redIADS:getSAMSiteByGroupName('SAM-SA-6')
 EW radars support the following options:
 
 ### Power sources and connection nodes
-Add a power source to a EW Site. You can add Units and StaticObjects. Call the function multiple times to add more than one power source:
+Add a power source to a EW site. You can add units and static objects. Call the function multiple times to add more than one power source:
 ```
 local powerSource = StaticObject.getByName("EW Power Source")  
 ewRadar:addPowerSource(powerSource)
 ```
 
-Add a connection node to a SAM site. You can add Units and StaticObjects. Call the function multiple times to add more than one connection node:
+Add a connection node to a SAM site. You can add units and static objects. Call the function multiple times to add more than one connection node:
 ```
 local connectionNode = Unit.getByName("EW connection node") 
 ewRadar:addConnectionNode(connectionNode)
