@@ -205,21 +205,21 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ### How to set the options
 You can daisy chain the values like this:
 ```
-iranIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
 ### Accessing SAM sites in the IADS
 
-The following functions exist to access SAM sites of the IADS, these all support daisy chaining options:
+The following functions exist to access SAM sites added to the IADS, these all support daisy chaining options:
 
 Returns all SAM sites with the corresponding nato name:
 ```
-iranIADS:getSAMSitesByNatoName('SA-6')
+redIADS:getSAMSitesByNatoName('SA-6')
 ```
 
 Returns all SAM sites in the IADS:
 ```
-self.iranIADS:getSamSites()
+self.redIADS:getSamSites()
 ```
 
 Adds SAM sites with prefix in Group name to the IADS. Make sure you only call this method once.
@@ -236,13 +236,13 @@ Add an early warning radar with a power source and a connection node:
 local earlyWarningRadar = Unit.getByName('EWR')  
 local ewPower = StaticObject.getByName("EW Power Source")  
 local ewConnectionNode = StaticObject.getByName("EWR Connection Node")    
-iranIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode)
+redIADS:addEarlyWarningRadar(earlyWarningRadar, ewPower, ewConnectionNode)
 ```
 
 You can also just add an EW Radar omitting the power source and connection node:  
 ```
 local earlyWarningRadar = Unit.getByName('EWR')  
-iranIADS:addEarlyWarningRadar(earlyWarningRadar)
+redIADS:addEarlyWarningRadar(earlyWarningRadar)
 ```
 
 Add a SAM Site with a power source and a connection node, SAM site shall not be used as an EW radar (parameter false):
@@ -250,13 +250,13 @@ Add a SAM Site with a power source and a connection node, SAM site shall not be 
 powerSource = StaticObject.getByName("SA6-PowerSource") 
 sa6Site2 = Group.getByName('SA6 Group2')
 connectionNode = StaticObject.getByName("Connection Node") 
-iranIADS:addSamSite(sa6Site2, powerSource, connectionNode, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
+redIADS:addSamSite(sa6Site2, powerSource, connectionNode, false, SkynetIADSSamSite.AUTONOMOUS_STATE_DARK)
 ```
 
 Add a SAM site (no power source, no connection node, will use default autonomous behaviour):
 ```
 local sa6Site2 = Group.getByName('SA6 Group2')
-iranIADS:addSamSite(sa6Site2)
+redIADS:addSamSite(sa6Site2)
 ```
 
 ## Adding a jammer
@@ -265,7 +265,7 @@ Set the coresponding debug level to see what the jammer is doing.
 ```
 local jammerSource = Unit.getByName("Player Hornet")
 jammer = SkynetIADSJammer:create(jammerSource)
-jammer:addIADS(iranIADS)
+jammer:addIADS(redIADS)
 -- sets the jammer to listen for emitters
 jammer:masterArmOn()
 ```
@@ -283,7 +283,7 @@ jammer:masterArmOff()
 When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
 
 ```
-local iadsDebug = iranIADS:getDebugSettings()  
+local iadsDebug = redIADS:getDebugSettings()  
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
