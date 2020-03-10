@@ -109,20 +109,24 @@ create an instance of the IADS:
 redIADS = SkynetIADS:create()
 ``` 
 
+
 Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
 ```
 redIADS:addSamSitesByPrefix('SAM')
 ``` 
+
 
 Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
 ```
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
 
+
 Activate the IADS:  
 ```
 redIADS:activate()
 ```
+
 
 ## Advanced setup
 This is the danger zone. Call Kenny Loggins. Some experience with scripting is recommended.
