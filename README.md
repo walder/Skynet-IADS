@@ -222,9 +222,39 @@ Returns all SAM sites in the IADS:
 redIADS:getSamSites()
 ```
 
-Adds SAM sites with prefix in Group name to the IADS. Make sure you only call this method once.
+Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once.
 ```
 redIADS:addSamSitesByPrefix('SAM')
+```
+
+## EW radar options
+EW radars support the following options, they work the same as described for the SAM site:
+
+### Power sources and connection nodes
+Add a power source to a EW Site. You can add Units and StaticObjects. Call the function multiple times to add more than one power source:
+```
+local powerSource = StaticObject.getByName("EW Power Source")  
+ewRadar:addPowerSource(powerSource)
+```
+
+Add a connection node to a SAM site. You can add Units and StaticObjects. Call the function multiple times to add more than one connection node:
+```
+local connectionNode = Unit.getByName("EW connection node") 
+ewRadar:addConnectionNode(connectionNode)
+```
+
+## Accessing EW radars in the IADS
+
+The following functions exist to access EW radars added to the IADS, these all support daisy chaining options:  
+
+Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once.
+```
+redIADS:addEarlyWarningRadarsByPrefix("EW")
+```
+
+Returns all EW sites in the IADS:
+```
+redIADS:getEarlyWarningRadars()
 ```
 
 ### Adding units manually
