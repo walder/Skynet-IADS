@@ -150,10 +150,10 @@ redIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
 ## SAM site options
-You can set the following options for a SAM site: 
+You can set the following options for a SAM site.
 
 ### Act as EW radar
-Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300. 
+Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
 ```
 samSite:setActAsEW(true)
 ```
@@ -172,7 +172,7 @@ samSite:addConnectionNode(connectionNode)
 ```
 
 ### Engagement zone
-Set the distance at which a SAM site wil switch on its radar.
+Set the distance at which a SAM site wil switch on its radar:
 ```
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
@@ -221,7 +221,7 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
-Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6.
+Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
 ```
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
@@ -262,9 +262,9 @@ ewRadar:addConnectionNode(connectionNode)
 
 ### Accessing EW radars in the IADS
 
-The following functions exist to access EW radars added to the IADS. They all support daisy chaining options:  
+The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
 
-Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once.
+Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once:
 ```
 redIADS:addEarlyWarningRadarsByPrefix("EW")
 ```
