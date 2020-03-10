@@ -124,6 +124,57 @@ function TestIADS:testSetOptionsForSAMSiteType()
 	end
 end
 
+function TestIADS:setOptionsForAllAddedSamSitesByPrefix()
+	local iads = SkynetIADS:create()
+	local samSites = iads:addSamSitesByPrefix('SAM'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertEquals(#samSites, 11)
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		lu.assertEquals(samSite:getActAsEW(), true)
+		lu.assertEquals(samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+		lu.assertEquals(samSite:getGoLiveRangeInPercent(), 90)
+		lu.assertEquals(samSite:getAutonomousBehaviour(), SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+		lu.assertIs(samSite:getConnectionNodes()[1], connectionNode)
+		lu.assertIs(samSite:getPowerSources()[1], powerSource)
+	end
+end
+
+function TestIADS:setOptionsForAllAddedSamSites()
+	local samSites = self.iranIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertEquals(#samSites, 11)
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		lu.assertEquals(samSite:getActAsEW(), true)
+		lu.assertEquals(samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+		lu.assertEquals(samSite:getGoLiveRangeInPercent(), 90)
+		lu.assertEquals(samSite:getAutonomousBehaviour(), SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+		lu.assertIs(samSite:getConnectionNodes()[1], connectionNode)
+		lu.assertIs(samSite:getPowerSources()[1], powerSource)
+	end
+end
+
+function TestIADS:testSetOptionsForAllAddedEWSitesByPrefix()
+	local iads = SkynetIADS:create()
+	local ewSites = iads:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(powerSource):addConnectionNode(connectionNode)
+	lu.assertEquals(#ewSites, 9)
+	for i = 1, #ewSites do
+		local ewSite = ewSites[i]
+		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
+		lu.assertIs(ewSite:getPowerSources()[1], powerSource)
+	end
+end
+
+function TestIADS:testSetOptionsForAllAddedEWSites()
+	local ewSites = self.iranIADS:getEarlyWarningRadars()
+	lu.assertEquals(#ewSites, 9)
+	for i = 1, #ewSites do
+		local ewSite = ewSites[i]
+		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
+		lu.assertIs(ewSite:getPowerSources()[1], powerSource)
+	end
+end
+
+
 function TestIADS:testOneCommandCenterLoosesPower()
 	local commandCenter2Power = StaticObject.getByName("Command Center2 Power")
 	local commandCenter2 = StaticObject.getByName("Command Center2")

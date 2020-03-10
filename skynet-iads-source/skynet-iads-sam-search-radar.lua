@@ -33,6 +33,9 @@ function SkynetIADSSAMSearchRadar:setFiringRangePercent(percent)
 end
 
 function SkynetIADSSAMSearchRadar:isInRange(target)
+	if self:isExist() == false then
+		return false
+	end
 	local distance = mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
 	local radarHeight = self.dcsObject:getPosition().p.y
 	local aircraftHeight = target:getPosition().p.y	
