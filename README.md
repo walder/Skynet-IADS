@@ -47,7 +47,7 @@ Nice to know:
 Taking out the power source of a command center is a real life tactic used in SEAD (Suppression of Enemy Air Defence).
 
 ## Connection Nodes
-By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM Units, EW Radars and Command Centers.
+By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM Units and EW Radars.
 
 When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
@@ -200,7 +200,7 @@ samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_D
 ```
 
 ***The autonomous mode options are:***  
-SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour):
+SAM site will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour):
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
