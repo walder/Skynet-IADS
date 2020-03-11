@@ -177,7 +177,7 @@ Set the distance at which a SAM site wil switch on its radar:
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
-***The engagement zone options are:***
+***The engagement zone options are:***  
 SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
 ```
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
@@ -199,7 +199,7 @@ Set how the SAM site will behave if it looses connection to the IADS:
 samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
-***The autonomous mode options are:*** 
+***The autonomous mode options are:***  
 SAM Site will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour):
 ```
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
