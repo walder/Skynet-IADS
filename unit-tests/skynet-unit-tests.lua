@@ -781,8 +781,12 @@ iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 
 iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(100)
+
+local connectioNode = StaticObject.getByName('Unused Connection Node')
+iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
+
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = false
+iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
 iadsDebug.contacts = true
 iranIADS:activate()

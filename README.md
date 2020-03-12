@@ -60,18 +60,25 @@ Currently Skynet only works with ground based units. Incorporating air units is 
 # Tactics
 
 ## HARM defence
-SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with its radar. The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
+SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with its radar. 
+The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
 
-SAM site and EW radars will react to air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. They currently don't react to bombs, since they are not detected by DCS radars. The site will calculate time to impact and shut at a random value between a few seconds after time to impact and 180 seconds after time to impact. This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+SAM sites and EW radars will react to air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. They currently don't react to bombs, since they are not detected by DCS radars. 
+The site will calculate time to impact and shut down a random value between a few seconds after time to impact and 180 seconds after time to impact. 
 
-Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
+This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+
+Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
+See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
 
 ## Electronic Warfare
-A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
+A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
+The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness on them. 
-When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
+When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. 
+The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
 In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
 
 # Using Skynet in the mission editor
@@ -149,13 +156,19 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
-## SAM site options
+## SAM site configuration
 You can set the following options for a SAM site.
 
 ### How to set a option
 You can daisy chain options on a single sam site or a table of sam sites like this:
 ```
 redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+```
+
+### manually adding a SAM site
+You can manually ad a SAM site, must be a valid group name:
+```
+redIADS:addSamSite('SA-6 Group2')
 ```
 
 ### Accessing SAM sites in the IADS
@@ -170,7 +183,6 @@ Returns all SAM sites in the IADS:
 ```
 redIADS:getSamSites()
 ```
-
 
 ### Act as EW radar
 Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
@@ -247,7 +259,7 @@ You can set the reaction probability (between 0 and 100 percent) site like this.
 redIADS:setHARMDetectionChance(50)
 ```
 
-## EW radar options
+## EW radar configuration
 EW radars support the following options.
 
 ### Accessing EW radars in the IADS
@@ -268,6 +280,12 @@ Returns the EW site with the specified unit name:
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
+## Adding EW radars manually
+You can add EW radars manually, must be a valid unit name: 
+```
+redIADS:addEarlyWarningRadar('EWR West')
+```
+
 ### Power sources and connection nodes
 Add a power source to a EW site. You can add units and static objects. Call the function multiple times to add more than one power source:
 ```
@@ -281,17 +299,10 @@ local connectionNode = Unit.getByName("EW connection node")
 ewRadar:addConnectionNode(connectionNode)
 ```
 
-## Adding units manually
-You can add IADS elements individually. Use this if of you want to add units based on some kind of some progress in a mission.
-
-Add an EW radar, must be a unit name:  
+### HARM Defence
+You can set the reaction probability (between 0 and 100 percent) site like this. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities.
 ```
-redIADS:addEarlyWarningRadar('EWR West')
-```
-
-Add a SAM site, must be a group name:
-```
-redIADS:addSamSite('SA-6 Group2')
+redIADS:setHARMDetectionChance(50)
 ```
 
 ## Adding a jammer
