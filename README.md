@@ -161,7 +161,7 @@ redIADS:addCommandCenter(commandCenter, comPowerSource)
 ### Adding SAM Sites
 
 #### Add multiple SAM sites
-Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once, or Skynet will become confused:
+Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once or Skynet will become confused:
 ```
 redIADS:addSamSitesByPrefix('SAM')
 ```
@@ -284,7 +284,7 @@ redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ## Adding EW radars
 
 ### Add multiple EW radars
-Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once, or Skynet will become confused: 
+Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once or Skynet will become confused: 
 ```
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
