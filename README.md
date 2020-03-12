@@ -209,12 +209,13 @@ samSite:addConnectionNode(connectionNode)
 ```
 
 ### Engagement zone
-Set the distance at which a SAM site wil switch on its radar:
+Set the distance at which a SAM site will switch on its radar:
 ```
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
 ***The engagement zone options are:***  
+
 SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
 ```
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
