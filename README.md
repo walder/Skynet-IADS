@@ -62,7 +62,7 @@ Currently Skynet only works with ground based units. Incorporating air units is 
 ## HARM defence
 SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with its radar. The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
 
-SAM site and EW radars will react to bombs, air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. The site will shut down between 1 and 3 minutes. This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+SAM site and EW radars will react to air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. They currently don't react to bombs, since they are not detected by DCS radars. The site will calculate time to impact and shut at a random value between a few seconds after time to impact and 180 seconds after time to impact. This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
 
@@ -152,6 +152,26 @@ redIADS:addCommandCenter(commandCenter, comPowerSource)
 ## SAM site options
 You can set the following options for a SAM site.
 
+### How to set a option
+You can daisy chain options on a single sam site or a table of sam sites like this:
+```
+redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+```
+
+### Accessing SAM sites in the IADS
+The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
+
+Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
+```
+redIADS:getSAMSitesByNatoName('SA-6')
+```
+
+Returns all SAM sites in the IADS:
+```
+redIADS:getSamSites()
+```
+
+
 ### Act as EW radar
 Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
 ```
@@ -210,26 +230,6 @@ SAM Site will go dark if it looses connection to IADS:
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
 
-### How to set the options
-You can daisy chain the values like this:
-```
-redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-```
-
-### Accessing SAM sites in the IADS
-The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
-
-Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
-```
-redIADS:getSAMSitesByNatoName('SA-6')
-```
-
-Returns all SAM sites in the IADS:
-```
-redIADS:getSamSites()
-```
-
-
 Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once:
 ```
 redIADS:addSamSitesByPrefix('SAM')
@@ -241,22 +241,14 @@ Returns a SAM site with the specified group name:
 redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
+### HARM Defence
+You can set the reaction probability (between 0 and 100 percent) site like this. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities.
+```
+redIADS:setHARMDetectionChance(50)
+```
 
 ## EW radar options
 EW radars support the following options.
-
-### Power sources and connection nodes
-Add a power source to a EW site. You can add units and static objects. Call the function multiple times to add more than one power source:
-```
-local powerSource = StaticObject.getByName("EW Power Source")  
-ewRadar:addPowerSource(powerSource)
-```
-
-Add a connection node to a SAM site. You can add units and static objects. Call the function multiple times to add more than one connection node:
-```
-local connectionNode = Unit.getByName("EW connection node") 
-ewRadar:addConnectionNode(connectionNode)
-```
 
 ### Accessing EW radars in the IADS
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
@@ -274,6 +266,19 @@ redIADS:getEarlyWarningRadars()
 Returns the EW site with the specified unit name:
 ```
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
+```
+
+### Power sources and connection nodes
+Add a power source to a EW site. You can add units and static objects. Call the function multiple times to add more than one power source:
+```
+local powerSource = StaticObject.getByName("EW Power Source")  
+ewRadar:addPowerSource(powerSource)
+```
+
+Add a connection node to a SAM site. You can add units and static objects. Call the function multiple times to add more than one connection node:
+```
+local connectionNode = Unit.getByName("EW connection node") 
+ewRadar:addConnectionNode(connectionNode)
 ```
 
 ## Adding units manually
