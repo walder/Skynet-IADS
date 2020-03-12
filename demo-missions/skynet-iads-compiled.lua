@@ -1,4 +1,4 @@
--- BUILD Timestamp: 10.03.2020  2:53:19.82  
+-- BUILD Timestamp: 12.03.2020 21:36:47.83  
 do
 samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
 	-- '-' character needs special search term %
@@ -773,7 +773,7 @@ SA-15
 
 SAM Sites that ignore HARMS:
 SA-11 (test again)
-SA-10 (didn't react)
+SA-10
 SA-6
 ]]--
 
@@ -811,6 +811,7 @@ function SkynetIADS:create()
 	iads.debugOutput.hasNoPower = false
 	iads.debugOutput.addedSAMSite = false
 	iads.debugOutput.warnings = true
+	iads.debugOutput.harmDefence = false
 	return iads
 end
 
@@ -1279,7 +1280,7 @@ function SkynetIADSAbstractElement:isDestroyed()
 	return self:getDCSRepresentation():isExist() == false
 end
 
-function SkynetIADSAbstractElement.addPowerSource(self, powerSource)
+function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
 	return self
 end
@@ -1467,8 +1468,12 @@ function SkynetIADSAbstractRadarElement:getUnitsToAnalyse()
 	return units
 end
 
-function SkynetIADSAbstractRadarElement:getHarmDetectionChance()
+function SkynetIADSAbstractRadarElement:getHARMDetectionChance()
 	return self.harmDetectionChance
+end
+
+function SkynetIADSAbstractRadarElement:setHARMDetectionChance(chance)
+	self.harmDetectionChance = chance
 end
 
 function SkynetIADSAbstractRadarElement:setupElements()
@@ -1620,7 +1625,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 		end
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
-		self:stopScanningForHarms()
+		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
 		end
@@ -1723,37 +1728,36 @@ function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
 end
 
 function SkynetIADSAbstractRadarElement:scanForHarms()
-	self:stopScanningForHarms()
-	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms, {self}, 1, 2)
+	self:stopScanningForHARMs()
+	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
 end
 
-function SkynetIADSAbstractElement:isScanningForHarms()
+function SkynetIADSAbstractElement:isScanningForHARMs()
 	return self.harmScanID ~= nil
 end
 
-function SkynetIADSAbstractRadarElement:stopScanningForHarms()
+function SkynetIADSAbstractRadarElement:stopScanningForHARMs()
 	mist.removeFunction(self.harmScanID)
 	self.harmScanID = nil
 end
 
-function SkynetIADSAbstractRadarElement:goSilentToEvadeHarm()
+function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
 	self.objectsIdentifiedAsHarms = {}
 	local harmTime = self:getHarmShutDownTime()
+	if self.iads:getDebugSettings().harmDefence then
+		self.iads:printOutput("HARM DEFENCE: "..self:getDCSRepresentation():getName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
+	end
 	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
 	self:goDark()
-	--trigger.action.outText(tostring(self.harmSilenceID), 1)
-	--trigger.action.outText(tostring(harmTime), 1)
 end
 
 function SkynetIADSAbstractRadarElement:getHarmShutDownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
-	--trigger.action.outText("shutdowntime: "..shutDownTime, 1)
 	return shutDownTime
 end
 
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
-	--trigger.action.outText("finish harm defence", 1)
 	mist.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
 end
@@ -1764,7 +1768,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 		local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
 		for i = 1, #targets do
 			local target = targets[i]
-			-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors in the sam firing code
+			-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
 			if target.object then
 				local iadsTarget = SkynetIADSContact:create(target)
 				iadsTarget:refresh()
@@ -1788,9 +1792,8 @@ function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)
 	return tti
 end
 
-function SkynetIADSAbstractRadarElement:getDistanceNMToContact(radarUnit, contact)
-	local distanceMeters = mist.utils.metersToNM(mist.utils.get2DDist(contact:getPosition().p, radarUnit:getPosition().p))
-	return mist.utils.round(distanceMeters, 2)
+function SkynetIADSAbstractRadarElement:getDistanceInMetersToContact(radarUnit, point)
+	return mist.utils.round(mist.utils.get3DDist(radarUnit:getPosition().p, point), 0)
 end
 
 function SkynetIADSAbstractRadarElement:calculateMinimalShutdownTimeInSeconds(timeToImpact)
@@ -1801,57 +1804,54 @@ function SkynetIADSAbstractRadarElement:calculateMaximalShutdownTimeInSeconds(mi
 	return minShutdownTime + mist.random(1, self.maxHarmPresetShutdownTime)
 end
 
+function SkynetIADSAbstractRadarElement:calculateImpactPoint(target, distanceInMeters)
+	-- distance needs to be incremented by a certain value for ip calculation to work, check why presumably due to rounding errors in the previous distance calculation
+	return land.getIP(target:getPosition().p, target:getPosition().x, distanceInMeters + 50)
+end
 
-function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHarms(self, detectionType)
+function SkynetIADSAbstractRadarElement:shallReactToHARM()
+	return self.harmDetectionChance >=  math.random(1, 100)
+end
+
+function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]
-		--if target:getTypeName() == 'weapons.missiles.AGM_88' then
-		--	trigger.action.outText("Detection Type: "..detectionType, 1)
-		--	trigger.action.outText(target:getTypeName(), 1)
-		--	trigger.action.outText("Is Type Known: "..tostring(target:isTypeKnown()), 1)
-		--	trigger.action.outText("Distance is Known: "..tostring(target:isDistanceKnown()), 1)
-			local radars = self:getRadars()
-			for j = 1, #radars do
-				local radar = radars[j]
-				local distance = self:getDistanceNMToContact(target, radar)
-			--	trigger.action.outText("Missile to SAM distance: "..distance, 1)
-				-- distance needs to be incremented by a certain value for ip calculation to work, check why, distance needs to be m here!
-				local impactPoint = land.getIP(target:getPosition().p, target:getPosition().x, distance + 100)
-				if impactPoint then
-					local diststanceToSam = mist.utils.get2DDist(radar:getPosition().p, impactPoint)
-					--trigger.action.outText("Impact Point distance to SAM site: "..diststanceToSam, 1)
-					---trigger.action.outText("detected Object Name: "..target:getName(), 1)
-					--trigger.action.outText("Impact Point X: "..impactPoint.x.."Y: "..impactPoint.y.."Z: "..impactPoint.z, 1)
-					if diststanceToSam <= 100 then
-						local numDetections = 0
-						if self.objectsIdentifiedAsHarms[target:getName()] then
-							numDetections = self.objectsIdentifiedAsHarms[target:getName()]['num_detections']
-							numDetections = numDetections + 1
-							self.objectsIdentifiedAsHarms[target:getName()]['num_detections'] = numDetections
-						else
-							self.objectsIdentifiedAsHarms[target:getName()]= {}
-							self.objectsIdentifiedAsHarms[target:getName()]['target'] = target
-							self.objectsIdentifiedAsHarms[target:getName()]['num_detections'] = 0
-							numDetections = self.objectsIdentifiedAsHarms[target:getName()]['num_detections']
-						end
-						local randomReaction = math.random(1, 100)
-						local targetHarm = self.objectsIdentifiedAsHarms[target:getName()]['target']
-						targetHarm:refresh()
-						local speed = targetHarm:getGroundSpeedInKnots()
-						local timeToImpact = self:getSecondsToImpact(distance, speed )
-						trigger.action.outText("detection Cycle: "..numDetections.." Random: "..randomReaction.." GS: "..targetHarm:getGroundSpeedInKnots().."TTI: "..timeToImpact, 1)
-						---use distance and speed of harm to determine min shutdown time
-						if numDetections == 3 and self.harmDetectionChance > randomReaction then
-							self.minHarmShutdownTime = self:calculateShutdownTimeInSeconds(timeToImpact)
-							self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
-							trigger.action.outText("SAM EVADING HARM", 1)
-							self:goSilentToEvadeHarm()
+		local radars = self:getRadars()
+		for j = 1, #radars do
+			local radar = radars[j]
+			local distance = self:getDistanceInMetersToContact(radar, target:getPosition().p)
+			local impactPoint = self:calculateImpactPoint(target, distance)
+			if impactPoint then
+				local harmImpactPointDistanceToSAM = self:getDistanceInMetersToContact(radar, impactPoint)
+				if harmImpactPointDistanceToSAM <= 100 then
+					if self.objectsIdentifiedAsHarms[target:getName()] then
+						self.objectsIdentifiedAsHarms[target:getName()]['count'] = self.objectsIdentifiedAsHarms[target:getName()]['count'] + 1
+					else
+						self.objectsIdentifiedAsHarms[target:getName()] =  {}
+						self.objectsIdentifiedAsHarms[target:getName()]['target'] = target
+						self.objectsIdentifiedAsHarms[target:getName()]['count'] = 1
+					end
+					local savedTarget = self.objectsIdentifiedAsHarms[target:getName()]['target']
+					savedTarget:refresh()
+					local numDetections = self.objectsIdentifiedAsHarms[target:getName()]['count']
+					local speed = savedTarget:getGroundSpeedInKnots()
+					local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
+					local shallReactToHarm = self:shallReactToHARM()
+					---use distance and speed of harm to determine min shutdown time
+					if numDetections == 2 and shallReactToHarm then
+						self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+						self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
+						self:goSilentToEvadeHARM(timeToImpact)
+					end
+					if numDetections == 2 and shallReactToHarm == false then
+						if self.iads:getDebugSettings().harmDefence then
+							self.iads:printOutput("HARM DEFENCE: "..self:getDCSRepresentation():getName().." will not react")
 						end
 					end
 				end
 			end
-	--	end
+		end
 	end
 end
 
@@ -1884,7 +1884,8 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	instance.name = instance.dcsObject:getName()
 	instance.typeName = instance.dcsObject:getTypeName()
 	instance.position = instance.dcsObject:getPosition()
-	self.speed = 0
+	instance.numOfTimesRefreshed = 0
+	instance.speed = 0
 	return instance
 end
 
@@ -1915,14 +1916,17 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 	return mist.utils.round(self.speed, decimals)
 end
 
+function SkynetIADSContact:getNumberOfTimesHitByRadar()
+	return self.numOfTimesRefreshed
+end
+
 function SkynetIADSContact:refresh()
+	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
 	if self.dcsObject and self.dcsObject:isExist() then
 		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			local hours = timeDelta / 3600
-		--	trigger.action.outText("distance: "..distance, 1)
-		--	trigger.action.outText("hours: "..hours,1)
 			self.speed = (distance / hours)
 		end 
 		self.position = self.dcsObject:getPosition()
@@ -2215,7 +2219,10 @@ local sa3 = samTypesDB['s%-125']
 sa3['harm_detection_chance'] = 40
 
 local sa6 = samTypesDB['Kub']
-sa6['harm_detection_chance'] = 10
+sa6['harm_detection_chance'] = 40
+
+local sa10 = samTypesDB['S%-300']
+sa10['harm_detection_chance'] = 90
 
 local sa11 = samTypesDB['Buk']
 sa11['harm_detection_chance'] = 70

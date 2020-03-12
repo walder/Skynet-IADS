@@ -13,7 +13,8 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	instance.name = instance.dcsObject:getName()
 	instance.typeName = instance.dcsObject:getTypeName()
 	instance.position = instance.dcsObject:getPosition()
-	self.speed = 0
+	instance.numOfTimesRefreshed = 0
+	instance.speed = 0
 	return instance
 end
 
@@ -44,14 +45,17 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 	return mist.utils.round(self.speed, decimals)
 end
 
+function SkynetIADSContact:getNumberOfTimesHitByRadar()
+	return self.numOfTimesRefreshed
+end
+
 function SkynetIADSContact:refresh()
+	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
 	if self.dcsObject and self.dcsObject:isExist() then
 		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			local hours = timeDelta / 3600
-		--	trigger.action.outText("distance: "..distance, 1)
-		--	trigger.action.outText("hours: "..hours,1)
 			self.speed = (distance / hours)
 		end 
 		self.position = self.dcsObject:getPosition()

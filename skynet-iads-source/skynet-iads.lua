@@ -6,7 +6,7 @@ SA-15
 
 SAM Sites that ignore HARMS:
 SA-11 (test again)
-SA-10 (didn't react)
+SA-10
 SA-6
 ]]--
 
@@ -44,6 +44,7 @@ function SkynetIADS:create()
 	iads.debugOutput.hasNoPower = false
 	iads.debugOutput.addedSAMSite = false
 	iads.debugOutput.warnings = true
+	iads.debugOutput.harmDefence = false
 	return iads
 end
 

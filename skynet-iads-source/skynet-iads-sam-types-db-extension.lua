@@ -18,7 +18,10 @@ local sa3 = samTypesDB['s%-125']
 sa3['harm_detection_chance'] = 40
 
 local sa6 = samTypesDB['Kub']
-sa6['harm_detection_chance'] = 10
+sa6['harm_detection_chance'] = 40
+
+local sa10 = samTypesDB['S%-300']
+sa10['harm_detection_chance'] = 90
 
 local sa11 = samTypesDB['Buk']
 sa11['harm_detection_chance'] = 70

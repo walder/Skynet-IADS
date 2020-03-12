@@ -9,6 +9,10 @@ function TestIADS:setUp()
 	self.iranIADS:addSamSitesByPrefix('SAM')
 end
 
+function TestIADS:tearDown()
+	self.iranIADS = nil
+end
+
 function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self.iranIADS = SkynetIADS:create()
 	lu.assertEquals(#self.iranIADS:getSamSites(), 0)
@@ -75,10 +79,12 @@ function TestIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 	lu.assertEquals(samSite:hasActiveConnectionNode(), true)
 	trigger.action.explosion(sa6ConnectionNode2:getPosition().p, 100)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), false)
+	lu.assertEquals(#samSite:getRadars(), 1)
 	lu.assertEquals(samSite:isActive(), false)
 	--simulate update cycle of IADS
 	self.iranIADS.evaluateContacts(self.iranIADS)
 	lu.assertEquals(samSite:isActive(), false)
+	samSite:goDark()
 end
 
 function TestIADS:testOneCommandCenterIsDestroyed()
@@ -103,6 +109,7 @@ function TestIADS:testSetSamSitesToAutonomous()
 	self.iranIADS:setSamSitesToAutonomousMode()
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), true)
+	samSiteActive:goDark()
 	--dont call an update of the IADS in this test, its just to test setSamSitesToAutonomousMode()
 end
 
@@ -255,6 +262,12 @@ function TestSamSites:setUp()
 	end
 end
 
+function TestSamSites:tearDown()
+	if self.samSite then	
+		self.samSite:goDark()
+	end
+end
+
 function TestSamSites:testCheckSA6GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()
@@ -321,7 +334,7 @@ function TestSamSites:testCheckSA3GroupNumberOfLaunchersAndSearchRadarsAndNatoNa
 	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
 	lu.assertEquals(#self.samSite:getRadars(), 2)
-	lu.assertEquals(self.samSite:getHarmDetectionChance(), 40)
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 40)
 	
 	lu.assertEquals(self.samSite:getNatoName(), "SA-3")
 end
@@ -350,19 +363,123 @@ function TestSamSites:testHARMDefenceStates()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()
 	lu.assertEquals(self.samSite:isActive(), true)
-	lu.assertEquals(self.samSite:isScanningForHarms(), true)
-	self.samSite:goSilentToEvadeHarm()
-	lu.assertEquals(self.samSite:isScanningForHarms(), false)
+	lu.assertEquals(self.samSite:isScanningForHARMs(), true)
+	self.samSite:goSilentToEvadeHARM()
+	lu.assertEquals(self.samSite:isScanningForHARMs(), false)
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
-function TestSamSites:testTimeToImpactCalculation()
+function TestSamSites:testGoLiveFailsWhenInHARMDefenceMode()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(self.samSite:isScanningForHARMs(), true)
+	self.samSite:goSilentToEvadeHARM()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+
+function TestSamSites:testHARMTimeToImpactCalculation()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()
 	lu.assertEquals(self.samSite:getSecondsToImpact(100, 10), 36000)
 	lu.assertEquals(self.samSite:getSecondsToImpact(10, 400), 90)
 	lu.assertEquals(self.samSite:getSecondsToImpact(0, 400), 0)
 	lu.assertEquals(self.samSite:getSecondsToImpact(400, 0), 0)
+end
+
+function TestSamSites:testEvaluateIfTargetsContainHARMsShallReactTrue()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	
+	local calledShutdown = false
+	
+	function self.samSite:getDetectedTargets()
+		return {iadsContact}
+	end
+	function self.samSite:getDistanceInMetersToContact(a, b)
+		return 50
+	end
+	function self.samSite:calculateImpactPoint(a, b)
+		return self:getRadars()[1]:getPosition().p
+	end
+	
+	function self.samSite:shallReactToHARM()
+		return true
+	end
+	
+	function self.samSite:goSilentToEvadeHARM()
+		calledShutdown = true
+	end
+	
+	lu.assertEquals(#self.samSite:getRadars(), 1)
+	self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(calledShutdown, false)
+	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['target'], iadsContact)
+	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 1)
+	self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
+	lu.assertEquals(calledShutdown, true)
+end
+
+function TestSamSites:testEvaluateIfTargetsContainHARMsShallReactFalse()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	
+	local calledShutdown = false
+	
+	function self.samSite:getDetectedTargets()
+		return {iadsContact}
+	end
+	function self.samSite:getDistanceInMetersToContact(a, b)
+		return 50
+	end
+	function self.samSite:calculateImpactPoint(a, b)
+		return self:getRadars()[1]:getPosition().p
+	end
+	
+	function self.samSite:shallReactToHARM()
+		return false
+	end
+	
+	function self.samSite:goSilentToEvadeHARM()
+		calledShutdown = true
+	end
+	
+	lu.assertEquals(#self.samSite:getRadars(), 1)
+	self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(calledShutdown, false)
+	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['target'], iadsContact)
+	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 1)
+	self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
+	lu.assertEquals(calledShutdown, false)
+end
+
+function TestSamSites:testSlantRangeCalculationForHARMDefence()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	local radarUnit = self.samSite:getRadars()[1]
+	local distanceSlantRange = self.samSite:getDistanceInMetersToContact(iadsContact, radarUnit:getPosition().p)
+	local straightLine = mist.utils.round(mist.utils.get2DDist(radarUnit:getPosition().p, iadsContact:getPosition().p), 0)
+	lu.assertEquals(distanceSlantRange >= straightLine, true)
+end
+
+function TestSamSites:testFinishHARMDefence()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	self.samSite:goSilentToEvadeHARM()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:finishHarmDefence()
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
 end
 
 function TestSamSites:testActAsEarlyWarningRadar()
@@ -506,20 +623,12 @@ function TestSamSites:testSA8GoLiveRangeInPercent()
 	local target = IADSContactFactory('test-sa-8-will-go-active')
 	self.samSite:informOfContact(target)
 	lu.assertEquals(self.samSite:isActive(), true)
-	
 	local launcher = self.samSite:getLaunchers()[1]
 	self.samSite:setGoLiveRangeInPercent(20)
 	self.samSite:goDark()
 	self.samSite:informOfContact(target)
 	lu.assertEquals(launcher:isInRange(target), false)
 	lu.assertEquals(self.samSite:isActive(), false)
-end
-
-function TestSamSites:testGetDistanceNMToContact()
-	self.samSiteName = "SAM-SA-6"
-	self:setUp()
-	local contact = Unit.getByName('test-distance-calculation')
-	lu.assertEquals(self.samSite:getDistanceNMToContact(self.samSite:getRadars()[1], contact), 20.33)
 end
 
 function TestSamSites:testPowerSourceStaticObjectGroundVehiclesAndDestrutionSuccessful()
@@ -660,12 +769,22 @@ end
 
 lu.LuaUnit.run()
 
+--clean miste left over scheduled tasks form unit tests
+local i = 0
+while i < 1000000 do
+	mist.removeFunction(i)
+	i = i + 1
+end
 --- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
 iranIADS = SkynetIADS:create()
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
+
+iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(100)
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = true
+iadsDebug.IADSStatus = false
+iadsDebug.harmDefence = true
+iadsDebug.contacts = true
 iranIADS:activate()
 
 end

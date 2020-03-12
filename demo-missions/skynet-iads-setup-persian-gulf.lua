@@ -13,6 +13,7 @@ iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = false
 iadsDebug.hasNoPower = false
+iadsDebug.harmDefence = true
 ---end remove debug ---
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
