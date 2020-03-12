@@ -1,4 +1,4 @@
--- BUILD Timestamp: 12.03.2020 21:36:47.83  
+-- BUILD Timestamp: 12.03.2020 22:52:47.69  
 do
 samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
 	-- '-' character needs special search term %
@@ -1501,7 +1501,9 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		end
 		
 		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
-		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
+		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
+			or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
+				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0) then
 			local harmDetection = dataType['harm_detection_chance']
 			if harmDetection then
 				self.harmDetectionChance = harmDetection

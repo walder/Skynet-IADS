@@ -64,7 +64,7 @@ function SkynetIADSContact:refresh()
 end
 
 function SkynetIADSContact:getAge()
-	return timer.getAbsTime() - self.lastTimeSeen
+	return mist.utils.round(timer.getAbsTime() - self.lastTimeSeen)
 end
 
 end

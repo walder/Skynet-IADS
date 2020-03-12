@@ -759,6 +759,12 @@ function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 8)	
 end
 
+function TestEarlyWarningRadars:testGetNatoName()
+	self.ewRadarName = "EW-west22"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "1L13 EWR")
+end
+
 function IADSContactFactory(unitName)
 	local contact = Unit.getByName(unitName)
 	local radarContact = {}

@@ -80,7 +80,9 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		end
 		
 		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
-		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
+		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
+			or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
+				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0) then
 			local harmDetection = dataType['harm_detection_chance']
 			if harmDetection then
 				self.harmDetectionChance = harmDetection
