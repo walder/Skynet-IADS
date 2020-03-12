@@ -159,12 +159,6 @@ redIADS:addCommandCenter(commandCenter, comPowerSource)
 ## SAM site configuration
 You can set the following options for a SAM site.
 
-### How to set a option
-You can daisy chain options on a single SAM site or a table of SAM sites like this:
-```
-redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-```
-
 ### Adding SAM Sites
 
 #### Add multiple SAM sites
@@ -177,6 +171,12 @@ redIADS:addSamSitesByPrefix('SAM')
 You can manually ad a SAM site, must be a valid group name:
 ```
 redIADS:addSamSite('SA-6 Group2')
+```
+
+### How to set a option
+You can daisy chain options on a single SAM site or a table of SAM sites like this:
+```
+redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
 ### Accessing SAM sites in the IADS
