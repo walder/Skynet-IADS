@@ -256,7 +256,7 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
 
 ### HARM Defence
-You can set the reaction probability (between 0 and 100 percent) site like this. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities.
+You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities:
 ```
 redIADS:setHARMDetectionChance(50)
 ```
@@ -309,7 +309,7 @@ ewRadar:addConnectionNode(connectionNode)
 ```
 
 ### HARM Defence
-You can set the reaction probability (between 0 and 100 percent) site like this. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities.
+You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities:
 ```
 redIADS:setHARMDetectionChance(50)
 ```
