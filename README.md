@@ -160,7 +160,7 @@ redIADS:addCommandCenter(commandCenter, comPowerSource)
 You can set the following options for a SAM site.
 
 ### How to set a option
-You can daisy chain options on a single sam site or a table of sam sites like this:
+You can daisy chain options on a single SAM site or a table of SAM sites like this:
 ```
 redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
@@ -182,6 +182,11 @@ redIADS:getSAMSitesByNatoName('SA-6')
 Returns all SAM sites in the IADS:
 ```
 redIADS:getSamSites()
+```
+
+Returns a SAM site with the specified group name:
+```
+redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
 ### Act as EW radar
@@ -245,12 +250,6 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once:
 ```
 redIADS:addSamSitesByPrefix('SAM')
-```
-
-
-Returns a SAM site with the specified group name:
-```
-redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
 ### HARM Defence
