@@ -165,7 +165,15 @@ You can daisy chain options on a single SAM site or a table of SAM sites like th
 redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
-### manually adding a SAM site
+### Adding SAM Sites
+
+#### Add multiple SAM sites
+Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once, or Skynet will become confused:
+```
+redIADS:addSamSitesByPrefix('SAM')
+```
+
+#### Add a SAM site manually
 You can manually ad a SAM site, must be a valid group name:
 ```
 redIADS:addSamSite('SA-6 Group2')
@@ -248,11 +256,6 @@ SAM Site will go dark if it looses connection to IADS:
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
 
-Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once:
-```
-redIADS:addSamSitesByPrefix('SAM')
-```
-
 ### HARM Defence
 You can set the reaction probability (between 0 and 100 percent) site like this. See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities.
 ```
@@ -280,7 +283,15 @@ Returns the EW site with the specified unit name:
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
-## Adding EW radars manually
+## Adding EW radars
+
+### Add multiple EW radars
+Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once, or Skynet will become confused: 
+```
+redIADS:addEarlyWarningRadarsByPrefix('EW')
+``` 
+
+### Add EW radars manually
 You can add EW radars manually, must be a valid unit name: 
 ```
 redIADS:addEarlyWarningRadar('EWR West')
