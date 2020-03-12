@@ -157,7 +157,6 @@ redIADS:addCommandCenter(commandCenter, comPowerSource)
 ```
 
 ## SAM site configuration
-You can set the following options for a SAM site.
 
 ### Adding SAM Sites
 
@@ -263,7 +262,6 @@ redIADS:setHARMDetectionChance(50)
 ```
 
 ## EW radar configuration
-EW radars support the following options.
 
 ### Accessing EW radars in the IADS
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
