@@ -80,6 +80,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		end
 		
 		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
+		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
 				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0) then
@@ -419,7 +420,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					local speed = savedTarget:getGroundSpeedInKnots()
 					local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
 					local shallReactToHarm = self:shallReactToHARM()
-					---use distance and speed of harm to determine min shutdown time
+					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. The harm reaction time adds some salt otherwise the SAM will always shut down 100% of the time.
 					if numDetections == 2 and shallReactToHarm then
 						self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
 						self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
