@@ -162,7 +162,7 @@ You can also add a command center with a power source:
 ```
 local commandCenter = StaticObject.getByName("Command Center2")
 local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
-redIADS:addCommandCenter(commandCenter, comPowerSource)
+redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
 ## SAM site configuration

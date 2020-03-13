@@ -15,7 +15,6 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	return instance
 end
 
---- implemented in subclasses
 function SkynetIADSAbstractElement:isDestroyed()
 	return self:getDCSRepresentation():isExist() == false
 end

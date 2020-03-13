@@ -216,14 +216,14 @@ function SkynetIADS:getSAMSitesByNatoName(natoName)
 	return selectedSAMSites
 end
 
-function SkynetIADS:addCommandCenter(commandCenter, powerSource)
+function SkynetIADS:addCommandCenter(commandCenter)
 	self:setCoalition(commandCenter)
 	if powerSource then
 		self:setCoalition(powerSource)
 	end
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
-	comCenter:addPowerSource(powerSource)
 	table.insert(self.commandCenters, comCenter)
+	return comCenter
 end
 
 function SkynetIADS:isCommandCenterUsable()
