@@ -19,4 +19,5 @@ iadsDebug.harmDefence = true
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSamSitesByPrefix('SAM')
 iranIADS:activate()	
+iranIADS:addRadioMenu()
 end

@@ -131,7 +131,7 @@ function TestIADS:testSetOptionsForSAMSiteType()
 	end
 end
 
-function TestIADS:setOptionsForAllAddedSamSitesByPrefix()
+function TestIADS:testSetOptionsForAllAddedSamSitesByPrefix()
 	local iads = SkynetIADS:create()
 	local samSites = iads:addSamSitesByPrefix('SAM'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(#samSites, 11)
@@ -146,7 +146,7 @@ function TestIADS:setOptionsForAllAddedSamSitesByPrefix()
 	end
 end
 
-function TestIADS:setOptionsForAllAddedSamSites()
+function TestIADS:testSetOptionsForAllAddedSamSites()
 	local samSites = self.iranIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(#samSites, 11)
 	for i = 1, #samSites do
@@ -796,5 +796,4 @@ iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
 iadsDebug.contacts = true
 iranIADS:activate()
-
 end

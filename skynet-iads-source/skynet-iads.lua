@@ -255,7 +255,6 @@ function SkynetIADS.evaluateContacts(self)
 	if self:getDebugSettings().IADSStatus then
 		self:printSystemStatus()
 	end	
-	local iadsContacts = {}
 	if self:isCommandCenterUsable() == false then
 		if self:getDebugSettings().noWorkingCommmandCenter then
 			self:printOutput("No Working Command Center")
@@ -362,6 +361,29 @@ function SkynetIADS:activate()
 		mist.removeFunction(self.ewRadarScanMistTaskID)
 	end
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+end
+
+function SkynetIADS:addRadioMenu()
+	local skynetMenu = missionCommands.addSubMenu('SKYNET IADS')
+	local displayIADSStatus = missionCommands.addCommand('show IADS Status', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
+	local displayIADSStatus = missionCommands.addCommand('hide IADS Status', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'IADSStatus'})
+	local displayIADSStatus = missionCommands.addCommand('show contacts', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'contacts'})
+	local displayIADSStatus = missionCommands.addCommand('hide contacts', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'contacts'})
+end
+
+function SkynetIADS:removeRadioMenu()
+	missionCommands.removeItem('SKYNET IADS')
+end
+
+function SkynetIADS.updateDisplay(params)
+	local option = params.option
+	local self = params.self
+	local value = params.value
+	if option == 'IADSStatus' then
+		self:getDebugSettings()[option] = value
+	elseif option == 'contacts' then
+		self:getDebugSettings()[option] = value
+	end
 end
 
 function SkynetIADS:printSystemStatus()	

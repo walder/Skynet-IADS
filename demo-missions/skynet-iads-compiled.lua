@@ -1,4 +1,4 @@
--- BUILD Timestamp: 12.03.2020 22:52:47.69  
+-- BUILD Timestamp: 13.03.2020 19:51:48.67  
 do
 samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
 	-- '-' character needs special search term %
@@ -1022,7 +1022,6 @@ function SkynetIADS.evaluateContacts(self)
 	if self:getDebugSettings().IADSStatus then
 		self:printSystemStatus()
 	end	
-	local iadsContacts = {}
 	if self:isCommandCenterUsable() == false then
 		if self:getDebugSettings().noWorkingCommmandCenter then
 			self:printOutput("No Working Command Center")
@@ -1129,6 +1128,29 @@ function SkynetIADS:activate()
 		mist.removeFunction(self.ewRadarScanMistTaskID)
 	end
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+end
+
+function SkynetIADS:addRadioMenu()
+	local skynetMenu = missionCommands.addSubMenu('SKYNET IADS')
+	local displayIADSStatus = missionCommands.addCommand('show IADS Status', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
+	local displayIADSStatus = missionCommands.addCommand('hide IADS Status', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'IADSStatus'})
+	local displayIADSStatus = missionCommands.addCommand('show contacts', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'contacts'})
+	local displayIADSStatus = missionCommands.addCommand('hide contacts', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'contacts'})
+end
+
+function SkynetIADS:removeRadioMenu()
+	missionCommands.removeItem('SKYNET IADS')
+end
+
+function SkynetIADS.updateDisplay(params)
+	local option = params.option
+	local self = params.self
+	local value = params.value
+	if option == 'IADSStatus' then
+		self:getDebugSettings()[option] = value
+	elseif option == 'contacts' then
+		self:getDebugSettings()[option] = value
+	end
 end
 
 function SkynetIADS:printSystemStatus()	
@@ -1501,6 +1523,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		end
 		
 		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
+		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
 				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0) then
@@ -1840,7 +1863,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					local speed = savedTarget:getGroundSpeedInKnots()
 					local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
 					local shallReactToHarm = self:shallReactToHARM()
-					---use distance and speed of harm to determine min shutdown time
+					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. The harm reaction time adds some salt otherwise the SAM will always shut down 100% of the time.
 					if numDetections == 2 and shallReactToHarm then
 						self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
 						self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
@@ -1937,7 +1960,7 @@ function SkynetIADSContact:refresh()
 end
 
 function SkynetIADSContact:getAge()
-	return timer.getAbsTime() - self.lastTimeSeen
+	return mist.utils.round(timer.getAbsTime() - self.lastTimeSeen)
 end
 
 end

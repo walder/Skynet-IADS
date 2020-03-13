@@ -135,10 +135,19 @@ redIADS:activate()
 ```
 
 
-## Advanced setup
+# Advanced setup
 This is the danger zone. Call Kenny Loggins. Some experience with scripting is recommended.
 You can handcraft your IADS with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
 The following examples use static objects for command centers and power sources, you can also use units instead.
+
+## IADS configuration
+Call this method to add or remove a radio menu to toggle the output of the IADS. By default the radio menu option is not visible:
+```
+redIADS:addRadioMenu()  
+```
+```
+redIADS:removeRadioMenu()
+```
 
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
