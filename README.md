@@ -312,7 +312,7 @@ redIADS:addEarlyWarningRadar('EWR West')
 ```
 
 ### How to set a option
-In the following examples ```ewRadar``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads)
+In the following examples ```ewRadar``` refers to an single EW radar or collection of EW radars you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads)
 
 ### Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
