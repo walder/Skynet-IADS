@@ -333,7 +333,7 @@ ewRadar:setHARMDetectionChance(50)
 ```
 
 # Example Setup
-This is an example of how you can set up your IADS:
+This is an example of how you can set up your IADS used in the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz):
 ```lua
 do
 
