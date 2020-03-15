@@ -1,7 +1,7 @@
 do
-samTypesDB = { -- this is a static DB based off of scripts/database files for each sam type.
-	-- '-' character needs special search term %
-	['S%-300'] = {
+--this file contains the required units per sam type
+samTypesDB = {
+	['S-300'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
@@ -50,7 +50,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['harm_detection_chance'] = 70
 	},
-	['s%-125'] = {
+	['s-125'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
@@ -69,7 +69,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		},
 		['harm_detection_chance'] = 40
 	},
-    ['s%-75'] = {
+    ['s-75'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
@@ -206,7 +206,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		},
 		['harm_detection_chance'] = 20
 	},	
-	['Strela%-10M3'] = {
+	['Strela-10M3'] = {
 		['type'] = 'single',
 		['mobile'] = true,
 		['searchRadar'] = {
@@ -222,7 +222,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'SA-13 Gopher',
 		},
 	},	
-	['Strela%-1 9P31'] = {
+	['Strela-1 9P31'] = {
 		['type'] = 'single',
 		['mobile'] = true,
 		['searchRadar'] = {
@@ -353,7 +353,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 			['NATO'] = 'M1097 Avenger',
 		},
 	},
-	['ZSU%-23%-4 Shilka'] = {
+	['ZSU-23-4 Shilka'] = {
 		['type'] = 'single',
 		['mobile'] = true,
 		['searchRadar'] = {
