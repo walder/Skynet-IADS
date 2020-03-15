@@ -75,7 +75,7 @@ The site will calculate time to impact and shut down a random value between a fe
 This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
-See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
+See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```lua['harm_detection_chance']``` for the probability per SAM system.
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
@@ -272,7 +272,7 @@ SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
 
 ### HARM Defence
-You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
+You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```lua['harm_detection_chance']``` for default detection probabilities:
 ```lua
 ewRadar:setHARMDetectionChance(50)
 ```
