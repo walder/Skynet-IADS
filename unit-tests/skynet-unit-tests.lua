@@ -1,7 +1,4 @@
 
---TODO: write test case: SAM is out of missiles, is informed of a target in range has not detected it with its own radar is not in harm defence mode
--- TODO: write test for updateMissilesInFlight in AbstractRadarElement
--- TODO write test to verify SA-10 ranges now taken from in game data
 
 do
 ---IADS Unit Tests
@@ -17,6 +14,15 @@ function TestIADS:tearDown()
 	self.iranIADS = nil
 end
 
+-- this function checks constants in DCS that the IADS relies on. A change to them might indicate that functionallity is broken.
+-- In the code constants are refereed to with their constant name calue, not the values the represent.
+function TestIADS:testDCSContstantsHaveNotChanged()
+	lu.assertEquals(Weapon.Category.MISSILE, 1)
+	lu.assertEquals(Weapon.Category.SHELL, 0)
+	lu.assertEquals(world.event.S_EVENT_SHOT, 1)
+	lu.assertEquals(world.event.S_EVENT_DEAD, 8)
+end
+
 function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self.iranIADS = SkynetIADS:create()
 	lu.assertEquals(#self.iranIADS:getSamSites(), 0)
@@ -24,7 +30,7 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
 	self.iranIADS:addSamSitesByPrefix('SAM')
 	lu.assertEquals(#self.iranIADS:getSamSites(), 11)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 10)
+	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 11)
 end
 
 function TestIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
@@ -167,7 +173,7 @@ end
 function TestIADS:testSetOptionsForAllAddedEWSitesByPrefix()
 	local iads = SkynetIADS:create()
 	local ewSites = iads:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(powerSource):addConnectionNode(connectionNode)
-	lu.assertEquals(#ewSites, 10)
+	lu.assertEquals(#ewSites, 11)
 	for i = 1, #ewSites do
 		local ewSite = ewSites[i]
 		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
@@ -177,7 +183,7 @@ end
 
 function TestIADS:testSetOptionsForAllAddedEWSites()
 	local ewSites = self.iranIADS:getEarlyWarningRadars()
-	lu.assertEquals(#ewSites, 10)
+	lu.assertEquals(#ewSites, 11)
 	for i = 1, #ewSites do
 		local ewSite = ewSites[i]
 		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
@@ -253,6 +259,37 @@ function TestSamSites:tearDown()
 	self.samSiteName = nil
 end
 
+-- TODO: write test for updateMissilesInFlight in AbstractRadarElement
+function TestSamSites:testUpdateMissilesInFlight()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local mockMissile1 = {}
+	function mockMissile1:isExist()
+		return false
+	end
+	
+	local mockMissile2 = {}
+	function mockMissile2:isExist()
+		return true
+	end
+	
+	self.samSite.missilesInFlight = {mockMissile1, mockMissile2}
+	lu.assertEquals(#self.samSite.missilesInFlight, 2)
+	lu.assertEquals(self.samSite:hasMissilesInFlight(), true)
+	
+	self.samSite:updateMissilesInFlight()
+	lu.assertEquals(#self.samSite.missilesInFlight, 1)
+	lu.assertEquals(self.samSite:hasMissilesInFlight(), true)
+
+	self.samSite.missilesInFlight = {mockMissile1}
+	lu.assertEquals(#self.samSite.missilesInFlight, 1)
+	lu.assertEquals(self.samSite:hasMissilesInFlight(), true)
+	
+	self.samSite:updateMissilesInFlight()
+	lu.assertEquals(#self.samSite.missilesInFlight, 0)
+	lu.assertEquals(self.samSite:hasMissilesInFlight(), false)
+end
 
 function TestSamSites:testCheckSA6GroupNumberOfLaunchersAndRangeValuesAndSearchRadarsAndNatoName()
 --[[
@@ -314,10 +351,57 @@ function TestSamSites:testCheckSA6GroupNumberOfLaunchersAndRangeValuesAndSearchR
 	local launcher = self.samSite:getLaunchers()[1]
 	lu.assertEquals(launcher:getRange(), 25000)
 	
-	lu.assertEquals(self.samSite:getNumberOfRemainingMissiles(), 6)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 6)
 end
 
 function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
+--[[
+	DCS properties SA-10 (S-300 / SA-10 Grumble)
+	
+	Radar:	
+	{
+		{
+			{
+				detectionDistanceAir={
+					lowerHemisphere={headOn=106998.453125, tailOn=106998.453125},
+					upperHemisphere={headOn=106998.453125, tailOn=106998.453125}
+				},
+				type=1,
+				typeName="S-300PS 40B6M tr"
+			}
+		}
+	}
+	
+	Launcher:
+	{
+		{
+			count=4,
+			desc={
+				Nmax=25,
+				RCS=0.17800000309944,
+				_origin="",
+				altMax=30000,
+				altMin=25,
+				box={
+					max={x=3.6516976356506, y=0.81190091371536, z=0.81109911203384},
+					min={x=-3.6131811141968, y=-0.80982387065887, z=-0.81062549352646}
+				},
+				category=1,
+				displayName="5V55 S-300PS (SA-10B Grumble)",
+				fuseDist=20,
+				guidance=4,
+				life=2,
+				missileCategory=2,
+				rangeMaxAltMax=75000,
+				rangeMaxAltMin=40000,
+				rangeMin=5000,
+				typeName="SA5B55",
+				warhead={caliber=508, explosiveMass=133, mass=133, type=1}
+			}
+		}
+	}
+
+--]]
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
 	lu.assertEquals(#self.samSite:getLaunchers(), 2)
@@ -325,6 +409,29 @@ function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoN
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
 	lu.assertEquals(#self.samSite:getRadars(), 3)
 	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
+	
+	local launchers = self.samSite:getLaunchers()
+	local numLoops = 0
+	-- seems like currently both launcher types of the SA-10 have the same range values
+	for i = 1, #launchers do
+		local launcher = launchers[i]
+		lu.assertEquals(launcher:getInitialNumberOfMisiles(), 4)
+		lu.assertEquals(launcher:getRange(), 75000)
+		lu.assertEquals(launcher:getMaximumFiringAltitude(), 30000)
+		numLoops = numLoops + 1
+	end
+	lu.assertEquals(numLoops, 2)
+	
+	local radars = self.samSite:getRadars()
+	
+	numLoops = 0
+	-- seems like currently both radar types of the SA-10 have the same range values
+	for  i = 1, #radars do
+		local radar = radars[i]
+		lu.assertEquals(radar:getMaxRangeFindingTarget(), 106998.453125)
+		numLoops = numLoops + 1
+	end
+	lu.assertEquals(numLoops, 3)
 end
 
 function TestSamSites:testCheckSA3GroupNumberOfLaunchersAndRangeValuesAndSearchRadarsAndNatoName()
@@ -477,6 +584,16 @@ function TestSamSites:testShilkaGroupLaunchersSearchRadarRangesAndHARMDefenceCha
 	local target = IADSContactFactory("Harrier Pilot")
 	
 	local launcher = self.samSite:getLaunchers()[1]
+	
+	--shilka has no missiles
+	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 0)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 0)
+	
+	lu.assertEquals(#launcher:getDCSRepresentation():getAmmo(), 2)
+	
+	lu.assertEquals(launcher:getInitialNumberOfShells(), 2004)
+	lu.assertEquals(launcher:getRemainingNumberOfShells(), 2004)
+	
 	lu.assertEquals(launcher:getRange(), 5015.552734375)
 	--dcs has no maximum height data for AAA
 	lu.assertEquals(launcher:getMaximumFiringAltitude(), 0)
@@ -486,6 +603,91 @@ function TestSamSites:testShilkaGroupLaunchersSearchRadarRangesAndHARMDefenceCha
 	--this target is at 25k feet
 	local target = IADSContactFactory("test-not-in-firing-range-of-sa-2")
 	lu.assertEquals(launcher:isWithinFiringHeight(target), false)
+end
+
+function TestSamSites:testShutDownShilkaWhenOutOfAmmo()
+	local launcherData =
+	{
+		{
+			count=503,
+			desc={
+				_origin="",
+				box={
+					max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+					min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+				},
+				category=0,
+				displayName="23mm AP",
+				life=2,
+				typeName="weapons.shells.2A7_23_AP",
+				warhead={caliber=23, explosiveMass=0, mass=0.189, type=0}
+			}
+		},
+		{
+			count=1501,
+			desc={
+				_origin="",
+				box={
+					max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+					min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+				},
+				category=0,
+				displayName="23mm HE",
+				life=2,
+				typeName="weapons.shells.2A7_23_HE",
+				warhead={caliber=23, explosiveMass=0.189, mass=0.189, type=1}
+			}
+		}
+	}
+
+	self.samSiteName = "SAM-Shilka"
+	self:setUp()
+
+	local launcher = self.samSite:getLaunchers()[1]
+
+	local mockDCSObjcect = {}
+	function mockDCSObjcect:getAmmo()
+		launcherData[1].count = 300
+		launcherData[2].count = 200
+		return launcherData
+	end
+	---simulate firing of 1 missile
+	function launcher:getDCSRepresentation()
+		return mockDCSObjcect
+	end
+
+	
+	lu.assertEquals(launcher:getInitialNumberOfShells(), 2004)
+	lu.assertEquals(launcher:getRemainingNumberOfShells(), 500)
+	lu.assertEquals(self.samSite:getInitialNumberOfShells(), 2004)
+	lu.assertEquals(self.samSite:getRemainingNumberOfShells(), 500)
+	lu.assertEquals(self.samSite:hasRemainingAmmo(), true)
+	
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDarkIfOutOfAmmo()
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+	local mockDCSObjcect = {}
+	function mockDCSObjcect:getAmmo()
+		launcherData[1].count = 0
+		launcherData[2].count = 0
+		return launcherData
+	end
+	---simulate firing of 1 missile
+	function launcher:getDCSRepresentation()
+		return mockDCSObjcect
+	end
+	
+	lu.assertEquals(launcher:getInitialNumberOfShells(), 2004)
+	lu.assertEquals(launcher:getRemainingNumberOfShells(), 0)
+	lu.assertEquals(self.samSite:getInitialNumberOfShells(), 2004)
+	lu.assertEquals(self.samSite:getRemainingNumberOfShells(), 0)
+	lu.assertEquals(self.samSite:hasRemainingAmmo(), false)
+	
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDarkIfOutOfAmmo()
+	lu.assertEquals(self.samSite:isActive(), false)
+	
 end
 
 function TestSamSites:testSA15LaunchersSearchRadarRangeAndHARMDefenceChance()
@@ -558,7 +760,7 @@ function TestSamSites:testSA15LaunchersSearchRadarRangeAndHARMDefenceChance()
 	lu.assertEquals(mist.utils.round(launcher:getHeight(target)), 1930)
 	lu.assertEquals(launcher:getMaximumFiringAltitude(), 6000)
 	lu.assertEquals(launcher:isWithinFiringHeight(target), true)
-	lu.assertEquals(launcher:getNumberOfRemainingMissiles(), 8)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 8)
 	
 	launcher.maximumFiringAltitude = 400
 	lu.assertEquals(launcher:isWithinFiringHeight(target), false)
@@ -637,7 +839,7 @@ DCS SA-13 Properties (Strela-10M3 / Gopher):
 	local launcher = self.samSite:getLaunchers()[1]
 	lu.assertEquals(launcher:getRange(), 5000)
 	lu.assertEquals(launcher:getMaximumFiringAltitude(), 3500)
-	lu.assertEquals(launcher:getNumberOfRemainingMissiles(), 8)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 8)
 end
 
 function TestSamSites:testSamSiteGroupContainingOfOneUnitOnlySA8()
@@ -809,9 +1011,9 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 	
 	local launcher = self.samSite:getLaunchers()[1]
 	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(launcher:getNumberOfRemainingMissiles(), 3)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 3)
 	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(self.samSite:getNumberOfRemainingMissiles(), 3)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 3)
 	
 	local launcherData =
 		{
@@ -853,11 +1055,12 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 	end
 
 	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(launcher:getNumberOfRemainingMissiles(), 2)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 2)
 	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(self.samSite:getNumberOfRemainingMissiles(), 2)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 2)
+	lu.assertEquals(self.samSite:hasRemainingAmmo(), true)
 	
-	self.samSite:goDarkIfOutOfMissiles()
+	self.samSite:goDarkIfOutOfAmmo()
 	lu.assertEquals(self.samSite:isActive(), true )
 	
 	function mockDCSObjcect:getAmmo()
@@ -866,11 +1069,12 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 	end
 	
 	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(launcher:getNumberOfRemainingMissiles(), 1)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 1)
 	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(self.samSite:getNumberOfRemainingMissiles(), 1)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 1)
+	lu.assertEquals(self.samSite:hasRemainingAmmo(), true)
 	
-	self.samSite:goDarkIfOutOfMissiles()
+	self.samSite:goDarkIfOutOfAmmo()
 	lu.assertEquals(self.samSite:isActive(), true )
 	
 	--DCS missile info is nil when no ammo is remaining
@@ -878,11 +1082,12 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 		return nil
 	end
 	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(launcher:getNumberOfRemainingMissiles(), 0)
+	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
-	lu.assertEquals(self.samSite:getNumberOfRemainingMissiles(), 0)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 0)
+	lu.assertEquals(self.samSite:hasRemainingAmmo(), false)
 	
-	self.samSite:goDarkIfOutOfMissiles()
+	self.samSite:goDarkIfOutOfAmmo()
 	lu.assertEquals(self.samSite:isActive(), false )
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:isActive(), false )
@@ -896,6 +1101,15 @@ function TestSamSites:testActAsEarlyWarningRadar()
 	self.samSite:setActAsEW(true)
 	lu.assertEquals(self.samSite:isActive(), true)
 	self.samSite:targetCycleUpdateEnd()
+	
+	-- SAM Site should not shut down when out of ammo and in EW Mode
+	function self.samSite:getRemainingNumberOfMissiles()
+		return 0
+	end
+	
+	self.samSite:goDarkIfOutOfAmmo()
+	lu.assertEquals(self.samSite:isActive(), true)
+	
 	lu.assertEquals(self.samSite:isActive(), true)
 	self.samSite:setActAsEW(false)
 	lu.assertEquals(self.samSite:isActive(), false)
@@ -1033,7 +1247,7 @@ function TestSamSites:testSA2WillGoDarkWithTargetsInRangeAndHARMDetected()
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
-function TestSamSites:testSA2WillGoDarkIfOutOfMissilesNoMissilesAreInFlightAndTargetStillInRange()
+function TestSamSites:testSA2WillgoDarkIfOutOfAmmoNoMissilesAreInFlightAndTargetStillInRange()
 	self.samSiteName = "SAM-SA-2"
 	self:setUp()
 	
@@ -1044,7 +1258,7 @@ function TestSamSites:testSA2WillGoDarkIfOutOfMissilesNoMissilesAreInFlightAndTa
 		return targets
 	end
 	
-	function self.samSite:getNumberOfRemainingMissiles()
+	function self.samSite:getRemainingNumberOfMissiles()
 		return 0
 	end
 	
@@ -1054,10 +1268,34 @@ function TestSamSites:testSA2WillGoDarkIfOutOfMissilesNoMissilesAreInFlightAndTa
 	end
 	local missiles = {}
 	lu.assertEquals(self.samSite:hasMissilesInFlight(), false)
-	lu.assertEquals(self.samSite:getNumberOfRemainingMissiles(), 0)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(self.samSite:isActive(), true)
 	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+--TODO: write test case: SAM is out of missiles, is currently dark, is informed of a target in range has not detected it with its own radar is not in harm defence mode
+function TestSamSites:testSA2OutOfMissilesNoMissilesInFlightIsInformedOfTargetByIADSHasNotDetectedTargetWithOwnRadar()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	
+	function self.samSite:getDetectedTargets()
+		return {}
+	end
+	
+	function self.samSite:getRemainingNumberOfMissiles()
+		return 0
+	end
+	
+	
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:hasMissilesInFlight(), false)
+	lu.assertEquals(self.samSite:isActive(), false)
+	
+	local target = IADSContactFactory('test-in-firing-range-of-sa-2')
+	self.samSite:informOfContact(target)
+	lu.assertEquals(self.samSite:isActive(), false)
+	
 end
 
 function TestSamSites:testSA2InformOfContactTargetNotInRange()
@@ -1253,14 +1491,15 @@ end
 function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 		self.ewRadarName = "EW-west22"
 		self:setUp()
+		lu.assertEquals(self.ewRadar:hasRemainingAmmo(), true)
 		lu.assertEquals(self.ewRadar:isActive(), true)
 		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), true)
-		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 10)
+		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 11)
 		trigger.action.explosion(self.ewRadar:getDCSRepresentation():getPosition().p, 500)
 		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), false)
 		self.ewRadar:goDark()
 		lu.assertEquals(self.ewRadar:isActive(), false)
-		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 9)	
+		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 10)	
 end
 
 function TestEarlyWarningRadars:testGetNatoName()
@@ -1289,11 +1528,48 @@ function TestEarlyWarningRadars:testA50AWACSAsEWRadar()
 }
 
 --]]
-	self.ewRadarName = "EW-AWACS"
+	self.ewRadarName = "EW-AWACS-A-50"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), 'Mainstay')
 	local searchRadar = self.ewRadar:getSearchRadars()[1]
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 204461.796875)
+end
+
+function IADSContactFactory(unitName)
+	local contact = Unit.getByName(unitName)
+	local radarContact = {}
+	radarContact.object = contact
+	local iadsContact = SkynetIADSContact:create(radarContact)
+	return  iadsContact
+end
+
+function TestEarlyWarningRadars:testKJ2000AWACSAsEWRadar()
+--[[
+	DCS KJ-2000 properties:
+	
+	Radar:
+	{
+		{
+			{
+				detectionDistanceAir={
+					lowerHemisphere={headOn=268356.125, tailOn=268356.125},
+					upperHemisphere={headOn=268356.125, tailOn=268356.125}
+				},
+				detectionDistanceRBM=3500,
+				type=1,
+				typeName="AESA_KJ2000"
+			}
+		},
+		3={{type=3, typeName="Abstract RWR"}}
+	}
+
+--]]
+	self.ewRadarName = "EW-AWACS-KJ-2000"
+	self:setUp()
+	local unit = Unit.getByName('EW-AWACS-KJ-2000')
+	local searchRadar = self.ewRadar:getSearchRadars()[1]
+	lu.assertEquals(self.ewRadar:getNatoName(), 'Mainring')
+	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 268356.125)
 end
 
 function IADSContactFactory(unitName)
@@ -1328,13 +1604,26 @@ iadsDebug.harmDefence = true
 iadsDebug.contacts = true
 iranIADS:activate()
 
+--test to check in game ammo changes, to build unit tests on
 function checkSams(iranIADS)
+
+	--[[
 	local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
-	env.info("current num of missile: "..sam:getNumberOfRemainingMissiles())
+	env.info("current num of missile: "..sam:getRemainingNumberOfMissiles())
 	env.info("Initial num missiles: "..sam:getInitialNumberOfMisiles())
 	env.info("Has Missiles in Flight: "..tostring(sam:hasMissilesInFlight()))
 	env.info("Number of Missiles in Fligth: "..#sam.missilesInFlight)
+	env.info("Has remaining Ammo: "..tostring(sam:hasRemainingAmmo()))
+	--]]
+	--[[
+	local sam = iranIADS:getSAMSiteByGroupName('SAM-Shilka')
+	env.info("current num of missile: "..sam:getRemainingNumberOfShells())
+	env.info("Initial num missiles: "..sam:getInitialNumberOfShells())
+	--env.info("Has Missiles in Flight: "..tostring(sam:hasMissilesInFlight()))
+	--env.info("Number of Missiles in Fligth: "..#sam.missilesInFlight)
+	env.info("Has remaining Ammo: "..tostring(sam:hasRemainingAmmo()))
+	--]]
 end
-
+	
 mist.scheduleFunction(checkSams, {iranIADS}, 1, 1)
 end

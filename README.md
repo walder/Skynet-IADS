@@ -28,13 +28,19 @@ Skynet keeps a global track file of all detected targets. It queries all its uni
 You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Sites
-Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. Every single launcher and radar unit's distance of a SAM site is analysed individually. If at least one launcher and radar is within range, the SAM Site will become active. This allows for a scattered placement of radar and launcher units as in real life.
+Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. 
+Every single launcher and radar unit's distance of a SAM site is analysed individually. 
+If at least one launcher and radar is within range, the SAM Site will become active. 
+This allows for a scattered placement of radar and launcher units as in real life.
+
+If SAM sites or radar guided AAA run out of Ammo they will go dark. In the case of a SAM site it will wait with going dark as long as the last fired missile is still in the air.
 
 ## Early Warning Radars
 Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
 Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
 You can also designate SAM Sites to act as EW radars, in this case a SAM site will constantly have their radar on. Long range systems like the S-300 are used as EW radars in real life.
+SAM sites that are out of ammo will stay live if they are set to act as EW radars.
 
 Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
@@ -55,7 +61,7 @@ Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
 
 ## Air Resources
-Currently Skynet only works with ground based units. Incorporating air units is planned at a later date.
+The A-50 Mainstay and the KJ-2000 Mainring are supported as AWACS units reporting contacts to the IADS. More Units will follow soon.
 
 # Tactics
 
@@ -69,7 +75,7 @@ The site will calculate time to impact and shut down a random value between a fe
 This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
-See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for the probability per SAM system.
+See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
@@ -190,7 +196,7 @@ redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnection
 ### Accessing SAM sites in the IADS
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
-Returns all SAM sites with the corresponding Nato name, see [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua). Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
+Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with SA-: Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
 ```
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
@@ -316,7 +322,7 @@ ewRadar:addConnectionNode(connectionNode)
 ```
 
 ### HARM Defence
-You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) for default detection probabilities:
+You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-sam-types-db-extension.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-sam-types-db-extension.lua) field ```['harm_detection_chance']``` for default detection probabilities:
 ```
 ewRadar:setHARMDetectionChance(50)
 ```
@@ -367,9 +373,9 @@ Also I shamelessly incorporated [Grimes SAM DB](https://forums.eagle.ru/showthre
 # FAQ
 
 ## What air defence units shall I add to the Skynet IADS?
-In theory you can add all the types that are listed in the [sam-types-db.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/sam-types-db.lua) file. 
-Types without a radar (some AAA, Manpads) won't really benefit from the IADS. These are better just placed in a mission and handeled by the default AI of DCS. 
-This is due to the short range of their weapons. By the time the IADS wakes them up, the contact has likely passed their engagement range.
+In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) file. 
+Very short range units (like the Shilka AAA) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
+This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## How do I set up a point defence?

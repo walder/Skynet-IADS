@@ -5,15 +5,12 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
-				['height'] = 42.158,
 			},
 			['S-300PS 64H6E sr'] = {
-				['height'] = 8.68,
 			},
 		},
 		['trackingRadar'] = {
 			['S-300PS 40B6M tr'] = {
-				['height'] = 27.63,
 			},
 		},
 		['launchers'] = {
@@ -36,12 +33,10 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['SA-11 Buk SR 9S18M1'] = {
-				['height'] = 7.534,
 			},
 		},
 		['launchers'] = {
 			['SA-11 Buk LN 9A310M1'] = {
-				['height'] = 6.931,
 			},
 		},
 		['misc'] = {
@@ -59,12 +54,10 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
-				['height'] = 5.841,
 			},
 		},
 		['trackingRadar'] = {
 			['snr s-125 tr'] = {
-				['height'] = 3,
 			},
 		},
 		['launchers'] = {
@@ -80,12 +73,10 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
-				['height'] = 5.841,
 			},
 		},
 		['trackingRadar'] = {
 			['SNR_75V'] = {
-				['height'] = 5.5,
 			},
 		},
 		['launchers'] = {
@@ -103,7 +94,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Kub 1S91 str'] = {
-				['height'] = 5.872,
 			},
 		},
 		['launchers'] = {
@@ -119,7 +109,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Patriot str'] = {
-				['height'] = 5.895,
 			},
 		},
 
@@ -151,12 +140,10 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Hawk sr'] = {
-				['height'] = 5.841,
 			},
 		},
 		['trackingRadar'] = {
 			['Hawk tr'] = {
-				['height'] = 3,
 			},
 		},
 		['launchers'] = {
@@ -175,7 +162,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Roland ADS'] = {
-				['height'] = 3.922,
 			},
 		},
 		['launchers'] = {
@@ -192,7 +178,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['2S6 Tunguska'] = {
-				['height'] = 3.675,
 			},
 		},
 		['launchers'] = {
@@ -209,7 +194,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Osa 9A33 ln'] = {
-				['height'] = 5.438,
 			},
 		},
 		['launchers'] = {
@@ -227,7 +211,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Strela-10M3'] = {
-				['height'] = 3.548,
 				['trackingRadar'] = true,
 			},
 		},
@@ -244,7 +227,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Strela-1 9P31'] = {
-				['height'] = 3.277,
 			},
 		},
 		['launchers'] = {
@@ -261,7 +243,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Tor 9A331'] = {
-				['height'] = 5.118,	
 			},
 		},
 		['launchers'] = {
@@ -277,7 +258,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Gepard'] = {
-				['height'] = 3.854,
 			},
 		},
 		['launchers'] = {
@@ -292,8 +272,7 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'single',
 		['mobile'] = true,
 		['searchRadar'] = {
-			['M6 Linebacker'] = {
-				['height'] = 2.58,			
+			['M6 Linebacker'] = {		
 			},
 		},
 		['launchers'] = {
@@ -311,7 +290,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
         },
         ['launchers'] = {
         	['rapier_fsa_launcher'] = {
-				['height'] = 2.5,
 				['trackingRadar'] = true,
 			},
         },
@@ -329,7 +307,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['M48 Chaparral'] = {
-				['height'] = 2.52,	
 			},
 		},
 		['launchers'] = {
@@ -346,7 +323,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		
 		['searchRadar'] = {
 			['Vulcan'] = {
-				['height'] = 3.872,
 			},
 		},
 		['launchers'] = {
@@ -365,7 +341,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['M1097 Avenger'] = {
-				['height'] = 3.076,	
 			},
 		},
 		['launchers'] = {
@@ -383,7 +358,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['ZSU-23-4 Shilka'] = {
-				['height'] = 3.458,	
 			},
 		},
 		['launchers'] = {
@@ -399,7 +373,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['1L13 EWR'] = {
-				['height'] = 39,
 			},
 		},
 		['name'] = {
@@ -411,7 +384,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['55G6 EWR'] = {
-				['height'] = 39,
 			},
 		},
 		['name'] = {
@@ -424,7 +396,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Dog Ear radar'] = {
-				['height'] = 3.8,
 			},
 		},
 		['name'] = {
@@ -437,7 +408,6 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 		['mobile'] = true,
 		['searchRadar'] = {
 			['Roland Radar'] = {
-				['height'] = 6.87,
 			},
 		},
 		['name'] = {
@@ -446,13 +416,21 @@ samTypesDB = { -- this is a static DB based off of scripts/database files for ea
 	},
 	['A-50'] = {
 		['searchRadar'] = {
-			['A-50'] = {
-			
+			['A-50'] = {	
 			},
 		},
 		['name'] = {
 			['NATO'] = 'Mainstay',
 		},
-	}
+	},
+	['KJ-2000'] = {
+		['searchRadar'] = {
+			['KJ-2000'] = {		
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Mainring',
+		},
+	},
 }
 end

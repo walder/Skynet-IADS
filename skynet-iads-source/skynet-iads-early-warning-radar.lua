@@ -10,9 +10,4 @@ function SkynetIADSEWRadar:create(radarUnit, iads)
 	return instance
 end
 
---overwrite this function EW radar should not react
-function SkynetIADSEWRadar:goDarkIfOutOfMissiles()
-
-end
-
 end

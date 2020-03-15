@@ -7,26 +7,9 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	local sam = self:superClass():create(samGroup, iads)
 	setmetatable(sam, self)
 	self.__index = self
-	sam.actAsEW = false
 	sam.targetsInRange = false
 	return sam
 end
-
-function SkynetIADSSamSite:setActAsEW(ewState)
-	if ewState == true or ewState == false then
-		self.actAsEW = ewState
-	end
-	if self.actAsEW == true then
-		self:goLive()
-	else
-		self:goDark()
-	end
-	return self
-end
-
-function SkynetIADSSamSite:getActAsEW()
-	return self.actAsEW
-end	
 
 function SkynetIADSSamSite:isDestroyed()
 	local isDestroyed = true

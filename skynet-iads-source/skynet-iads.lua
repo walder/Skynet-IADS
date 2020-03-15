@@ -14,7 +14,7 @@ SA-3
 
 --[[ Compile Scripts:
 
-echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type sam-types-db.lua skynet-iads.lua skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
+echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && skynet-iads-supported-types.lua skynet-iads.lua skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
 
 --]]
 
@@ -429,13 +429,14 @@ function SkynetIADS:printSystemStatus()
 	
 	ewRadarsInactive = ewTotal - ewActive	
 	local numEWRadarsDestroyed = #self:getDestroyedEarlyWarningRadars()
-	self:printOutput("EW SITES: "..ewTotal.." | Active: "..ewActive.." | Inactive: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | No Power: "..ewNoPower.." | No Connection: "..ewNoConnectionNode)
+	self:printOutput("EWs: "..ewTotal.." | Act: "..ewActive.." | Inact: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | No Powr: "..ewNoPower.." | No Con: "..ewNoConnectionNode)
 	
 	local samSitesInactive = 0
 	local samSitesActive = 0
 	local samSitesTotal = #self:getSamSites()
 	local samSitesNoPower = 0
 	local samSitesNoConnectionNode = 0
+	local samSitesOutOfAmmo = 0
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
 		if samSite:hasWorkingPowerSource() == false then
@@ -447,11 +448,14 @@ function SkynetIADS:printSystemStatus()
 		if samSite:isActive() then
 			samSitesActive = samSitesActive + 1
 		end
+		if samSite:hasRemainingAmmo() == false then
+			samSitesOutOfAmmo = samSitesOutOfAmmo + 1
+		end
 	end
 	
 	samSitesInactive = samSitesTotal - samSitesActive
 	local numSamSitesDestroyed = #self:getDestroyedSamSites()
-	self:printOutput("SAM SITES: "..samSitesTotal.." | Active: "..samSitesActive.." | Inactive: "..samSitesInactive.." | Destroyed: "..numSamSitesDestroyed.." | No Power: "..samSitesNoPower.." | No Connection: "..samSitesNoConnectionNode)
+	self:printOutput("SAMs: "..samSitesTotal.." | Act: "..samSitesActive.." | Inact: "..samSitesInactive.." | Destroyed: "..numSamSitesDestroyed.." | No Powr: "..samSitesNoPower.." | No Con: "..samSitesNoConnectionNode.." | No Ammo: "..samSitesOutOfAmmo)
 end
 
 end

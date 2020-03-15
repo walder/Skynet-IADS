@@ -11,6 +11,8 @@ function SkynetIADSSAMSearchRadar:create(unit)
 	instance.maximumRange = 0
 	instance.initialNumberOfMissiles = 0
 	instance.remainingNumberOfMissiles = 0
+	instance.initialNumberOfShells = 0
+	instance.remainingNumberOfShells = 0
 	return instance
 end
 

@@ -33,6 +33,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.minHarmPresetShutdownTime = 30
 	instance.maxHarmPresetShutdownTime = 180
 	instance.firingRangePercent = 100
+	instance.actAsEW = false
 	instance:setupElements()
 	instance:goLive()
 	return instance
@@ -56,7 +57,7 @@ function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
 	return #self.missilesInFlight > 0
 end
 
--- DCS does not send an event, when a missile is destroyed, so this method needs to be polled so that the missiles in flight are current
+-- DCS does not send an event, when a missile is destroyed, so this method needs to be polled so that the missiles in flight are current, polling is done in the HARM Search call: evaluateIfTargetsContainHARMs
 function SkynetIADSAbstractRadarElement:updateMissilesInFlight()
 	local missilesInFlight = {}
 	for i = 1, #self.missilesInFlight do
@@ -66,13 +67,29 @@ function SkynetIADSAbstractRadarElement:updateMissilesInFlight()
 		end
 	end
 	self.missilesInFlight = missilesInFlight
-	self:goDarkIfOutOfMissiles()
+	self:goDarkIfOutOfAmmo()
 end
 
-function SkynetIADSAbstractRadarElement:goDarkIfOutOfMissiles()
-	if self:getNumberOfRemainingMissiles() == 0 then
+function SkynetIADSAbstractRadarElement:goDarkIfOutOfAmmo()
+	if self:hasRemainingAmmo() == false and self:getActAsEW() == false then
 		self:goDark()
 	end
+end
+
+function SkynetIADSAbstractRadarElement:getActAsEW()
+	return self.actAsEW
+end	
+
+function SkynetIADSAbstractRadarElement:setActAsEW(ewState)
+	if ewState == true or ewState == false then
+		self.actAsEW = ewState
+	end
+	if self.actAsEW == true then
+		self:goLive()
+	else
+		self:goDark()
+	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:getUnitsToAnalyse()
@@ -84,22 +101,45 @@ function SkynetIADSAbstractRadarElement:getUnitsToAnalyse()
 	return units
 end
 
-function SkynetIADSAbstractRadarElement:getNumberOfRemainingMissiles()
-	local numberOfRemainingMissiles = 0
+function SkynetIADSAbstractRadarElement:getRemainingNumberOfMissiles()
+	local remainingNumberOfMissiles = 0
 	for i = 1, #self.launchers do
 		local launcher = self.launchers[i]
-		numberOfRemainingMissiles = numberOfRemainingMissiles + launcher:getNumberOfRemainingMissiles()
+		remainingNumberOfMissiles = remainingNumberOfMissiles + launcher:getRemainingNumberOfMissiles()
 	end
-	return numberOfRemainingMissiles
+	return remainingNumberOfMissiles
 end
 
 function SkynetIADSAbstractRadarElement:getInitialNumberOfMisiles()
-	local numberOfInitialMissiles = 0
+	local initalNumberOfMissiles = 0
 	for i = 1, #self.launchers do
 		local launcher = self.launchers[i]
-		numberOfInitialMissiles = launcher:getInitialNumberOfMisiles() + numberOfInitialMissiles
+		initalNumberOfMissiles = launcher:getInitialNumberOfMisiles() + initalNumberOfMissiles
 	end
-	return numberOfInitialMissiles
+	return initalNumberOfMissiles
+end
+
+function SkynetIADSAbstractRadarElement:getRemainingNumberOfShells()
+	local remainingNumberOfShells = 0
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		remainingNumberOfShells = remainingNumberOfShells + launcher:getRemainingNumberOfShells()
+	end
+	return remainingNumberOfShells
+end
+
+function SkynetIADSAbstractRadarElement:getInitialNumberOfShells()
+	local initialNumberOfShells = 0
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		initialNumberOfShells = initialNumberOfShells + launcher:getInitialNumberOfShells()
+	end
+	return initialNumberOfShells
+end
+
+function SkynetIADSAbstractRadarElement:hasRemainingAmmo()
+	--the launcher check is due to ew radars they have no launcher and no ammo and therefore are never out of ammo
+	return ( #self.launchers == 0 ) or ((self:getRemainingNumberOfMissiles() > 0 ) or ( self:getRemainingNumberOfShells() > 0 ) )
 end
 
 function SkynetIADSAbstractRadarElement:getHARMDetectionChance()
@@ -239,7 +279,7 @@ end
 function SkynetIADSAbstractRadarElement:goLive()
 	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil) 
 	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
-	and (#self.launchers == 0 or ( #self.launchers > 0 and self:getNumberOfRemainingMissiles() > 0  ))
+	and (self:hasRemainingAmmo() == true  )
 	then
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
@@ -257,7 +297,7 @@ end
 
 function SkynetIADSAbstractRadarElement:goDark()
 	if ( self.aiState == true ) 
-	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:getNumberOfRemainingMissiles() == 0 ) )	
+	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
 	then
 		if self:isDestroyed() == false then
