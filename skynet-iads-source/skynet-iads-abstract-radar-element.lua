@@ -23,6 +23,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
+	instance.missilesInFlight = {}
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = false
@@ -37,14 +38,68 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	return instance
 end
 
+--TODO: this method could be updated to only return Radar weapons fired, this way a SAM firing an IR weapon could go dark faster in the goDark() method
+function SkynetIADSAbstractRadarElement:weaponFired(event)
+	if event.id == world.event.S_EVENT_SHOT then
+		weapon = event.weapon
+		launcherFired = event.initiator
+		for i = 1, #self.launchers do
+			local launcher = self.launchers[i]
+			if launcher:getDCSRepresentation() == launcherFired then
+				table.insert(self.missilesInFlight, weapon)
+			end
+		end
+	end
+end
+
+function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
+	return #self.missilesInFlight > 0
+end
+
+-- DCS does not send an event, when a missile is destroyed, so this method needs to be polled so that the missiles in flight are current
+function SkynetIADSAbstractRadarElement:updateMissilesInFlight()
+	local missilesInFlight = {}
+	for i = 1, #self.missilesInFlight do
+		local missile = self.missilesInFlight[i]
+		if missile:isExist() then
+			table.insert(missilesInFlight, missile)
+		end
+	end
+	self.missilesInFlight = missilesInFlight
+	self:goDarkIfOutOfMissiles()
+end
+
+function SkynetIADSAbstractRadarElement:goDarkIfOutOfMissiles()
+	if self:getNumberOfRemainingMissiles() == 0 then
+		self:goDark()
+	end
+end
 
 function SkynetIADSAbstractRadarElement:getUnitsToAnalyse()
 	local units = {}
-	units[1] = self:getDCSRepresentation()
+	table.insert(units, self:getDCSRepresentation())
 	if getmetatable(self:getDCSRepresentation()) == Group then
 		units = self:getDCSRepresentation():getUnits()
 	end
 	return units
+end
+
+function SkynetIADSAbstractRadarElement:getNumberOfRemainingMissiles()
+	local numberOfRemainingMissiles = 0
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		numberOfRemainingMissiles = numberOfRemainingMissiles + launcher:getNumberOfRemainingMissiles()
+	end
+	return numberOfRemainingMissiles
+end
+
+function SkynetIADSAbstractRadarElement:getInitialNumberOfMisiles()
+	local numberOfInitialMissiles = 0
+	for i = 1, #self.launchers do
+		local launcher = self.launchers[i]
+		numberOfInitialMissiles = launcher:getInitialNumberOfMisiles() + numberOfInitialMissiles
+	end
+	return numberOfInitialMissiles
 end
 
 function SkynetIADSAbstractRadarElement:getHARMDetectionChance()
@@ -82,7 +137,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
-			or ( hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
+			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
 				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0) then
 			local harmDetection = dataType['harm_detection_chance']
 			if harmDetection then
@@ -109,7 +164,8 @@ function SkynetIADSAbstractRadarElement:analyseAndAddUnit(class, tableToAdd, uni
 		local unitTypeName = unit:getTypeName()
 		for unitName, unitPerformanceData in pairs(unitData) do
 			if unitName == unitTypeName then
-				samElement = class:create(unit, unitPerformanceData)
+				samElement = class:create(unit)
+				samElement:setupRangeData()
 				table.insert(tableToAdd, samElement)
 			end
 		end
@@ -181,7 +237,10 @@ function SkynetIADSAbstractRadarElement:getEngagementZone()
 end
 
 function SkynetIADSAbstractRadarElement:goLive()
-	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil ) and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) ) then
+	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil) 
+	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
+	and (#self.launchers == 0 or ( #self.launchers > 0 and self:getNumberOfRemainingMissiles() > 0  ))
+	then
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
 			cont:setOnOff(true)
@@ -197,7 +256,10 @@ function SkynetIADSAbstractRadarElement:goLive()
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
-	if ( self.aiState == true ) and ( ( #self:getDetectedTargets() == 0 or self.harmSilenceID ~= nil) or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK ) ) then
+	if ( self.aiState == true ) 
+	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:getNumberOfRemainingMissiles() == 0 ) )	
+	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
+	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
 			-- fastest way to get a radar unit to stop emitting
@@ -237,7 +299,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 		isLauncherInRange = ( #self.launchers == 0 )
 		for i = 1, #self.launchers do
 			local launcher = self.launchers[i]
-			if launcher:isInRange(target) or launcher:isAAA() then
+			if launcher:isInRange(target) then
 				isLauncherInRange = true
 			end
 		end
@@ -396,6 +458,7 @@ function SkynetIADSAbstractRadarElement:shallReactToHARM()
 end
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
+	self:updateMissilesInFlight();
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]

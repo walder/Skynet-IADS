@@ -11,6 +11,7 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	instance.iads = iads
 	instance.natoName = "UNKNOWN"
 	instance:setDCSRepresentation(dcsRepresentation)
+	--TODO: remove Event handler function on IADS cleanup
 	world.addEventHandler(instance)
 	return instance
 end
@@ -97,6 +98,14 @@ function SkynetIADSAbstractElement:onEvent(event)
 			self:goAutonomous()
 		end
 	end
+	if event.id == world.event.S_EVENT_SHOT then
+		self:weaponFired(event)
+	end
+end
+
+--placeholder method, can be implemented by subclasses
+function SkynetIADSAbstractElement:weaponFired(event)
+	
 end
 
 --placeholder method, can be implemented by subclasses

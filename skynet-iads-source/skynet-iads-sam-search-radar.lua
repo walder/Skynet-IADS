@@ -3,51 +3,66 @@ do
 SkynetIADSSAMSearchRadar = {}
 SkynetIADSSAMSearchRadar = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 
-function SkynetIADSSAMSearchRadar:create(unit, performanceData)
+function SkynetIADSSAMSearchRadar:create(unit)
 	local instance = self:superClass():create(unit)
 	setmetatable(instance, self)
 	self.__index = self
-	instance.performanceData = performanceData
 	instance.firingRangePercent = 100
+	instance.maximumRange = 0
+	instance.initialNumberOfMissiles = 0
+	instance.remainingNumberOfMissiles = 0
 	return instance
 end
 
+--override in subclasses to match different datastructure of getSensors()
+function SkynetIADSSAMSearchRadar:setupRangeData()
+	local data = self:getDCSRepresentation():getSensors()
+	if data == nil then
+		--the SA-13 does not have any sensor data, but is has launcher data, so we use the stuff from the launcher for the radar range.
+		SkynetIADSSAMLauncher.setupRangeData(self)
+		return
+	end
+	for i = 1, #data do
+		local subEntries = data[i]
+		for j = 1, #subEntries do
+			local sensorInformation = subEntries[j]
+			-- some sam sites have  IR and passive EWR detection, we are just interested in the radar data
+			-- investigate if upperHemisphere and headOn is ok, I guess it will work for most detection cases
+			if sensorInformation.type == Unit.SensorType.RADAR then
+				self.maximumRange = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+			end
+		end
+	end
+end
+
 function SkynetIADSSAMSearchRadar:getMaxRangeFindingTarget()
-	return self.performanceData['max_range_finding_target']
-end
-
-function SkynetIADSSAMSearchRadar:getMinRangeFindingTarget()
-	return self.performanceData['min_range_finding_target']
-end
-
-function SkynetIADSSAMSearchRadar:getMaxAltFindingTarget()
-	return self.performanceData['max_alt_finding_target']
-end
-
-function SkynetIADSSAMSearchRadar:getMinAltFindingTarget()
-	return self.performanceData['min_alt_finding_target']
+	return self.maximumRange
 end
 
 function SkynetIADSSAMSearchRadar:setFiringRangePercent(percent)
 	self.firingRangePercent = percent
 end
 
+function SkynetIADSSAMSearchRadar:getDistance(target)
+	return mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
+end
+
+function SkynetIADSSAMSearchRadar:getHeight(target)
+	local radarElevation = self:getDCSRepresentation():getPosition().p.y
+	local targetElevation = target:getPosition().p.y
+	return math.abs(targetElevation - radarElevation)
+end
+
+function SkynetIADSSAMSearchRadar:isInHorizontalRange(target)
+	return (self:getMaxRangeFindingTarget() / 100 * self.firingRangePercent) >= self:getDistance(target)
+end
+
 function SkynetIADSSAMSearchRadar:isInRange(target)
 	if self:isExist() == false then
 		return false
 	end
-	local distance = mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
-	local radarHeight = self.dcsObject:getPosition().p.y
-	local aircraftHeight = target:getPosition().p.y	
-	local altitudeDifference = math.abs(aircraftHeight - radarHeight)
-	local maxDetectionAltitude = self:getMaxAltFindingTarget()
-	--local maxDetectionRange = self:getMaxRangeFindingTarget()
-	
-	local maxDetectionRange = (self:getMaxRangeFindingTarget() / 100 * self.firingRangePercent)
-	
-	--trigger.action.outText("Radar Range: "..maxDetectionRange,1)
-	--trigger.action.outText("current distance: "..distance,1)
-	return altitudeDifference <= maxDetectionAltitude and distance <= maxDetectionRange
+	return self:isInHorizontalRange(target)
 end
 
 end
+
