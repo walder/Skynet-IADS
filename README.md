@@ -118,25 +118,25 @@ You can also add the code directly in the mission editor, however that input fie
 For the IADS to work you need four lines of code.
 
 create an instance of the IADS:  
-```
+```lua
 redIADS = SkynetIADS:create()
 ``` 
 
 
 Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
-```
+```lua
 redIADS:addSamSitesByPrefix('SAM')
 ``` 
 
 
 Same for the EW radars, name all units with a common prefix in the mission editor eg: 'EW-radar-south':  
-```
+```lua
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
 
 
 Activate the IADS:  
-```
+```lua
 redIADS:activate()
 ```
 
@@ -148,10 +148,10 @@ The following examples use static objects for command centers and power sources,
 
 ## IADS configuration
 Call this method to add or remove a radio menu to toggle the output of the IADS. By default the radio menu option is not visible:
-```
+```lua
 redIADS:addRadioMenu()  
 ```
-```
+```lua
 redIADS:removeRadioMenu()
 ```
 
@@ -159,13 +159,13 @@ redIADS:removeRadioMenu()
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
 
 Add a command center like this:
-```
+```lua
 local commandCenter = StaticObject.getByName("Command Center")
 redIADS:addCommandCenter(commandCenter)
 ```
 
 You can also add a command center with a power source:
-```
+```lua
 local commandCenter = StaticObject.getByName("Command Center2")
 local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
@@ -177,13 +177,13 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 
 #### Add multiple SAM sites
 Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once or Skynet will become confused:
-```
+```lua
 redIADS:addSamSitesByPrefix('SAM')
 ```
 
 #### Add a SAM site manually
 You can manually ad a SAM site, must be a valid group name:
-```
+```lua
 redIADS:addSamSite('SA-6 Group2')
 ```
 
@@ -191,23 +191,23 @@ redIADS:addSamSite('SA-6 Group2')
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
 Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with SA-: Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
-```
+```lua
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
 
 Returns all SAM sites in the IADS:
-```
+```lua
 redIADS:getSamSites()
 ```
 
 Returns a SAM site with the specified group name:
-```
+```lua
 redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
 ### How to set a option
 You can daisy chain options on a single SAM site or a table of SAM sites like this:
-```
+```lua
 redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```  
 
@@ -215,65 +215,65 @@ In the following examples ```samSite``` refers to an single SAM site or collecti
 
 ### Act as EW radar
 Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
-```
+```lua
 samSite:setActAsEW(true)
 ```
 
 ### Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
-```
+```lua
 local powerSource = StaticObject.getByName("SA-6 Power Source")  
 samSite:addPowerSource(powerSource)
 ```
 
-```
+```lua
 local connectionNode = Unit.getByName("SA-6 connection node") 
 samSite:addConnectionNode(connectionNode)
 ```
 
 ### Engagement zone
 Set the distance at which a SAM site will switch on its radar:
-```
+```lua
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
 #### The engagement zone options are:  
 
 SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
-```
+```lua
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 ```
 
 SAM site will go live when target is within the yelow circle in the mission editor: 
-```
+```lua
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 ```
 
 This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300:
-```
+```lua
 samSite:setGoLiveRangeInPercent(90)
 ```
 
 ### Autonomous mode behaviour
 Set how the SAM site will behave if it looses connection to the IADS:
-```
+```lua
 samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
 #### The autonomous mode options are: 
 SAM site will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour):
-```
+```lua
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
 
 SAM Site will go dark if it looses connection to IADS:
-```
+```lua
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
 
 ### HARM Defence
 You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
-```
+```lua
 ewRadar:setHARMDetectionChance(50)
 ```
 
@@ -283,17 +283,17 @@ ewRadar:setHARMDetectionChance(50)
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
 
 Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once:
-```
+```lua
 redIADS:addEarlyWarningRadarsByPrefix("EW")
 ```
 
 Returns all EW sites in the IADS:
-```
+```lua
 redIADS:getEarlyWarningRadars()
 ```
 
 Returns the EW site with the specified unit name:
-```
+```lua
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
@@ -301,13 +301,13 @@ redIADS:getEarlyWarningRadarByUnitName('EW-west')
 
 ### Add multiple EW radars
 Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once or Skynet will become confused: 
-```
+```lua
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
 
 ### Add EW radars manually
 You can add EW radars manually, must be a valid unit name: 
-```
+```lua
 redIADS:addEarlyWarningRadar('EWR West')
 ```
 
@@ -316,19 +316,19 @@ In the following examples ```ewRadar``` refers to an single EW radar or collecti
 
 ### Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
-```
+```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
 ewRadar:addPowerSource(powerSource)
 ```
 
-```
+```lua
 local connectionNode = Unit.getByName("EW connection node") 
 ewRadar:addConnectionNode(connectionNode)
 ```
 
 ### HARM Defence
 You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
-```
+```lua
 ewRadar:setHARMDetectionChance(50)
 ```
 
@@ -406,7 +406,7 @@ end
 
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as a jammer source. Once the jammer detects an emitter it starts jamming the radar. Set the coresponding debug level to see what the jammer is doing.
-```
+```lua
 local jammerSource = Unit.getByName("Player Hornet")
 jammer = SkynetIADSJammer:create(jammerSource)
 jammer:addIADS(redIADS)
@@ -415,18 +415,18 @@ jammer:masterArmOn()
 ```
 You can disable the jammer for a certain SAM type.  
 The jammable SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15:
-```
+```lua
 jammer:disableFor('SA-2')
 ```
 You can turn the jammer off like this:
-```
+```lua
 jammer:masterArmOff()
 ```
 
 ### Debug information
 When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
 
-```
+```lua
 local iadsDebug = redIADS:getDebugSettings()  
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
