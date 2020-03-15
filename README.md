@@ -211,7 +211,7 @@ You can daisy chain options on a single SAM site or a table of SAM sites like th
 redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```  
 
-In the following examples ```samSite``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [access SAM sites](#accessing-sam-sites-in-the-iads)
+In the following examples ```samSite``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing SAM sites](#accessing-sam-sites-in-the-iads)
 
 ### Act as EW radar
 Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
@@ -310,6 +310,9 @@ You can add EW radars manually, must be a valid unit name:
 ```
 redIADS:addEarlyWarningRadar('EWR West')
 ```
+
+### How to set a option
+In the following examples ```ewRadar``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads)
 
 ### Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
