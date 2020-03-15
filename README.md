@@ -334,7 +334,7 @@ ewRadar:setHARMDetectionChance(50)
 
 # Example Setup
 This is an example of how you can set up your IADS:
-```
+```lua
 do
 
 --create an instance of the IADS
