@@ -209,8 +209,7 @@ redIADS:getSAMSiteByGroupName('SAM-SA-6')
 You can daisy chain options on a single SAM site or a table of SAM sites like this:
 ```
 redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-```
-
+```  
 
 In the following examples ```samSite``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [access SAM sites](#accessing-sam-sites-in-the-iads)
 
