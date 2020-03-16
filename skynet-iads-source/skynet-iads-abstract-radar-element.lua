@@ -15,10 +15,10 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	self.__index = self
 	instance.aiState = false
 	instance.jammerID = nil
-	instance.lastJammerUpdate = 0
-	instance.setJammerChance = true
 	instance.harmScanID = nil
 	instance.harmSilenceID = nil
+	instance.lastJammerUpdate = 0
+	instance.setJammerChance = true
 	instance.objectsIdentifiedAsHarms = {}
 	instance.launchers = {}
 	instance.trackingRadars = {}
@@ -51,6 +51,12 @@ function SkynetIADSAbstractRadarElement:weaponFired(event)
 			end
 		end
 	end
+end
+
+function SkynetIADSAbstractRadarElement:cleanUp()
+	mist.removeFunction(self.jammerID)
+	mist.removeFunction(self.harmScanID)
+	mist.removeFunction(self.harmSilenceID)
 end
 
 function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
@@ -498,6 +504,7 @@ function SkynetIADSAbstractRadarElement:shallReactToHARM()
 end
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
+	env.info("call"..math.random(1,100))
 	self:updateMissilesInFlight();
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do

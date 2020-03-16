@@ -125,7 +125,7 @@ redIADS = SkynetIADS:create()
 
 Give all SAM groups you want to add a common prefix in the mission editor eg: 'SAM-SA-10 west', then add this line of code:  
 ```lua
-redIADS:addSamSitesByPrefix('SAM')
+redIADS:addSAMSitesByPrefix('SAM')
 ``` 
 
 
@@ -178,13 +178,13 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 #### Add multiple SAM sites
 Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once or Skynet will become confused:
 ```lua
-redIADS:addSamSitesByPrefix('SAM')
+redIADS:addSAMSitesByPrefix('SAM')
 ```
 
 #### Add a SAM site manually
 You can manually ad a SAM site, must be a valid group name:
 ```lua
-redIADS:addSamSite('SA-6 Group2')
+redIADS:addSAMSite('SA-6 Group2')
 ```
 
 ### Accessing SAM sites in the IADS
@@ -197,7 +197,7 @@ redIADS:getSAMSitesByNatoName('SA-6')
 
 Returns all SAM sites in the IADS:
 ```lua
-redIADS:getSamSites()
+redIADS:getSAMSites()
 ```
 
 Returns a SAM site with the specified group name:
@@ -208,7 +208,7 @@ redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ### How to set a option
 You can daisy chain options on a single SAM site or a table of SAM sites like this:
 ```lua
-redIADS:getSamSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+redIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```  
 
 In the following examples ```samSite``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing SAM sites](#accessing-sam-sites-in-the-iads)
@@ -360,7 +360,7 @@ local comCenterPower = StaticObject.getByName('Command-Center-Power')
 iranIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(comCenterPower)
 
 --add all groups begining with group name 'SAM' to the IADS:
-iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:addSAMSitesByPrefix('SAM')
 
 --add a command center:
 commandCenter = StaticObject.getByName('Command-Center')

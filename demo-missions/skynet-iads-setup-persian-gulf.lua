@@ -22,7 +22,7 @@ local comCenterPower = StaticObject.getByName('Command-Center-Power')
 iranIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(comCenterPower)
 
 --add all groups begining with group name 'SAM' to the IADS:
-iranIADS:addSamSitesByPrefix('SAM')
+iranIADS:addSAMSitesByPrefix('SAM')
 
 --add a command center:
 commandCenter = StaticObject.getByName('Command-Center')

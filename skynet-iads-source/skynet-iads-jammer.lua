@@ -67,7 +67,7 @@ end
 
 function SkynetIADSJammer.runCycle(self)
 
-	if self.emitter:getLife() == 1 then
+	if self.emitter:isExist() == false then
 		self:masterArmSafe()
 	--	trigger.action.outText("emitter is dead", 1)
 		return

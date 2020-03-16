@@ -401,7 +401,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Dog Ear',
 		},
-		['harm_detection_chance'] = 2
+		['harm_detection_chance'] = 20
 	},
 	['Roland Radar'] = {
 		['type'] = 'ewr',
