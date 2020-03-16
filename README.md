@@ -155,6 +155,11 @@ redIADS:addRadioMenu()
 redIADS:removeRadioMenu()
 ```
 
+If you dereference the IADS remember to call ```deactivate()``` otherwise background tasks of the IADS will continue running, resulting in unexpected behaviour:
+```lua
+redIADS:deactivate()
+```
+
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
 
@@ -295,11 +300,6 @@ redIADS:getEarlyWarningRadars()
 Returns the EW site with the specified unit name:
 ```lua
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
-```
-
-If you dereference the IADS remember to call ```deactivate()``` otherwise background tasks of the IADS will continue running, resulting in unexpected behaviour:
-```lua
-redIADS:deactivate()
 ```
 
 ## Adding EW radars
