@@ -297,6 +297,11 @@ Returns the EW site with the specified unit name:
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
+If you dereference the IADS remember to call ```deactivate()``` otherwise background tasks of the IADS will continue running, resulting in unexpected behaviour:
+```lua
+redIADS:deactivate()
+```
+
 ## Adding EW radars
 
 ### Add multiple EW radars

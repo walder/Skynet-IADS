@@ -374,6 +374,11 @@ function SkynetIADS:deactivate()
 		local ewRadar = self.earlyWarningRadars[i]
 		ewRadar:cleanUp()
 	end
+	
+	for i = 1, #self.commandCenters do
+		local comCenter = self.commandCenters[i]
+		comCenter:cleanUp()
+	end
 end
 
 function SkynetIADS:addRadioMenu()

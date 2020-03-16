@@ -1,7 +1,15 @@
-
-
 do
 ---IADS Unit Tests
+
+function IADSContactFactory(unitName)
+	local contact = Unit.getByName(unitName)
+	local radarContact = {}
+	radarContact.object = contact
+	local iadsContact = SkynetIADSContact:create(radarContact)
+	return  iadsContact
+end
+
+
 TestIADS = {}
 
 function TestIADS:setUp()
@@ -36,6 +44,20 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	lu.assertEquals(#self.iranIADS:getSAMSites(), 11)
 	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 11)
 end
+
+function TestIADS:testWrongCaseStringWillNotLoadSAMGroup()
+	self:tearDown()
+	self.iranIADS = SkynetIADS:create()
+	self.iranIADS:addSAMSitesByPrefix('sam')
+	lu.assertEquals(#self.iranIADS:getSAMSites(), 0)
+end	
+
+function TestIADS:testWrongCaseStringWillNotLoadEWRadars()
+	self:tearDown()
+	self.iranIADS = SkynetIADS:create()
+	self.iranIADS:addEarlyWarningRadarsByPrefix('ew')
+	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 0)
+end	
 
 function TestIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
 	local ewRadar = self.iranIADS:getEarlyWarningRadarByUnitName('EW-west')
@@ -1440,7 +1462,7 @@ function TestSamSites:testDaisychainSAMOptions()
 	lu.assertIs(self.samSite:getConnectionNodes()[1], connectionNode)
 	lu.assertIs(self.samSite:getPowerSources()[1], powerSource)
 end
-
+--[[
 function TestSamSites:testCleanupMistScheduleFunctions()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()
@@ -1455,12 +1477,13 @@ function TestSamSites:testCleanupMistScheduleFunctions()
 	self:setUp()
 	self.samSite:goLive()
 	local i = 0
---[[	while i < 1000000 do
+	while i < 1000000 do
 		local hasFunction = mist.removeFunction(i)
 		lu.assertEquals(hasFunction, nil)
 		i = i + 1
-	end--]]
+	end-
 end
+--]]
 
 --[[
 function TestSamSites:testCallMethodOnTableElements()
@@ -1575,14 +1598,6 @@ function TestEarlyWarningRadars:testA50AWACSAsEWRadar()
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 204461.796875)
 end
 
-function IADSContactFactory(unitName)
-	local contact = Unit.getByName(unitName)
-	local radarContact = {}
-	radarContact.object = contact
-	local iadsContact = SkynetIADSContact:create(radarContact)
-	return  iadsContact
-end
-
 function TestEarlyWarningRadars:testKJ2000AWACSAsEWRadar()
 --[[
 	DCS KJ-2000 properties:
@@ -1612,26 +1627,22 @@ function TestEarlyWarningRadars:testKJ2000AWACSAsEWRadar()
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 268356.125)
 end
 
-function IADSContactFactory(unitName)
-	local contact = Unit.getByName(unitName)
-	local radarContact = {}
-	radarContact.object = contact
-	local iadsContact = SkynetIADSContact:create(radarContact)
-	return  iadsContact
-end
-
 lu.LuaUnit.run()
 
 --clean miste left over scheduled tasks form unit tests
---[[
+
+-- we run this test to check there are no left over tasks in the IADS
 local i = 0
-while i < 1000000 do
-	mist.removeFunction(i)
+while i < 10000000 do
+	local id =  mist.removeFunction(i)
 	i = i + 1
+	if id then
+		env.info("WARNING: IADS left over Tasks")
+	end
 end
---]]
+
 --- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
---[[
+
 iranIADS = SkynetIADS:create()
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
@@ -1646,7 +1657,7 @@ iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
 iadsDebug.contacts = true
 iranIADS:activate()
---]]
+
 --test to check in game ammo changes, to build unit tests on
 function checkSams(iranIADS)
 
@@ -1667,6 +1678,12 @@ function checkSams(iranIADS)
 	env.info("Has remaining Ammo: "..tostring(sam:hasRemainingAmmo()))
 	--]]
 end
-	
+--[[
+local group = Group.getByName('SAM-SA-6-2')	
+local cont = group:getController()	
+cont:setOnOff(true)
+cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
+cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+--]]	
 mist.scheduleFunction(checkSams, {iranIADS}, 1, 1)
 end

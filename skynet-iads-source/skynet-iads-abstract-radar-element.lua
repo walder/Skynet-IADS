@@ -57,6 +57,8 @@ function SkynetIADSAbstractRadarElement:cleanUp()
 	mist.removeFunction(self.jammerID)
 	mist.removeFunction(self.harmScanID)
 	mist.removeFunction(self.harmSilenceID)
+	--call method from super class
+	self:removeEventHandlers()
 end
 
 function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
@@ -504,7 +506,7 @@ function SkynetIADSAbstractRadarElement:shallReactToHARM()
 end
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
-	env.info("call"..math.random(1,100))
+	--env.info("call"..math.random(1,100))
 	self:updateMissilesInFlight();
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do

@@ -1513,13 +1513,16 @@ do -- the main scope
 	-- @treturn boolean true if function was successfully removed, false otherwise.
 	function mist.removeFunction(id)
 		local i = 1
+		local removedFunction = false
 		while i <= #scheduledTasks do
 			if scheduledTasks[i].id == id then
 				table.remove(scheduledTasks, i)
+				removedFunction = true
 			else
 				i = i + 1
 			end
 		end
+		return removedFunction
 	end
 
 	--- Registers an event handler.

@@ -16,6 +16,14 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	return instance
 end
 
+function SkynetIADSAbstractElement:removeEventHandlers()
+	world.removeEventHandler(self)
+end
+
+function SkynetIADSAbstractElement:cleanUp()
+	self:removeEventHandlers()
+end
+
 function SkynetIADSAbstractElement:isDestroyed()
 	return self:getDCSRepresentation():isExist() == false
 end
@@ -89,6 +97,7 @@ function SkynetIADSAbstractElement:getDescription()
 end
 
 function SkynetIADSAbstractElement:onEvent(event)
+	--env.info("called handler")
 	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
 	if event.id == world.event.S_EVENT_DEAD then
 		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
