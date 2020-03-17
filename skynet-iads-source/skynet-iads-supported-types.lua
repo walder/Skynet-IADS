@@ -414,23 +414,5 @@ samTypesDB = {
 			['NATO'] = 'Roland EWR',
 		},
 	},
-	['A-50'] = {
-		['searchRadar'] = {
-			['A-50'] = {	
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Mainstay',
-		},
-	},
-	['KJ-2000'] = {
-		['searchRadar'] = {
-			['KJ-2000'] = {		
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Mainring',
-		},
-	},
 }
 end

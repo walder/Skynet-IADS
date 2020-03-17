@@ -14,7 +14,7 @@ SA-3
 
 --[[ Compile Scripts:
 
-echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
+echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua  skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-awacs-radar.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
 
 --]]
 
@@ -99,7 +99,7 @@ end
 
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
 	for unitName, unit in pairs(mist.DBs.unitsByName) do
-		local pos = string.find(unitName, prefix)
+		local pos = self:findSubString(unitName, prefix)
 		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
 		local unit = Unit.getByName(unitName)
 		if pos and pos == 1 and unit then
@@ -116,7 +116,14 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 		return
 	end
 	self:setCoalition(earlyWarningRadarUnit)
-	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
+	local ewRadar = nil
+	if earlyWarningRadarUnit:getDesc().category == Unit.Category.AIRPLANE then
+		ewRadar = SkynetIADSAWACSRadar:create(earlyWarningRadarUnit, self)
+	else
+		ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
+	end
+	ewRadar:setupElements()
+	ewRadar:goLive()
 	table.insert(self.earlyWarningRadars, ewRadar)
 	if self:getDebugSettings().addedEWRadar then
 			self:printOutput(ewRadar:getDescription().." added to IADS")
@@ -137,9 +144,13 @@ function SkynetIADS:getEarlyWarningRadarByUnitName(unitName)
 	end
 end
 
+function SkynetIADS:findSubString(haystack, needle)
+	return string.find(haystack, needle, 1, true)
+end
+
 function SkynetIADS:addSAMSitesByPrefix(prefix)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
-		local pos = string.find(groupName, prefix)
+		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
@@ -159,6 +170,8 @@ function SkynetIADS:addSAMSite(samSiteName)
 	end
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
+	samSite:setupElements()
+	samSite:goLive()
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutput("you have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
 		samSite:cleanUp()

@@ -1,4 +1,4 @@
--- BUILD Timestamp: 16.03.2020 22:03:34.64  
+-- BUILD Timestamp: 17.03.2020 22:06:17.43  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -415,24 +415,6 @@ samTypesDB = {
 			['NATO'] = 'Roland EWR',
 		},
 	},
-	['A-50'] = {
-		['searchRadar'] = {
-			['A-50'] = {	
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Mainstay',
-		},
-	},
-	['KJ-2000'] = {
-		['searchRadar'] = {
-			['KJ-2000'] = {		
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Mainring',
-		},
-	},
 }
 end
 do
@@ -451,7 +433,7 @@ SA-3
 
 --[[ Compile Scripts:
 
-echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
+echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua  skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-awacs-radar.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
 
 --]]
 
@@ -536,7 +518,7 @@ end
 
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
 	for unitName, unit in pairs(mist.DBs.unitsByName) do
-		local pos = string.find(unitName, prefix)
+		local pos = self:findSubString(unitName, prefix)
 		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
 		local unit = Unit.getByName(unitName)
 		if pos and pos == 1 and unit then
@@ -553,7 +535,14 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 		return
 	end
 	self:setCoalition(earlyWarningRadarUnit)
-	local ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
+	local ewRadar = nil
+	if earlyWarningRadarUnit:getDesc().category == Unit.Category.AIRPLANE then
+		ewRadar = SkynetIADSAWACSRadar:create(earlyWarningRadarUnit, self)
+	else
+		ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
+	end
+	ewRadar:setupElements()
+	ewRadar:goLive()
 	table.insert(self.earlyWarningRadars, ewRadar)
 	if self:getDebugSettings().addedEWRadar then
 			self:printOutput(ewRadar:getDescription().." added to IADS")
@@ -574,9 +563,13 @@ function SkynetIADS:getEarlyWarningRadarByUnitName(unitName)
 	end
 end
 
+function SkynetIADS:findSubString(haystack, needle)
+	return string.find(haystack, needle, 1, true)
+end
+
 function SkynetIADS:addSAMSitesByPrefix(prefix)
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
-		local pos = string.find(groupName, prefix)
+		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
@@ -596,6 +589,8 @@ function SkynetIADS:addSAMSite(samSiteName)
 	end
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
+	samSite:setupElements()
+	samSite:goLive()
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutput("you have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
 		samSite:cleanUp()
@@ -1186,8 +1181,6 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmPresetShutdownTime = 180
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
-	instance:setupElements()
-	instance:goLive()
 	return instance
 end
 
@@ -1462,10 +1455,14 @@ function SkynetIADSAbstractRadarElement:goDark()
 	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
-			-- fastest way to get a radar unit to stop emitting
-			controller:setOnOff(false)
-			--controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-			--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			-- if a harm is the reason for shutdown we turn off the controller, this is the only way to get the HARM to miss the target
+			if self.harmSilenceID then
+				controller:setOnOff(false)
+			--if the reason is not a HARM we shut it down via the ALARM_STATE, the reason for this is that the SAM site can reload ammo in this state.
+			else
+				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			end
 		end
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
@@ -1659,7 +1656,7 @@ end
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	--env.info("call"..math.random(1,100))
-	self:updateMissilesInFlight();
+	self:updateMissilesInFlight()
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]
@@ -1701,6 +1698,35 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	end
 end
 
+end
+do
+
+SkynetIADSAWACSRadar = {}
+SkynetIADSAWACSRadar = inheritsFrom(SkynetIADSAbstractRadarElement)
+
+function SkynetIADSAWACSRadar:create(radarUnit, iads)
+	local instance = self:superClass():create(radarUnit, iads)
+	setmetatable(instance, self)
+	self.__index = self
+	return instance
+end
+
+end
+
+function SkynetIADSAWACSRadar:setupElements()
+	local unit = self:getDCSRepresentation()
+	local radar = SkynetIADSSAMSearchRadar:create(unit)
+	radar:setupRangeData()
+	table.insert(self.searchRadars, radar)
+end
+
+function SkynetIADSAWACSRadar:getNatoName()
+	return self:getDCSRepresentation():getTypeName()
+end
+
+-- AWACs will not scan for HARMS
+function SkynetIADSAWACSRadar:scanForHarms()
+	
 end
 do
 SkynetIADSCommandCenter = {}

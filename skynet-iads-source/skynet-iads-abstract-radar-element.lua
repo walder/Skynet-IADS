@@ -34,8 +34,6 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmPresetShutdownTime = 180
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
-	instance:setupElements()
-	instance:goLive()
 	return instance
 end
 
@@ -310,10 +308,14 @@ function SkynetIADSAbstractRadarElement:goDark()
 	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
-			-- fastest way to get a radar unit to stop emitting
-			controller:setOnOff(false)
-			--controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-			--controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			-- if a harm is the reason for shutdown we turn off the controller, this is the only way to get the HARM to miss the target
+			if self.harmSilenceID then
+				controller:setOnOff(false)
+			--if the reason is not a HARM we shut it down via the ALARM_STATE, the reason for this is that the SAM site can reload ammo in this state.
+			else
+				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			end
 		end
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
@@ -507,7 +509,7 @@ end
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	--env.info("call"..math.random(1,100))
-	self:updateMissilesInFlight();
+	self:updateMissilesInFlight()
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]

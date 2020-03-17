@@ -61,7 +61,7 @@ Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
 
 ## Air Resources
-The A-50 Mainstay and the KJ-2000 Mainring are supported as AWACS units reporting contacts to the IADS. More Units will follow soon.
+Any aircraft with a radar that can detect aircraft is supported as AWACS. Contact will be reported to the IADS.
 
 # Tactics
 

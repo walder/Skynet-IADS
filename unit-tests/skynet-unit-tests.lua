@@ -32,6 +32,7 @@ function TestIADS:testDCSContstantsHaveNotChanged()
 	lu.assertEquals(Weapon.Category.SHELL, 0)
 	lu.assertEquals(world.event.S_EVENT_SHOT, 1)
 	lu.assertEquals(world.event.S_EVENT_DEAD, 8)
+	lu.assertEquals(Unit.Category.AIRPLANE, 0)
 end
 
 function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
@@ -260,6 +261,19 @@ function TestIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsOrStaticObj
 	lu.assertEquals(calledPrint, false)
 end
 
+function TestIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsOrStaticObjectsWithSamePrefix2()
+	self:tearDown()
+	self.iranIADS = SkynetIADS:create()
+	local calledPrint = false
+	function self.iranIADS:printOutput(str, isWarning)
+		calledPrint = true
+	end
+	--happened when the string.find method was not set to plain special characters messed up the regex pattern
+	self.iranIADS:addSAMSitesByPrefix('IADS-EW')
+	lu.assertEquals(#self.iranIADS:getSAMSites(), 1)
+	lu.assertEquals(calledPrint, false)
+end
+
 function TestIADS:testOnlyLoadUnitsWithPrefixForEWSiteNotStaticObjectssWithSamePrefix()
 	self:tearDown()
 	self.iranIADS = SkynetIADS:create()
@@ -279,6 +293,14 @@ function TestSamSites:setUp()
 		self.skynetIADS = SkynetIADS:create()
 		local samSite = Group.getByName(self.samSiteName)
 		self.samSite = SkynetIADSSamSite:create(samSite, self.skynetIADS)
+		
+		-- we overrite this method since it returns radar contacts in the DCS world which mess up the tests.
+		function self.samSite:getDetectedTargets()
+			return {}
+		end
+		
+		self.samSite:setupElements()
+		self.samSite:goLive()
 	end
 end
 
@@ -1154,6 +1176,7 @@ function TestSamSites:testInformOfContactInRangeWhenEarlyWaringRadar()
 	self:setUp()
 	self.samSite:setActAsEW(true)
 	local mockContact = {}
+	
 	function self.samSite:isTargetInRange(target)
 		lu.assertIs(target, mockContact)
 		return false
@@ -1593,7 +1616,9 @@ function TestEarlyWarningRadars:testA50AWACSAsEWRadar()
 --]]
 	self.ewRadarName = "EW-AWACS-A-50"
 	self:setUp()
-	lu.assertEquals(self.ewRadar:getNatoName(), 'Mainstay')
+	local unit = Unit.getByName(self.ewRadarName)
+	lu.assertEquals(unit:getDesc().category, Unit.Category.AIRPLANE)
+	lu.assertEquals(self.ewRadar:getNatoName(), 'A-50')
 	local searchRadar = self.ewRadar:getSearchRadars()[1]
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 204461.796875)
 end
@@ -1623,7 +1648,7 @@ function TestEarlyWarningRadars:testKJ2000AWACSAsEWRadar()
 	self:setUp()
 	local unit = Unit.getByName('EW-AWACS-KJ-2000')
 	local searchRadar = self.ewRadar:getSearchRadars()[1]
-	lu.assertEquals(self.ewRadar:getNatoName(), 'Mainring')
+	lu.assertEquals(self.ewRadar:getNatoName(), 'KJ-2000')
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 268356.125)
 end
 
@@ -1653,9 +1678,9 @@ local connectioNode = StaticObject.getByName('Unused Connection Node')
 iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
 
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = true
+--iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
-iadsDebug.contacts = true
+--iadsDebug.contacts = true
 iranIADS:activate()
 
 --test to check in game ammo changes, to build unit tests on
