@@ -61,7 +61,7 @@ Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
 
 ## Air Resources
-Any aircraft with a radar that can detect aircraft is supported as AWACS. Contact will be reported to the IADS.
+Any aircraft with an air to air radar can be added as AWACS. Contacts detected will be added to the IADS.
 
 # Tactics
 
