@@ -305,7 +305,7 @@ redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ## Adding EW radars
 
 ### Add multiple EW radars
-Adds SAM sites with prefix in group name to the IADS. Make sure you only call this method once or Skynet will become confused: 
+Adds EW radars with prefix in unit name to the IADS. Make sure you only call this method once or Skynet will become confused: 
 ```lua
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
@@ -351,18 +351,17 @@ iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
-iadsDebug.noWorkingCommmandCenter = false
-iadsDebug.ewRadarNoConnection = false
-iadsDebug.samNoConnection = false
+iadsDebug.noWorkingCommmandCenter = true
+iadsDebug.ewRadarNoConnection = true
+iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
-iadsDebug.addedEWRadar = false
-iadsDebug.hasNoPower = false
+iadsDebug.addedEWRadar = true
+iadsDebug.hasNoPower = true
 iadsDebug.harmDefence = true
 ---end remove debug ---
 
 --add all units with unit name beginning with 'EW' to the IADS:
-local comCenterPower = StaticObject.getByName('Command-Center-Power')
-iranIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(comCenterPower)
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
 
 --add all groups begining with group name 'SAM' to the IADS:
 iranIADS:addSAMSitesByPrefix('SAM')

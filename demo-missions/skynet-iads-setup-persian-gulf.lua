@@ -18,8 +18,7 @@ iadsDebug.harmDefence = true
 ---end remove debug ---
 
 --add all units with unit name beginning with 'EW' to the IADS:
-local comCenterPower = StaticObject.getByName('Command-Center-Power')
-iranIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(comCenterPower)
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
 
 --add all groups begining with group name 'SAM' to the IADS:
 iranIADS:addSAMSitesByPrefix('SAM')

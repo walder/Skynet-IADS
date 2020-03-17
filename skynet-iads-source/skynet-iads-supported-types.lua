@@ -81,7 +81,6 @@ samTypesDB = {
 		},
 		['launchers'] = {
 			['S_75M_Volhov'] = {
-				['rearmTime'] = 2700,
 			},
 		},
 		['name'] = {
@@ -148,7 +147,6 @@ samTypesDB = {
 		},
 		['launchers'] = {
 			['Hawk ln'] = {
-				['missiles'] = 3,
 			},
 		},
 
