@@ -80,7 +80,7 @@ See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob
 
 ## Point defence
 When an EW radar is attacked by a HARM there is a chance it may detect the HARM and go dark. If this EW radar is the only one in the area, SAM sites in the detection area of the EW radar will not be able to go live since they rely on the EW radar for target information.
-This is a problem if you have SA-15 Tors next to the EW radar for point defence protection.
+This is a problem if you have SA-15 Tors next to the EW radar for point defence protection. There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
