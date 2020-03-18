@@ -1,4 +1,4 @@
--- BUILD Timestamp: 18.03.2020 18:08:12.23  
+-- BUILD Timestamp: 18.03.2020 22:41:42.56  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -739,9 +739,13 @@ function SkynetIADS.evaluateContacts(self)
 		if self:getDebugSettings().contacts then
 			self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().."| GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
-		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
-		self:correlateWithSAMSites(contact)
+		-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
+		-- currently every type of object in the air is handed of to the sam site, including missiles
+			local description = contact:getDesc()
+			local category = description.category
+			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
+				self:correlateWithSAMSites(contact)
+			end
 	end
 	
 	for i = 1, #usableSamSites do
@@ -1184,6 +1188,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
 	instance.missilesInFlight = {}
+	instance.pointDefences = {}
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = false
@@ -1212,11 +1217,24 @@ function SkynetIADSAbstractRadarElement:weaponFired(event)
 end
 
 function SkynetIADSAbstractRadarElement:cleanUp()
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		pointDefence:cleanUp()
+	end
 	mist.removeFunction(self.jammerID)
 	mist.removeFunction(self.harmScanID)
 	mist.removeFunction(self.harmSilenceID)
 	--call method from super class
 	self:removeEventHandlers()
+end
+
+function SkynetIADSAbstractRadarElement:addPointDefence(pointDefence)
+	table.insert(self.pointDefences, pointDefence)
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getPointDefences()
+	return self.pointDefences
 end
 
 function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
@@ -1314,6 +1332,7 @@ end
 
 function SkynetIADSAbstractRadarElement:setHARMDetectionChance(chance)
 	self.harmDetectionChance = chance
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:setupElements()
@@ -1454,10 +1473,18 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		end
 		self.aiState = true
+		self:pointDefencesStopActingAsEW()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
 		end
 		self:scanForHarms()
+	end
+end
+
+function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		pointDefence:setActAsEW(false)
 	end
 end
 
@@ -1477,12 +1504,21 @@ function SkynetIADSAbstractRadarElement:goDark()
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			end
 		end
+		--called here so if SAM is destroyed it will still activate the point defences
+		self:pointDefencesGoLive()
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
 		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
 		end
+	end
+end
+
+function SkynetIADSAbstractRadarElement:pointDefencesGoLive()
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		pointDefence:setActAsEW(true)
 	end
 end
 
@@ -1801,6 +1837,14 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 	return mist.utils.round(self.speed, decimals)
 end
 
+function SkynetIADSContact:getDesc()
+	if self.dcsObject:isExist() then
+		return self.dcsObject:getDesc()
+	else
+		return {}
+	end
+end
+
 function SkynetIADSContact:getNumberOfTimesHitByRadar()
 	return self.numOfTimesRefreshed
 end
@@ -1972,20 +2016,22 @@ end
 
 --override in subclasses to match different datastructure of getSensors()
 function SkynetIADSSAMSearchRadar:setupRangeData()
-	local data = self:getDCSRepresentation():getSensors()
-	if data == nil then
-		--the SA-13 does not have any sensor data, but is has launcher data, so we use the stuff from the launcher for the radar range.
-		SkynetIADSSAMLauncher.setupRangeData(self)
-		return
-	end
-	for i = 1, #data do
-		local subEntries = data[i]
-		for j = 1, #subEntries do
-			local sensorInformation = subEntries[j]
-			-- some sam sites have  IR and passive EWR detection, we are just interested in the radar data
-			-- investigate if upperHemisphere and headOn is ok, I guess it will work for most detection cases
-			if sensorInformation.type == Unit.SensorType.RADAR then
-				self.maximumRange = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+	if self:isExist() then
+		local data = self:getDCSRepresentation():getSensors()
+		if data == nil then
+			--the SA-13 does not have any sensor data, but is has launcher data, so we use the stuff from the launcher for the radar range.
+			SkynetIADSSAMLauncher.setupRangeData(self)
+			return
+		end
+		for i = 1, #data do
+			local subEntries = data[i]
+			for j = 1, #subEntries do
+				local sensorInformation = subEntries[j]
+				-- some sam sites have  IR and passive EWR detection, we are just interested in the radar data
+				-- investigate if upperHemisphere and headOn is ok, I guess it will work for most detection cases
+				if sensorInformation.type == Unit.SensorType.RADAR then
+					self.maximumRange = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+				end
 			end
 		end
 	end

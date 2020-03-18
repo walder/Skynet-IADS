@@ -45,6 +45,14 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 	return mist.utils.round(self.speed, decimals)
 end
 
+function SkynetIADSContact:getDesc()
+	if self.dcsObject:isExist() then
+		return self.dcsObject:getDesc()
+	else
+		return {}
+	end
+end
+
 function SkynetIADSContact:getNumberOfTimesHitByRadar()
 	return self.numOfTimesRefreshed
 end

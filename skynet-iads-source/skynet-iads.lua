@@ -322,9 +322,13 @@ function SkynetIADS.evaluateContacts(self)
 		if self:getDebugSettings().contacts then
 			self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().."| GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
-		--currently the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-		---Todo: currently every type of object in the air is handed of to the sam site, including bombs and missiles, shall these be removed?
-		self:correlateWithSAMSites(contact)
+		-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
+		-- currently every type of object in the air is handed of to the sam site, including missiles
+			local description = contact:getDesc()
+			local category = description.category
+			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
+				self:correlateWithSAMSites(contact)
+			end
 	end
 	
 	for i = 1, #usableSamSites do

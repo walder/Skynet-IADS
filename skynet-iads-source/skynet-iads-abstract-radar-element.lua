@@ -24,6 +24,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
 	instance.missilesInFlight = {}
+	instance.pointDefences = {}
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = false
@@ -52,11 +53,24 @@ function SkynetIADSAbstractRadarElement:weaponFired(event)
 end
 
 function SkynetIADSAbstractRadarElement:cleanUp()
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		pointDefence:cleanUp()
+	end
 	mist.removeFunction(self.jammerID)
 	mist.removeFunction(self.harmScanID)
 	mist.removeFunction(self.harmSilenceID)
 	--call method from super class
 	self:removeEventHandlers()
+end
+
+function SkynetIADSAbstractRadarElement:addPointDefence(pointDefence)
+	table.insert(self.pointDefences, pointDefence)
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getPointDefences()
+	return self.pointDefences
 end
 
 function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
@@ -154,6 +168,7 @@ end
 
 function SkynetIADSAbstractRadarElement:setHARMDetectionChance(chance)
 	self.harmDetectionChance = chance
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:setupElements()
@@ -294,10 +309,18 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 		end
 		self.aiState = true
+		self:pointDefencesStopActingAsEW()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
 		end
 		self:scanForHarms()
+	end
+end
+
+function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		pointDefence:setActAsEW(false)
 	end
 end
 
@@ -317,12 +340,21 @@ function SkynetIADSAbstractRadarElement:goDark()
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			end
 		end
+		--called here so if SAM is destroyed it will still activate the point defences
+		self:pointDefencesGoLive()
 		self.aiState = false
 		mist.removeFunction(self.jammerID)
 		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
 		end
+	end
+end
+
+function SkynetIADSAbstractRadarElement:pointDefencesGoLive()
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		pointDefence:setActAsEW(true)
 	end
 end
 

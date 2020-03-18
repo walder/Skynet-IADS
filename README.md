@@ -77,6 +77,14 @@ This implementation is closer to real life. SAM Sites like the patriot calculate
 Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
 See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
 
+## Point defence
+When an EW radar is attacked by a HARM there is a chance it may detect the HARM and go dark. If this EW radar is the only one in the area, SAM sites in the detection area of the EW radar will not be able to go live since they rely on the EW radar for target information.
+This is a problem if you have SA-15 Tors in next to the EW radar for point defence protection.
+
+You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
+
+
+
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
 The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
@@ -282,6 +290,15 @@ You can set the reaction probability (between 0 and 100 percent). See [skynet-ia
 ewRadar:setHARMDetectionChance(50)
 ```
 
+## Point defence
+You must use a point defence SAM that can engage HARM missiles. Can be used to protect other SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+```lua
+--first get the SAM site you want to use as point defence from the IADS:
+local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
+--then add it to the SAM site it should protect:
+iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):addPointDefence(sa15)
+```
+
 ## EW radar configuration
 
 ### Accessing EW radars in the IADS
@@ -388,6 +405,10 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-2'):setEngagementZone(SkynetIADSAbstractR
 --all SA-10 sites shall act as EW sites, meaning their radars will be on all the time:
 iranIADS:getSAMSitesByNatoName('SA-10'):setActAsEW(true)
 
+--set the sa15 as point defence for the SA-10 site, we set it to always react to a HARM so we can demonstrate the point defence mechanism in Skynet
+local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-point-defence-SA-10')
+iranIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100)
+
 --set this SA-11 site to go live 70% of max range of its missiles (default value: 100%), its HARM detection probability is set to 50% (default value: 70%)
 iranIADS:getSAMSiteByGroupName('SAM-SA-11'):setGoLiveRangeInPercent(70):setHARMDetectionChance(50)
 
@@ -458,10 +479,6 @@ In theory you can add all the types that are listed in the [skynet-iads-supporte
 Very short range units (like the Shilka AAA) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
 This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
-
-## How do I set up a point defence?
-As of March 2020 only the Tor (Nato name SA-15 Gauntlet) is able to engage HARMs on the red side. Place the SA-15s as separate SAM groups next to a larger SAM group like the S-300. Skynet will turn off the SA-15's radar. Once a HARM is in range of the SA-15 it will go live and engage the inbound HARM.
-
 
 
 

@@ -45,6 +45,11 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-2'):setEngagementZone(SkynetIADSAbstractR
 --all SA-10 sites shall act as EW sites, meaning their radars will be on all the time:
 iranIADS:getSAMSitesByNatoName('SA-10'):setActAsEW(true)
 
+--set the sa15 as point defence for the SA-10 site, we set it to always react to a HARM so we can demonstrate the point defence mechanism in Skynet
+local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-point-defence-SA-10')
+iranIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100)
+
+
 --set this SA-11 site to go live 70% of max range of its missiles (default value: 100%), its HARM detection probability is set to 50% (default value: 70%)
 iranIADS:getSAMSiteByGroupName('SAM-SA-11'):setGoLiveRangeInPercent(70):setHARMDetectionChance(50)
 
