@@ -79,7 +79,7 @@ See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob
 
 ## Point defence
 When an EW radar is attacked by a HARM there is a chance it may detect the HARM and go dark. If this EW radar is the only one in the area, SAM sites in the detection area of the EW radar will not be able to go live since they rely on the EW radar for target information.
-This is a problem if you have SA-15 Tors in next to the EW radar for point defence protection.
+This is a problem if you have SA-15 Tors next to the EW radar for point defence protection.
 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
@@ -296,7 +296,7 @@ You must use a point defence SAM that can engage HARM missiles. Can be used to p
 --first get the SAM site you want to use as point defence from the IADS:
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
 --then add it to the SAM site it should protect:
-iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):addPointDefence(sa15)
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):addPointDefence(sa15)
 ```
 
 ## EW radar configuration
