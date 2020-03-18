@@ -45,8 +45,8 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-2'):setEngagementZone(SkynetIADSAbstractR
 --all SA-10 sites shall act as EW sites, meaning their radars will be on all the time:
 iranIADS:getSAMSitesByNatoName('SA-10'):setActAsEW(true)
 
---set this SA-11 site to go live 50% of max range of its missiles (default value: 100%), its HARM detection probability is set to 50% (default value: 70%)
-iranIADS:getSAMSiteByGroupName('SAM-SA-11'):setGoLiveRangeInPercent(50):setHARMDetectionChance(50)
+--set this SA-11 site to go live 70% of max range of its missiles (default value: 100%), its HARM detection probability is set to 50% (default value: 70%)
+iranIADS:getSAMSiteByGroupName('SAM-SA-11'):setGoLiveRangeInPercent(70):setHARMDetectionChance(50)
 
 --this SA-6 site will always react to a HARM being fired at it:
 iranIADS:getSAMSiteByGroupName('SAM-SA-6'):setHARMDetectionChance(100)

@@ -98,6 +98,8 @@ function SkynetIADS:createTableDelegator(units)
 end
 
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
+	self:deactivateEarlyWarningRadars()
+	self.earlyWarningRadars = {}
 	for unitName, unit in pairs(mist.DBs.unitsByName) do
 		local pos = self:findSubString(unitName, prefix)
 		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
@@ -149,6 +151,8 @@ function SkynetIADS:findSubString(haystack, needle)
 end
 
 function SkynetIADS:addSAMSitesByPrefix(prefix)
+	self:deativateSAMSites()
+	self.samSites = {}
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
@@ -378,21 +382,32 @@ end
 
 function SkynetIADS:deactivate()
 	mist.removeFunction(self.ewRadarScanMistTaskID)
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		samSite:cleanUp()
-	end
 	
-	for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		ewRadar:cleanUp()
-	end
-	
+	self:deativateSAMSites()
+	self:deactivateEarlyWarningRadars()
+	self:deactivateCommandCenters()
+end
+
+function SkynetIADS:deactivateCommandCenters()
 	for i = 1, #self.commandCenters do
 		local comCenter = self.commandCenters[i]
 		comCenter:cleanUp()
 	end
 end
+
+function SkynetIADS:deativateSAMSites()
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		samSite:cleanUp()
+	end
+end
+
+function SkynetIADS:deactivateEarlyWarningRadars()
+	for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		ewRadar:cleanUp()
+	end
+end	
 
 function SkynetIADS:addRadioMenu()
 	local skynetMenu = missionCommands.addSubMenu('SKYNET IADS')

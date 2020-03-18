@@ -46,6 +46,19 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 11)
 end
 
+function TestIADS:testCaclulateNumberOfSamSitesAndEWRadarsWhenAddMethodsCalledTwice()
+	self:tearDown()
+	self.iranIADS = SkynetIADS:create()
+	lu.assertEquals(#self.iranIADS:getSAMSites(), 0)
+	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 0)
+	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.iranIADS:addSAMSitesByPrefix('SAM')
+	self.iranIADS:addSAMSitesByPrefix('SAM')
+	lu.assertEquals(#self.iranIADS:getSAMSites(), 11)
+	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 11)
+end
+
 function TestIADS:testWrongCaseStringWillNotLoadSAMGroup()
 	self:tearDown()
 	self.iranIADS = SkynetIADS:create()

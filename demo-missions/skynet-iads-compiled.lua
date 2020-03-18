@@ -1,4 +1,4 @@
--- BUILD Timestamp: 17.03.2020 22:06:17.43  
+-- BUILD Timestamp: 18.03.2020  0:26:02.06  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -82,7 +82,6 @@ samTypesDB = {
 		},
 		['launchers'] = {
 			['S_75M_Volhov'] = {
-				['rearmTime'] = 2700,
 			},
 		},
 		['name'] = {
@@ -149,7 +148,6 @@ samTypesDB = {
 		},
 		['launchers'] = {
 			['Hawk ln'] = {
-				['missiles'] = 3,
 			},
 		},
 
@@ -517,6 +515,8 @@ function SkynetIADS:createTableDelegator(units)
 end
 
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
+	self:deactivateEarlyWarningRadars()
+	self.earlyWarningRadars = {}
 	for unitName, unit in pairs(mist.DBs.unitsByName) do
 		local pos = self:findSubString(unitName, prefix)
 		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
@@ -568,6 +568,8 @@ function SkynetIADS:findSubString(haystack, needle)
 end
 
 function SkynetIADS:addSAMSitesByPrefix(prefix)
+	self:deativateSAMSites()
+	self.samSites = {}
 	for groupName, groupData in pairs(mist.DBs.groupsByName) do
 		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
@@ -797,21 +799,32 @@ end
 
 function SkynetIADS:deactivate()
 	mist.removeFunction(self.ewRadarScanMistTaskID)
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		samSite:cleanUp()
-	end
 	
-	for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		ewRadar:cleanUp()
-	end
-	
+	self:deativateSAMSites()
+	self:deactivateEarlyWarningRadars()
+	self:deactivateCommandCenters()
+end
+
+function SkynetIADS:deactivateCommandCenters()
 	for i = 1, #self.commandCenters do
 		local comCenter = self.commandCenters[i]
 		comCenter:cleanUp()
 	end
 end
+
+function SkynetIADS:deativateSAMSites()
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		samSite:cleanUp()
+	end
+end
+
+function SkynetIADS:deactivateEarlyWarningRadars()
+	for i = 1, #self.earlyWarningRadars do
+		local ewRadar = self.earlyWarningRadars[i]
+		ewRadar:cleanUp()
+	end
+end	
 
 function SkynetIADS:addRadioMenu()
 	local skynetMenu = missionCommands.addSubMenu('SKYNET IADS')
@@ -1455,10 +1468,10 @@ function SkynetIADSAbstractRadarElement:goDark()
 	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
-			-- if a harm is the reason for shutdown we turn off the controller, this is the only way to get the HARM to miss the target
+			-- if a harm is the reason for shutdown we turn off the controller, this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
 			if self.harmSilenceID then
 				controller:setOnOff(false)
-			--if the reason is not a HARM we shut it down via the ALARM_STATE, the reason for this is that the SAM site can reload ammo in this state.
+			--if the reason is not a HARM we shut it down via the ALARM_STATE, the reason for this is that the SAM site can reload ammo in this state
 			else
 				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
