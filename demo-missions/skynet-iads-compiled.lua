@@ -1,4 +1,4 @@
--- BUILD Timestamp: 18.03.2020  0:26:02.06  
+-- BUILD Timestamp: 18.03.2020 18:08:12.23  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1276,11 +1276,11 @@ function SkynetIADSAbstractRadarElement:getRemainingNumberOfMissiles()
 	return remainingNumberOfMissiles
 end
 
-function SkynetIADSAbstractRadarElement:getInitialNumberOfMisiles()
+function SkynetIADSAbstractRadarElement:getInitialNumberOfMissiles()
 	local initalNumberOfMissiles = 0
 	for i = 1, #self.launchers do
 		local launcher = self.launchers[i]
-		initalNumberOfMissiles = launcher:getInitialNumberOfMisiles() + initalNumberOfMissiles
+		initalNumberOfMissiles = launcher:getInitialNumberOfMissiles() + initalNumberOfMissiles
 	end
 	return initalNumberOfMissiles
 end
@@ -2098,44 +2098,46 @@ function SkynetIADSSAMLauncher:create(unit)
 end
 
 function SkynetIADSSAMLauncher:setupRangeData()
-	local data = self:getDCSRepresentation():getAmmo()
 	self.remainingNumberOfMissiles = 0
 	self.remainingNumberOfShells = 0
-	local initialNumberOfMissiles = 0
-	local initialNumberOfShells = 0
-	--data becomes nil, when all missiles are fired
-	if data then
-		for i = 1, #data do
-			local ammo = data[i]		
-			--we ignore checks on radar guidance types, since we are not interested in how exactly the missile is guided by the SAM site.
-			if ammo.desc.category == Weapon.Category.MISSILE then
-				--TODO: see what the difference is between Max and Min values, SA-3 has higher Min value than Max?, most likely it has to do with the box parameters supplied by launcher
-				--to simplyfy we just use the larger value, sam sites need a few seconds of tracking time to fire, by that time contact has most likely closed in on the SAM site.
-				local altMin = ammo.desc.rangeMaxAltMin
-				local altMax = ammo.desc.rangeMaxAltMax
-				self.maximumRange = altMin
-				if altMin < altMax then
-					self.maximumRange = altMax
+	if self:isExist() then
+		local data = self:getDCSRepresentation():getAmmo()
+		local initialNumberOfMissiles = 0
+		local initialNumberOfShells = 0
+		--data becomes nil, when all missiles are fired
+		if data then
+			for i = 1, #data do
+				local ammo = data[i]		
+				--we ignore checks on radar guidance types, since we are not interested in how exactly the missile is guided by the SAM site.
+				if ammo.desc.category == Weapon.Category.MISSILE then
+					--TODO: see what the difference is between Max and Min values, SA-3 has higher Min value than Max?, most likely it has to do with the box parameters supplied by launcher
+					--to simplyfy we just use the larger value, sam sites need a few seconds of tracking time to fire, by that time contact has most likely closed in on the SAM site.
+					local altMin = ammo.desc.rangeMaxAltMin
+					local altMax = ammo.desc.rangeMaxAltMax
+					self.maximumRange = altMin
+					if altMin < altMax then
+						self.maximumRange = altMax
+					end
+					self.maximumFiringAltitude = ammo.desc.altMax
+					self.remainingNumberOfMissiles = self.remainingNumberOfMissiles + ammo.count
+					initialNumberOfMissiles = self.remainingNumberOfMissiles
 				end
-				self.maximumFiringAltitude = ammo.desc.altMax
-				self.remainingNumberOfMissiles = self.remainingNumberOfMissiles + ammo.count
-				initialNumberOfMissiles = self.remainingNumberOfMissiles
+				if ammo.desc.category == Weapon.Category.SHELL then
+					self.remainingNumberOfShells = self.remainingNumberOfShells + ammo.count
+					initialNumberOfShells = self.remainingNumberOfShells
+				end
+				--if no distance was detected we run the code for the search radar. This happens when all in one units are passed like the shilka
+				if self.maximumRange == 0 then
+					SkynetIADSSAMSearchRadar.setupRangeData(self)
+				end
 			end
-			if ammo.desc.category == Weapon.Category.SHELL then
-				self.remainingNumberOfShells = self.remainingNumberOfShells + ammo.count
-				initialNumberOfShells = self.remainingNumberOfShells
+			-- conditions here are because setupRangeData() is called multiple times in the code to update ammo status, we set initial values only the first time the method is called
+			if self.initialNumberOfMissiles == 0 then
+				self.initialNumberOfMissiles = initialNumberOfMissiles
 			end
-			--if no distance was detected we run the code for the search radar. This happens when all in one units are passed like the shilka
-			if self.maximumRange == 0 then
-				SkynetIADSSAMSearchRadar.setupRangeData(self)
+			if self.initialNumberOfShells == 0 then
+				self.initialNumberOfShells = initialNumberOfShells
 			end
-		end
-		-- conditions here are because setupRangeData() is called multiple times in the code to update ammo status, we set initial values only the first time the method is called
-		if self.initialNumberOfMissiles == 0 then
-			self.initialNumberOfMissiles = initialNumberOfMissiles
-		end
-		if self.initialNumberOfShells == 0 then
-			self.initialNumberOfShells = initialNumberOfShells
 		end
 	end
 end
@@ -2149,7 +2151,7 @@ function SkynetIADSSAMLauncher:getRemainingNumberOfShells()
 	return self.remainingNumberOfShells
 end
 
-function SkynetIADSSAMLauncher:getInitialNumberOfMisiles()
+function SkynetIADSSAMLauncher:getInitialNumberOfMissiles()
 	return self.initialNumberOfMissiles
 end
 

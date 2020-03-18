@@ -116,11 +116,11 @@ function SkynetIADSAbstractRadarElement:getRemainingNumberOfMissiles()
 	return remainingNumberOfMissiles
 end
 
-function SkynetIADSAbstractRadarElement:getInitialNumberOfMisiles()
+function SkynetIADSAbstractRadarElement:getInitialNumberOfMissiles()
 	local initalNumberOfMissiles = 0
 	for i = 1, #self.launchers do
 		local launcher = self.launchers[i]
-		initalNumberOfMissiles = launcher:getInitialNumberOfMisiles() + initalNumberOfMissiles
+		initalNumberOfMissiles = launcher:getInitialNumberOfMissiles() + initalNumberOfMissiles
 	end
 	return initalNumberOfMissiles
 end

@@ -485,7 +485,7 @@ function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoN
 	-- seems like currently both launcher types of the SA-10 have the same range values
 	for i = 1, #launchers do
 		local launcher = launchers[i]
-		lu.assertEquals(launcher:getInitialNumberOfMisiles(), 4)
+		lu.assertEquals(launcher:getInitialNumberOfMissiles(), 4)
 		lu.assertEquals(launcher:getRange(), 75000)
 		lu.assertEquals(launcher:getMaximumFiringAltitude(), 30000)
 		numLoops = numLoops + 1
@@ -656,7 +656,7 @@ function TestSamSites:testShilkaGroupLaunchersSearchRadarRangesAndHARMDefenceCha
 	local launcher = self.samSite:getLaunchers()[1]
 	
 	--shilka has no missiles
-	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 0)
+	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 0)
 	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 0)
 	
 	lu.assertEquals(#launcher:getDCSRepresentation():getAmmo(), 2)
@@ -936,11 +936,14 @@ function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInT
 	local launchers = samSite:getLaunchers()
 	for i = 1, #launchers do
 		local launcher = launchers[i]
-		trigger.action.explosion(launcher:getDCSRepresentation():getPosition().p, 500)
+		trigger.action.explosion(launcher:getDCSRepresentation():getPosition().p, 900)
 	end	
 	lu.assertEquals(samSite:isActive(), false)
 	lu.assertEquals(samSite:isDestroyed(), true)
 	lu.assertEquals(#iads:getDestroyedSAMSites(), 1)
+	lu.assertEquals(samSite:getRemainingNumberOfMissiles(), 0)
+	lu.assertEquals(samSite:getInitialNumberOfMissiles(), 6)
+	lu.assertEquals(samSite:hasRemainingAmmo(), false)
 	
 	--test build SAM with destroyed elements
 	self.samSiteName = "Destruction-test-sam"
@@ -1079,9 +1082,9 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 	self:setUp()
 	
 	local launcher = self.samSite:getLaunchers()[1]
-	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 3)
-	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(self.samSite:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 3)
 	
 	local launcherData =
@@ -1123,9 +1126,9 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 		return mockDCSObjcect
 	end
 
-	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 2)
-	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(self.samSite:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 2)
 	lu.assertEquals(self.samSite:hasRemainingAmmo(), true)
 	
@@ -1137,9 +1140,9 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 		return launcherData
 	end
 	
-	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 1)
-	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(self.samSite:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 1)
 	lu.assertEquals(self.samSite:hasRemainingAmmo(), true)
 	
@@ -1150,9 +1153,9 @@ function TestSamSites:testShutDownWhenOutOfMissiles()
 	function mockDCSObjcect:getAmmo()
 		return nil
 	end
-	lu.assertEquals(launcher:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 0)
-	lu.assertEquals(self.samSite:getInitialNumberOfMisiles(), 3)
+	lu.assertEquals(self.samSite:getInitialNumberOfMissiles(), 3)
 	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(self.samSite:hasRemainingAmmo(), false)
 	
@@ -1688,7 +1691,7 @@ iranIADS:addSAMSitesByPrefix('SAM')
 iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(100)
 
 local connectioNode = StaticObject.getByName('Unused Connection Node')
-iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
+local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
 
 local iadsDebug = iranIADS:getDebugSettings()
 --iadsDebug.IADSStatus = true
@@ -1696,13 +1699,18 @@ iadsDebug.harmDefence = true
 --iadsDebug.contacts = true
 iranIADS:activate()
 
+local launchers = sam:getLaunchers()
+for i=1, #launchers do
+	local launcher = launchers[i]:getDCSRepresentation()
+--	trigger.action.explosion(launcher:getPosition().p, 9000)
+end
 --test to check in game ammo changes, to build unit tests on
 function checkSams(iranIADS)
 
 	--[[
 	local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	env.info("current num of missile: "..sam:getRemainingNumberOfMissiles())
-	env.info("Initial num missiles: "..sam:getInitialNumberOfMisiles())
+	env.info("Initial num missiles: "..sam:getInitialNumberOfMissiles())
 	env.info("Has Missiles in Flight: "..tostring(sam:hasMissilesInFlight()))
 	env.info("Number of Missiles in Fligth: "..#sam.missilesInFlight)
 	env.info("Has remaining Ammo: "..tostring(sam:hasRemainingAmmo()))
