@@ -302,7 +302,8 @@ local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):addPointDefence(sa15)
 ```
 
-Will prevent the EW radar from going dark if a HARM is inbound and the point defence has ammo left. Default state is false:
+Will prevent the EW radar or SAM site from going dark if a HARM is inbound and the point defence has ammo left. Default state is false.
+This is not a magic bullet, you can saturate a point defence if you fire enough missiles in a short interval:
 ```lua
 redIADS:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 ```
