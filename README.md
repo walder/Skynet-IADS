@@ -86,8 +86,7 @@ You can tell an EW radar it has a point denfence to rely on. If the EW radar goe
 
 You can set the EW radar to not go dark when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the EW radar will revert back to its previously set HARM defence behaviour.
 
-Nice to know:  
-There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
+Nice to know: There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
@@ -199,7 +198,7 @@ redIADS:addSAMSitesByPrefix('SAM')
 ```
 
 #### Add a SAM site manually
-You can manually ad a SAM site, must be a valid group name:
+You can manually add a SAM site, must be a valid group name:
 ```lua
 redIADS:addSAMSite('SA-6 Group2')
 ```
@@ -207,7 +206,7 @@ redIADS:addSAMSite('SA-6 Group2')
 ### Accessing SAM sites in the IADS
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
-Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with SA-: Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
+Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with 'SA-': Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
 ```lua
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
@@ -294,17 +293,17 @@ You can set the reaction probability (between 0 and 100 percent). See [skynet-ia
 ewRadar:setHARMDetectionChance(50)
 ```
 
-## Point defence
-You must use a point defence SAM that can engage HARM missiles. Can be used to protect other SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+### Point defence
+You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
 ```lua
 --first get the SAM site you want to use as point defence from the IADS:
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
 --then add it to the SAM site it should protect:
-redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):addPointDefence(sa15)
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
 ```
 
 Will prevent the EW radar or SAM site from going dark if a HARM is inbound and the point defence has ammo left. Default state is false.
-This is not a magic bullet, you can saturate a point defence if you fire enough missiles in a short interval:
+This is not a magic bullet, you can saturate a point defence if you fire enough missiles within a short interval:
 ```lua
 redIADS:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 ```
@@ -493,7 +492,9 @@ The strength of the Skynet IADS lies with handling long range systems that opera
 
 ## What exactly does Skynet do with the SAMS?
 Basically one can only toggle a radar unit's alarm state and its rules of engagement via the scripting enginge. In a nutshell thats all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
-Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. No god like intervention is used (like magically exploding HARMS via the scripting engine).
+Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
+
+No god like intervention is used (like magically exploding HARMS via the scripting engine).
 If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.
 
 ## Are there known bugs?
