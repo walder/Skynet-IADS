@@ -80,11 +80,13 @@ See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob
 
 ## Point defence
 When an EW radar is attacked by a HARM there is a chance it may detect the HARM and go dark. If this EW radar is the only one in the area, SAM sites in the detection area of the EW radar will not be able to go live since they rely on the EW radar for target information.
-This is a problem if you have SA-15 Tors next to the EW radar for point defence protection. There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
+This is a problem if you have SA-15 Tors next to the EW radar for point defence protection.
 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
+You can also tell the EW radar to not go dark when a HARM is inbound as long as the point defence has ammo. After the point defence is out of ammo the EW radar will go dark if it detects a HARM inbound.
 
+ There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
@@ -126,9 +128,9 @@ You can also add the code directly in the mission editor, however that input fie
 ## Adding the Skynet IADS
 For the IADS to work you need four lines of code.
 
-create an instance of the IADS:  
+create an instance of the IADS, the name string is optional and will be displayed in status output:
 ```lua
-redIADS = SkynetIADS:create()
+redIADS = SkynetIADS:create('name')
 ``` 
 
 
@@ -156,7 +158,7 @@ You can handcraft your IADS with the following functions. If you refrence units 
 The following examples use static objects for command centers and power sources, you can also use units instead.
 
 ## IADS configuration
-Call this method to add or remove a radio menu to toggle the output of the IADS. By default the radio menu option is not visible:
+Call this method to add or remove a radio menu to toggle the status output of the IADS. By default the radio menu option is not visible:
 ```lua
 redIADS:addRadioMenu()  
 ```
@@ -300,6 +302,11 @@ local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):addPointDefence(sa15)
 ```
 
+Will prevent the EW radar from going dark if a HARM is inbound and the point defence has ammo left. Default state is false:
+```lua
+redIADS:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+```
+
 ## EW radar configuration
 
 ### Accessing EW radars in the IADS
@@ -422,6 +429,7 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-11-2'):setEngagementZone(SkynetIADSAbstra
 --activate the radio menu to toggle IADS Status output
 iranIADS:addRadioMenu()
 
+--activate the IADS
 iranIADS:activate()	
 
 end
@@ -481,5 +489,13 @@ Very short range units (like the Shilka AAA) won't really benefit from the IADS 
 This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
+## What exactly does Skynet do with the SAMS?
+Basically one can only toggle a radar unit's alarm state and its rules of engagement via the scripting enginge. In a nutshell thats all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
+Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. No god like intervention is used (like magically exploding HARMS via the scripting engine).
+If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.
+
+## Are there known bugs?
+Yes, when placing multi unit SAM sites e.g. SA-3, Patriot make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
+The result will be in the SAM site not going live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
 
 

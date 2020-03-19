@@ -25,6 +25,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.searchRadars = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
+	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = false
@@ -71,6 +72,24 @@ end
 
 function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
+end
+
+function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo()
+	local hasAmmo = false
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		if pointDefence:hasRemainingAmmo() then
+			return true
+		end
+	end
+	return hasAmmo
+end
+
+function SkynetIADSAbstractElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
+	if state == true or state == false then
+		self.ingnoreHARMSWhilePointDefencesHaveAmmo = state
+	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
@@ -540,8 +559,13 @@ function SkynetIADSAbstractRadarElement:shallReactToHARM()
 end
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
-	--env.info("call"..math.random(1,100))
 	self:updateMissilesInFlight()
+	
+	--if there are point defences we do not scan for harms and react to them
+	if self:pointDefencesHaveRemainingAmmo() and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true then
+		return
+	end
+	
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]

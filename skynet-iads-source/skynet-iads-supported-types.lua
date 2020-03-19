@@ -134,6 +134,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Patriot',
 		},
+		['harm_detection_chance'] = 90
 	},
 	['Hawk'] = {
 		['type'] = 'complex',
@@ -153,6 +154,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Hawk',
 		},
+		['harm_detection_chance'] = 40
 
 	},	
 	['Roland ADS'] = {

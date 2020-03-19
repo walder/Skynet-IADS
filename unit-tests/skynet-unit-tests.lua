@@ -1,6 +1,9 @@
 do
 ---IADS Unit Tests
 
+SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 11
+SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 12
+
 function IADSContactFactory(unitName)
 	local contact = Unit.getByName(unitName)
 	local radarContact = {}
@@ -13,7 +16,8 @@ end
 TestIADS = {}
 
 function TestIADS:setUp()
-	self.numSAMSites = 13
+	self.numSAMSites = SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED 
+	self.numEWSites = SKYNET_UNIT_TESTS_NUM_EW_SITES_RED
 	self.iranIADS = SkynetIADS:create()
 	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
 	self.iranIADS:addSAMSitesByPrefix('SAM')
@@ -44,7 +48,7 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
 	self.iranIADS:addSAMSitesByPrefix('SAM')
 	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 11)
+	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), self.numEWSites)
 end
 
 function TestIADS:testCaclulateNumberOfSamSitesAndEWRadarsWhenAddMethodsCalledTwice()
@@ -57,7 +61,7 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadarsWhenAddMethodsCalledTw
 	self.iranIADS:addSAMSitesByPrefix('SAM')
 	self.iranIADS:addSAMSitesByPrefix('SAM')
 	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 11)
+	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), self.numEWSites)
 end
 
 function TestIADS:testWrongCaseStringWillNotLoadSAMGroup()
@@ -216,7 +220,7 @@ function TestIADS:testSetOptionsForAllAddedEWSitesByPrefix()
 	self:tearDown()
 	self.iranIADS = SkynetIADS:create()
 	local ewSites = self.iranIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(powerSource):addConnectionNode(connectionNode)
-	lu.assertEquals(#ewSites, 11)
+	lu.assertEquals(#ewSites, self.numEWSites)
 	for i = 1, #ewSites do
 		local ewSite = ewSites[i]
 		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
@@ -227,7 +231,7 @@ end
 
 function TestIADS:testSetOptionsForAllAddedEWSites()
 	local ewSites = self.iranIADS:getEarlyWarningRadars()
-	lu.assertEquals(#ewSites, 11)
+	lu.assertEquals(#ewSites, self.numEWSites)
 	for i = 1, #ewSites do
 		local ewSite = ewSites[i]
 		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
@@ -1622,6 +1626,135 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActive()
 	
 	-- TODO: test with two HARM defences
 end
+
+function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAvailable()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	self.samSite:setActAsEW(true)
+	
+	local sa15 = Group.getByName("SAM-SA-15-1")
+	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
+	pointDefence:setupElements()
+	pointDefence:goLive()
+	pointDefence:goDark()
+	lu.assertEquals(self.samSite:addPointDefence(pointDefence), self.samSite)
+	lu.assertEquals(#self.samSite:getPointDefences(), 1)
+	
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	local calledShutdown = false
+	
+	function self.samSite:getDetectedTargets()
+		return {iadsContact}
+	end
+	function self.samSite:getDistanceInMetersToContact(a, b)
+		return 50
+	end
+	function self.samSite:calculateImpactPoint(a, b)
+		return self:getRadars()[1]:getPosition().p
+	end
+	
+	function self.samSite:shallReactToHARM()
+		return true
+	end
+	
+	function self.samSite:goSilentToEvadeHARM()
+		calledShutdown = true
+	end
+	
+	
+	--this test is for when setIgnoreHARMSWhilePointDefencesHaveAmmo is  not set expicitly (state false)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(calledShutdown, true)
+	
+	self.samSite.objectsIdentifiedAsHarms = {}
+	calledShutdown = false
+	
+	
+	--this test should not provoke a HARM inbound response due to the point defence still having ammo
+	-- set the state for HARM Ignore to true and check if the method returns a sam site for daisy chaining
+	lu.assertEquals(self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true), self.samSite)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(calledShutdown, false)
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+	self.samSite.objectsIdentifiedAsHarms = {}
+	calledShutdown = false
+		
+	--this test is for when the point defence is out of ammo and setIgnoreHARMSWhilePointDefencesHaveAmmo is set to true
+	function pointDefence:hasRemainingAmmo()
+		return false
+	end
+	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(calledShutdown, true)
+	
+	
+end
+
+function TestSamSites:testPatriotLauncherAndRadar()
+
+--[[
+Patriot:
+
+Radar:
+{
+    {
+        count=4,
+        desc={
+            Nmax=25,
+            RCS=0.10660000145435,
+            _origin="",
+            altMax=24240,
+            altMin=45,
+            box={
+                max={x=2.5578553676605, y=0.33423712849617, z=0.32681864500046},
+                min={x=-2.5578553676605, y=-0.33423712849617, z=-0.32681867480278}
+            },
+            category=1,
+            displayName="MIM-104 Patriot",
+            fuseDist=13,
+            guidance=4,
+            life=2,
+            missileCategory=2,
+            rangeMaxAltMax=120000,
+            rangeMaxAltMin=30000,
+            rangeMin=3000,
+            typeName="MIM_104",
+            warhead={caliber=410, explosiveMass=73, mass=73, type=1}
+        }
+    }
+}
+
+Search Radar:
+{
+    {
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=173872.484375, tailOn=173872.484375},
+                upperHemisphere={headOn=173872.484375, tailOn=173872.484375}
+            },
+            type=1,
+            typeName="Patriot str"
+        }
+    }
+}
+--]]
+	self.samSiteName = "BLUE-SAM-PATRIOT"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "Patriot")
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	
+	local radar = self.samSite:getSearchRadars()[1]
+	lu.assertEquals(radar:getMaxRangeFindingTarget(), 173872.484375)
+	
+	local launcher = self.samSite:getLaunchers()[1]
+	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 4)
+	lu.assertEquals(launcher:getRange(), 120000)
+end
+
 --[[
 function TestSamSites:testCleanupMistScheduleFunctions()
 	self.samSiteName = "SAM-SA-6"
@@ -1692,6 +1825,7 @@ end
 TestEarlyWarningRadars = {}
 
 function TestEarlyWarningRadars:setUp()
+	self.numEWSites = SKYNET_UNIT_TESTS_NUM_EW_SITES_RED
 	if self.ewRadarName then
 		self.iads = SkynetIADS:create()
 		self.iads:addEarlyWarningRadarsByPrefix('EW')
@@ -1717,12 +1851,12 @@ function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 		lu.assertEquals(self.ewRadar:hasRemainingAmmo(), true)
 		lu.assertEquals(self.ewRadar:isActive(), true)
 		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), true)
-		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 11)
+		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), self.numEWSites)
 		trigger.action.explosion(self.ewRadar:getDCSRepresentation():getPosition().p, 500)
 		lu.assertEquals(self.ewRadar:getDCSRepresentation():isExist(), false)
 		self.ewRadar:goDark()
 		lu.assertEquals(self.ewRadar:isActive(), false)
-		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), 10)	
+		lu.assertEquals(#self.iads:getUsableEarlyWarningRadars(), self.numEWSites-1)	
 end
 
 function TestEarlyWarningRadars:testGetNatoName()
@@ -1805,24 +1939,37 @@ end
 
 --- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
 
-iranIADS = SkynetIADS:create()
+iranIADS = SkynetIADS:create("Iran")
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
-
 iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(100)
 
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
-iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15)
+iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 
 local connectioNode = StaticObject.getByName('Unused Connection Node')
 local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
 
+iranIADS:addRadioMenu()
+iranIADS:activate()
 
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
 iadsDebug.contacts = true
-iranIADS:activate()
+
+
+
+blueIADS = SkynetIADS:create("UAE")
+blueIADS:addSAMSitesByPrefix('BLUE-SAM')
+blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
+blueIADS:addRadioMenu()
+blueIADS:activate()
+
+local blueIadsDebug = blueIADS:getDebugSettings()
+blueIadsDebug.IADSStatus = true
+blueIadsDebug.harmDefence = true
+blueIadsDebug.contacts = true
 
 local launchers = sam:getLaunchers()
 for i=1, #launchers do
