@@ -85,6 +85,7 @@ This is a problem if you have SA-15 Tors next to the EW radar for point defence 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
 You can set the EW radar to not go dark when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the EW radar will revert back to its previously set HARM defence behaviour.
+Use this feature if you dont want the IADS to loose situational awareness just because a HARM is inbound. This is not a magic bullet, you can saturate a point defence if you fire enough HARMS or missiles within a short interval.
 
 Nice to know: There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
@@ -302,8 +303,7 @@ local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
 ```
 
-Will prevent the EW radar or SAM site from going dark if a HARM is inbound and the point defence has ammo left. Default state is false.
-This is not a magic bullet, you can saturate a point defence if you fire enough missiles within a short interval:
+Will prevent the EW radar or SAM site from going dark if a HARM is inbound and the point defence has ammo left. Default state is false:
 ```lua
 redIADS:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 ```
