@@ -84,9 +84,10 @@ This is a problem if you have SA-15 Tors next to the EW radar for point defence 
 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
-You can also tell the EW radar to not go dark when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the EW radar will revert back to its previously set HARM defence behaviour.
+You can set the EW radar to not go dark when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the EW radar will revert back to its previously set HARM defence behaviour.
 
- There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
+Nice to know:  
+There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
