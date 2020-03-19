@@ -499,6 +499,6 @@ If a SAM site or EW radar detects an inbound HARM it just turns off its radar as
 
 ## Are there known bugs?
 Yes, when placing multi unit SAM sites e.g. SA-3, Patriot make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
-The result will be in the SAM site not going live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
+The result will be that the SAM site won't go live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
 
 
