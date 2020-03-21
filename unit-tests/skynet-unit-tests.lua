@@ -1,7 +1,7 @@
 do
 ---IADS Unit Tests
 
-SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 11
+SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 12
 SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 13
 
 function IADSContactFactory(unitName)
@@ -433,7 +433,7 @@ end
 function TestSamSites:testCheckOneGenericObjectAliveForUnitWorks()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
-	local unit = Unit.getByName('SAM-SA-6-2-coonection-node-unit')
+	local unit = Unit.getByName('EW-SAM-SA-6-2-coonection-node-unit')
 	self.samSite:addConnectionNode(unit)
 	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), true)
 	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
@@ -795,7 +795,7 @@ function TestSamSites:testShilkaGroupLaunchersSearchRadarRangesAndHARMDefenceCha
 	--dcs has no maximum height data for AAA
 	lu.assertEquals(launcher:getMaximumFiringAltitude(), 0)
 	lu.assertEquals(launcher:isWithinFiringHeight(target), true)
-	lu.assertEquals(mist.utils.round(launcher:getHeight(target)), 1909)
+	lu.assertEquals(mist.utils.round(launcher:getHeight(target)), 1910)
 
 	--this target is at 25k feet
 	local target = IADSContactFactory("test-not-in-firing-range-of-sa-2")
@@ -1698,8 +1698,13 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	
 	
 	--this test should not provoke a HARM inbound response due to the point defence still having ammo
+	
 	-- set the state for HARM Ignore to true and check if the method returns a sam site for daisy chaining
 	lu.assertEquals(self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true), self.samSite)
+	
+	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(#self.samSite.objectsIdentifiedAsHarms), true)
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(calledShutdown, false)
@@ -1709,12 +1714,15 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	calledShutdown = false
 		
 	--this test is for when the point defence is out of ammo and setIgnoreHARMSWhilePointDefencesHaveAmmo is set to true
-	function pointDefence:hasRemainingAmmo()
-		return false
+	function pointDefence:getRemainingNumberOfMissiles()
+		return 0
 	end
 	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	
+	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(#self.samSite.objectsIdentifiedAsHarms), false)
+	
 	lu.assertEquals(calledShutdown, true)
 	
 	
@@ -2041,6 +2049,69 @@ function TestSamSites:testCallMethodOnTableElements()
 	lu.assertIs(testContainer:theOtherMethod("100"), testContainer)
 end
 --]]
+
+TestJammer = {}
+
+function TestJammer:SetUp()
+	self.emitter = Unit.getByName('jammer-source')
+	self.mockIADS = {}
+	function self.mockIADS:getDebugSettings()
+		return {}
+	end
+	self.jammer = SkynetIADSJammer:create(self.emitter, self.mockIADS)
+end
+
+function TestJammer:tearDown()
+	self.jammer:masterArmSafe()
+end
+
+function TestJammer:testSetupJammerAndRunCycle()
+	lu.assertEquals(self.jammer.jammerTaskID, nil)
+	self.jammer:masterArmOn()
+	lu.assertNotIs(self.jammer.jammerTaskID, nil)
+	
+	local mockRadar = {}
+	local mockSAM = {}
+	local calledJam = false
+	
+	function mockSAM:getRadars()
+		return {mockRadar}
+	end
+	
+	function mockSAM:getNatoName()
+		return "SA-2"
+	end
+	
+	function mockSAM:jam(prob)
+		calledJam = true
+	end
+	
+	function self.mockIADS:getActiveSAMSites()
+		return {mockSAM}
+	end
+	
+	function self.jammer:getDistanceNMToRadarUnit(radarUnit)
+		return 50
+	end
+	
+	function self.jammer:hasLineOfSightToRadar(radar)
+		return true
+	end
+	
+	self.jammer.runCycle(self.jammer)
+	lu.assertEquals(calledJam, true)
+end
+
+function TestJammer:testIsActiveForUnknownType()
+	lu.assertEquals(self.jammer:isKnownRadarEmitter('ABC-Test'), false)
+end
+
+function TestJammer:testIsActiveForKnownType()
+	lu.assertEquals(self.jammer:isKnownRadarEmitter('SA-2'), true)
+end
+--TODO: test if emitter is not active
+
+
 TestEarlyWarningRadars = {}
 
 function TestEarlyWarningRadars:setUp()
@@ -2352,11 +2423,11 @@ iranIADS:addRadioMenu()
 iranIADS:activate()
 
 local iadsDebug = iranIADS:getDebugSettings()
-iadsDebug.IADSStatus = true
+--iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
-iadsDebug.contacts = true
-iadsDebug.radarWentLive = true
-
+--iadsDebug.contacts = true
+---iadsDebug.radarWentLive = true
+iadsDebug.jammerProbability = true
 
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
@@ -2365,6 +2436,10 @@ blueIADS:getSAMSitesByNatoName('Rapier'):setEngagementZone(SkynetIADSAbstractRad
 blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 blueIADS:addRadioMenu()
 blueIADS:activate()
+
+local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
+jammer:masterArmOn()
+jammer:addRadioMenu()
 
 local blueIadsDebug = blueIADS:getDebugSettings()
 --blueIadsDebug.IADSStatus = true

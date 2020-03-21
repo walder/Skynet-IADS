@@ -65,7 +65,7 @@ Any aircraft with an air to air radar can be added as AWACS. Contacts detected w
 These will however not be passed to the SAM sites.
 
 ## Ships
-Ships can also contribute to the IADS. Add them as a regular EW radar. 
+Ships will contribute to the IADS the same way AWACS units do. Add them as a regular EW radar. 
 
 # Tactics
 

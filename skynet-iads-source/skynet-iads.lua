@@ -221,6 +221,16 @@ function SkynetIADS:getSAMSites()
 	return self:createTableDelegator(self.samSites)
 end
 
+function SkynetIADS:getActiveSAMSites()
+	local activeSAMSites = {}
+	for i = 1, #self.samSites do
+		if self.samSites[i]:isActive() then
+			table.insert(activeSAMSites, self.samSites[i])
+		end
+	end
+	return activeSAMSites
+end
+
 function SkynetIADS:getSAMSiteByGroupName(groupName)
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]

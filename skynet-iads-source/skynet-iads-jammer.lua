@@ -3,12 +3,13 @@ do
 SkynetIADSJammer = {}
 SkynetIADSJammer.__index = SkynetIADSJammer
 
-function SkynetIADSJammer:create(emitter)
+function SkynetIADSJammer:create(emitter, iads)
 	local jammer = {}
 	setmetatable(jammer, SkynetIADSJammer)
 	jammer.emitter = emitter
 	jammer.jammerTaskID = nill
-	jammer.iads = {}
+	jammer.iads = {iads}
+	jammer.maximumEffectiveDistanceNM = 200
 	--jammer probability settings are stored here, visualisation, see: https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0
 	jammer.jammerTable = {
 		['SA-2'] = {
@@ -41,15 +42,21 @@ end
 
 function SkynetIADSJammer:masterArmOn()
 	self:masterArmSafe()
-	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 1)
+	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
 end
 
 function SkynetIADSJammer:disableFor(natoName)
 	self.jammerTable[natoName]['canjam'] = false
 end
 
-function SkynetIADSJammer:isActiveForEmitterType(natoName)
-	return self.jammerTable[natoName]['canjam']
+function SkynetIADSJammer:isKnownRadarEmitter(natoName)
+	local isActive = false
+	for unitName, unit in pairs(self.jammerTable) do
+		if unitName == natoName and unit['canjam'] == true then
+			isActive = true
+		end
+	end
+	return isActive
 end
 
 function SkynetIADSJammer:addIADS(iads)
@@ -65,17 +72,20 @@ function SkynetIADSJammer:getSuccessProbability(distanceNauticalMiles, natoName)
 	return probability
 end
 
+function SkynetIADSJammer:getDistanceNMToRadarUnit(radarUnit)
+	return mist.utils.metersToNM(mist.utils.get3DDist(self.emitter:getPosition().p, radarUnit:getPosition().p))
+end
+
 function SkynetIADSJammer.runCycle(self)
 
 	if self.emitter:isExist() == false then
 		self:masterArmSafe()
-	--	trigger.action.outText("emitter is dead", 1)
 		return
 	end
 
 	for i = 1, #self.iads do
 		local iads = self.iads[i]
-		local samSites = iads:getSamSites()	
+		local samSites = iads:getActiveSAMSites()	
 		for j = 1, #samSites do
 			local samSite = samSites[j]
 			local radars = samSite:getRadars()
@@ -84,31 +94,49 @@ function SkynetIADSJammer.runCycle(self)
 			local natoName = samSite:getNatoName()
 			for l = 1, #radars do
 				local radar = radars[l]
-				distance = mist.utils.metersToNM(mist.utils.get2DDist(self.emitter:getPosition().p, radar:getPosition().p))
+				distance = self:getDistanceNMToRadarUnit(radar)
 				-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site if has line of sight to at least one radar in the group
-				if self:hasLineOfSightToRadar(radar) then
-					hasLOS = true
+				if self:isKnownRadarEmitter(natoName) and self:hasLineOfSightToRadar(radar) and distance <= self.maximumEffectiveDistanceNM then
+					if iads:getDebugSettings().jammerProbability then
+						iads:printOutput("JAMMER: Distance: "..distance)
+					end
+					samSite:jam(self:getSuccessProbability(distance, natoName))
 				end
-			end
-			if samSite:isActive() and self:isActiveForEmitterType(natoName) then
-			--	trigger.action.outText("Distance: "..distance, 2)
-			--	trigger.action.outText("Jammer Probability: "..self:getSuccessProbability(distance, natoName), 2)
-				samSite:jam(self:getSuccessProbability(distance, natoName))
 			end
 		end
 	end
-	--trigger.action.outText("jammer cycle",1)
 end
 
 function SkynetIADSJammer:hasLineOfSightToRadar(radar)
 	local radarPos = radar:getPosition().p
-	--lift the radar 3 meters off the ground, some 3d models are dug in to the ground, creating issues in calculating LOS
-	radarPos.y = radarPos.y + 3
+	--lift the radar 30 meters off the ground, some 3d models are dug in to the ground, creating issues in calculating LOS
+	radarPos.y = radarPos.y + 30
 	return land.isVisible(radarPos, self.emitter:getPosition().p) 
 end
 
 function SkynetIADSJammer:masterArmSafe()
 	mist.removeFunction(self.jammerTaskID)
+end
+
+--TODO: Remove Menu when emitter dies:
+function SkynetIADSJammer:addRadioMenu()
+	local skynetMenu = missionCommands.addSubMenu('Jammer: '..self.emitter:getName())
+	missionCommands.addCommand('Master Arm On', skynetMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmOn'})
+	missionCommands.addCommand('Master Arm Safe', skynetMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmSafe'})
+end
+
+function SkynetIADSJammer.updateMasterArm(params)
+	local option = params.option
+	local self = params.self
+	if option == 'masterArmOn' then
+		self:masterArmOn()
+	elseif option == 'masterArmSafe' then
+		self:masterArmSafe()
+	end
+end
+
+function SkynetIADSJammer:removeRadioMenu()
+	missionCommands.removeItem('SKYNET IADS')
 end
 
 end
