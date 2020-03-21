@@ -172,6 +172,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Roland ADS',
 		},
+		['harm_detection_chance'] = 60
 	},		
 	['2S6 Tunguska'] = {
 		['type'] = 'single',
@@ -267,22 +268,8 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Gepard',
 		},
+		['harm_detection_chance'] = 10
 	},		
-	['M6 Linebacker'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		['searchRadar'] = {
-			['M6 Linebacker'] = {		
-			},
-		},
-		['launchers'] = {
-			['M6 Linebacker'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'M6 Linebacker',
-		},
-	},
     ['Rapier'] = {
         ['searchRadar'] = {
             ['rapier_fsa_blindfire_radar'] = {
@@ -301,58 +288,8 @@ samTypesDB = {
         ['name'] = {
 			['NATO'] = 'Rapier',
 		},
+		['harm_detection_chance'] = 10
     },	
-	['M48 Chaparral'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		['searchRadar'] = {
-			['M48 Chaparral'] = {
-			},
-		},
-		['launchers'] = {
-			['M48 Chaparral'] = {	
-			},
-		},
-		['name'] = {
-			['NATO'] = 'M48 Chaparral',
-		},
-	},
-	['Vulcan'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		
-		['searchRadar'] = {
-			['Vulcan'] = {
-			},
-		},
-		['launchers'] = {
-			['Vulcan'] = {
-			},
-		},
-	
-		['name'] = {
-			['NATO'] = 'M163 Vulcan',
-		},
-
-
-	},
-	['M1097 Avenger'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		['searchRadar'] = {
-			['M1097 Avenger'] = {
-			},
-		},
-		['launchers'] = {
-			['M1097 Avenger'] = {
-				['ir'] = true,
-				['guns'] = true,
-			},
-		},
-		['name'] = {
-			['NATO'] = 'M1097 Avenger',
-		},
-	},
 	['ZSU-23-4 Shilka'] = {
 		['type'] = 'single',
 		['mobile'] = true,
@@ -413,6 +350,20 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Roland EWR',
 		},
+	},
+	['HQ-7'] = {
+		['searchRadar'] = {
+			['HQ-7_STR_SP'] = {
+			},
+		},
+		['launchers'] = {
+			['HQ-7_LN_SP'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'CSA-4',
+		},
+		['harm_detection_chance'] = 30
 	},
 }
 end

@@ -123,7 +123,8 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	end
 	self:setCoalition(earlyWarningRadarUnit)
 	local ewRadar = nil
-	if earlyWarningRadarUnit:getDesc().category == Unit.Category.AIRPLANE then
+	local category = earlyWarningRadarUnit:getDesc().category
+	if category == Unit.Category.AIRPLANE or category == Unit.Category.SHIP then
 		ewRadar = SkynetIADSAWACSRadar:create(earlyWarningRadarUnit, self)
 	else
 		ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
@@ -280,23 +281,20 @@ function SkynetIADS.evaluateContacts(self)
 		self:setSAMSitesToAutonomousMode()
 		return
 	end
-	for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		if ewRadar:hasActiveConnectionNode() then
-			local ewContacts = ewRadar:getDetectedTargets()
-			for j = 1, #ewContacts do
-				local contact = ewContacts[j]
-				self:mergeContact(contact)
-			end
-		else
-			if self:getDebugSettings().ewRadarNoConnection then
-				self:printOutput(ewRadar:getDescription().." no connection to Command Center")
-			end
+	
+	local ewRadars = self:getUsableEarlyWarningRadars()
+	for i = 1, #ewRadars do
+		local ewRadar = ewRadars[i]
+		--call go Live in case ewRadar had to shut down (HARM attack)
+		ewRadar:goLive()
+		local ewContacts = ewRadar:getDetectedTargets()
+		for j = 1, #ewContacts do
+			local contact = ewContacts[j]
+			self:mergeContact(contact)
 		end
 	end
 	
 	local usableSamSites = self:getUsableSAMSites()
-	
 	for i = 1, #usableSamSites do
 		local samSite = usableSamSites[i]
 		--see if this can be written with better code. We inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
@@ -535,7 +533,7 @@ function SkynetIADS:printSystemStatus()
 	if self:getDebugSettings().contacts then
 		for i = 1, #self.contacts do
 			local contact = self.contacts[i]
-				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().."| GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
+				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
 	end
 end

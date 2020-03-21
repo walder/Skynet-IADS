@@ -39,7 +39,7 @@ If SAM sites or radar guided AAA run out of Ammo they will go dark. In the case 
 Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
 Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
-You can also designate SAM Sites to act as EW radars, in this case a SAM site will constantly have their radar on. Long range systems like the S-300 are used as EW radars in real life.
+You can also designate SAM sites to act as EW radars, in this case a SAM site will constantly have their radar on. Long range systems like the S-300 are used as EW radars in real life.
 SAM sites that are out of ammo will stay live if they are set to act as EW radars.
 
 Nice to know:
@@ -53,7 +53,7 @@ Nice to know:
 Taking out the power source of a command center is a real life tactic used in SEAD (Suppression of Enemy Air Defence).
 
 ## Connection Nodes
-By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM Units and EW Radars.
+By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM units and EW radars.
 
 When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
 
@@ -64,6 +64,9 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 Any aircraft with an air to air radar can be added as AWACS. Contacts detected will be added to the IADS. The AWACS will also detect ground units like ships.
 These will however not be passed to the SAM sites.
 
+## Ships
+Ships can also contribute to the IADS. Add them as a regular EW radar. 
+
 # Tactics
 
 ## HARM defence
@@ -73,7 +76,7 @@ The SAM site will then calculate the probable impact point of the HARM, if it de
 SAM sites and EW radars will react to air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. They currently don't react to bombs, since they are not detected by DCS radars. 
 The site will calculate time to impact and shut down a random value between a few seconds after time to impact and 180 seconds after time to impact. 
 
-This implementation is closer to real life. SAM Sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+This implementation is closer to real life. SAM sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
 See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
@@ -486,19 +489,19 @@ I based the SAM site setup on [Grimes SAM DB](https://forums.eagle.ru/showthread
 
 ## What air defence units shall I add to the Skynet IADS?
 In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) file. 
-Very short range units (like the Shilka AAA) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
+Very short range units (like the Shilka AAA, Rapier) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
 This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## What exactly does Skynet do with the SAMS?
-Basically one can only toggle a radar unit's alarm state and its rules of engagement via the scripting enginge. In a nutshell thats all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
+Basically one can only toggle a radar unit's alarm state and its rules of engagement via the scripting enginge. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
 Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
 
 No god like intervention is used (like magically exploding HARMS via the scripting engine).
 If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.
 
 ## Are there known bugs?
-Yes, when placing multi unit SAM sites e.g. SA-3, Patriot make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
+Yes, when placing multi unit SAM sites (e.g. SA-3 Patriot..) make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
 The result will be that the SAM site won't go live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
 
 

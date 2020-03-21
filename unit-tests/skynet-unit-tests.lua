@@ -2,7 +2,7 @@ do
 ---IADS Unit Tests
 
 SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 11
-SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 12
+SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 13
 
 function IADSContactFactory(unitName)
 	local contact = Unit.getByName(unitName)
@@ -429,6 +429,32 @@ function TestSamSites:tearDown()
 	self.samSiteName = nil
 end
 
+
+function TestSamSites:testCheckOneGenericObjectAliveForUnitWorks()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	local unit = Unit.getByName('SAM-SA-6-2-coonection-node-unit')
+	self.samSite:addConnectionNode(unit)
+	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), true)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
+	trigger.action.explosion(unit:getPosition().p, 1000)
+	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), false)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
+end
+
+function TestSamSites:testCheckOneGenericObjectAliveForStaticObjectsWorks()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	local static = StaticObject.getByName('SAM-SA-6-2-coonection-node-static')
+	self.samSite:addConnectionNode(static)
+	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), true)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
+	trigger.action.explosion(static:getPosition().p, 1000)
+	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), false)
+	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
+end
+
+
 -- TODO: write test for updateMissilesInFlight in AbstractRadarElement
 function TestSamSites:testUpdateMissilesInFlight()
 	self.samSiteName = "SAM-SA-6-2"
@@ -508,10 +534,10 @@ function TestSamSites:testCheckSA6GroupNumberOfLaunchersAndRangeValuesAndSearchR
     }
 }
 --]]
-	self.samSiteName = "SAM-SA-6"
+	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
-	lu.assertEquals(#self.samSite:getLaunchers(), 2)
-	lu.assertEquals(#self.samSite:getSearchRadars(), 3)
+	lu.assertEquals(#self.samSite:getLaunchers(), 1)
+	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
 	
 	local searchRadar = self.samSite:getSearchRadars()[1]
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 46811.82421875)
@@ -521,7 +547,7 @@ function TestSamSites:testCheckSA6GroupNumberOfLaunchersAndRangeValuesAndSearchR
 	local launcher = self.samSite:getLaunchers()[1]
 	lu.assertEquals(launcher:getRange(), 25000)
 	
-	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 6)
+	lu.assertEquals(self.samSite:getRemainingNumberOfMissiles(), 3)
 end
 
 function TestSamSites:testCheckSA10GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
@@ -1755,6 +1781,199 @@ Search Radar:
 	lu.assertEquals(launcher:getRange(), 120000)
 end
 
+function TestSamSites:testRapierLauncherAndRadar()
+--[[
+Rapier:
+
+Radar: (for some reason the typeName  is Tor?)
+{
+    {
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=16718.5078125, tailOn=16718.5078125},
+                upperHemisphere={headOn=16718.5078125, tailOn=16718.5078125}
+            },
+            type=1,
+            typeName="Tor 9A331"
+        }
+    }
+}
+
+Launcher:
+{
+    {
+        count=4,
+        desc={
+            Nmax=14,
+            RCS=0.079999998211861,
+            _origin="",
+            altMax=3000,
+            altMin=50,
+            box={
+                max={x=1.4030002355576, y=0.13611803948879, z=0.13611821830273},
+                min={x=-0.84999942779541, y=-0.13611836731434, z=-0.1361181885004}
+            },
+            category=1,
+            displayName="Rapier",
+            fuseDist=0,
+            guidance=8,
+            life=2,
+            missileCategory=2,
+            rangeMaxAltMax=6800,
+            rangeMaxAltMin=6800,
+            rangeMin=400,
+            typeName="Rapier",
+            warhead={caliber=133, explosiveMass=1.3999999761581, mass=1.3999999761581, type=1}
+        }
+    }
+}
+
+--]]
+	self.samSiteName = "BLUE-SAM-RAPIER"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "Rapier")
+	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 16718.5078125)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 6800)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 4)
+	
+	local units = Group.getByName(self.samSiteName):getUnits()
+	for i = 1, #units do
+		local unit = units[i]
+		if unit:getTypeName() == 'rapier_fsa_optical_tracker_unit' then
+	--		lu.assertEquals(unit:getSensors(), true)
+		end
+	end
+end
+
+function TestSamSites:testRolandLauncherAndRadar()
+--[[
+Roland:
+
+Radar:
+{
+    0={
+        {opticType=0, type=0, typeName="generic SAM search visir"},
+        {opticType=2, type=0, typeName="generic SAM IR search visir"}
+    },
+    {
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=8024.8837890625, tailOn=8024.8837890625},
+                upperHemisphere={headOn=8024.8837890625, tailOn=8024.8837890625}
+            },
+            type=1,
+            typeName="Roland ADS"
+        }
+    }
+}
+
+Launcher:
+{
+    {
+        count=10,
+        desc={
+            Nmax=14,
+            RCS=0.019600000232458,
+            _origin="",
+            altMax=6000,
+            altMin=10,
+            box={
+                max={x=1.2142661809921, y=0.17386008799076, z=0.1697566062212},
+                min={x=-1.212909579277, y=-0.1738600730896, z=-0.1697566062212}
+            },
+            category=1,
+            displayName="XMIM-115 Roland",
+            fuseDist=5,
+            guidance=4,
+            life=2,
+            missileCategory=2,
+            rangeMaxAltMax=8000,
+            rangeMaxAltMin=8000,
+            rangeMin=500,
+            typeName="ROLAND_R",
+            warhead={caliber=150, explosiveMass=6.5, mass=6.5, type=1}
+        }
+    }
+}
+
+--]]
+	self.samSiteName = "BLUE-SAM-ROLAND"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "Roland ADS")
+	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 8024.8837890625)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 8000)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 10)
+end
+
+function TestSamSites:testHQ7LauncherAndRadar()
+--[[
+HQ-7:
+
+Radar:
+{
+    0={
+        {opticType=0, type=0, typeName="TKN-3B day"},
+        {opticType=2, type=0, typeName="TKN-3B night"},
+        {opticType=0, type=0, typeName="Tunguska optic sight"}
+    },
+    {
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=10090.756835938, tailOn=6727.1713867188},
+                upperHemisphere={headOn=8408.9638671875, tailOn=6727.1713867188}
+            },
+            type=1,
+            typeName="HQ-7 TR"
+        }
+    }
+}
+
+Launcher:
+{
+    {
+        count=4,
+        desc={
+            Nmax=18,
+            RCS=0.0099999997764826,
+            _origin="",
+            altMax=5500,
+            altMin=14.5,
+            box={
+                max={x=1.245908498764, y=0.20055842399597, z=0.20074887573719},
+                min={x=-1.754227399826, y=-0.20056092739105, z=-0.20036999881268}
+            },
+            category=1,
+            displayName="HQ-7",
+            fuseDist=7,
+            guidance=4,
+            life=2,
+            missileCategory=2,
+            rangeMaxAltMax=12000,
+            rangeMaxAltMin=12000,
+            rangeMin=500,
+            typeName="HQ-7",
+            warhead={caliber=156, explosiveMass=15, mass=15, type=1}
+        }
+    }
+}
+--]]
+	self.samSiteName = "SAM-HQ-7"
+	self:setUp()
+	
+	local group = Group.getByName(self.samSiteName)
+--[[
+	local units = group:getUnits()
+	for i = 1, #units do
+		local unit = units[i]
+		if unit:getAmmo() then
+		--	lu.assertEquals(unit:getAmmo(), false)
+		end
+	end
+--]]
+	lu.assertEquals(self.samSite:getNatoName(), "CSA-4")
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 12000)
+	lu.assertEquals(mist.utils.round(self.samSite:getRadars()[1]:getMaxRangeFindingTarget()), mist.utils.round(10090.756835938))
+end
 --[[
 function TestSamSites:testCleanupMistScheduleFunctions()
 	self.samSiteName = "SAM-SA-6"
@@ -1826,9 +2045,12 @@ TestEarlyWarningRadars = {}
 
 function TestEarlyWarningRadars:setUp()
 	self.numEWSites = SKYNET_UNIT_TESTS_NUM_EW_SITES_RED
+	if self.blue == nil then
+		self.blue = ""
+	end
 	if self.ewRadarName then
 		self.iads = SkynetIADS:create()
-		self.iads:addEarlyWarningRadarsByPrefix('EW')
+		self.iads:addEarlyWarningRadarsByPrefix(self.blue..'EW')
 		self.ewRadar = self.iads:getEarlyWarningRadarByUnitName(self.ewRadarName)
 	end
 end
@@ -1843,6 +2065,7 @@ function TestEarlyWarningRadars:tearDown()
 	self.iads = nil
 	self.ewRadar = nil
 	self.ewRadarName = nil
+	self.blue = ""
 end
 
 function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
@@ -1863,6 +2086,30 @@ function TestEarlyWarningRadars:testGetNatoName()
 	self.ewRadarName = "EW-west22"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "1L13 EWR")
+end
+
+function TestEarlyWarningRadars:testFinishHARMDefence()
+	self.ewRadarName = "EW-west2"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:isActive(), true)
+	lu.assertEquals(self.ewRadar:hasRemainingAmmo(), true)
+	self.ewRadar:goSilentToEvadeHARM()
+	lu.assertEquals(self.ewRadar:isActive(), false)
+	self.ewRadar.finishHarmDefence(self.ewRadar)
+	lu.assertEquals(self.ewRadar.harmSilenceID, nil)
+	self.iads.evaluateContacts(self.iads)
+	lu.assertEquals(self.ewRadar:isActive(), true)
+end
+
+function TestEarlyWarningRadars:testGoDarkWhenAutonomousByDefault()
+	self.ewRadarName = "EW-west2"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:isActive(), true)
+	function self.ewRadar:hasActiveConnectionNode()
+		return false
+	end
+	self.ewRadar:goAutonomous()
+	lu.assertEquals(self.ewRadar:isActive(), false)
 end
 
 function TestEarlyWarningRadars:testA50AWACSAsEWRadar()
@@ -1923,6 +2170,156 @@ function TestEarlyWarningRadars:testKJ2000AWACSAsEWRadar()
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 268356.125)
 end
 
+--TODO: this test can only be finished once the perry class has radar data:
+function TestEarlyWarningRadars:testOliverHazzardPerryClassShip()
+--[[
+Oliver Hazzard:
+
+Launchers:
+ {
+    {
+        count=2016,
+        desc={
+            _origin="",
+            box={
+                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+            },
+            category=0,
+            displayName="12.7mm",
+            life=2,
+            typeName="weapons.shells.M2_12_7_T",
+            warhead={caliber=12.7, explosiveMass=0, mass=0.046, type=0}
+        }
+    },
+    {
+        count=460,
+        desc={
+            _origin="",
+            box={
+                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+            },
+            category=0,
+            displayName="25mm HE",
+            life=2,
+            typeName="weapons.shells.M242_25_HE_M792",
+            warhead={caliber=25, explosiveMass=0.185, mass=0.185, type=1}
+        }
+    },
+    {
+        count=142,
+        desc={
+            _origin="",
+            box={
+                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+            },
+            category=0,
+            displayName="25mm AP",
+            life=2,
+            typeName="weapons.shells.M242_25_AP_M791",
+            warhead={caliber=25, explosiveMass=0, mass=0.155, type=0}
+        }
+    },
+    {
+        count=775,
+        desc={
+            _origin="",
+            box={
+                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+            },
+            category=0,
+            displayName="20mm AP",
+            life=2,
+            typeName="weapons.shells.M61_20_AP",
+            warhead={caliber=20, explosiveMass=0, mass=0.1, type=0}
+        }
+    },
+    {
+        count=775,
+        desc={
+            _origin="",
+            box={
+                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+            },
+            category=0,
+            displayName="20mm HE",
+            life=2,
+            typeName="weapons.shells.M61_20_HE",
+            warhead={caliber=20, explosiveMass=0.1, mass=0.1, type=1}
+        }
+    },
+    {
+        count=24,
+        desc={
+            Nmax=25,
+            RCS=0.1765999943018,
+            _origin="",
+            altMax=24400,
+            altMin=10,
+            box={
+                max={x=2.9796471595764, y=0.39923620223999, z=0.39878171682358},
+                min={x=-1.5204827785492, y=-0.38143759965897, z=-0.39878168702126}
+            },
+            category=1,
+            displayName="SM-2",
+            fuseDist=15,
+            guidance=4,
+            life=2,
+            missileCategory=2,
+            rangeMaxAltMax=100000,
+            rangeMaxAltMin=40000,
+            rangeMin=4000,
+            typeName="SM_2",
+            warhead={caliber=340, explosiveMass=98, mass=98, type=1}
+        }
+    },
+    {
+        count=16,
+        desc={
+            Nmax=18,
+            RCS=0.10580000281334,
+            _origin="",
+            altMax=10000,
+            altMin=-1,
+            box={
+                max={x=2.2758972644806, y=0.13610155880451, z=0.28847914934158},
+                min={x=-1.6704962253571, y=-0.4600305557251, z=-0.28847911953926}
+            },
+            category=1,
+            displayName="AGM-84S Harpoon",
+            fuseDist=0,
+            guidance=1,
+            life=2,
+            missileCategory=4,
+            rangeMaxAltMax=241401,
+            rangeMaxAltMin=95000,
+            rangeMin=3000,
+            typeName="AGM_84S",
+            warhead={caliber=343, explosiveMass=90, mass=90, type=1}
+        }
+    },
+    {
+        count=180,
+        desc={
+            _origin="",
+            box={
+--]]
+	self.ewRadarName = "BLUE-EW-Oliver-Hazzard"
+	self.blue = "BLUE-"
+	self:setUp()	
+	lu.assertEquals(self.ewRadar:getNatoName(), "PERRY")
+	--as long as we don't use the PERRY as a SAM site the distance returned is irrelevant, because it's radar wil be on all the time
+	lu.assertEquals(self.ewRadar:getRadars()[1]:getMaxRangeFindingTarget(), 241401)
+	
+	--PERRY does not have radar data
+	local unit = Unit.getByName(self.ewRadarName)
+	lu.assertEquals(unit:getSensors(), nil)
+end
+
 lu.LuaUnit.run()
 
 --clean miste left over scheduled tasks form unit tests
@@ -1943,10 +2340,11 @@ iranIADS = SkynetIADS:create("Iran")
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
 iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(100)
-
+ewConnectionNode = Unit.getByName('connection-node-ew')
+iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
 iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-
+iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
 local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
 
@@ -1957,19 +2355,21 @@ local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
 iadsDebug.contacts = true
-
+iadsDebug.radarWentLive = true
 
 
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
+blueIADS:getSAMSitesByNatoName('Rapier'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 blueIADS:addRadioMenu()
 blueIADS:activate()
 
 local blueIadsDebug = blueIADS:getDebugSettings()
-blueIadsDebug.IADSStatus = true
-blueIadsDebug.harmDefence = true
-blueIadsDebug.contacts = true
+--blueIadsDebug.IADSStatus = true
+--blueIadsDebug.harmDefence = true
+--blueIadsDebug.contacts = true
 
 local launchers = sam:getLaunchers()
 for i=1, #launchers do
@@ -2003,5 +2403,5 @@ cont:setOnOff(true)
 cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 --]]	
-mist.scheduleFunction(checkSams, {iranIADS}, 1, 1)
+--mist.scheduleFunction(checkSams, {iranIADS}, 1, 1)
 end

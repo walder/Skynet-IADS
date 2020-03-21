@@ -13,6 +13,7 @@ function SkynetIADSSAMSearchRadar:create(unit)
 	instance.remainingNumberOfMissiles = 0
 	instance.initialNumberOfShells = 0
 	instance.remainingNumberOfShells = 0
+	instance.triedSensors = 0
 	return instance
 end
 
@@ -21,6 +22,8 @@ function SkynetIADSSAMSearchRadar:setupRangeData()
 	if self:isExist() then
 		local data = self:getDCSRepresentation():getSensors()
 		if data == nil then
+			--this is to prevent infinite calls between launcher and search radar
+			self.triedSensors = self.triedSensors + 1
 			--the SA-13 does not have any sensor data, but is has launcher data, so we use the stuff from the launcher for the radar range.
 			SkynetIADSSAMLauncher.setupRangeData(self)
 			return
@@ -32,7 +35,12 @@ function SkynetIADSSAMSearchRadar:setupRangeData()
 				-- some sam sites have  IR and passive EWR detection, we are just interested in the radar data
 				-- investigate if upperHemisphere and headOn is ok, I guess it will work for most detection cases
 				if sensorInformation.type == Unit.SensorType.RADAR then
-					self.maximumRange = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+					local upperHemisphere = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+					local lowerHemisphere = sensorInformation['detectionDistanceAir']['lowerHemisphere']['headOn']
+					self.maximumRange = upperHemisphere
+					if lowerHemisphere > upperHemisphere then
+						self.maximumRange = lowerHemisphere
+					end
 				end
 			end
 		end

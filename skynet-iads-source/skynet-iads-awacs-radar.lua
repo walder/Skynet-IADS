@@ -1,5 +1,5 @@
 do
-
+--this class is currently used for AWACS and Ships, at a latter date a separate class for ships could be created, currently not needed
 SkynetIADSAWACSRadar = {}
 SkynetIADSAWACSRadar = inheritsFrom(SkynetIADSAbstractRadarElement)
 
@@ -8,8 +8,6 @@ function SkynetIADSAWACSRadar:create(radarUnit, iads)
 	setmetatable(instance, self)
 	self.__index = self
 	return instance
-end
-
 end
 
 function SkynetIADSAWACSRadar:setupElements()
@@ -27,3 +25,6 @@ end
 function SkynetIADSAWACSRadar:scanForHarms()
 	
 end
+
+end
+

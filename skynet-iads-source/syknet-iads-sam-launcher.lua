@@ -42,7 +42,10 @@ function SkynetIADSSAMLauncher:setupRangeData()
 				end
 				--if no distance was detected we run the code for the search radar. This happens when all in one units are passed like the shilka
 				if self.maximumRange == 0 then
-					SkynetIADSSAMSearchRadar.setupRangeData(self)
+					--this is to prevent infinite calls between launcher and search radar
+					if self.triedSensors <= 2 then
+						SkynetIADSSAMSearchRadar.setupRangeData(self)
+					end
 				end
 			end
 			-- conditions here are because setupRangeData() is called multiple times in the code to update ammo status, we set initial values only the first time the method is called

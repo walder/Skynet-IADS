@@ -1,4 +1,4 @@
--- BUILD Timestamp: 19.03.2020 23:02:10.78  
+-- BUILD Timestamp: 21.03.2020  2:55:21.15  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -173,6 +173,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Roland ADS',
 		},
+		['harm_detection_chance'] = 60
 	},		
 	['2S6 Tunguska'] = {
 		['type'] = 'single',
@@ -268,22 +269,8 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Gepard',
 		},
+		['harm_detection_chance'] = 10
 	},		
-	['M6 Linebacker'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		['searchRadar'] = {
-			['M6 Linebacker'] = {		
-			},
-		},
-		['launchers'] = {
-			['M6 Linebacker'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'M6 Linebacker',
-		},
-	},
     ['Rapier'] = {
         ['searchRadar'] = {
             ['rapier_fsa_blindfire_radar'] = {
@@ -302,58 +289,8 @@ samTypesDB = {
         ['name'] = {
 			['NATO'] = 'Rapier',
 		},
+		['harm_detection_chance'] = 10
     },	
-	['M48 Chaparral'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		['searchRadar'] = {
-			['M48 Chaparral'] = {
-			},
-		},
-		['launchers'] = {
-			['M48 Chaparral'] = {	
-			},
-		},
-		['name'] = {
-			['NATO'] = 'M48 Chaparral',
-		},
-	},
-	['Vulcan'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		
-		['searchRadar'] = {
-			['Vulcan'] = {
-			},
-		},
-		['launchers'] = {
-			['Vulcan'] = {
-			},
-		},
-	
-		['name'] = {
-			['NATO'] = 'M163 Vulcan',
-		},
-
-
-	},
-	['M1097 Avenger'] = {
-		['type'] = 'single',
-		['mobile'] = true,
-		['searchRadar'] = {
-			['M1097 Avenger'] = {
-			},
-		},
-		['launchers'] = {
-			['M1097 Avenger'] = {
-				['ir'] = true,
-				['guns'] = true,
-			},
-		},
-		['name'] = {
-			['NATO'] = 'M1097 Avenger',
-		},
-	},
 	['ZSU-23-4 Shilka'] = {
 		['type'] = 'single',
 		['mobile'] = true,
@@ -414,6 +351,20 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Roland EWR',
 		},
+	},
+	['HQ-7'] = {
+		['searchRadar'] = {
+			['HQ-7_STR_SP'] = {
+			},
+		},
+		['launchers'] = {
+			['HQ-7_LN_SP'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'CSA-4',
+		},
+		['harm_detection_chance'] = 30
 	},
 }
 end
@@ -542,7 +493,8 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	end
 	self:setCoalition(earlyWarningRadarUnit)
 	local ewRadar = nil
-	if earlyWarningRadarUnit:getDesc().category == Unit.Category.AIRPLANE then
+	local category = earlyWarningRadarUnit:getDesc().category
+	if category == Unit.Category.AIRPLANE or category == Unit.Category.SHIP then
 		ewRadar = SkynetIADSAWACSRadar:create(earlyWarningRadarUnit, self)
 	else
 		ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
@@ -699,23 +651,20 @@ function SkynetIADS.evaluateContacts(self)
 		self:setSAMSitesToAutonomousMode()
 		return
 	end
-	for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		if ewRadar:hasActiveConnectionNode() then
-			local ewContacts = ewRadar:getDetectedTargets()
-			for j = 1, #ewContacts do
-				local contact = ewContacts[j]
-				self:mergeContact(contact)
-			end
-		else
-			if self:getDebugSettings().ewRadarNoConnection then
-				self:printOutput(ewRadar:getDescription().." no connection to Command Center")
-			end
+	
+	local ewRadars = self:getUsableEarlyWarningRadars()
+	for i = 1, #ewRadars do
+		local ewRadar = ewRadars[i]
+		--call go Live in case ewRadar had to shut down (HARM attack)
+		ewRadar:goLive()
+		local ewContacts = ewRadar:getDetectedTargets()
+		for j = 1, #ewContacts do
+			local contact = ewContacts[j]
+			self:mergeContact(contact)
 		end
 	end
 	
 	local usableSamSites = self:getUsableSAMSites()
-	
 	for i = 1, #usableSamSites do
 		local samSite = usableSamSites[i]
 		--see if this can be written with better code. We inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
@@ -954,7 +903,7 @@ function SkynetIADS:printSystemStatus()
 	if self:getDebugSettings().contacts then
 		for i = 1, #self.contacts do
 			local contact = self.contacts[i]
-				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().."| GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
+				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
 	end
 end
@@ -1068,7 +1017,7 @@ end
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
 	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
-		self.iads:printOutput(self:getDescription().." no connection Command Center")
+		self.iads:printOutput(self:getDescription().." no connection to Command Center")
 	end
 	return connectionNode
 end
@@ -1806,7 +1755,7 @@ end
 
 end
 do
-
+--this class is currently used for AWACS and Ships, at a latter date a separate class for ships could be created, currently not needed
 SkynetIADSAWACSRadar = {}
 SkynetIADSAWACSRadar = inheritsFrom(SkynetIADSAbstractRadarElement)
 
@@ -1815,8 +1764,6 @@ function SkynetIADSAWACSRadar:create(radarUnit, iads)
 	setmetatable(instance, self)
 	self.__index = self
 	return instance
-end
-
 end
 
 function SkynetIADSAWACSRadar:setupElements()
@@ -1834,6 +1781,9 @@ end
 function SkynetIADSAWACSRadar:scanForHarms()
 	
 end
+
+end
+
 do
 SkynetIADSCommandCenter = {}
 SkynetIADSCommandCenter = inheritsFrom(SkynetIADSAbstractElement)
@@ -1935,6 +1885,7 @@ function SkynetIADSEWRadar:create(radarUnit, iads)
 	local instance = self:superClass():create(radarUnit, iads)
 	setmetatable(instance, self)
 	self.__index = self
+		instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 	return instance
 end
 
@@ -2068,6 +2019,7 @@ function SkynetIADSSAMSearchRadar:create(unit)
 	instance.remainingNumberOfMissiles = 0
 	instance.initialNumberOfShells = 0
 	instance.remainingNumberOfShells = 0
+	instance.triedSensors = 0
 	return instance
 end
 
@@ -2076,6 +2028,8 @@ function SkynetIADSSAMSearchRadar:setupRangeData()
 	if self:isExist() then
 		local data = self:getDCSRepresentation():getSensors()
 		if data == nil then
+			--this is to prevent infinite calls between launcher and search radar
+			self.triedSensors = self.triedSensors + 1
 			--the SA-13 does not have any sensor data, but is has launcher data, so we use the stuff from the launcher for the radar range.
 			SkynetIADSSAMLauncher.setupRangeData(self)
 			return
@@ -2087,7 +2041,12 @@ function SkynetIADSSAMSearchRadar:setupRangeData()
 				-- some sam sites have  IR and passive EWR detection, we are just interested in the radar data
 				-- investigate if upperHemisphere and headOn is ok, I guess it will work for most detection cases
 				if sensorInformation.type == Unit.SensorType.RADAR then
-					self.maximumRange = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+					local upperHemisphere = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
+					local lowerHemisphere = sensorInformation['detectionDistanceAir']['lowerHemisphere']['headOn']
+					self.maximumRange = upperHemisphere
+					if lowerHemisphere > upperHemisphere then
+						self.maximumRange = lowerHemisphere
+					end
 				end
 			end
 		end
@@ -2231,7 +2190,10 @@ function SkynetIADSSAMLauncher:setupRangeData()
 				end
 				--if no distance was detected we run the code for the search radar. This happens when all in one units are passed like the shilka
 				if self.maximumRange == 0 then
-					SkynetIADSSAMSearchRadar.setupRangeData(self)
+					--this is to prevent infinite calls between launcher and search radar
+					if self.triedSensors <= 2 then
+						SkynetIADSSAMSearchRadar.setupRangeData(self)
+					end
 				end
 			end
 			-- conditions here are because setupRangeData() is called multiple times in the code to update ammo status, we set initial values only the first time the method is called

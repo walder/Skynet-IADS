@@ -49,7 +49,7 @@ end
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
 	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
-		self.iads:printOutput(self:getDescription().." no connection Command Center")
+		self.iads:printOutput(self:getDescription().." no connection to Command Center")
 	end
 	return connectionNode
 end
