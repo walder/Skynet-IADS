@@ -88,8 +88,9 @@ This is a problem if you have SA-15 Tors next to the EW radar for point defence 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
 You can set the EW radar to keep emitting when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the EW radar will revert back to its previously set HARM defence behaviour.
+
 Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The EW radar will shut down, if it believes it won't be able to handle the number of HARMs inbound. 
-As long as there is one point defence launcher per HARM inbound it wil keep emitting if the HARMS exeed the number of launchers if will shut down. Tests in DCS have shown that this is roughly the saturation point.
+As long as there is one point defence launcher per HARM inbound it wil keep emitting if the HARMs exeed the number of launchers if will shut down. Tests in DCS have shown that this is roughly the saturation point.
 
 
 Nice to know: There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
