@@ -1,4 +1,4 @@
--- BUILD Timestamp: 21.03.2020  2:55:21.15  
+-- BUILD Timestamp: 22.03.2020 18:05:47.57  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -591,6 +591,16 @@ function SkynetIADS:getSAMSites()
 	return self:createTableDelegator(self.samSites)
 end
 
+function SkynetIADS:getActiveSAMSites()
+	local activeSAMSites = {}
+	for i = 1, #self.samSites do
+		if self.samSites[i]:isActive() then
+			table.insert(activeSAMSites, self.samSites[i])
+		end
+	end
+	return activeSAMSites
+end
+
 function SkynetIADS:getSAMSiteByGroupName(groupName)
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
@@ -1160,12 +1170,11 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.aiState = false
-	instance.jammerID = nil
 	instance.harmScanID = nil
 	instance.harmSilenceID = nil
 	instance.lastJammerUpdate = 0
-	instance.setJammerChance = true
 	instance.objectsIdentifiedAsHarms = {}
+	instance.objectsIdentifiedAsHarmsMaxTargetAge = 60
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
@@ -1204,7 +1213,6 @@ function SkynetIADSAbstractRadarElement:cleanUp()
 		local pointDefence = self.pointDefences[i]
 		pointDefence:cleanUp()
 	end
-	mist.removeFunction(self.jammerID)
 	mist.removeFunction(self.harmScanID)
 	mist.removeFunction(self.harmSilenceID)
 	--call method from super class
@@ -1220,15 +1228,31 @@ function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
 end
 
-function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo()
-	local hasAmmo = false
+
+function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
+	local remainingMissiles = 0
 	for i = 1, #self.pointDefences do
 		local pointDefence = self.pointDefences[i]
-		if pointDefence:hasRemainingAmmo() then
-			return true
-		end
+		remainingMissiles = remainingMissiles + pointDefence:getRemainingNumberOfMissiles()
 	end
-	return hasAmmo
+	local returnValue = false
+	if ( remainingMissiles > 0 and remainingMissiles >= minNumberOfMissiles ) then
+		returnValue = true
+	end
+	return returnValue
+end
+
+function SkynetIADSAbstractElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
+	local numOfLaunchers = 0
+	for i = 1, #self.pointDefences do
+		local pointDefence = self.pointDefences[i]
+		numOfLaunchers = numOfLaunchers + #pointDefence:getLaunchers()	
+	end
+	local returnValue = false
+	if ( numOfLaunchers > 0 and numOfLaunchers >= minNumberOfLaunchers ) then
+		returnValue = true
+	end
+	return returnValue
 end
 
 function SkynetIADSAbstractElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
@@ -1508,7 +1532,6 @@ function SkynetIADSAbstractRadarElement:goDark()
 		--called here so if SAM is destroyed it will still activate the point defences
 		self:pointDefencesGoLive()
 		self.aiState = false
-		mist.removeFunction(self.jammerID)
 		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
@@ -1583,21 +1606,8 @@ function SkynetIADSAbstractRadarElement:goAutonomous()
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)
-	--trigger.action.outText(self.lastJammerUpdate, 2)
-	if self.lastJammerUpdate == 0 then
-		--trigger.action.outText("updating jammer probability", 5)
-		self.lastJammerUpdate = 10
-		self.setJammerChance = true
-		mist.removeFunction(self.jammerID)
-		self.jammerID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.setJamState, {self, successProbability}, 1, 1)
-	end
-end
-
-function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
-	if self.setJammerChance then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
-			self.setJammerChance = false
 			local probability = math.random(1, 100)
 			if self.iads:getDebugSettings().jammerProbability then
 				self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
@@ -1613,9 +1623,8 @@ function SkynetIADSAbstractRadarElement.setJamState(self, successProbability)
 					self.iads:printOutput("Jammer: "..self:getDescription()..": jammed, setting to weapon free")
 				end
 			end
+			self.lastJammerUpdate = timer:getTime()
 		end
-	end
-	self.lastJammerUpdate = self.lastJammerUpdate - 1
 end
 
 function SkynetIADSAbstractRadarElement:scanForHarms()
@@ -1704,13 +1713,46 @@ function SkynetIADSAbstractRadarElement:shallReactToHARM()
 	return self.harmDetectionChance >=  math.random(1, 100)
 end
 
-function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
-	self:updateMissilesInFlight()
-	
-	--if there are point defences we do not scan for harms and react to them
-	if self:pointDefencesHaveRemainingAmmo() and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true then
-		return
+-- will only check for missiles, if DCS ads AAA than can engage HARMs then this code must be updated:
+function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
+	local numOfHarms = self:getNumberOfObjectsItentifiedAsHARMS()
+	return ( self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms) and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true)
+end
+
+
+function SkynetIADSAbstractRadarElement:getNumberOfObjectsItentifiedAsHARMS()
+	local numFound = 0
+	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
+		numFound = numFound + 1
 	end
+	return numFound
+end
+
+function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
+	local validObjects = {}
+	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
+		local harm = unit['target']
+		if harm:getAge() <= self.objectsIdentifiedAsHarmsMaxTargetAge then
+			validObjects[harm:getName()] = {}
+			validObjects[harm:getName()]['target'] = harm
+			validObjects[harm:getName()]['count'] = unit['count']
+		end
+	end
+	self.objectsIdentifiedAsHarms = validObjects
+end
+
+
+function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
+	
+	--if an emitter dies the SAM site being jammed will revert back to normal operation:
+	if self.lastJammerUpdate > 0 and ( timer:getTime() - self.lastJammerUpdate ) > 10 then
+		self:jam(0)
+		self.lastJammerUpdate = 0
+	end
+	
+	--we use the regular interval of this method to update to other states:
+	self:updateMissilesInFlight()	
+	self:cleanUpOldObjectsIdentifiedAsHARMS()
 	
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
@@ -1736,8 +1778,13 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					local speed = savedTarget:getGroundSpeedInKnots()
 					local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
 					local shallReactToHarm = self:shallReactToHARM()
-					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. The harm reaction time adds some salt otherwise the SAM will always shut down 100% of the time.
-					if numDetections == 2 and shallReactToHarm then
+					
+					if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
+						env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
+					end
+					
+					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
+					if numDetections == 2 and shallReactToHarm and self:shallIgnoreHARMShutdown() == false then
 						self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
 						self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
 						self:goSilentToEvadeHARM(timeToImpact)
@@ -1895,12 +1942,13 @@ do
 SkynetIADSJammer = {}
 SkynetIADSJammer.__index = SkynetIADSJammer
 
-function SkynetIADSJammer:create(emitter)
+function SkynetIADSJammer:create(emitter, iads)
 	local jammer = {}
 	setmetatable(jammer, SkynetIADSJammer)
 	jammer.emitter = emitter
 	jammer.jammerTaskID = nill
-	jammer.iads = {}
+	jammer.iads = {iads}
+	jammer.maximumEffectiveDistanceNM = 200
 	--jammer probability settings are stored here, visualisation, see: https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0
 	jammer.jammerTable = {
 		['SA-2'] = {
@@ -1933,15 +1981,21 @@ end
 
 function SkynetIADSJammer:masterArmOn()
 	self:masterArmSafe()
-	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 1)
+	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
 end
 
 function SkynetIADSJammer:disableFor(natoName)
 	self.jammerTable[natoName]['canjam'] = false
 end
 
-function SkynetIADSJammer:isActiveForEmitterType(natoName)
-	return self.jammerTable[natoName]['canjam']
+function SkynetIADSJammer:isKnownRadarEmitter(natoName)
+	local isActive = false
+	for unitName, unit in pairs(self.jammerTable) do
+		if unitName == natoName and unit['canjam'] == true then
+			isActive = true
+		end
+	end
+	return isActive
 end
 
 function SkynetIADSJammer:addIADS(iads)
@@ -1957,17 +2011,20 @@ function SkynetIADSJammer:getSuccessProbability(distanceNauticalMiles, natoName)
 	return probability
 end
 
+function SkynetIADSJammer:getDistanceNMToRadarUnit(radarUnit)
+	return mist.utils.metersToNM(mist.utils.get3DDist(self.emitter:getPosition().p, radarUnit:getPosition().p))
+end
+
 function SkynetIADSJammer.runCycle(self)
 
 	if self.emitter:isExist() == false then
 		self:masterArmSafe()
-	--	trigger.action.outText("emitter is dead", 1)
 		return
 	end
 
 	for i = 1, #self.iads do
 		local iads = self.iads[i]
-		local samSites = iads:getSamSites()	
+		local samSites = iads:getActiveSAMSites()	
 		for j = 1, #samSites do
 			local samSite = samSites[j]
 			local radars = samSite:getRadars()
@@ -1976,31 +2033,49 @@ function SkynetIADSJammer.runCycle(self)
 			local natoName = samSite:getNatoName()
 			for l = 1, #radars do
 				local radar = radars[l]
-				distance = mist.utils.metersToNM(mist.utils.get2DDist(self.emitter:getPosition().p, radar:getPosition().p))
+				distance = self:getDistanceNMToRadarUnit(radar)
 				-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site if has line of sight to at least one radar in the group
-				if self:hasLineOfSightToRadar(radar) then
-					hasLOS = true
+				if self:isKnownRadarEmitter(natoName) and self:hasLineOfSightToRadar(radar) and distance <= self.maximumEffectiveDistanceNM then
+					if iads:getDebugSettings().jammerProbability then
+						iads:printOutput("JAMMER: Distance: "..distance)
+					end
+					samSite:jam(self:getSuccessProbability(distance, natoName))
 				end
-			end
-			if samSite:isActive() and self:isActiveForEmitterType(natoName) then
-			--	trigger.action.outText("Distance: "..distance, 2)
-			--	trigger.action.outText("Jammer Probability: "..self:getSuccessProbability(distance, natoName), 2)
-				samSite:jam(self:getSuccessProbability(distance, natoName))
 			end
 		end
 	end
-	--trigger.action.outText("jammer cycle",1)
 end
 
 function SkynetIADSJammer:hasLineOfSightToRadar(radar)
 	local radarPos = radar:getPosition().p
-	--lift the radar 3 meters off the ground, some 3d models are dug in to the ground, creating issues in calculating LOS
-	radarPos.y = radarPos.y + 3
+	--lift the radar 30 meters off the ground, some 3d models are dug in to the ground, creating issues in calculating LOS
+	radarPos.y = radarPos.y + 30
 	return land.isVisible(radarPos, self.emitter:getPosition().p) 
 end
 
 function SkynetIADSJammer:masterArmSafe()
 	mist.removeFunction(self.jammerTaskID)
+end
+
+--TODO: Remove Menu when emitter dies:
+function SkynetIADSJammer:addRadioMenu()
+	local skynetMenu = missionCommands.addSubMenu('Jammer: '..self.emitter:getName())
+	missionCommands.addCommand('Master Arm On', skynetMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmOn'})
+	missionCommands.addCommand('Master Arm Safe', skynetMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmSafe'})
+end
+
+function SkynetIADSJammer.updateMasterArm(params)
+	local option = params.option
+	local self = params.self
+	if option == 'masterArmOn' then
+		self:masterArmOn()
+	elseif option == 'masterArmSafe' then
+		self:masterArmSafe()
+	end
+end
+
+function SkynetIADSJammer:removeRadioMenu()
+	missionCommands.removeItem('SKYNET IADS')
 end
 
 end

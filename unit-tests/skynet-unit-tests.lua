@@ -1653,6 +1653,52 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActive()
 	-- TODO: test with two HARM defences
 end
 
+function TestSamSites:testCleanUpOldObjectsIdentifiedAsHARMS()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	local iadsContact2 = IADSContactFactory("test-not-in-firing-range-of-sa-2")	
+	local iadsContact3 = IADSContactFactory("test-outer-search-range")
+	
+	function self.samSite:getDetectedTargets()
+		return {iadsContact, iadsContact2, iadsContact3}
+	end
+	
+	function self.samSite:getDistanceInMetersToContact(a, b)
+		return 50
+	end
+	function self.samSite:calculateImpactPoint(a, b)
+		return self:getRadars()[1]:getPosition().p
+	end
+	
+	function self.samSite:shallReactToHARM()
+		return true
+	end
+	
+	function self.samSite:goSilentToEvadeHARM()
+	
+	end
+	
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(#self.samSite:getDetectedTargets(), 3)
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 3)
+	
+	self.samSite.objectsIdentifiedAsHarms = {}
+	
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	
+	--age a target
+	local testSAMSite = self.samSite	
+	function iadsContact3:getAge()
+		return testSAMSite.objectsIdentifiedAsHarmsMaxTargetAge + 1
+	end
+	
+	self.samSite:cleanUpOldObjectsIdentifiedAsHARMS()
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)
+	
+end
+
 function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAvailable()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
@@ -1667,6 +1713,9 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	lu.assertEquals(#self.samSite:getPointDefences(), 1)
 	
 	local iadsContact = IADSContactFactory("test-distance-calculation")
+	local iadsContact2 = IADSContactFactory("test-not-in-firing-range-of-sa-2")	
+	local iadsContact3 = IADSContactFactory("test-outer-search-range")
+	
 	local calledShutdown = false
 	
 	function self.samSite:getDetectedTargets()
@@ -1702,7 +1751,7 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	-- set the state for HARM Ignore to true and check if the method returns a sam site for daisy chaining
 	lu.assertEquals(self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true), self.samSite)
 	
-	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(#self.samSite.objectsIdentifiedAsHarms), true)
+	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
 	
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
@@ -1712,7 +1761,54 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	
 	self.samSite.objectsIdentifiedAsHarms = {}
 	calledShutdown = false
-		
+	
+	
+	--this test if for when there are less point defence launchers than HARMs inbound, radar emitter will shut down:
+	function self.samSite:getDetectedTargets()
+		return {iadsContact, iadsContact2, iadsContact3}
+	end
+	
+	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 3)	
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(calledShutdown, true)
+	
+	self.samSite.objectsIdentifiedAsHarms = {}
+	calledShutdown = false
+	
+	--this test if for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
+	function self.samSite:getDetectedTargets()
+		return {iadsContact, iadsContact2}
+	end
+
+	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)	
+	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(calledShutdown, false)
+	
+	self.samSite.objectsIdentifiedAsHarms = {}
+	calledShutdown = false
+	
+	--this test if there are a greater number of point defence launchers than HARMs inbound, radar emitter will not shut down:
+	function self.samSite:getDetectedTargets()
+		return {iadsContact}
+	end
+	
+	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 1)	
+	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
+	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(calledShutdown, false)
+	
+	self.samSite.objectsIdentifiedAsHarms = {}
+	calledShutdown = false
+
+	
 	--this test is for when the point defence is out of ammo and setIgnoreHARMSWhilePointDefencesHaveAmmo is set to true
 	function pointDefence:getRemainingNumberOfMissiles()
 		return 0
@@ -1721,10 +1817,8 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	
-	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(#self.samSite.objectsIdentifiedAsHarms), false)
-	
+	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
 	lu.assertEquals(calledShutdown, true)
-	
 	
 end
 
@@ -2391,6 +2485,11 @@ Launchers:
 	lu.assertEquals(unit:getSensors(), nil)
 end
 
+function TestEarlyWarningRadars:testTiconderoga()
+	self.ewRadarName = "ticonderoga-class"
+	lu.assertEquals(Unit.getByName(self.ewRadarName):getDesc().category, Unit.Category.SHIP)
+end
+
 lu.LuaUnit.run()
 
 --clean miste left over scheduled tasks form unit tests
@@ -2423,9 +2522,9 @@ iranIADS:addRadioMenu()
 iranIADS:activate()
 
 local iadsDebug = iranIADS:getDebugSettings()
---iadsDebug.IADSStatus = true
+iadsDebug.IADSStatus = true
 iadsDebug.harmDefence = true
---iadsDebug.contacts = true
+iadsDebug.contacts = true
 ---iadsDebug.radarWentLive = true
 iadsDebug.jammerProbability = true
 
@@ -2437,9 +2536,9 @@ blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstrac
 blueIADS:addRadioMenu()
 blueIADS:activate()
 
-local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
-jammer:masterArmOn()
-jammer:addRadioMenu()
+--local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
+--jammer:masterArmOn()
+--jammer:addRadioMenu()
 
 local blueIadsDebug = blueIADS:getDebugSettings()
 --blueIadsDebug.IADSStatus = true
