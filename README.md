@@ -378,6 +378,46 @@ You can set the reaction probability (between 0 and 100 percent). See [skynet-ia
 ewRadar:setHARMDetectionChance(50)
 ```
 
+## Adding a jammer
+The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an aircraft in the strike package.
+Once the jammer detects an emitter it starts jamming the radar. Set the coresponding debug level to see what the jammer is doing.
+Check [skynet-iads-jammer.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
+
+Remember to set the AI aircraft acting as jammer in the Mission editor to Reaction to Threat = EVADE FIRE otherwise the AI will try and actively attack the SAM site.
+This way it will stick to the preset flight plan.
+
+Create a jammer and assign it to an unit. Also make sure you add the IADS you wan't the jammer to work for:
+```lua
+local jammerSource = Unit.getByName("F-4 AI")
+jammer = SkynetIADSJammer:create(jammerSource, iads)
+```
+
+The jammer will start listening for emitters and if it finds one of the emitters it is able to jam it will start jamming it:
+```lua
+jammer:masterArmOn()
+```
+
+Will disable jamming for the specified SAM type, pass the Nato name:
+```lua
+jammer:disableFor('SA-2')
+```
+
+Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code:
+```lua
+jammer:masterArmOff()
+```
+
+Will add jammer on / off to the radio menu:
+```lua
+jammer:addRadioMenu()
+```
+
+Will remove jammer on / off from the radio menu:
+```lua
+jammer:removeRadioMenu()
+```
+
+
 # Example Setup
 This is an example of how you can set up your IADS used in the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz):
 ```lua
@@ -454,48 +494,6 @@ local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), iranIAD
 jammer:masterArmOn()
 
 end
-```
-
-
-
-
-## Adding a jammer
-The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an Aircraft in the strike package.
-Once the jammer detects an emitter it starts jamming the radar. Set the coresponding debug level to see what the jammer is doing.
-Check [skynet-iads-jammer.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
-
-Remember to set the AI aircraft acting as jammer in the Mission editor to Reaction to Threat = EVADE FIRE otherwise the AI will try and actively attack the SAM site.
-This way it will stick to the preset flight plan.
-
-Create a jammer and assign it to an unit. Also make sure you add the IADS you wan't the jammer to work for:
-```lua
-local jammerSource = Unit.getByName("F-4 AI")
-jammer = SkynetIADSJammer:create(jammerSource, iads)
-```
-
-The jammer will start listening for emitters and if it finds one of the emitters it is able to jam it will start jamming it:
-```lua
-jammer:masterArmOn()
-```
-
-Will disable jamming for the specified SAM type, pass the Nato name:
-```lua
-jammer:disableFor('SA-2')
-```
-
-Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code:
-```lua
-jammer:masterArmOff()
-```
-
-Will add jammer on / off to the radio menu:
-```lua
-jammer:addRadioMenu()
-```
-
-Will remove jammer on / off from the radio menu:
-```lua
-jammer:removeRadioMenu()
 ```
 
 ### Advanced functions
