@@ -2146,8 +2146,8 @@ end
 
 TestJammer = {}
 
-function TestJammer:SetUp()
-	self.emitter = Unit.getByName('jammer-source')
+function TestJammer:setUp()
+	self.emitter = Unit.getByName('jammer-source')	
 	self.mockIADS = {}
 	function self.mockIADS:getDebugSettings()
 		return {}
@@ -2203,8 +2203,68 @@ end
 function TestJammer:testIsActiveForKnownType()
 	lu.assertEquals(self.jammer:isKnownRadarEmitter('SA-2'), true)
 end
---TODO: test if emitter is not active
 
+function TestJammer:testCleanUpJammer()
+	self.jammer:masterArmOn()
+
+	local alive = false
+	local i = 0
+	while i < 10000 do
+		local id =  mist.removeFunction(i)
+		i = i + 1
+		if id then
+			alive = true
+		end
+	end
+	lu.assertEquals(alive, true)
+
+	self.jammer:masterArmSafe()
+	
+	i = 0
+	alive = false
+	while i < 10000 do
+		local id =  mist.removeFunction(i)
+		i = i + 1
+		if id then
+			alive = true
+		end
+	end
+	lu.assertEquals(alive, false)
+end
+
+function TestJammer:testAddJammerFunction()
+
+	local function f(distanceNM)
+		return 2 * distanceNM
+	end
+	self.jammer:addFunction('SA-99', f)
+	lu.assertEquals(self.jammer:getSuccessProbability(20, 'SA-99'), 40)
+	lu.assertEquals(self.jammer:isKnownRadarEmitter('SA-99'), true)
+	self.jammer:disableFor('SA-99')
+	lu.assertEquals(self.jammer:isKnownRadarEmitter('SA-99'), false)
+end
+
+function TestJammer:testDestroyEmitter()
+	self:tearDown()
+	self.emitter = Unit.getByName("jammer-source-unit-test")
+	local iads = SkynetIADS:create()
+	self.jammer = SkynetIADSJammer:create(self.emitter, iads)
+	self.jammer:masterArmOn()
+	
+	trigger.action.explosion(Unit.getByName("jammer-source-unit-test"):getPosition().p, 500)
+	self.jammer.runCycle(self.jammer)
+	
+	local i = 0
+	local alive = false
+	while i < 10000 do
+		local id =  mist.removeFunction(i)
+		i = i + 1
+		if id then
+			alive = true
+		end
+	end
+	lu.assertEquals(alive, false)
+end
 
 TestEarlyWarningRadars = {}
 
@@ -2496,7 +2556,7 @@ lu.LuaUnit.run()
 
 -- we run this test to check there are no left over tasks in the IADS
 local i = 0
-while i < 10000000 do
+while i < 10000 do
 	local id =  mist.removeFunction(i)
 	i = i + 1
 	if id then
@@ -2536,9 +2596,9 @@ blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstrac
 blueIADS:addRadioMenu()
 blueIADS:activate()
 
---local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
---jammer:masterArmOn()
---jammer:addRadioMenu()
+local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
+jammer:masterArmOn()
+jammer:addRadioMenu()
 
 local blueIadsDebug = blueIADS:getDebugSettings()
 --blueIadsDebug.IADSStatus = true

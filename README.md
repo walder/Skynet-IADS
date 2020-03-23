@@ -64,6 +64,9 @@ A single node can be used to connect an arbitrary number of Skynet IADS units. T
 Any aircraft with an air to air radar can be added as AWACS. Contacts detected will be added to the IADS. The AWACS will also detect ground units like ships.
 These will however not be passed to the SAM sites.
 
+You can add a connection node for the AWACS like an antenna, if it is destroyed, the AWACS will no longer be able to contribute contacts to the IADS.
+Technically you can also add a power source. In this context it would represent the power source for the connection node, since an aircraft provides its own power.
+
 ## Ships
 Ships will contribute to the IADS the same way AWACS units do. Add them as a regular EW radar. 
 
@@ -97,13 +100,19 @@ Nice to know: There's an interesting [documentary on the Tor by RT](https://www.
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
-The closer you get to a SAM site the more ineffective the jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
+The closer the jamming emitter get to a SAM site the less effective jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
-Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and its effectiveness on them. 
+I recommend you add an AI unit that follows the strike package you're flying in. This will give you the most realistic experience. 
+The jammer emitter will toggle the ROE state of a SAM site which affects how the SAM site reacts to all threats near of far.
+
+I presume an aircraft very close to a SAM site beeing jammed by a emitter very far away would most likely be detected.
+
+Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and the jammer's effectiveness on them. 
 When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. 
 The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
-In the mission editor you add the jammer to a unit. I suggest you take an F-111 as jammer plattform and add it to your strike package.
+
+Nice to know: Here is an old school documentary [showing the Prowler in action](https://www.youtube.com/watch?v=su44ZU7NcQU).
 
 # Using Skynet in the mission editor
 It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
@@ -440,6 +449,10 @@ iranIADS:addRadioMenu()
 --activate the IADS
 iranIADS:activate()	
 
+--add the jammer
+local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), iranIADS)
+jammer:masterArmOn()
+
 end
 ```
 
@@ -447,22 +460,67 @@ end
 
 
 ## Adding a jammer
-The jammer is quite easy to set up. You need a unit that acts as a jammer source. Once the jammer detects an emitter it starts jamming the radar. Set the coresponding debug level to see what the jammer is doing.
+The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an Aircraft in the strike package.
+Once the jammer detects an emitter it starts jamming the radar. Set the coresponding debug level to see what the jammer is doing.
+Check [skynet-iads-jammer.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
+
+Remember to set the AI aircraft acting as jammer in the Mission editor to Reaction to Threat = EVADE FIRE otherwise the AI will try and actively attack the SAM site.
+This way it will stick to the preset flight plan.
+
+Create a jammer and assign it to an unit. Also make sure you add the IADS you wan't the jammer to work for:
 ```lua
-local jammerSource = Unit.getByName("Player Hornet")
-jammer = SkynetIADSJammer:create(jammerSource)
-jammer:addIADS(redIADS)
--- sets the jammer to listen for emitters
+local jammerSource = Unit.getByName("F-4 AI")
+jammer = SkynetIADSJammer:create(jammerSource, iads)
+```
+
+The jammer will start listening for emitters and if it finds one of the emitters it is able to jam it will start jamming it:
+```lua
 jammer:masterArmOn()
 ```
-You can disable the jammer for a certain SAM type.  
-The jammable SAM Types are: SA-2, SA-3, SA-6, SA-10, SA-11, SA-15:
+
+Will disable jamming for the specified SAM type, pass the Nato name:
 ```lua
 jammer:disableFor('SA-2')
 ```
-You can turn the jammer off like this:
+
+Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code:
 ```lua
 jammer:masterArmOff()
+```
+
+Will add jammer on / off to the radio menu:
+```lua
+jammer:addRadioMenu()
+```
+
+Will remove jammer on / off from the radio menu:
+```lua
+jammer:removeRadioMenu()
+```
+
+### Advanced functions
+
+Add a second IADS the jammer should be able to jam, for example if you have to separate IADS running:
+```lua
+jammer:addIADS(iads2)
+```
+
+Add a new jammer function:
+
+```lua
+-- write a lambda function that expects one parameter:
+-- given public available data on jammers their effeciveness drastically decreases the closer you get, so a non-linear function would make sense:
+local function f(distanceNM)
+	return ( 1.4 ^ distanceNM ) + 80
+end
+
+-- add the function: specify which SAM type it should apply for:
+self.jammer:addFunction('SA-10', f)
+```
+
+Set the maximum range the jammer will work, the default value is set to 200 nautical miles:
+```lua
+jammer:setMaximumEffectiveDistance(distance)
 ```
 
 ### Debug information

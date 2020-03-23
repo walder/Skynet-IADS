@@ -1,4 +1,4 @@
--- BUILD Timestamp: 22.03.2020 18:05:47.57  
+-- BUILD Timestamp: 23.03.2020 21:35:37.20  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -434,6 +434,10 @@ function SkynetIADS:setCoalition(item)
 			self:printOutput("element: "..item:getName().." has a different coalition than the IADS", true)
 		end
 	end
+end
+
+function SkynetIADS:addJammer(jammer)
+	table.insert(self.jammers, jammer)
 end
 
 function SkynetIADS:getCoalition()
@@ -1982,6 +1986,17 @@ end
 function SkynetIADSJammer:masterArmOn()
 	self:masterArmSafe()
 	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
+end
+
+function SkynetIADSJammer:addFunction(natoName, jammerFunction)
+	self.jammerTable[natoName] = {
+		['function'] = jammerFunction,
+		['canjam'] = true
+	}
+end
+
+function SkynetIADSJammer:setMaximumEffectiveDistance(distance)
+	self.setMaximumEffectiveDistance = distance
 end
 
 function SkynetIADSJammer:disableFor(natoName)

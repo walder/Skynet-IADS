@@ -45,6 +45,17 @@ function SkynetIADSJammer:masterArmOn()
 	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
 end
 
+function SkynetIADSJammer:addFunction(natoName, jammerFunction)
+	self.jammerTable[natoName] = {
+		['function'] = jammerFunction,
+		['canjam'] = true
+	}
+end
+
+function SkynetIADSJammer:setMaximumEffectiveDistance(distance)
+	self.setMaximumEffectiveDistance = distance
+end
+
 function SkynetIADSJammer:disableFor(natoName)
 	self.jammerTable[natoName]['canjam'] = false
 end

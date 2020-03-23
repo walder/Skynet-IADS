@@ -62,7 +62,18 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-11-2'):setEngagementZone(SkynetIADSAbstra
 --activate the radio menu to toggle IADS Status output
 iranIADS:addRadioMenu()
 
+-- activate the IADS
 iranIADS:activate()	
 
+--add the jammer
+local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), iranIADS)
+jammer:masterArmOn()
+
+
+---some special code to remove the jammer aircraft if player is not flying with it in formation, has nothing to do with the IADS:
+local hornet = Unit.getByName('Hornet SA-11-2 Attack')
+if hornet == nil then
+	Unit.getByName('jammer-emitter'):destroy()
+end
 
 end

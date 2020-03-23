@@ -66,6 +66,10 @@ function SkynetIADS:setCoalition(item)
 	end
 end
 
+function SkynetIADS:addJammer(jammer)
+	table.insert(self.jammers, jammer)
+end
+
 function SkynetIADS:getCoalition()
 	return self.coalitionID
 end
