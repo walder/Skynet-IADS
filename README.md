@@ -100,7 +100,7 @@ Nice to know: There's an interesting [documentary on the Tor by RT](https://www.
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
-The closer the jamming emitter get to a SAM site the less effective jamming will become. For the jammer to work it will need LOS (line of sight) to a radar unit. 
+The closer the jamming emitter gets to a SAM site the less effective jamming will become (burn through). For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
 I recommend you add an AI unit that follows the strike package you're flying in. This will give you the most realistic experience. 
