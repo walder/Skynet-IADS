@@ -404,7 +404,7 @@ Will disable jamming for the specified SAM type, pass the Nato name:
 jammer:disableFor('SA-2')
 ```
 
-Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code:
+Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code, otherwise a background task will keep on jamming:
 ```lua
 jammer:masterArmOff()
 ```
