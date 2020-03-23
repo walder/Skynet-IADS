@@ -96,23 +96,25 @@ Use this feature if you don't want the IADS to loose situational awareness just 
 As long as there is one point defence launcher per HARM inbound it wil keep emitting if the HARMs exeed the number of launchers if will shut down. Tests in DCS have shown that this is roughly the saturation point.
 
 
-Nice to know: There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
+There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
 The closer the jamming emitter gets to a SAM site the less effective jamming will become (burn through). For the jammer to work it will need LOS (line of sight) to a radar unit. 
 Older SAM sites are more susceptible to jamming. EW radars are currently not jammable.
 
-I recommend you add an AI unit that follows the strike package you're flying in. This will give you the most realistic experience. 
-The jammer emitter will toggle the ROE state of a SAM site which affects how the SAM site reacts to all threats near of far.
+I recommend you add an AI unit that follows the strike package you're flying in to act as a jammer aircraft. This will give you the most realistic experience. 
+The jammer emitter will toggle the ROE state of a SAM site which affects how the SAM site reacts to all threats near or far.
 
 I presume an aircraft very close to a SAM site beeing jammed by a emitter very far away would most likely be detected.
+So the farther away you are from the jammer source the more unrealistic your experience will be.
 
 Here is a [list of SAM sites currently supported by the jammer](https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0) and the jammer's effectiveness on them. 
 When setting up a jammer you can decide which SAM sites it is able to jam. For example you could design a mission in which the jammer is not able to jam a SA-6 but is able to jam a SA-2. 
-The jammer effeciveness is not based on any real world data I just read about the different types and made my own conclusions.
+The jammer effectiveness is not based on any real world data I just read about the different types and made my own conclusions.
 
-Nice to know: Here is an old school documentary [showing the Prowler in action](https://www.youtube.com/watch?v=su44ZU7NcQU).
+Here is an old school documentary [showing the Prowler in action](https://www.youtube.com/watch?v=su44ZU7NcQU). They brief to turn on their jamming equipement at 60 nm from the target.
+I suppose that must have been the effective range of 70's jamming tech.
 
 # Using Skynet in the mission editor
 It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
