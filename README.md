@@ -441,7 +441,7 @@ self.jammer:addFunction('SA-10', f)
 
 Set the maximum range the jammer will work, the default value is set to 200 nautical miles:
 ```lua
-jammer:setMaximumEffectiveDistance(distance)
+jammer:setMaximumEffectiveDistance(100)
 ```
 
 # Example Setup
