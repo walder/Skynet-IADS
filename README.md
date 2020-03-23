@@ -421,7 +421,7 @@ jammer:removeRadioMenu()
 
 ### Advanced functions
 
-Add a second IADS the jammer should be able to jam, for example if you have to separate IADS running:
+Add a second IADS the jammer should be able to jam, for example if you have two separate IADS running:
 ```lua
 jammer:addIADS(iads2)
 ```
