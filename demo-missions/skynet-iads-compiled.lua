@@ -1,4 +1,4 @@
--- BUILD Timestamp: 23.03.2020 21:35:37.20  
+-- BUILD Timestamp: 23.03.2020 22:54:33.08  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2090,7 +2090,7 @@ function SkynetIADSJammer.updateMasterArm(params)
 end
 
 function SkynetIADSJammer:removeRadioMenu()
-	missionCommands.removeItem('SKYNET IADS')
+	missionCommands.removeItem('Jammer: '..self.emitter:getName())
 end
 
 end

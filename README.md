@@ -419,6 +419,30 @@ Will remove jammer on / off from the radio menu:
 jammer:removeRadioMenu()
 ```
 
+### Advanced functions
+
+Add a second IADS the jammer should be able to jam, for example if you have to separate IADS running:
+```lua
+jammer:addIADS(iads2)
+```
+
+Add a new jammer function:
+
+```lua
+-- write a lambda function that expects one parameter:
+-- given public available data on jammers their effeciveness drastically decreases the closer you get, so a non-linear function would make sense:
+local function f(distanceNM)
+	return ( 1.4 ^ distanceNM ) + 80
+end
+
+-- add the function: specify which SAM type it should apply for:
+self.jammer:addFunction('SA-10', f)
+```
+
+Set the maximum range the jammer will work, the default value is set to 200 nautical miles:
+```lua
+jammer:setMaximumEffectiveDistance(distance)
+```
 
 # Example Setup
 This is an example of how you can set up your IADS used in the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz):
@@ -496,31 +520,6 @@ local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), iranIAD
 jammer:masterArmOn()
 
 end
-```
-
-### Advanced functions
-
-Add a second IADS the jammer should be able to jam, for example if you have to separate IADS running:
-```lua
-jammer:addIADS(iads2)
-```
-
-Add a new jammer function:
-
-```lua
--- write a lambda function that expects one parameter:
--- given public available data on jammers their effeciveness drastically decreases the closer you get, so a non-linear function would make sense:
-local function f(distanceNM)
-	return ( 1.4 ^ distanceNM ) + 80
-end
-
--- add the function: specify which SAM type it should apply for:
-self.jammer:addFunction('SA-10', f)
-```
-
-Set the maximum range the jammer will work, the default value is set to 200 nautical miles:
-```lua
-jammer:setMaximumEffectiveDistance(distance)
 ```
 
 ### Debug information

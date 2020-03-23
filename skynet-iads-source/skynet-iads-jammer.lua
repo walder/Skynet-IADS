@@ -147,7 +147,7 @@ function SkynetIADSJammer.updateMasterArm(params)
 end
 
 function SkynetIADSJammer:removeRadioMenu()
-	missionCommands.removeItem('SKYNET IADS')
+	missionCommands.removeItem('Jammer: '..self.emitter:getName())
 end
 
 end
