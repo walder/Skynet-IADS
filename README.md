@@ -428,7 +428,7 @@ Set the maximum range the jammer will work, the default value is set to 200 naut
 jammer:setMaximumEffectiveDistance(100)
 ```
 
-### Setting debug information
+## Setting debug information
 When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
 
 ```lua
