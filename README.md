@@ -91,7 +91,6 @@ This is a problem if you have SA-15 Tors next to the EW radar for point defence 
 You can tell an EW radar it has a point denfence to rely on. If the EW radar goes dark due to an inbound HARM it will activate its point defences to fire at the HARM. The same applies to SAM sites that act as EW radars.
 
 You can set the EW radar to keep emitting when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the EW radar will revert back to its previously set HARM defence behaviour.
-
 Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The EW radar will shut down, if it believes it won't be able to handle the number of HARMs inbound. 
 As long as there is one point defence launcher per HARM inbound it wil keep emitting if the HARMs exeed the number of launchers if will shut down. Tests in DCS have shown that this is roughly the saturation point.
 
@@ -210,7 +209,7 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ### Adding SAM Sites
 
 #### Add multiple SAM sites
-Adds SAM sites with prefix in group name to the IADS:
+Adds SAM sites with prefix in group name to the IADS. Previously added SAM sites are cleared:
 ```lua
 redIADS:addSAMSitesByPrefix('SAM')
 ```
@@ -224,7 +223,7 @@ redIADS:addSAMSite('SA-6 Group2')
 ### Accessing SAM sites in the IADS
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
-Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with 'SA-': Don't add Nato code names (Guideline, Gainful), just wite SA-2, SA-6:
+Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with 'SA-': Don't add Nato code names (Guideline, Gainful), just write 'SA-2', 'SA-6':
 ```lua
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
@@ -239,7 +238,7 @@ Returns a SAM site with the specified group name:
 redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
-### set an option
+#### Setting an option
 You can daisy chain options on a single SAM site or a table of SAM sites like this:
 ```lua
 redIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
@@ -281,7 +280,7 @@ samSite:setGoLiveRangeInPercent(90)
 ### Accessing EW radars in the IADS
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
 
-Adds EW sites with prefix in unit name to the IADS. Make sure you only call this method once:
+Adds EW sites with prefix in unit name to the IADS. Previously added EW radars are cleared:
 ```lua
 redIADS:addEarlyWarningRadarsByPrefix("EW")
 ```
