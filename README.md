@@ -8,7 +8,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
-This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=kHV12DPE1kk).
+This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=9J9kntzkSQY).
 
 Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
 
@@ -121,7 +121,7 @@ It's quite simple to setup an IADS have a look at the demo missions in the [/dem
 
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
-Place the IADS elements you wish to add on the map. Currently only russian units have been tested although western units should work just as fine.
+Place the IADS elements you wish to add on the map.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
@@ -239,30 +239,18 @@ Returns a SAM site with the specified group name:
 redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
-### How to set a option
+### set an option
 You can daisy chain options on a single SAM site or a table of SAM sites like this:
 ```lua
 redIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```  
 
-In the following examples ```samSite``` refers to an single SAM site or collection of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing SAM sites](#accessing-sam-sites-in-the-iads)
+In the following examples ```samSite``` refers to an single SAM site or a table of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing SAM sites](#accessing-sam-sites-in-the-iads)
 
 ### Act as EW radar
 Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
 ```lua
 samSite:setActAsEW(true)
-```
-
-### Power sources and connection nodes
-You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
-```lua
-local powerSource = StaticObject.getByName("SA-6 Power Source")  
-samSite:addPowerSource(powerSource)
-```
-
-```lua
-local connectionNode = Unit.getByName("SA-6 connection node") 
-samSite:addConnectionNode(connectionNode)
 ```
 
 ### Engagement zone
@@ -286,43 +274,6 @@ SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300:
 ```lua
 samSite:setGoLiveRangeInPercent(90)
-```
-
-### Autonomous mode behaviour
-Set how the SAM site will behave if it looses connection to the IADS:
-```lua
-samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-```
-
-#### The autonomous mode options are: 
-SAM site will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour):
-```lua
-SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
-```
-
-SAM Site will go dark if it looses connection to IADS:
-```lua
-SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
-```
-
-### HARM Defence
-You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
-```lua
-ewRadar:setHARMDetectionChance(50)
-```
-
-### Point defence
-You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
-```lua
---first get the SAM site you want to use as point defence from the IADS:
-local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
---then add it to the SAM site it should protect:
-redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
-```
-
-Will prevent the EW radar or SAM site from going dark if a HARM is inbound and the point defence has ammo left. Default state is false:
-```lua
-redIADS:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 ```
 
 ## EW radar configuration
@@ -362,22 +313,56 @@ redIADS:addEarlyWarningRadar('EWR West')
 ### How to set a option
 In the following examples ```ewRadar``` refers to an single EW radar or collection of EW radars you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads)
 
+
+## Common options for SAM sites and EW radars
+
 ### Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-ewRadar:addPowerSource(powerSource)
+ewRadarOrSamSite:addPowerSource(powerSource)
 ```
 
 ```lua
 local connectionNode = Unit.getByName("EW connection node") 
-ewRadar:addConnectionNode(connectionNode)
+ewRadarOrSamSite:addConnectionNode(connectionNode)
 ```
 
 ### HARM Defence
 You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
 ```lua
-ewRadar:setHARMDetectionChance(50)
+ewRadarOrSamSite:setHARMDetectionChance(50)
+```
+
+### Point defence
+You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+```lua
+--first get the SAM site you want to use as point defence from the IADS:
+local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
+--then add it to the SAM site it should protect:
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
+```
+
+Will prevent the EW radar or SAM site from going dark if a HARM is inbound and the point defence has ammo left. Default state is false:
+```lua
+redIADS:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+```
+
+### Autonomous mode behaviour
+Set how the SAM site or EW radar will behave if it looses connection to the IADS:
+```lua
+ewRadarOrSamSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+```
+
+#### The autonomous mode options are: 
+SAM site or EW radar will behave in the default DCS AI. Alarm State will be red and ROE weapons free(default Skynet behaviour for SAM sites):
+```lua
+SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+```
+
+SAM Site will go dark if it looses connection to IADS (default behaviour for EW radars):
+```lua
+SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
 
 ## Adding a jammer
@@ -443,6 +428,26 @@ Set the maximum range the jammer will work, the default value is set to 200 naut
 ```lua
 jammer:setMaximumEffectiveDistance(100)
 ```
+
+### Setting debug information
+When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
+
+```lua
+local iadsDebug = redIADS:getDebugSettings()  
+iadsDebug.IADSStatus = true
+iadsDebug.samWentDark = true
+iadsDebug.contacts = true
+iadsDebug.radarWentLive = true
+iadsDebug.ewRadarNoConnection = true
+iadsDebug.samNoConnection = true
+iadsDebug.jammerProbability = true
+iadsDebug.addedEWRadar = true
+iadsDebug.hasNoPower = true
+iadsDebug.addedSAMSite = true
+iadsDebug.warnings = true
+iadsDebug.harmDefence = true
+```
+![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-debug.png)  
 
 # Example Setup
 This is an example of how you can set up your IADS used in the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz):
@@ -521,26 +526,6 @@ jammer:masterArmOn()
 
 end
 ```
-
-### Debug information
-When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
-
-```lua
-local iadsDebug = redIADS:getDebugSettings()  
-iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
-iadsDebug.contacts = true
-iadsDebug.radarWentLive = true
-iadsDebug.ewRadarNoConnection = true
-iadsDebug.samNoConnection = true
-iadsDebug.jammerProbability = true
-iadsDebug.addedEWRadar = true
-iadsDebug.hasNoPower = true
-iadsDebug.addedSAMSite = true
-iadsDebug.warnings = true
-iadsDebug.harmDefence = true
-```
-![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-debug.png)  
 
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.

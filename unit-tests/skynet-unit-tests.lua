@@ -2611,6 +2611,63 @@ for i=1, #launchers do
 --	trigger.action.explosion(launcher:getPosition().p, 9000)
 end
 --test to check in game ammo changes, to build unit tests on
+
+posCounter = 0
+initialPosition = nil
+secondPoisition = nil
+calculatedPosition = nil
+
+function Vec3CalculationSpike()
+
+	if posCounter == 1 then
+		initialPosition = Unit.getByName('Hornet SA-6 Attack'):getPosition().p
+		env.info("Initial Position X:"..initialPosition.x.." Y:"..initialPosition.y.." Z:"..initialPosition.z)
+	end
+	
+	if posCounter == 2 then
+		secondPoisition = Unit.getByName('Hornet SA-6 Attack'):getPosition().p
+		env.info("Second Position X:"..secondPoisition.x.." Y:"..secondPoisition.y.." Z:"..secondPoisition.z)
+	end
+	
+	if posCounter >= 2 then
+		
+		local deltaX = (secondPoisition.x - initialPosition.x)
+		--y represents altitude in implementation don't increment this value it may skyrocket or go below 0
+		local deltaY = (secondPoisition.y - initialPosition.y)
+		local deltaZ = (secondPoisition.z - initialPosition.z)
+		
+		env.info("deltas X:"..deltaX.." Y:"..deltaY.." Z:"..deltaZ)
+		env.info("------------------------------------------------")
+		
+		if calculatedPosition == nil then
+			calculatedPosition  = {}
+			calculatedPosition.x = initialPosition.x
+			calculatedPosition.y = initialPosition.y
+			calculatedPosition.z = initialPosition.z
+		end
+		
+		calculatedPosition.x = calculatedPosition.x + deltaX
+		calculatedPosition.y = calculatedPosition.y + deltaY
+		calculatedPosition.z = calculatedPosition.z + deltaZ
+		
+		local currentPosition = Unit.getByName('Hornet SA-6 Attack'):getPosition().p
+		
+		env.info("Calculated Position X:"..calculatedPosition.x.." Y:"..calculatedPosition.y.." Z:"..calculatedPosition.z)
+		env.info("Current Position X:"..currentPosition.x.." Y:"..currentPosition.y.." Z:"..currentPosition.z)
+		local difX = currentPosition.x - calculatedPosition.x
+		local difY = currentPosition.y - calculatedPosition.y
+		local difZ  = currentPosition.z - calculatedPosition.z
+		
+		env.info("Difference X:"..difX.." Y:"..difY.." Z:"..difZ)
+		env.info("------------------------------------------------")
+		
+	end
+	
+	posCounter = posCounter + 1
+end
+
+mist.scheduleFunction(Vec3CalculationSpike, {}, 1, 1)
+
 function checkSams(iranIADS)
 
 	--[[
