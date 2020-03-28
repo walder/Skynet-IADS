@@ -24,6 +24,10 @@ function SkynetIADSJammer:create(emitter, iads)
 			['function'] = function(distanceNauticalMiles) return ( 1.4 ^ distanceNauticalMiles ) + 23 end,
 			['canjam'] = true,
 		},
+		['SA-8'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.35 ^ distanceNauticalMiles ) + 30 end,
+			['canjam'] = true,
+		},
 		['SA-10'] = {
 			['function'] = function(distanceNauticalMiles) return ( 1.07 ^ (distanceNauticalMiles / 1.13) ) + 5 end,
 			['canjam'] = true,

@@ -1,4 +1,4 @@
--- BUILD Timestamp: 23.03.2020 22:54:33.08  
+-- BUILD Timestamp: 28.03.2020 20:58:49.37  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -863,7 +863,7 @@ function SkynetIADS:printSystemStatus()
 		numDestroyedComCenters = numComCenters - numIntactComCenters
 		
 		
-		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Inactive: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower)
+		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower)
 		
 		local ewNoPower = 0
 		local ewTotal = #self:getEarlyWarningRadars()
@@ -1965,6 +1965,10 @@ function SkynetIADSJammer:create(emitter, iads)
 		},
 		['SA-6'] = {
 			['function'] = function(distanceNauticalMiles) return ( 1.4 ^ distanceNauticalMiles ) + 23 end,
+			['canjam'] = true,
+		},
+		['SA-8'] = {
+			['function'] = function(distanceNauticalMiles) return ( 1.35 ^ distanceNauticalMiles ) + 30 end,
 			['canjam'] = true,
 		},
 		['SA-10'] = {

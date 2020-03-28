@@ -493,7 +493,7 @@ function SkynetIADS:printSystemStatus()
 		numDestroyedComCenters = numComCenters - numIntactComCenters
 		
 		
-		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Inactive: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower)
+		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower)
 		
 		local ewNoPower = 0
 		local ewTotal = #self:getEarlyWarningRadars()
