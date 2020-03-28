@@ -314,7 +314,7 @@ redIADS:addEarlyWarningRadar('EWR West')
 ## Options for SAM sites and EW radars
 
 ### Setting an option
-In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or SAM site or a table of EW radars and SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads) or [accessing SAM sites](#accessing-sam-sites-in-the-iads)
+In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or SAM site or a table of EW radars and SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads) or [accessing SAM sites](#accessing-sam-sites-in-the-iads).
 
 
 ### Power sources and connection nodes
@@ -356,7 +356,7 @@ ewRadarOrSamSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOU
 ```
 
 #### The autonomous mode options are: 
-SAM site or EW radar will behave in the default DCS AI. Alarm State will be red and ROE weapons free(default Skynet behaviour for SAM sites):
+SAM site or EW radar will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour for SAM sites):
 ```lua
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
@@ -528,10 +528,6 @@ jammer:masterArmOn()
 end
 ```
 
-# Thanks
-Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
-I based the SAM site setup on [Grimes SAM DB](https://forums.eagle.ru/showthread.php?t=118175) from his IADS script, however I removed range data since Skynet loads that from DCS.
-
 # FAQ
 
 ## What air defence units shall I add to the Skynet IADS?
@@ -550,5 +546,9 @@ If a SAM site or EW radar detects an inbound HARM it just turns off its radar as
 ## Are there known bugs?
 Yes, when placing multi unit SAM sites (e.g. SA-3 Patriot..) make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
 The result will be that the SAM site won't go live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
+
+# Thanks
+Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
+I based the SAM site setup on [Grimes SAM DB](https://forums.eagle.ru/showthread.php?t=118175) from his IADS script, however I removed range data since Skynet loads that from DCS.
 
 
