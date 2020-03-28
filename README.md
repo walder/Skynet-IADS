@@ -311,7 +311,7 @@ You can add EW radars manually, must be a valid unit name:
 redIADS:addEarlyWarningRadar('EWR West')
 ```
 
-## Common options for SAM sites and EW radars
+## Options for SAM sites and EW radars
 
 ### Setting an option
 In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or SAM site or a table of EW radars and SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads) or [accessing SAM sites](#accessing-sam-sites-in-the-iads)
