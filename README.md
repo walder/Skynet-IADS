@@ -12,6 +12,8 @@ This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IA
 
 Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
 
+Join the [Skynet discord group](https://www.ausairpower.net/sams-iads.html)
+
 # Quick start
 Tired of reading already? Download the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.
 
@@ -124,7 +126,7 @@ Place the IADS elements you wish to add on the map.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be only be one SAM site type per group. If differenct SAM sites are mixed in one group distance calculation for the IADS will be messed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
+There should be only be one SAM site type per group. If different SAM sites are mixed in one group distance calculation for the IADS will be messed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
 The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
@@ -309,11 +311,11 @@ You can add EW radars manually, must be a valid unit name:
 redIADS:addEarlyWarningRadar('EWR West')
 ```
 
-### How to set a option
-In the following examples ```ewRadar``` refers to an single EW radar or collection of EW radars you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads)
-
-
 ## Common options for SAM sites and EW radars
+
+### Setting an option
+In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or SAM site or a table of EW radars and SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads) or [accessing SAM sites](#accessing-sam-sites-in-the-iads)
+
 
 ### Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
@@ -359,7 +361,7 @@ SAM site or EW radar will behave in the default DCS AI. Alarm State will be red 
 SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
 ```
 
-SAM Site will go dark if it looses connection to IADS (default behaviour for EW radars):
+SAM Site or EW radar will go dark if it looses connection to IADS (default behaviour for EW radars):
 ```lua
 SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
 ```
