@@ -101,7 +101,7 @@ The best option for a solid HARM defence is to add SA-15's around EW radars or h
 
 The SA-15 does not have a harm detection chance by default in Skynet, since this would mean it would shut down when targeted by a HARM, defeating its purpose.
 
-[Point defence setup example](#point-defence)
+[Point defence setup example](#point-defence-1)
 
 There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
