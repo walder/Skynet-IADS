@@ -2,14 +2,14 @@ do
 --[[
 SAM Sites that engage HARMs:
 SA-15
-
+SA-10 (bug when engaging at 25k, no harms are intercepted)
 
 SAM Sites that ignore HARMS:
-SA-11 (test again)
-SA-10
+SA-11
 SA-6
 SA-2
 SA-3
+Patriot
 ]]--
 
 --[[ Compile Scripts:
