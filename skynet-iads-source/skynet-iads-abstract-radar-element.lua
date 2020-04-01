@@ -439,9 +439,11 @@ function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarE
 		local radar = radars[i]
 		for j = 1, #samSiteRadars do
 			local samSiteRadar = samSiteRadars[j]
-			local distance = self:getDistanceToUnit(radar:getDCSRepresentation(), samSiteRadar:getDCSRepresentation())	
-			if samSiteRadar:getMaxRangeFindingTarget() >= distance then
-				return true
+			if  samSiteRadar:isExist() and radar:isExist() then
+				local distance = self:getDistanceToUnit(radar:getDCSRepresentation(), samSiteRadar:getDCSRepresentation())	
+				if samSiteRadar:getMaxRangeFindingTarget() >= distance then
+					return true
+				end
 			end
 		end
 	end
@@ -466,7 +468,6 @@ end
 function SkynetIADSAbstractRadarElement:resetAutonomousState()
 	self.isAutonomous = false
 	self:goDark()
-	self:goLive()
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
@@ -477,6 +478,17 @@ end
 
 function SkynetIADSAbstractRadarElement:getAutonomousState()
 	return self.isAutonomous
+end
+
+function SkynetIADSAbstractRadarElement:hasWorkingRadar()
+	local radars = self:getRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		if radar:isRadarWorking() == true then
+			return true
+		end
+	end
+	return false
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)

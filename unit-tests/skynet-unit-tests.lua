@@ -1,8 +1,7 @@
 do
 ---IADS Unit Tests
-
 SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 12
-SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 13
+SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 14
 
 function IADSContactFactory(unitName)
 	local contact = Unit.getByName(unitName)
@@ -1099,6 +1098,7 @@ function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInT
 	lu.assertEquals(samSite:isDestroyed(), false)
 	samSite:goLive()
 	lu.assertEquals(samSite:isActive(), true)
+	lu.assertEquals(samSite:hasWorkingRadar(), true)
 	local radars = samSite:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
@@ -1111,6 +1111,7 @@ function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInT
 	end	
 	lu.assertEquals(samSite:isActive(), false)
 	lu.assertEquals(samSite:isDestroyed(), true)
+	lu.assertEquals(samSite:hasWorkingRadar(), false)
 	lu.assertEquals(#iads:getDestroyedSAMSites(), 1)
 	lu.assertEquals(samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(samSite:getInitialNumberOfMissiles(), 6)
@@ -2653,7 +2654,7 @@ end
 iranIADS = SkynetIADS:create("Iran")
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
-iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(100)
+iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(0)
 ewConnectionNode = Unit.getByName('connection-node-ew')
 iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
@@ -2681,7 +2682,7 @@ blueIADS:addRadioMenu()
 blueIADS:activate()
 
 local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
-jammer:masterArmOn()
+--jammer:masterArmOn()
 jammer:addRadioMenu()
 
 local blueIadsDebug = blueIADS:getDebugSettings()

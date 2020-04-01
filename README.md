@@ -37,6 +37,9 @@ This allows for a scattered placement of radar and launcher units as in real lif
 
 If SAM sites or radar guided AAA run out of Ammo they will go dark. In the case of a SAM site it will wait with going dark as long as the last fired missile is still in the air.
 
+SAM Sites will go autonomous (use their organic radars or just stay dark depending on setup) if they are outside of EW radar coverage (e.g. an EW radar is destroyed or AWACS is too far away). 
+Once they are within EW radar coverage again they will be updated by the IADS.
+
 ## Early Warning Radars
 Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
 Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
@@ -132,7 +135,7 @@ Place the IADS elements you wish to add on the map.
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be only be one SAM site type per group. If different SAM sites are mixed in one group distance calculation for the IADS will be messed up. Don't do it you have seen the films, you know what happens when Skynet goes bananas.
+There should be only be one SAM site type per group. If different SAM sites are mixed in one group distance calculation for the IADS will be messed up.
 The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
 ![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
 
@@ -214,7 +217,7 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 
 ## SAM site configuration
 
-### Adding SAM Sites
+### Adding SAM sites
 
 #### Add multiple SAM sites
 Adds SAM sites with prefix in group name to the IADS. Previously added SAM sites are cleared:
@@ -278,7 +281,9 @@ SAM site will go live when target is within the yelow circle in the mission edit
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 ```
 
-This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300:
+This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. 
+During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300. You can also set the range above 100 this will have the effect that the SAM site goes live earlier:
+
 ```lua
 samSite:setGoLiveRangeInPercent(90)
 ```
@@ -303,12 +308,12 @@ redIADS:addEarlyWarningRadar('EWR West')
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
 
 
-Returns all EW sites in the IADS:
+Returns all EW radars in the IADS:
 ```lua
 redIADS:getEarlyWarningRadars()
 ```
 
-Returns the EW site with the specified unit name:
+Returns the EW radar with the specified unit name:
 ```lua
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```

@@ -51,6 +51,11 @@ function SkynetIADSSAMSearchRadar:getMaxRangeFindingTarget()
 	return self.maximumRange
 end
 
+function SkynetIADSSAMSearchRadar:isRadarWorking()
+	-- the ammo check is for the SA-13 which does not return any sensor data:
+	return (self:isExist() == true and ( self:getDCSRepresentation():getSensors() ~= nil or self:getDCSRepresentation():getAmmo() ~= nil ) )
+end
+
 function SkynetIADSSAMSearchRadar:setFiringRangePercent(percent)
 	self.firingRangePercent = percent
 end

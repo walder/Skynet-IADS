@@ -520,7 +520,7 @@ function SkynetIADS:printSystemStatus()
 		numDestroyedComCenters = numComCenters - numIntactComCenters
 		
 		
-		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | No Power: "..numComCentersNoPower)
+		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | NoPower: "..numComCentersNoPower)
 		
 		local ewNoPower = 0
 		local ewTotal = #self:getEarlyWarningRadars()
@@ -543,7 +543,7 @@ function SkynetIADS:printSystemStatus()
 		
 		ewRadarsInactive = ewTotal - ewActive	
 		local numEWRadarsDestroyed = #self:getDestroyedEarlyWarningRadars()
-		self:printOutput("EW: "..ewTotal.." | Act: "..ewActive.." | Inact: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | No Powr: "..ewNoPower.." | No Con: "..ewNoConnectionNode)
+		self:printOutput("EW: "..ewTotal.." | Act: "..ewActive.." | Inact: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | NoPowr: "..ewNoPower.." | NoCon: "..ewNoConnectionNode)
 		
 		local samSitesInactive = 0
 		local samSitesActive = 0
@@ -551,6 +551,8 @@ function SkynetIADS:printSystemStatus()
 		local samSitesNoPower = 0
 		local samSitesNoConnectionNode = 0
 		local samSitesOutOfAmmo = 0
+		local samSiteAutonomous = 0
+		local samSiteRadarDestroyed = 0
 		for i = 1, #self.samSites do
 			local samSite = self.samSites[i]
 			if samSite:hasWorkingPowerSource() == false then
@@ -565,11 +567,16 @@ function SkynetIADS:printSystemStatus()
 			if samSite:hasRemainingAmmo() == false then
 				samSitesOutOfAmmo = samSitesOutOfAmmo + 1
 			end
+			if samSite:getAutonomousState() == true then
+				samSiteAutonomous = samSiteAutonomous + 1
+			end
+			if samSite:hasWorkingRadar() == false then
+				samSiteRadarDestroyed = samSiteRadarDestroyed + 1
+			end
 		end
 		
 		samSitesInactive = samSitesTotal - samSitesActive
-		local numSamSitesDestroyed = #self:getDestroyedSAMSites()
-		self:printOutput("SAM: "..samSitesTotal.." | Act: "..samSitesActive.." | Inact: "..samSitesInactive.." | Destroyed: "..numSamSitesDestroyed.." | No Powr: "..samSitesNoPower.." | No Con: "..samSitesNoConnectionNode.." | No Ammo: "..samSitesOutOfAmmo)
+		self:printOutput("SAM: "..samSitesTotal.." | Act: "..samSitesActive.." | Inact: "..samSitesInactive.." | Autonm: "..samSiteAutonomous.." | Raddest: "..samSiteRadarDestroyed.." | NoPowr: "..samSitesNoPower.." | NoCon: "..samSitesNoConnectionNode.." | NoAmmo: "..samSitesOutOfAmmo)
 	end
 	if self:getDebugSettings().contacts then
 		for i = 1, #self.contacts do
