@@ -37,8 +37,9 @@ This allows for a scattered placement of radar and launcher units as in real lif
 
 If SAM sites or radar guided AAA run out of Ammo they will go dark. In the case of a SAM site it will wait with going dark as long as the last fired missile is still in the air.
 
-SAM Sites will go autonomous (use their organic radars or just stay dark depending on setup) if they are outside of EW radar coverage (e.g. an EW radar is destroyed or AWACS is too far away). 
-Once they are within EW radar coverage again they will be updated by the IADS.
+SAM Sites will go autonomous if they are outside of EW radar coverage meaning they will use their organic radars or just stay dark depending on setup.
+If an EW radar or a SAM site acting as EW radar is destoyed surounding SAM sites can be withouth EW radar coverage. The same can happen if an AWACS is too far away from a SAM site.
+Once a SAM site is within EW radar coverage again it will be updated by the IADS.
 
 ## Early Warning Radars
 Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar in an EW role in Skynet. 
