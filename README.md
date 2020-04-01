@@ -364,12 +364,12 @@ ewRadarOrSamSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOU
 #### The autonomous mode options are: 
 SAM site or EW radar will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour for SAM sites):
 ```lua
-SkynetIADSSamSite.AUTONOMOUS_STATE_DCS_AI
+SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 ```
 
 SAM Site or EW radar will go dark if it looses connection to IADS (default behaviour for EW radars):
 ```lua
-SkynetIADSSamSite.AUTONOMOUS_STATE_DARK
+SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 ```
 
 ## Adding a jammer
