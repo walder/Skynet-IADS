@@ -123,6 +123,7 @@ function TestIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	lu.assertEquals(samSite:isActive(), true)
 	--simulate update cycle of IADS
 	self.iranIADS.evaluateContacts(self.iranIADS)
+	lu.assertEquals(samSite:getAutonomousState(), true)
 	lu.assertEquals(samSite:isActive(), true)
 end
 
@@ -421,6 +422,25 @@ function TestIADS:testWillSAMSitesWithNoCoverageGoAutonomous()
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
 	lu.assertEquals(sa15:getAutonomousState(), false)
 	lu.assertEquals(ewSAM:getAutonomousState(), false)
+end
+
+function TestIADS:testSAMSiteLoosesConnectionThenAddANewOneAgain()
+	self:tearDown()
+	self.iranIADS = SkynetIADS:create()
+	local connectionNode = StaticObject.getByName('SA-6 Connection Node-autonomous-test')
+	local nonAutonomousSAM = self.iranIADS:addSAMSite('SAM-SA-6'):addConnectionNode(connectionNode)
+	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	trigger.action.explosion(connectionNode:getPosition().p, 500)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	self.iranIADS.evaluateContacts(self.iranIADS)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	
+	local connectionNodeReAdd = StaticObject.getByName('SA-6 Connection Node-autonomous-test-readd')
+	nonAutonomousSAM:addConnectionNode(connectionNodeReAdd)
+	self.iranIADS.evaluateContacts(self.iranIADS)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
 end
 
 TestSamSites = {}
@@ -2169,7 +2189,7 @@ function TestSamSites:testCallMethodOnTableElements()
 end
 --]]
 
-function TestSamSites:testSAMWillReturnFalseIfNoEWRadarInRange()
+function TestSamSites:testAutonomousIfNoEWRadarInRange()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
 	self.skynetIADS:addEarlyWarningRadarsByPrefix('EW')
@@ -2182,7 +2202,7 @@ function TestSamSites:testSAMWillReturnFalseIfNoEWRadarInRange()
 	
 end
 
-function TestSamSites:testSAMWillReturnFalseIfNoSAMisInRange()
+function TestSamSites:testAutonomousIfNowEWSAMIsInRange()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
 	self.skynetIADS:addSAMSitesByPrefix('SAM')

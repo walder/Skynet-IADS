@@ -463,6 +463,12 @@ function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
 	return self.autonomousBehaviour
 end
 
+function SkynetIADSAbstractRadarElement:resetAutonomousState()
+	self.isAutonomous = false
+	self:goDark()
+	self:goLive()
+end
+
 function SkynetIADSAbstractRadarElement:goAutonomous()
 	self.isAutonomous = true
 	self:goDark()

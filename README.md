@@ -285,13 +285,23 @@ samSite:setGoLiveRangeInPercent(90)
 
 ## EW radar configuration
 
+### Adding EW radars
+
+#### Add multiple EW radars
+Adds EW radars with prefix in unit name to the IADS:
+```lua
+redIADS:addEarlyWarningRadarsByPrefix('EW')
+``` 
+
+#### Add EW radars manually
+You can add EW radars manually, must be a valid unit name: 
+```lua
+redIADS:addEarlyWarningRadar('EWR West')
+```
+
 ### Accessing EW radars in the IADS
 The following functions exist to access EW radars added to the IADS. They all support daisy chaining options. 
 
-Adds EW sites with prefix in unit name to the IADS. Previously added EW radars are cleared:
-```lua
-redIADS:addEarlyWarningRadarsByPrefix("EW")
-```
 
 Returns all EW sites in the IADS:
 ```lua
@@ -301,20 +311,6 @@ redIADS:getEarlyWarningRadars()
 Returns the EW site with the specified unit name:
 ```lua
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
-```
-
-## Adding EW radars
-
-### Add multiple EW radars
-Adds EW radars with prefix in unit name to the IADS:
-```lua
-redIADS:addEarlyWarningRadarsByPrefix('EW')
-``` 
-
-### Add EW radars manually
-You can add EW radars manually, must be a valid unit name: 
-```lua
-redIADS:addEarlyWarningRadar('EWR West')
 ```
 
 ## Options for SAM sites and EW radars

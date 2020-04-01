@@ -365,6 +365,7 @@ function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
 
 	for i = 1, #samSites do
 		local samSite = samSites[i]
+		samSite:resetAutonomousState()
 		local inRange = false
 		for j = 1, #ewRadars do
 			if samSite:isInRadarDetectionRangeOf(ewRadars[j]) then
@@ -418,9 +419,7 @@ end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS:activate()
-	if self.ewRadarScanMistTaskID ~= nil then
-		mist.removeFunction(self.ewRadarScanMistTaskID)
-	end
+	self:deactivate()
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 end
 
