@@ -432,6 +432,26 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 	return  (isSearchRadarInRange and isTrackingRadarInRange and isLauncherInRange )
 end
 
+function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarElement)
+	local radars = self:getRadars()
+	local samSiteRadars = abstractRadarElement:getRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		for j = 1, #samSiteRadars do
+			local samSiteRadar = samSiteRadars[j]
+			local distance = self:getDistanceToUnit(radar:getDCSRepresentation(), samSiteRadar:getDCSRepresentation())	
+			if samSiteRadar:getMaxRangeFindingTarget() >= distance then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function SkynetIADSAbstractRadarElement:getDistanceToUnit(radar, ewRadar)
+	return mist.utils.round(mist.utils.get2DDist(radar:getPosition().p, ewRadar:getPosition().p, 0))
+end
+
 function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
 	if mode ~= nil then
 		self.autonomousBehaviour = mode
@@ -447,6 +467,10 @@ function SkynetIADSAbstractRadarElement:goAutonomous()
 	self.isAutonomous = true
 	self:goDark()
 	self:goLive()
+end
+
+function SkynetIADSAbstractRadarElement:getAutonomousState()
+	return self.isAutonomous
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)
@@ -623,9 +647,9 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
 					local shallReactToHarm = self:shallReactToHARM()
 					
-					if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
-						env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
-					end
+				--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
+					--	env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
+				--	end
 					
 					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
 					if numDetections == 2 and shallReactToHarm and self:shallIgnoreHARMShutdown() == false then

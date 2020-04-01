@@ -399,6 +399,30 @@ function TestIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 
 end
 
+function TestIADS:testWillSAMSitesWithNoCoverageGoAutonomous()
+	self:tearDown()
+	
+	self.iranIADS = SkynetIADS:create()
+	
+	local autonomousSAM = self.iranIADS:addSAMSite('test-SAM-SA-2-test')
+	local nonAutonomousSAM = self.iranIADS:addSAMSite('SAM-SA-6')
+	local ewSAM = self.iranIADS:addSAMSite('SAM-SA-10'):setActAsEW(true)
+	local sa15 = self.iranIADS:addSAMSite('SAM-SA-15-1')
+	
+	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
+	
+	lu.assertEquals(ewSAM:getAutonomousState(), false)
+	lu.assertEquals(sa15:getAutonomousState(), false)
+	lu.assertEquals(autonomousSAM:getAutonomousState(), false)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	self.iranIADS.evaluateContacts(self.iranIADS)
+	
+	lu.assertEquals(autonomousSAM:getAutonomousState(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	lu.assertEquals(sa15:getAutonomousState(), false)
+	lu.assertEquals(ewSAM:getAutonomousState(), false)
+end
+
 TestSamSites = {}
 
 function TestSamSites:setUp()
@@ -2076,6 +2100,7 @@ Launcher:
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 12000)
 	lu.assertEquals(mist.utils.round(self.samSite:getRadars()[1]:getMaxRangeFindingTarget()), mist.utils.round(10090.756835938))
 end
+
 --[[
 function TestSamSites:testCleanupMistScheduleFunctions()
 	self.samSiteName = "SAM-SA-6"
@@ -2143,6 +2168,45 @@ function TestSamSites:testCallMethodOnTableElements()
 	lu.assertIs(testContainer:theOtherMethod("100"), testContainer)
 end
 --]]
+
+function TestSamSites:testSAMWillReturnFalseIfNoEWRadarInRange()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	self.skynetIADS:addEarlyWarningRadarsByPrefix('EW')
+	local ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName('EW-west2')
+	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewRadar), true)
+	
+	
+	local ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName('EW-west23')
+	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewRadar), false)
+	
+end
+
+function TestSamSites:testSAMWillReturnFalseIfNoSAMisInRange()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	self.skynetIADS:addSAMSitesByPrefix('SAM')
+
+	local ewSAM2 = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-6')
+	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewSAM2), true)
+	
+--[[	local radars = ewSAM2:getRadars()
+	local samRadars = self.samSite:getRadars()
+	for i = 1, #samRadars do
+		local samRadar = samRadars[i]
+		for j = 1, #radars do
+			local radar = radars[j]
+			env.info(radar:getMaxRangeFindingTarget())
+			env.info(self.samSite:getDistanceToUnit(samRadar:getDCSRepresentation(), radar:getDCSRepresentation()))
+		end
+	end
+--]]
+	local ewSAM = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
+	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewSAM), false)
+	
+
+end
+
 
 TestJammer = {}
 
@@ -2294,7 +2358,7 @@ function TestEarlyWarningRadars:tearDown()
 end
 
 function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
-		self.ewRadarName = "EW-west22"
+		self.ewRadarName = "EW-west22-destroy"
 		self:setUp()
 		lu.assertEquals(self.ewRadar:hasRemainingAmmo(), true)
 		lu.assertEquals(self.ewRadar:isActive(), true)
@@ -2308,7 +2372,7 @@ function TestEarlyWarningRadars:testCompleteDestructionOfEarlyWarningRadar()
 end
 
 function TestEarlyWarningRadars:testGetNatoName()
-	self.ewRadarName = "EW-west22"
+	self.ewRadarName = "EW-west22-destroy"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "1L13 EWR")
 end
@@ -2666,7 +2730,7 @@ function Vec3CalculationSpike()
 	posCounter = posCounter + 1
 end
 
-mist.scheduleFunction(Vec3CalculationSpike, {}, 1, 1)
+--mist.scheduleFunction(Vec3CalculationSpike, {}, 1, 1)
 
 function checkSams(iranIADS)
 

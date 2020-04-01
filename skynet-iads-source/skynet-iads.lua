@@ -26,6 +26,7 @@ SkynetIADS.database = samTypesDB
 function SkynetIADS:create(name)
 	local iads = {}
 	setmetatable(iads, SkynetIADS)
+	iads.radioMenu = nil
 	iads.earlyWarningRadars = {}
 	iads.samSites = {}
 	iads.commandCenters = {}
@@ -296,6 +297,8 @@ function SkynetIADS.evaluateContacts(self)
 		return
 	end
 	
+	self:updateSAMSitesIfNoEWRadarCoverage()
+	
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
@@ -347,6 +350,31 @@ function SkynetIADS.evaluateContacts(self)
 	end
 	
 	self:printSystemStatus()
+end
+
+function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
+	local ewRadars = self:getUsableEarlyWarningRadars()
+	local samSites = self:getUsableSAMSites()
+		
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		if samSite:getActAsEW() then
+			table.insert(ewRadars, samSite)
+		end
+	end
+
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		local inRange = false
+		for j = 1, #ewRadars do
+			if samSite:isInRadarDetectionRangeOf(ewRadars[j]) then
+				inRange = true
+			end
+		end
+		if inRange == false then
+			samSite:goAutonomous()
+		end
+	end
 end
 
 function SkynetIADS:mergeContact(contact)
@@ -426,15 +454,15 @@ function SkynetIADS:deactivateEarlyWarningRadars()
 end	
 
 function SkynetIADS:addRadioMenu()
-	local skynetMenu = missionCommands.addSubMenu('SKYNET IADS '..self:getCoalitionString())
-	local displayIADSStatus = missionCommands.addCommand('show IADS Status', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
-	local displayIADSStatus = missionCommands.addCommand('hide IADS Status', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'IADSStatus'})
-	local displayIADSStatus = missionCommands.addCommand('show contacts', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'contacts'})
-	local displayIADSStatus = missionCommands.addCommand('hide contacts', skynetMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'contacts'})
+	self.radioMenu = missionCommands.addSubMenu('SKYNET IADS '..self:getCoalitionString())
+	local displayIADSStatus = missionCommands.addCommand('show IADS Status', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
+	local displayIADSStatus = missionCommands.addCommand('hide IADS Status', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'IADSStatus'})
+	local displayIADSStatus = missionCommands.addCommand('show contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'contacts'})
+	local displayIADSStatus = missionCommands.addCommand('hide contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'contacts'})
 end
 
 function SkynetIADS:removeRadioMenu()
-	missionCommands.removeItem('SKYNET IADS')
+	missionCommands.removeItem(self.radioMenu)
 end
 
 function SkynetIADS.updateDisplay(params)

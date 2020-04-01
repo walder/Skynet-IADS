@@ -188,7 +188,6 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-19 Grison',
 		},
-		['harm_detection_chance'] = 10
 	},		
 	['Osa'] = {
 		['type'] = 'single',

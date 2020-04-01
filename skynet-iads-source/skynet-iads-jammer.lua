@@ -6,6 +6,7 @@ SkynetIADSJammer.__index = SkynetIADSJammer
 function SkynetIADSJammer:create(emitter, iads)
 	local jammer = {}
 	setmetatable(jammer, SkynetIADSJammer)
+	jammer.radioMenu = nil
 	jammer.emitter = emitter
 	jammer.jammerTaskID = nill
 	jammer.iads = {iads}
@@ -135,9 +136,9 @@ end
 
 --TODO: Remove Menu when emitter dies:
 function SkynetIADSJammer:addRadioMenu()
-	local skynetMenu = missionCommands.addSubMenu('Jammer: '..self.emitter:getName())
-	missionCommands.addCommand('Master Arm On', skynetMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmOn'})
-	missionCommands.addCommand('Master Arm Safe', skynetMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmSafe'})
+	self.radioMenu = missionCommands.addSubMenu('Jammer: '..self.emitter:getName())
+	missionCommands.addCommand('Master Arm On', self.radioMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmOn'})
+	missionCommands.addCommand('Master Arm Safe', self.radioMenu, SkynetIADSJammer.updateMasterArm, {self = self, option = 'masterArmSafe'})
 end
 
 function SkynetIADSJammer.updateMasterArm(params)
@@ -151,7 +152,7 @@ function SkynetIADSJammer.updateMasterArm(params)
 end
 
 function SkynetIADSJammer:removeRadioMenu()
-	missionCommands.removeItem('Jammer: '..self.emitter:getName())
+	missionCommands.removeItem(self.radioMenu)
 end
 
 end
