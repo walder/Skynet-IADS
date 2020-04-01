@@ -37,8 +37,8 @@ This allows for a scattered placement of radar and launcher units as in real lif
 
 If SAM sites or radar guided AAA run out of Ammo they will go dark. In the case of a SAM site it will wait with going dark as long as the last fired missile is still in the air.
 
-SAM Sites will go autonomous if they are outside of EW radar coverage meaning they will use their organic radars or just stay dark depending on setup.
-If an EW radar or a SAM site acting as EW radar is destoyed surounding SAM sites can be withouth EW radar coverage. The same can happen if an AWACS is too far away from a SAM site.
+If an EW radar or a SAM site acting as EW radar is destoyed surounding SAM sites can be left withouth EW radar coverage. This can also happen if a SAM site is outside of AWACS coverage.
+SAM Sites will go autonomous in such a case meaning they will use their organic radars or just stay dark depending on setup.
 Once a SAM site is within EW radar coverage again it will be updated by the IADS.
 
 ## Early Warning Radars
