@@ -103,7 +103,7 @@ As long as there is one point defence launcher per HARM inbound the radar emitte
 As of April 2020 I have only been able to get the SA-15 and the SA-10 to engage HARMS. The SA-10 seems to have dificullty engaging HARMS when they are launched above a certain altitude (in my tests 25 k feet).
 The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
 
-The SA-15 does not have a harm detection chance by default in Skynet, since this would mean it would shut down when targeted by a HARM, defeating its purpose.
+The SA-15 does not have a HARM detection chance by default in Skynet, since this would mean it would shut down when targeted by a HARM, defeating its purpose.
 
 [Point defence setup example](#point-defence-1)
 
@@ -347,7 +347,7 @@ ewRadarOrSamSite:setHARMDetectionChance(50)
 You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
 ```lua
 --first get the SAM site you want to use as point defence from the IADS:
-local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15')
+local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')
 --then add it to the SAM site it should protect:
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
 ```

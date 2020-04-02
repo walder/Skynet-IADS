@@ -77,5 +77,6 @@ if hornet == nil then
 	Unit.getByName('jammer-emitter'):destroy()
 	jammer:removeRadioMenu()
 end
+--end special code
 
 end
