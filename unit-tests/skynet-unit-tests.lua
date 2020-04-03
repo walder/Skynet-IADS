@@ -2688,6 +2688,13 @@ blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstrac
 blueIADS:addRadioMenu()
 blueIADS:activate()
 
+local iadsDebug = blueIADS:getDebugSettings()
+iadsDebug.IADSStatus = true
+iadsDebug.samWentDark = true
+iadsDebug.contacts = true
+iadsDebug.radarWentLive = true
+
+
 local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
 --jammer:masterArmOn()
 jammer:addRadioMenu()
