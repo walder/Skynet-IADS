@@ -1,6 +1,6 @@
 do
 --create an instance of the IADS
-redIADS = SkynetIADS:create('RED')
+redIADS = SkynetIADS:create('IRAN')
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
@@ -79,7 +79,7 @@ end
 --end special code
 
 ------setup blue IADS:
-blueIADS = SkynetIADS:create('BUE')
+blueIADS = SkynetIADS:create('UAE')
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
 blueIADS:activate()

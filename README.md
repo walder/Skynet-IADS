@@ -464,7 +464,7 @@ This is an example of how you can set up your IADS used in the [demo mission](ht
 do
 
 --create an instance of the IADS
-redIADS = SkynetIADS:create()
+redIADS = SkynetIADS:create('IRAN')
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
@@ -534,7 +534,7 @@ local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), redIADS
 jammer:masterArmOn()
 
 --setup blue IADS:
-blueIADS = SkynetIADS:create('BUE')
+blueIADS = SkynetIADS:create('UAE')
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
 blueIADS:activate()
