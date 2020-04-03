@@ -466,14 +466,18 @@ function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
 end
 
 function SkynetIADSAbstractRadarElement:resetAutonomousState()
-	self.isAutonomous = false
-	self:goDark()
+	if self.isAutonomous == true then
+		self.isAutonomous = false
+		self:goDark()
+	end
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
-	self.isAutonomous = true
-	self:goDark()
-	self:goLive()
+	if self.isAutonomous == false then
+		self.isAutonomous = true
+		self:goDark()
+		self:goLive()
+	end
 end
 
 function SkynetIADSAbstractRadarElement:getAutonomousState()

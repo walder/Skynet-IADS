@@ -365,7 +365,6 @@ function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
 
 	for i = 1, #samSites do
 		local samSite = samSites[i]
-		samSite:resetAutonomousState()
 		local inRange = false
 		for j = 1, #ewRadars do
 			if samSite:isInRadarDetectionRangeOf(ewRadars[j]) then
@@ -374,6 +373,8 @@ function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
 		end
 		if inRange == false then
 			samSite:goAutonomous()
+		else
+			samSite:resetAutonomousState()
 		end
 	end
 end

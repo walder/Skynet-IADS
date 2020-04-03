@@ -679,6 +679,18 @@ function TestSamSites:testCheckSA3GroupNumberOfLaunchersAndRangeValuesAndSearchR
 	
 	Radar:
 	{
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=106998.453125, tailOn=106998.453125},
+                upperHemisphere={headOn=106998.453125, tailOn=106998.453125}
+            },
+            type=1,
+            typeName="p-19 s-125 sr"
+        }
+    }
+	
+	Launcher:
+	{
 		{
 			count=4,
 			desc={
@@ -706,17 +718,6 @@ function TestSamSites:testCheckSA3GroupNumberOfLaunchersAndRangeValuesAndSearchR
 		}
 	}
 	
-	Launcher:
-	{
-        {
-            detectionDistanceAir={
-                lowerHemisphere={headOn=106998.453125, tailOn=106998.453125},
-                upperHemisphere={headOn=106998.453125, tailOn=106998.453125}
-            },
-            type=1,
-            typeName="p-19 s-125 sr"
-        }
-    }
 --]]
 	self.samSiteName = "test-SA-3"
 	self:setUp()
@@ -2668,10 +2669,16 @@ iranIADS:activate()
 
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
-iadsDebug.harmDefence = true
+iadsDebug.samWentDark = true
 iadsDebug.contacts = true
----iadsDebug.radarWentLive = true
+iadsDebug.radarWentLive = true
+iadsDebug.noWorkingCommmandCenter = false
+iadsDebug.ewRadarNoConnection = false
+iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = true
+iadsDebug.addedEWRadar = false
+iadsDebug.hasNoPower = false
+iadsDebug.harmDefence = true
 
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
@@ -2752,6 +2759,8 @@ function Vec3CalculationSpike()
 end
 
 --mist.scheduleFunction(Vec3CalculationSpike, {}, 1, 1)
+
+trigger.action.effectSmokeBig(Unit.getByName('EW-west2'):getPosition().p, 8, 10)
 
 function checkSams(iranIADS)
 

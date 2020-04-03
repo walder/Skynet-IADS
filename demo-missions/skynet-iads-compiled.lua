@@ -1,4 +1,4 @@
--- BUILD Timestamp: 01.04.2020 22:33:25.81  
+-- BUILD Timestamp: 03.04.2020 20:53:05.14  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -734,7 +734,6 @@ function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
 
 	for i = 1, #samSites do
 		local samSite = samSites[i]
-		samSite:resetAutonomousState()
 		local inRange = false
 		for j = 1, #ewRadars do
 			if samSite:isInRadarDetectionRangeOf(ewRadars[j]) then
@@ -743,6 +742,8 @@ function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
 		end
 		if inRange == false then
 			samSite:goAutonomous()
+		else
+			samSite:resetAutonomousState()
 		end
 	end
 end
@@ -1659,14 +1660,18 @@ function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
 end
 
 function SkynetIADSAbstractRadarElement:resetAutonomousState()
-	self.isAutonomous = false
-	self:goDark()
+	if self.isAutonomous == true then
+		self.isAutonomous = false
+		self:goDark()
+	end
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
-	self.isAutonomous = true
-	self:goDark()
-	self:goLive()
+	if self.isAutonomous == false then
+		self.isAutonomous = true
+		self:goDark()
+		self:goLive()
+	end
 end
 
 function SkynetIADSAbstractRadarElement:getAutonomousState()
