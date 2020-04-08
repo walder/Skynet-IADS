@@ -305,6 +305,21 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 10
 	},
+	['HQ-7'] = {
+		['searchRadar'] = {
+			['HQ-7_STR_SP'] = {
+			},
+		},
+		['launchers'] = {
+			['HQ-7_LN_SP'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'CSA-4',
+		},
+		['harm_detection_chance'] = 30
+	},
+--- Start of EW radars:
 	['1L13 EWR'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -350,19 +365,67 @@ samTypesDB = {
 			['NATO'] = 'Roland EWR',
 		},
 	},
-	['HQ-7'] = {
+	['p-19 s-125 sr'] = {
 		['searchRadar'] = {
-			['HQ-7_STR_SP'] = {
-			},
-		},
-		['launchers'] = {
-			['HQ-7_LN_SP'] = {
+			['p-19 s-125 sr'] = {
 			},
 		},
 		['name'] = {
-			['NATO'] = 'CSA-4',
+			['NATO'] = 'Flat Face',
 		},
-		['harm_detection_chance'] = 30
+		['harm_detection_chance'] = 40
 	},
+	['Patriot str'] = {
+		['searchRadar'] = {
+			['Patriot str'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Patriot str',
+		},
+		['harm_detection_chance'] = 80
+	},
+	['EW S-300'] = {
+		['searchRadar'] = {
+			['S-300PS 40B6MD sr'] = {
+			},
+			['S-300PS 64H6E sr'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Big Bird',
+		},
+		['harm_detection_chance'] = 90
+	},
+	['SA-11 Buk SR 9S18M1'] = {
+		['searchRadar'] = {
+			['SA-11 Buk SR 9S18M1'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Snow Drift',
+		},
+		['harm_detection_chance'] = 70
+	},
+	['Kub 1S91 str'] = {
+		['searchRadar'] = {
+			['Kub 1S91 str'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Straight Flush',
+		},
+		['harm_detection_chance'] = 40
+	},
+	['Hawk str'] = {
+		['searchRadar'] = {
+			['Hawk sr'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Hawk str',
+		},
+		['harm_detection_chance'] = 40
+	},	
 }
 end

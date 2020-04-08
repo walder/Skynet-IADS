@@ -1,6 +1,26 @@
 do
+
+--[[
+SAM Sites that engage HARMs:
+SA-15
+SA-10 (bug when engaging at 25k, no harms are intercepted)
+
+SAM Sites that ignore HARMS:
+SA-11
+SA-6
+SA-2
+SA-3
+Patriot
+]]--
+
+--[[ Compile Scripts:
+
+echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua  skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-awacs-radar.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
+
+--]]
+
 ---IADS Unit Tests
-SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 12
+SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 18
 SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 14
 
 function IADSContactFactory(unitName)
@@ -1100,6 +1120,7 @@ function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInT
 	samSite:goLive()
 	lu.assertEquals(samSite:isActive(), true)
 	lu.assertEquals(samSite:hasWorkingRadar(), true)
+	lu.assertEquals(#iads:getUsableSAMSites(), 1)
 	local radars = samSite:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
@@ -1114,6 +1135,7 @@ function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInT
 	lu.assertEquals(samSite:isDestroyed(), true)
 	lu.assertEquals(samSite:hasWorkingRadar(), false)
 	lu.assertEquals(#iads:getDestroyedSAMSites(), 1)
+	lu.assertEquals(#iads:getUsableSAMSites(), 0)
 	lu.assertEquals(samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(samSite:getInitialNumberOfMissiles(), 6)
 	lu.assertEquals(samSite:hasRemainingAmmo(), false)
@@ -2400,6 +2422,23 @@ function TestEarlyWarningRadars:testGetNatoName()
 end
 
 function TestEarlyWarningRadars:testFinishHARMDefence()
+--[[
+	Radar:
+	{
+		{
+			{
+				detectionDistanceAir={
+					lowerHemisphere={headOn=80248.84375, tailOn=80248.84375},
+					upperHemisphere={headOn=80248.84375, tailOn=80248.84375}
+				},
+				type=1,
+				typeName="1L13 EWR"
+			}
+		}
+	}
+
+
+--]]
 	self.ewRadarName = "EW-west2"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:isActive(), true)
@@ -2421,6 +2460,56 @@ function TestEarlyWarningRadars:testGoDarkWhenAutonomousByDefault()
 	end
 	self.ewRadar:goAutonomous()
 	lu.assertEquals(self.ewRadar:isActive(), false)
+end
+
+function TestEarlyWarningRadars:testEWP19()
+	self.ewRadarName = "EW-SR-P19"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Flat Face")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestEarlyWarningRadars:testPatriotSTRStandalone()
+	self.ewRadarName = "BLUE-EW"
+	self.blue = "BLUE-"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Patriot str")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestEarlyWarningRadars:testSA10Standalone()
+	self.ewRadarName = "EW-SA-10"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestEarlyWarningRadars:testSA10Standalone()
+	self.ewRadarName = "EW-SA-10-2"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestEarlyWarningRadars:testSA11Standalone()
+	self.ewRadarName = "EW-SA-11"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Snow Drift")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestEarlyWarningRadars:testSA6Standalone()
+	self.ewRadarName = "EW-SA-6"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Straight Flush")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestEarlyWarningRadars:testHawkStandalone()
+	self.ewRadarName = "EW-Hawk"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Hawk str")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
 function TestEarlyWarningRadars:testA50AWACSAsEWRadar()
@@ -2662,11 +2751,12 @@ local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
 iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
-local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode)
+local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120)
 
 iranIADS:addRadioMenu()
 iranIADS:activate()
 
+--[[
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
@@ -2676,9 +2766,10 @@ iadsDebug.noWorkingCommmandCenter = false
 iadsDebug.ewRadarNoConnection = false
 iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = true
-iadsDebug.addedEWRadar = false
+iadsDebug.addedEWRadar = true
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
+--]]
 
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
@@ -2688,18 +2779,20 @@ blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstrac
 blueIADS:addRadioMenu()
 blueIADS:activate()
 
+--[[
 local iadsDebug = blueIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
+--]]
 
 
 local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
 --jammer:masterArmOn()
 jammer:addRadioMenu()
 
-local blueIadsDebug = blueIADS:getDebugSettings()
+--local blueIadsDebug = blueIADS:getDebugSettings()
 --blueIadsDebug.IADSStatus = true
 --blueIadsDebug.harmDefence = true
 --blueIadsDebug.contacts = true

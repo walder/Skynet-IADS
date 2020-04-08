@@ -1,4 +1,4 @@
--- BUILD Timestamp: 03.04.2020 20:53:05.14  
+-- BUILD Timestamp: 08.04.2020 22:23:01.56  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -306,6 +306,21 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 10
 	},
+	['HQ-7'] = {
+		['searchRadar'] = {
+			['HQ-7_STR_SP'] = {
+			},
+		},
+		['launchers'] = {
+			['HQ-7_LN_SP'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'CSA-4',
+		},
+		['harm_detection_chance'] = 30
+	},
+--- Start of EW radars:
 	['1L13 EWR'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -351,41 +366,71 @@ samTypesDB = {
 			['NATO'] = 'Roland EWR',
 		},
 	},
-	['HQ-7'] = {
+	['p-19 s-125 sr'] = {
 		['searchRadar'] = {
-			['HQ-7_STR_SP'] = {
-			},
-		},
-		['launchers'] = {
-			['HQ-7_LN_SP'] = {
+			['p-19 s-125 sr'] = {
 			},
 		},
 		['name'] = {
-			['NATO'] = 'CSA-4',
+			['NATO'] = 'Flat Face',
 		},
-		['harm_detection_chance'] = 30
+		['harm_detection_chance'] = 40
 	},
+	['Patriot str'] = {
+		['searchRadar'] = {
+			['Patriot str'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Patriot str',
+		},
+		['harm_detection_chance'] = 80
+	},
+	['EW S-300'] = {
+		['searchRadar'] = {
+			['S-300PS 40B6MD sr'] = {
+			},
+			['S-300PS 64H6E sr'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Big Bird',
+		},
+		['harm_detection_chance'] = 90
+	},
+	['SA-11 Buk SR 9S18M1'] = {
+		['searchRadar'] = {
+			['SA-11 Buk SR 9S18M1'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Snow Drift',
+		},
+		['harm_detection_chance'] = 70
+	},
+	['Kub 1S91 str'] = {
+		['searchRadar'] = {
+			['Kub 1S91 str'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Straight Flush',
+		},
+		['harm_detection_chance'] = 40
+	},
+	['Hawk str'] = {
+		['searchRadar'] = {
+			['Hawk sr'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Hawk str',
+		},
+		['harm_detection_chance'] = 40
+	},	
 }
 end
 do
---[[
-SAM Sites that engage HARMs:
-SA-15
-SA-10 (bug when engaging at 25k, no harms are intercepted)
-
-SAM Sites that ignore HARMS:
-SA-11
-SA-6
-SA-2
-SA-3
-Patriot
-]]--
-
---[[ Compile Scripts:
-
-echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua  skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-awacs-radar.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
-
---]]
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -572,7 +617,7 @@ function SkynetIADS:getUsableSAMSites()
 	local usableSamSites = {}
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
-		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() then
+		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() and samSite:hasWorkingRadar() and samSite:isDestroyed() == false then
 			table.insert(usableSamSites, samSite)
 		end
 	end
@@ -1426,7 +1471,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
-				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0) then
+				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0 and numUnits == 1) then
 			local harmDetection = dataType['harm_detection_chance']
 			if harmDetection then
 				self.harmDetectionChance = harmDetection

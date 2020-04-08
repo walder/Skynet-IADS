@@ -1,22 +1,4 @@
 do
---[[
-SAM Sites that engage HARMs:
-SA-15
-SA-10 (bug when engaging at 25k, no harms are intercepted)
-
-SAM Sites that ignore HARMS:
-SA-11
-SA-6
-SA-2
-SA-3
-Patriot
-]]--
-
---[[ Compile Scripts:
-
-echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua  skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-awacs-radar.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
-
---]]
 
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
@@ -203,7 +185,7 @@ function SkynetIADS:getUsableSAMSites()
 	local usableSamSites = {}
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
-		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() then
+		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() and samSite:hasWorkingRadar() and samSite:isDestroyed() == false then
 			table.insert(usableSamSites, samSite)
 		end
 	end
