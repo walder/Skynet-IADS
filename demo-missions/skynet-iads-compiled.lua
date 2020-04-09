@@ -1,4 +1,4 @@
--- BUILD Timestamp: 10.04.2020  0:53:45.03  
+-- BUILD Timestamp: 10.04.2020  1:34:14.93  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1867,6 +1867,10 @@ function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
 		end
 	end
 	self.objectsIdentifiedAsHarms = validObjects
+	
+	if self:getNumberOfObjectsItentifiedAsHARMS() == 0 then
+		self:pointDefencesStopActingAsEW()
+	end
 end
 
 
@@ -1913,10 +1917,14 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 				--	end
 					
 					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
-					if numDetections == 2 and shallReactToHarm and self:shallIgnoreHARMShutdown() == false then
-						self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
-						self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
-						self:goSilentToEvadeHARM(timeToImpact)
+					if numDetections == 2 and shallReactToHarm then
+						if self:shallIgnoreHARMShutdown() == false then
+							self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+							self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
+							self:goSilentToEvadeHARM(timeToImpact)
+						else
+							self:pointDefencesGoLive()
+						end
 					end
 					if numDetections == 2 and shallReactToHarm == false then
 						if self.iads:getDebugSettings().harmDefence then

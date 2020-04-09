@@ -1739,6 +1739,17 @@ function TestSamSites:testCleanUpOldObjectsIdentifiedAsHARMS()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
 	
+	local sa15 = Group.getByName("SAM-SA-15-1")
+	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
+	pointDefence:setupElements()
+	pointDefence:goLive()
+	pointDefence:goDark()
+	lu.assertEquals(self.samSite:addPointDefence(pointDefence), self.samSite)
+	lu.assertEquals(#self.samSite:getPointDefences(), 1)
+	
+	-- set point defence to ew mode: that's the state it is in, when defending a HARM
+	pointDefence:setActAsEW(true)
+	
 	local iadsContact = IADSContactFactory("test-distance-calculation")
 	local iadsContact2 = IADSContactFactory("test-not-in-firing-range-of-sa-2")	
 	local iadsContact3 = IADSContactFactory("test-outer-search-range")
@@ -1778,6 +1789,20 @@ function TestSamSites:testCleanUpOldObjectsIdentifiedAsHARMS()
 	
 	self.samSite:cleanUpOldObjectsIdentifiedAsHARMS()
 	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)
+	
+	---set to 0 harms detected, check if point defence is no longer in EW mode:
+	function iadsContact:getAge()
+		return testSAMSite.objectsIdentifiedAsHarmsMaxTargetAge + 1
+	end
+
+	function iadsContact2:getAge()
+		return testSAMSite.objectsIdentifiedAsHarmsMaxTargetAge + 1
+	end
+	
+	self.samSite:cleanUpOldObjectsIdentifiedAsHARMS()
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 0)
+	
+	lu.assertEquals(pointDefence:getActAsEW(), false)
 	
 end
 
@@ -1840,6 +1865,7 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(calledShutdown, false)
 	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(pointDefence:isActive(), true)
 	
 	self.samSite.objectsIdentifiedAsHarms = {}
 	calledShutdown = false
@@ -1859,6 +1885,8 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	
 	self.samSite.objectsIdentifiedAsHarms = {}
 	calledShutdown = false
+	pointDefence:setActAsEW(false)
+	pointDefence:goDark()
 	
 	--this test if for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
 	function self.samSite:getDetectedTargets()
@@ -1871,9 +1899,14 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(calledShutdown, false)
+	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(pointDefence:isActive(), true)
 	
 	self.samSite.objectsIdentifiedAsHarms = {}
 	calledShutdown = false
+	pointDefence:setActAsEW(false)
+	pointDefence:goDark()
+	
 	
 	--this test if there are a greater number of point defence launchers than HARMs inbound, radar emitter will not shut down:
 	function self.samSite:getDetectedTargets()
@@ -1886,10 +1919,13 @@ function TestSamSites:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAv
 	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(calledShutdown, false)
+	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(pointDefence:isActive(), true)
 	
 	self.samSite.objectsIdentifiedAsHarms = {}
 	calledShutdown = false
-
+	pointDefence:setActAsEW(false)
+	pointDefence:goDark()
 	
 	--this test is for when the point defence is out of ammo and setIgnoreHARMSWhilePointDefencesHaveAmmo is set to true
 	function pointDefence:getRemainingNumberOfMissiles()
@@ -2811,8 +2847,6 @@ iadsDebug.harmDefence = true
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
 
-
-
 iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(0)
 ewConnectionNode = Unit.getByName('connection-node-ew')
 iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
@@ -2821,16 +2855,12 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionCha
 iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
 local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120)
-
 iranIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(iranIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 
 iranIADS:addRadioMenu()
-
 iranIADS:activate()
 
 
-
---[[
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
@@ -2838,7 +2868,6 @@ blueIADS:getSAMSitesByNatoName('Rapier'):setEngagementZone(SkynetIADSAbstractRad
 blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 blueIADS:addRadioMenu()
 blueIADS:activate()
---]]
 
 --[[
 local iadsDebug = blueIADS:getDebugSettings()
@@ -2849,9 +2878,9 @@ iadsDebug.radarWentLive = true
 --]]
 
 
---local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
+local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
 --jammer:masterArmOn()
---jammer:addRadioMenu()
+jammer:addRadioMenu()
 
 --local blueIadsDebug = blueIADS:getDebugSettings()
 --blueIadsDebug.IADSStatus = true
