@@ -91,7 +91,7 @@ Since impact point calculation is almost always perfect in DCS there is also a r
 See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
 
 ## Point defence
-When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surounding SAM sites will not be able to go live since they rely on the EW radar for target information.
+When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
 This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
 
 You can tell a radar emitter it has a point denfence to rely on. If the radar emitter goes dark due to an inbound HARM it will activate its point defences to fire at the HARM.

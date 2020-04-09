@@ -633,7 +633,7 @@ end
 
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
-	
+
 	--if an emitter dies the SAM site being jammed will revert back to normal operation:
 	if self.lastJammerUpdate > 0 and ( timer:getTime() - self.lastJammerUpdate ) > 10 then
 		self:jam(0)
@@ -644,11 +644,12 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	self:updateMissilesInFlight()	
 	self:cleanUpOldObjectsIdentifiedAsHARMS()
 	
+	
 	local targets = self:getDetectedTargets() 
 	for i = 1, #targets do
 		local target = targets[i]
 		local radars = self:getRadars()
-		for j = 1, #radars do
+		for j = 1, #radars do	
 			local radar = radars[j]
 			local distance = self:getDistanceInMetersToContact(radar, target:getPosition().p)
 			local impactPoint = self:calculateImpactPoint(target, distance)
@@ -670,7 +671,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					local shallReactToHarm = self:shallReactToHARM()
 					
 				--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
-					--	env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
+				--		env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
 				--	end
 					
 					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.

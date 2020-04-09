@@ -27,4 +27,3 @@ function SkynetIADSAWACSRadar:scanForHarms()
 end
 
 end
-

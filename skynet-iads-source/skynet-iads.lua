@@ -402,13 +402,12 @@ end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS:activate()
-	self:deactivate()
+	mist.removeFunction(self.ewRadarScanMistTaskID)
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 end
 
 function SkynetIADS:deactivate()
 	mist.removeFunction(self.ewRadarScanMistTaskID)
-	
 	self:deativateSAMSites()
 	self:deactivateEarlyWarningRadars()
 	self:deactivateCommandCenters()

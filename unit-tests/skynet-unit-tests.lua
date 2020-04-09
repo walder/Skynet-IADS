@@ -20,8 +20,8 @@ echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet
 --]]
 
 ---IADS Unit Tests
-SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 18
-SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 14
+SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 17
+SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 15
 
 function IADSContactFactory(unitName)
 	local contact = Unit.getByName(unitName)
@@ -83,6 +83,20 @@ function TestIADS:testCaclulateNumberOfSamSitesAndEWRadarsWhenAddMethodsCalledTw
 	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), self.numEWSites)
 end
 
+function TestIADS:testDoubleActivateCall()
+	self.iranIADS:activate()
+	self.iranIADS:activate()
+	local ews = self.iranIADS:getEarlyWarningRadars()
+	for i = 1, #ews do
+		local ew = ews[i]
+		local category = ew:getDCSRepresentation():getDesc().category
+		if category ~= Unit.Category.AIRPLANE and category ~= Unit.Category.SHIP then
+			env.info(tostring(ew:isScanningForHARMs()))
+			lu.assertEquals(ew:isScanningForHARMs(), true)
+		end
+	end
+end
+
 function TestIADS:testWrongCaseStringWillNotLoadSAMGroup()
 	self:tearDown()
 	self.iranIADS = SkynetIADS:create()
@@ -103,7 +117,7 @@ function TestIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
 end
 
 function TestIADS:testEarlyWarningRadarLoosesPower()
-	ewWest2PowerSource = StaticObject.getByName('EW-west Power Source')
+	ewWest2PowerSource = StaticObject.getByName('west Power Source')
 	self.iranIADS:getEarlyWarningRadarByUnitName('EW-west'):addPowerSource(ewWest2PowerSource)
 	local ewRadar = self.iranIADS:getEarlyWarningRadarByUnitName('EW-west')
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
@@ -496,7 +510,7 @@ end
 function TestSamSites:testCheckOneGenericObjectAliveForUnitWorks()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
-	local unit = Unit.getByName('EW-SAM-SA-6-2-coonection-node-unit')
+	local unit = Unit.getByName('SAM-SA-6-2-connection-node-unit')
 	self.samSite:addConnectionNode(unit)
 	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), true)
 	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
@@ -2421,6 +2435,44 @@ function TestEarlyWarningRadars:testGetNatoName()
 	lu.assertEquals(self.ewRadar:getNatoName(), "1L13 EWR")
 end
 
+function TestEarlyWarningRadars:testEvaluateIfTargetsContainHARMsShallReactTrue()
+	self.ewRadarName = "EW-west2"
+	self:setUp()
+	
+	lu.assertNotIs(self.ewRadar.harmScanID, nil)
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	
+	local calledShutdown = false
+	
+	function self.ewRadar:getDetectedTargets()
+		return {iadsContact}
+	end
+	function self.ewRadar:getDistanceInMetersToContact(a, b)
+		return 50
+	end
+	function self.ewRadar:calculateImpactPoint(a, b)
+		return self:getRadars()[1]:getPosition().p
+	end
+	
+	function self.ewRadar:shallReactToHARM()
+		return true
+	end
+	
+	function self.ewRadar:goSilentToEvadeHARM()
+		calledShutdown = true
+	end
+	
+	lu.assertEquals(#self.ewRadar:getRadars(), 1)
+	self.ewRadar:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(calledShutdown, false)
+	lu.assertEquals(self.ewRadar.objectsIdentifiedAsHarms[iadsContact:getName()]['target'], iadsContact)
+	lu.assertEquals(self.ewRadar.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 1)
+	self.ewRadar:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(self.ewRadar.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
+	lu.assertEquals(calledShutdown, true)
+end
+
+
 function TestEarlyWarningRadars:testFinishHARMDefence()
 --[[
 	Radar:
@@ -2730,6 +2782,7 @@ lu.LuaUnit.run()
 --clean miste left over scheduled tasks form unit tests
 
 -- we run this test to check there are no left over tasks in the IADS
+
 local i = 0
 while i < 10000 do
 	local id =  mist.removeFunction(i)
@@ -2742,21 +2795,6 @@ end
 --- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
 
 iranIADS = SkynetIADS:create("Iran")
-iranIADS:addEarlyWarningRadarsByPrefix('EW')
-iranIADS:addSAMSitesByPrefix('SAM')
-iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(0)
-ewConnectionNode = Unit.getByName('connection-node-ew')
-iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
-local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
-iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
-local connectioNode = StaticObject.getByName('Unused Connection Node')
-local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120)
-
-iranIADS:addRadioMenu()
-iranIADS:activate()
-
---[[
 local iadsDebug = iranIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
@@ -2769,8 +2807,30 @@ iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
---]]
 
+iranIADS:addEarlyWarningRadarsByPrefix('EW')
+iranIADS:addSAMSitesByPrefix('SAM')
+
+
+
+iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(0)
+ewConnectionNode = Unit.getByName('connection-node-ew')
+iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
+local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
+iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+local connectioNode = StaticObject.getByName('Unused Connection Node')
+local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120)
+
+iranIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(iranIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+
+iranIADS:addRadioMenu()
+
+iranIADS:activate()
+
+
+
+--[[
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
@@ -2778,6 +2838,7 @@ blueIADS:getSAMSitesByNatoName('Rapier'):setEngagementZone(SkynetIADSAbstractRad
 blueIADS:getSAMSitesByNatoName('Roland ADS'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 blueIADS:addRadioMenu()
 blueIADS:activate()
+--]]
 
 --[[
 local iadsDebug = blueIADS:getDebugSettings()
@@ -2788,9 +2849,9 @@ iadsDebug.radarWentLive = true
 --]]
 
 
-local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
+--local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
 --jammer:masterArmOn()
-jammer:addRadioMenu()
+--jammer:addRadioMenu()
 
 --local blueIadsDebug = blueIADS:getDebugSettings()
 --blueIadsDebug.IADSStatus = true
@@ -2860,7 +2921,7 @@ end
 
 --mist.scheduleFunction(Vec3CalculationSpike, {}, 1, 1)
 
-trigger.action.effectSmokeBig(Unit.getByName('EW-west2'):getPosition().p, 8, 10)
+--trigger.action.effectSmokeBig(Unit.getByName('EW-west2'):getPosition().p, 8, 10)
 
 function checkSams(iranIADS)
 
