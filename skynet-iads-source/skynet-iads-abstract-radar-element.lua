@@ -630,6 +630,7 @@ function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
 	end
 	self.objectsIdentifiedAsHarms = validObjects
 	
+	--stop point defences acting as ew (always on), will occur of activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
 	if self:getNumberOfObjectsItentifiedAsHARMS() == 0 then
 		self:pointDefencesStopActingAsEW()
 	end

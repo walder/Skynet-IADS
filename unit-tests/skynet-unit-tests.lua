@@ -2317,6 +2317,11 @@ function TestJammer:tearDown()
 	self.jammer:masterArmSafe()
 end
 
+function TestJammer:testSetJammerDistance()
+	self.jammer:setMaximumEffectiveDistance(20)
+	lu.assertEquals(self.jammer.maximumEffectiveDistanceNM, 20)
+end
+
 function TestJammer:testSetupJammerAndRunCycle()
 	lu.assertEquals(self.jammer.jammerTaskID, nil)
 	self.jammer:masterArmOn()

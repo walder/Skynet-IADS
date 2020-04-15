@@ -58,7 +58,7 @@ function SkynetIADSJammer:addFunction(natoName, jammerFunction)
 end
 
 function SkynetIADSJammer:setMaximumEffectiveDistance(distance)
-	self.setMaximumEffectiveDistance = distance
+	self.maximumEffectiveDistanceNM = distance
 end
 
 function SkynetIADSJammer:disableFor(natoName)

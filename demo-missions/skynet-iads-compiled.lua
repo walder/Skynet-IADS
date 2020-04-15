@@ -1,4 +1,4 @@
--- BUILD Timestamp: 10.04.2020  1:34:14.93  
+-- BUILD Timestamp: 15.04.2020 23:15:04.94  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1868,6 +1868,7 @@ function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
 	end
 	self.objectsIdentifiedAsHarms = validObjects
 	
+	--stop point defences acting as ew (always on), will occur of activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
 	if self:getNumberOfObjectsItentifiedAsHARMS() == 0 then
 		self:pointDefencesStopActingAsEW()
 	end
@@ -2133,7 +2134,7 @@ function SkynetIADSJammer:addFunction(natoName, jammerFunction)
 end
 
 function SkynetIADSJammer:setMaximumEffectiveDistance(distance)
-	self.setMaximumEffectiveDistance = distance
+	self.maximumEffectiveDistanceNM = distance
 end
 
 function SkynetIADSJammer:disableFor(natoName)
