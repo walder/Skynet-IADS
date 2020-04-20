@@ -1,4 +1,4 @@
--- BUILD Timestamp: 15.04.2020 23:15:04.94  
+-- BUILD Timestamp: 20.04.2020 12:31:45.33  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1894,42 +1894,44 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 		local radars = self:getRadars()
 		for j = 1, #radars do	
 			local radar = radars[j]
-			local distance = self:getDistanceInMetersToContact(radar, target:getPosition().p)
-			local impactPoint = self:calculateImpactPoint(target, distance)
-			if impactPoint then
-				local harmImpactPointDistanceToSAM = self:getDistanceInMetersToContact(radar, impactPoint)
-				if harmImpactPointDistanceToSAM <= 100 then
-					if self.objectsIdentifiedAsHarms[target:getName()] then
-						self.objectsIdentifiedAsHarms[target:getName()]['count'] = self.objectsIdentifiedAsHarms[target:getName()]['count'] + 1
-					else
-						self.objectsIdentifiedAsHarms[target:getName()] =  {}
-						self.objectsIdentifiedAsHarms[target:getName()]['target'] = target
-						self.objectsIdentifiedAsHarms[target:getName()]['count'] = 1
-					end
-					local savedTarget = self.objectsIdentifiedAsHarms[target:getName()]['target']
-					savedTarget:refresh()
-					local numDetections = self.objectsIdentifiedAsHarms[target:getName()]['count']
-					local speed = savedTarget:getGroundSpeedInKnots()
-					local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
-					local shallReactToHarm = self:shallReactToHARM()
-					
-				--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
-				--		env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
-				--	end
-					
-					-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
-					if numDetections == 2 and shallReactToHarm then
-						if self:shallIgnoreHARMShutdown() == false then
-							self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
-							self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
-							self:goSilentToEvadeHARM(timeToImpact)
+			if radar:isExist() == true then
+				local distance = self:getDistanceInMetersToContact(radar, target:getPosition().p)
+				local impactPoint = self:calculateImpactPoint(target, distance)
+				if impactPoint then
+					local harmImpactPointDistanceToSAM = self:getDistanceInMetersToContact(radar, impactPoint)
+					if harmImpactPointDistanceToSAM <= 100 then
+						if self.objectsIdentifiedAsHarms[target:getName()] then
+							self.objectsIdentifiedAsHarms[target:getName()]['count'] = self.objectsIdentifiedAsHarms[target:getName()]['count'] + 1
 						else
-							self:pointDefencesGoLive()
+							self.objectsIdentifiedAsHarms[target:getName()] =  {}
+							self.objectsIdentifiedAsHarms[target:getName()]['target'] = target
+							self.objectsIdentifiedAsHarms[target:getName()]['count'] = 1
 						end
-					end
-					if numDetections == 2 and shallReactToHarm == false then
-						if self.iads:getDebugSettings().harmDefence then
-							self.iads:printOutput("HARM DEFENCE: "..self:getDCSRepresentation():getName().." will not react")
+						local savedTarget = self.objectsIdentifiedAsHarms[target:getName()]['target']
+						savedTarget:refresh()
+						local numDetections = self.objectsIdentifiedAsHarms[target:getName()]['count']
+						local speed = savedTarget:getGroundSpeedInKnots()
+						local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
+						local shallReactToHarm = self:shallReactToHARM()
+						
+					--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
+					--		env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
+					--	end
+						
+						-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
+						if numDetections == 2 and shallReactToHarm then
+							if self:shallIgnoreHARMShutdown() == false then
+								self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+								self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
+								self:goSilentToEvadeHARM(timeToImpact)
+							else
+								self:pointDefencesGoLive()
+							end
+						end
+						if numDetections == 2 and shallReactToHarm == false then
+							if self.iads:getDebugSettings().harmDefence then
+								self.iads:printOutput("HARM DEFENCE: "..self:getDCSRepresentation():getName().." will not react")
+							end
 						end
 					end
 				end

@@ -476,6 +476,58 @@ function TestIADS:testSAMSiteLoosesConnectionThenAddANewOneAgain()
 	
 end
 
+TestMooseA2ADispatcherConnector = {}
+
+function TestMooseA2ADispatcherConnector:setUp()
+	self.iads = SkynetIADS:create()
+	self.connector = SkynetMooseA2ADispatcherConnector:create()
+end
+
+function TestMooseA2ADispatcherConnector:tearDown()
+	self.iads:deactivate()
+end
+
+--finish this test:
+function TestMooseA2ADispatcherConnector:testAddEWRadars()
+	local ewRadar = self.iads:addEarlyWarningRadar('EW-west')
+	local connectionNode = StaticObject.getByName('west Connection Node')
+	ewRadar:addConnectionNode(connectionNode)
+	
+	local samSite = self.iads:addSAMSite('SAM-SA-6-2')
+	
+	self.connector:addIADS(self.iads)
+	
+	local ewRadarNames = self.connector:getEarlyWarningRadarGroupNames()
+	lu.assertEquals(#ewRadarNames, 1)
+	lu.assertEquals(ewRadarNames[1], 'EW-west-group-name')
+	
+	local samSiteNames = self.connector:getSAMSiteGroupNames()
+	lu.assertEquals(#samSiteNames, 1)
+	
+	function samSite:hasWorkingPowerSource()
+		return false
+	end
+	
+	local samSiteNames = self.connector:getSAMSiteGroupNames()
+	lu.assertEquals(#samSiteNames, 0)
+	
+function TestMooseA2ADispatcherConnector:testUpdateEWRadars()
+	
+end
+--[[
+	
+	local mockSetGroup = {}
+	
+	function mockSetGroup:AddGroupsByName(name)
+		lu.assertEquals(name, 'EW-west')
+	end
+	
+	self.connector:setMooseGroup(mockSetGroup)
+	self.connector:addIADS(self.iads)
+	self.connector:update()
+--]]
+end
+
 TestSamSites = {}
 
 function TestSamSites:setUp()
@@ -1228,6 +1280,38 @@ function TestSamSites:testEvaluateIfTargetsContainHARMsShallReactTrue()
 	self.samSite:evaluateIfTargetsContainHARMs()
 	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
 	lu.assertEquals(calledShutdown, true)
+end
+
+
+function TestSamSites:testNoErrorTriggeredWhenRadarUnitDestroyedAndHARMDefenceIsRunning()
+	
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local iadsContact = IADSContactFactory("test-distance-calculation")
+	
+	local calledPosition = false
+	
+	function self.samSite:getDetectedTargets()
+		return {iadsContact}
+	end
+	
+	local radar = self.samSite:getRadars()[1]
+	
+	--simulate a destroyed radar:
+	function radar:isExist()
+		return false
+	end
+	
+	--a destroyed radar returns nil for its position:
+	function radar:getPosition()
+		calledPosition = true
+		self:getDCSRepresentation():getPosition()
+	end
+	
+	lu.assertEquals(#self.samSite:getRadars(), 1)
+	self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(calledPosition, false)
 end
 
 function TestSamSites:testEvaluateIfTargetsContainHARMsShallReactFalse()
@@ -2833,6 +2917,7 @@ while i < 10000 do
 	end
 end
 
+
 --- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
 
 iranIADS = SkynetIADS:create("Iran")
@@ -2856,7 +2941,7 @@ iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(0)
 ewConnectionNode = Unit.getByName('connection-node-ew')
 iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
-iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(0):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
 local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120)
@@ -2864,7 +2949,6 @@ iranIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(iranIADS:ge
 
 iranIADS:addRadioMenu()
 iranIADS:activate()
-
 
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
