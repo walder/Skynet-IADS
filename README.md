@@ -250,6 +250,13 @@ Returns a SAM site with the specified group name:
 redIADS:getSAMSiteByGroupName('SAM-SA-6')
 ```
 
+Returns a SAM site with the specified group name prefix. Let's say you have a bunch of SAM sites that all will share the same power source. 
+Give these sites a special prefix in the group name, e.g.: ```'SAM-SECTOR-A'```. Once you have added the SAM sites you can access them via the prefix to set whatever options you want:
+
+```lua
+redIADS:getSAMSitesByPrefix('SAM-SECTOR-A')
+```
+
 #### Setting an option
 You can daisy chain options on a single SAM site or a table of SAM sites like this:
 ```lua

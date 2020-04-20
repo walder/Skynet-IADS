@@ -1,4 +1,4 @@
--- BUILD Timestamp: 20.04.2020 12:31:45.33  
+-- BUILD Timestamp: 20.04.2020 20:23:55.26  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -590,6 +590,19 @@ function SkynetIADS:addSAMSitesByPrefix(prefix)
 	return self:createTableDelegator(self.samSites)
 end
 
+function SkynetIADS:getSAMSitesByPrefix(prefix)
+	local returnSams = {}
+	for i = 1, #self.samSites do
+		local samSite = self.samSites[i]
+		local groupName = samSite:getDCSRepresentation():getName()
+		local pos = self:findSubString(groupName, prefix)
+		if pos and pos == 1 then
+			table.insert(returnSams, samSite)
+		end
+	end
+	return self:createTableDelegator(returnSams)
+end
+
 function SkynetIADS:addSAMSite(samSiteName)
 	local samSiteDCS = Group.getByName(samSiteName)
 	if samSiteDCS == nil then
@@ -904,6 +917,60 @@ function SkynetIADS:getCoalitionString()
 	return coalitionStr
 end
 
+function SkynetIADS:printDetailedSAMSiteStatus()
+	local samSites = self:getSAMSites()
+	
+	env.info("------------------------------------------ SAM STATUS: "..self:getCoalitionString().." -------------------------------")
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		local numConnectionNodes = #samSite:getConnectionNodes()
+		local numPowerSources = #samSite:getPowerSources()
+		local isAutonomous = samSite:getAutonomousState()
+		local isActive = samSite:isActive()
+		
+		local connectionNodes = samSite:getConnectionNodes()
+		local numDamagedConnectionNodes = 0
+		for j = 1, #connectionNodes do
+			local connectionNode = connectionNodes[j]
+			if connectionNode:isExist() == false then
+				numDamagedConnectionNodes = numDamagedConnectionNodes + 1
+			end
+		end
+		local intactConnectionNodes = numConnectionNodes - numDamagedConnectionNodes
+		
+		local powerSources = samSite:getPowerSources()
+		local numDamagedPowerSources = 0
+		for j = 1, #powerSources do
+			local powerSource = powerSources[j]
+			if powerSource:isExist() == false then
+				numDamagedPowerSources = numDamagedPowerSources + 1
+			end
+		end
+		local intactPowerSources = numPowerSources - numDamagedPowerSources 
+		
+		env.info("GROUP: "..samSite:getDCSRepresentation():getName().." | TYPE: "..samSite:getNatoName())
+		env.info("AUTONOMOUS: "..tostring(isAutonomous).." | ACTIVE: "..tostring(isActive).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()))
+		if numConnectionNodes > 0 then
+			env.info("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
+		else
+			env.info("NO CONNECTION NODES SET")
+		end
+		if numPowerSources > 0 then
+			env.info("POWER SOURCES : "..numPowerSources.." | DAMAGED:"..numDamagedPowerSources.." | INTACT: "..intactPowerSources)
+		else
+			env.info("NO POWER SOURCES SET")
+		end
+		
+		local detectedTargets = samSite:getDetectedTargets()
+		
+		for j = 1, #detectedTargets do
+		--	env.info(
+		end
+		
+		env.info("---------------------------------------------------")
+	end
+end
+
 function SkynetIADS:printSystemStatus()	
 
 	if self:getDebugSettings().IADSStatus or self:getDebugSettings().contacts then
@@ -998,6 +1065,8 @@ function SkynetIADS:printSystemStatus()
 				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
 	end
+	
+	--self:printDetailedSAMSiteStatus()
 end
 
 end
@@ -1049,7 +1118,11 @@ function SkynetIADSAbstractDCSObjectWrapper:getPosition()
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:isExist()
-	return self.dcsObject:isExist()
+	if self.dcsObject then
+		return self.dcsObject:isExist()
+	else
+		return false
+	end
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
@@ -1643,6 +1716,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 		local searchRadar = self.searchRadars[i]
 		if searchRadar:isInRange(target) then
 			isSearchRadarInRange = true
+			break
 		end
 	end
 	
@@ -1653,6 +1727,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 			local launcher = self.launchers[i]
 			if launcher:isInRange(target) then
 				isLauncherInRange = true
+				break
 			end
 		end
 		
@@ -1661,6 +1736,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 			local trackingRadar = self.trackingRadars[i]
 			if trackingRadar:isInRange(target) then
 				isTrackingRadarInRange = true
+				break
 			end
 		end
 	else

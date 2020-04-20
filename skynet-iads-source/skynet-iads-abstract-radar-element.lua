@@ -405,6 +405,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 		local searchRadar = self.searchRadars[i]
 		if searchRadar:isInRange(target) then
 			isSearchRadarInRange = true
+			break
 		end
 	end
 	
@@ -415,6 +416,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 			local launcher = self.launchers[i]
 			if launcher:isInRange(target) then
 				isLauncherInRange = true
+				break
 			end
 		end
 		
@@ -423,6 +425,7 @@ function SkynetIADSAbstractRadarElement:isTargetInRange(target)
 			local trackingRadar = self.trackingRadars[i]
 			if trackingRadar:isInRange(target) then
 				isTrackingRadarInRange = true
+				break
 			end
 		end
 	else

@@ -23,7 +23,11 @@ function SkynetIADSAbstractDCSObjectWrapper:getPosition()
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:isExist()
-	return self.dcsObject:isExist()
+	if self.dcsObject then
+		return self.dcsObject:isExist()
+	else
+		return false
+	end
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
