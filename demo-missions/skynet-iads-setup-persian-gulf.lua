@@ -15,6 +15,7 @@ iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = false
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
+iadsDebug.samSiteStatusEnvOutput = true
 ---end remove debug ---
 
 --add all units with unit name beginning with 'EW' to the IADS:

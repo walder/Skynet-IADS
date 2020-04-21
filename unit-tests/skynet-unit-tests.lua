@@ -2939,18 +2939,18 @@ iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
+iadsDebug.samSiteStatusEnvOutput = true
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
 
-iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setHARMDetectionChance(0)
 ewConnectionNode = Unit.getByName('connection-node-ew')
 iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
 iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
-local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120)
+local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(100)
 
 local conNode = SkynetIADSAbstractDCSObjectWrapper:create(nil)
 iranIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(iranIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true):addConnectionNode(conNode)

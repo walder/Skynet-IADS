@@ -1,4 +1,4 @@
--- BUILD Timestamp: 20.04.2020 20:23:55.26  
+-- BUILD Timestamp: 21.04.2020 21:57:04.76  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -466,6 +466,7 @@ function SkynetIADS:create(name)
 	iads.debugOutput.addedSAMSite = false
 	iads.debugOutput.warnings = true
 	iads.debugOutput.harmDefence = false
+	iads.debugOutput.samSiteStatusEnvOutput = false
 	return iads
 end
 
@@ -929,6 +930,7 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		local isActive = samSite:isActive()
 		
 		local connectionNodes = samSite:getConnectionNodes()
+		local firstRadar = samSite:getRadars()[1]
 		local numDamagedConnectionNodes = 0
 		for j = 1, #connectionNodes do
 			local connectionNode = connectionNodes[j]
@@ -948,8 +950,10 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		end
 		local intactPowerSources = numPowerSources - numDamagedPowerSources 
 		
+		local detectedTargets = samSite:getDetectedTargets()
+		
 		env.info("GROUP: "..samSite:getDCSRepresentation():getName().." | TYPE: "..samSite:getNatoName())
-		env.info("AUTONOMOUS: "..tostring(isAutonomous).." | ACTIVE: "..tostring(isActive).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()))
+		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()))
 		if numConnectionNodes > 0 then
 			env.info("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
 		else
@@ -961,10 +965,12 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 			env.info("NO POWER SOURCES SET")
 		end
 		
-		local detectedTargets = samSite:getDetectedTargets()
+	
 		
 		for j = 1, #detectedTargets do
-		--	env.info(
+			local contact = detectedTargets[j]
+			local distance = mist.utils.round(mist.utils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+			env.info("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
 		end
 		
 		env.info("---------------------------------------------------")
@@ -1066,7 +1072,9 @@ function SkynetIADS:printSystemStatus()
 		end
 	end
 	
-	--self:printDetailedSAMSiteStatus()
+	if self:getDebugSettings().samSiteStatusEnvOutput then
+		self:printDetailedSAMSiteStatus()
+	end
 end
 
 end
@@ -1838,6 +1846,10 @@ end
 
 function SkynetIADSAbstractElement:isScanningForHARMs()
 	return self.harmScanID ~= nil
+end
+
+function SkynetIADSAbstractElement:isDefendingHARM()
+	return self.harmSilenceID ~= nil
 end
 
 function SkynetIADSAbstractRadarElement:stopScanningForHARMs()

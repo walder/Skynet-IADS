@@ -529,6 +529,10 @@ function SkynetIADSAbstractElement:isScanningForHARMs()
 	return self.harmScanID ~= nil
 end
 
+function SkynetIADSAbstractElement:isDefendingHARM()
+	return self.harmSilenceID ~= nil
+end
+
 function SkynetIADSAbstractRadarElement:stopScanningForHARMs()
 	mist.removeFunction(self.harmScanID)
 	self.harmScanID = nil
