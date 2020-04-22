@@ -35,6 +35,7 @@ function SkynetIADS:create(name)
 	iads.debugOutput.warnings = true
 	iads.debugOutput.harmDefence = false
 	iads.debugOutput.samSiteStatusEnvOutput = false
+	iads.earlyWarningRadarStatusEnvOutput = false
 	return iads
 end
 
@@ -69,15 +70,19 @@ function SkynetIADS:getDestroyedEarlyWarningRadars()
 	return destroyedSites
 end
 
-function SkynetIADS:getUsableEarlyWarningRadars()
+function SkynetIADS:getUsableAbstractRadarElemtentsOfTable(abstractRadarTable)
 	local usable = {}
-	for i = 1, #self.earlyWarningRadars do
-		local ewRadar = self.earlyWarningRadars[i]
-		if ewRadar:hasActiveConnectionNode() and ewRadar:hasWorkingPowerSource() and ewRadar:isDestroyed() == false then
-			table.insert(usable, ewRadar)
+	for i = 1, #abstractRadarTable do
+		local abstractRadarElement = abstractRadarTable[i]
+		if abstractRadarElement:hasActiveConnectionNode() and abstractRadarElement:hasWorkingPowerSource() and abstractRadarElement:isDestroyed() == false then
+			table.insert(usable, abstractRadarElement)
 		end
 	end
 	return usable
+end
+
+function SkynetIADS:getUsableEarlyWarningRadars()
+	return self:getUsableAbstractRadarElemtentsOfTable(self.earlyWarningRadars)
 end
 
 function SkynetIADS:createTableDelegator(units) 
@@ -196,16 +201,8 @@ function SkynetIADS:addSAMSite(samSiteName)
 end
 
 function SkynetIADS:getUsableSAMSites()
-	local usableSamSites = {}
-	for i = 1, #self.samSites do
-		local samSite = self.samSites[i]
-		if samSite:hasActiveConnectionNode() and samSite:hasWorkingPowerSource() and samSite:hasWorkingRadar() and samSite:isDestroyed() == false then
-			table.insert(usableSamSites, samSite)
-		end
-	end
-	return usableSamSites
+	return self:getUsableAbstractRadarElemtentsOfTable(self.samSites)
 end
-
 
 function SkynetIADS:getDestroyedSAMSites()
 	local destroyedSites = {}
@@ -318,7 +315,8 @@ function SkynetIADS.evaluateContacts(self)
 			self:mergeContact(contact)
 		end
 	end
-	
+
+--[[	
 	local contactsToKeep = {}
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
@@ -327,7 +325,7 @@ function SkynetIADS.evaluateContacts(self)
 		end
 	end
 	self.contacts = contactsToKeep
-	
+--]]	
 	
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
@@ -486,6 +484,80 @@ function SkynetIADS:getCoalitionString()
 	return coalitionStr
 end
 
+function SkynetIADS:printDetailedEarlyWarningRadarStatus()
+	local ewRadars = self:getEarlyWarningRadars()
+	env.info("------------------------------------------ EW RADAR STATUS: "..self:getCoalitionString().." -------------------------------")
+	for i = 1, #ewRadars do
+		local ewRadar = ewRadars[i]
+		local numConnectionNodes = #ewRadar:getConnectionNodes()
+		local numPowerSources = #ewRadar:getPowerSources()
+		local isActive = ewRadar:isActive()
+		local connectionNodes = ewRadar:getConnectionNodes()
+		local firstRadar = nil
+		local radars = ewRadar:getRadars()
+		
+		--get the first existing radar to prevent issues in calculating the distance later on:
+		for i = 1, #radars do
+			if radars[i]:isExist() then
+				firstRadar = radars[i]
+				break
+			end
+		
+		end
+		local numDamagedConnectionNodes = 0
+		
+		
+		for j = 1, #connectionNodes do
+			local connectionNode = connectionNodes[j]
+			if connectionNode:isExist() == false then
+				numDamagedConnectionNodes = numDamagedConnectionNodes + 1
+			end
+		end
+		local intactConnectionNodes = numConnectionNodes - numDamagedConnectionNodes
+		
+		local powerSources = ewRadar:getPowerSources()
+		local numDamagedPowerSources = 0
+		for j = 1, #powerSources do
+			local powerSource = powerSources[j]
+			if powerSource:isExist() == false then
+				numDamagedPowerSources = numDamagedPowerSources + 1
+			end
+		end
+		local intactPowerSources = numPowerSources - numDamagedPowerSources 
+		
+		local detectedTargets = ewRadar:getDetectedTargets()
+		
+		local unitName = "DESTROYED"
+		
+		if ewRadar:getDCSRepresentation():isExist() then
+			unitName = ewRadar:getDCSRepresentation():getName()
+		end
+		
+		env.info("UNIT: "..unitName.." | TYPE: "..ewRadar:getNatoName())
+		env.info("ACTIVE: "..tostring(isActive).."| DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(ewRadar:isDefendingHARM()))
+		if numConnectionNodes > 0 then
+			env.info("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
+		else
+			env.info("NO CONNECTION NODES SET")
+		end
+		if numPowerSources > 0 then
+			env.info("POWER SOURCES : "..numPowerSources.." | DAMAGED:"..numDamagedPowerSources.." | INTACT: "..intactPowerSources)
+		else
+			env.info("NO POWER SOURCES SET")
+		end
+		
+		for j = 1, #detectedTargets do
+			local contact = detectedTargets[j]
+			local distance = mist.utils.round(mist.utils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+			env.info("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+		end
+		
+		env.info("---------------------------------------------------")
+		
+	end
+
+end
+
 function SkynetIADS:printDetailedSAMSiteStatus()
 	local samSites = self:getSAMSites()
 	
@@ -638,6 +710,10 @@ function SkynetIADS:printSystemStatus()
 			local contact = self.contacts[i]
 				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
 		end
+	end
+	
+	if self:getDebugSettings().earlyWarningRadarStatusEnvOutput then
+		self:printDetailedEarlyWarningRadarStatus()
 	end
 	
 	if self:getDebugSettings().samSiteStatusEnvOutput then

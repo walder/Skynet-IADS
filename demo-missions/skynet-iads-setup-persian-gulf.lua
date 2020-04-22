@@ -16,6 +16,7 @@ iadsDebug.addedEWRadar = false
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
 iadsDebug.samSiteStatusEnvOutput = true
+iadsDebug.earlyWarningRadarStatusEnvOutput = true
 ---end remove debug ---
 
 --add all units with unit name beginning with 'EW' to the IADS:
@@ -83,7 +84,7 @@ end
 blueIADS = SkynetIADS:create('UAE')
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
-blueIADS:activate()
+--blueIADS:activate()
 blueIADS:addRadioMenu()
 
 local iadsDebug = blueIADS:getDebugSettings()

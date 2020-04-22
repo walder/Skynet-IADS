@@ -19,6 +19,13 @@ echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet
 
 --]]
 
+--[[
+Update Time in MS stress test, before optimisiation:
+32 ms
+27 ms
+36 ms
+--]]
+
 ---IADS Unit Tests
 SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 17
 SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 15
@@ -91,7 +98,7 @@ function TestIADS:testDoubleActivateCall()
 		local ew = ews[i]
 		local category = ew:getDCSRepresentation():getDesc().category
 		if category ~= Unit.Category.AIRPLANE and category ~= Unit.Category.SHIP then
-			env.info(tostring(ew:isScanningForHARMs()))
+			--env.info(tostring(ew:isScanningForHARMs()))
 			lu.assertEquals(ew:isScanningForHARMs(), true)
 		end
 	end
@@ -2940,6 +2947,7 @@ iadsDebug.addedEWRadar = true
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
 iadsDebug.samSiteStatusEnvOutput = true
+iadsDebug.earlyWarningRadarStatusEnvOutput = true
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
