@@ -446,7 +446,7 @@ jammer:setMaximumEffectiveDistance(100)
 ```
 
 ## Setting debug information
-When developing a mission I suggest you add debug output to check how the IADS reacts to threats:
+When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so its recommended to turn these of in a live environment:
 
 ```lua
 local iadsDebug = redIADS:getDebugSettings()  
@@ -463,6 +463,7 @@ iadsDebug.addedSAMSite = true
 iadsDebug.warnings = true
 iadsDebug.harmDefence = true
 iadsDebug.samSiteStatusEnvOutput = true
+iadsDebug.earlyWarningRadarStatusEnvOutput = true
 ```
 ![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-debug.png)  
 
