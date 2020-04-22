@@ -2946,8 +2946,8 @@ iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
-iadsDebug.samSiteStatusEnvOutput = true
-iadsDebug.earlyWarningRadarStatusEnvOutput = true
+--iadsDebug.samSiteStatusEnvOutput = true
+--iadsDebug.earlyWarningRadarStatusEnvOutput = true
 
 iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')

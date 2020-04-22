@@ -1,4 +1,4 @@
--- BUILD Timestamp: 22.04.2020 23:14:29.65  
+-- BUILD Timestamp: 22.04.2020 23:39:49.94  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -747,8 +747,7 @@ function SkynetIADS.evaluateContacts(self)
 			self:mergeContact(contact)
 		end
 	end
-
---[[	
+	
 	local contactsToKeep = {}
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
@@ -756,8 +755,7 @@ function SkynetIADS.evaluateContacts(self)
 			table.insert(contactsToKeep, contact)
 		end
 	end
-	self.contacts = contactsToKeep
---]]	
+	self.contacts = contactsToKeep	
 	
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]

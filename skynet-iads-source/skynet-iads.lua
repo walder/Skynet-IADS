@@ -315,8 +315,7 @@ function SkynetIADS.evaluateContacts(self)
 			self:mergeContact(contact)
 		end
 	end
-
---[[	
+	
 	local contactsToKeep = {}
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
@@ -324,8 +323,7 @@ function SkynetIADS.evaluateContacts(self)
 			table.insert(contactsToKeep, contact)
 		end
 	end
-	self.contacts = contactsToKeep
---]]	
+	self.contacts = contactsToKeep	
 	
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
