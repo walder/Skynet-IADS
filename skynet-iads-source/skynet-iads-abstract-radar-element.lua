@@ -22,6 +22,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
+	instance.samSitesInCoveredArea = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
 	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
@@ -35,6 +36,9 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmPresetShutdownTime = 180
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
+	instance.cachedTargets = {}
+	instance.cachedTargetsMaxAge = 1
+	instance.cachedTargetsCurrentAge = 0
 	return instance
 end
 
@@ -72,6 +76,21 @@ function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
 end
 
+
+function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
+	local samSites = self.iads:getSAMSites()
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		if samSite:isInRadarDetectionRangeOf(self) and samSite ~= self then
+			table.insert(self.samSitesInCoveredArea, samSite)
+		end
+	end
+	return self.samSitesInCoveredArea
+end
+
+function SkynetIADSAbstractRadarElement:getSAMSitesInCoveredArea()
+	return self.samSitesInCoveredArea
+end
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
 	local remainingMissiles = 0
@@ -437,14 +456,14 @@ end
 
 function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarElement)
 	local radars = self:getRadars()
-	local samSiteRadars = abstractRadarElement:getRadars()
+	local abstractRadarElementRadars = abstractRadarElement:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
-		for j = 1, #samSiteRadars do
-			local samSiteRadar = samSiteRadars[j]
-			if  samSiteRadar:isExist() and radar:isExist() then
-				local distance = self:getDistanceToUnit(radar:getDCSRepresentation(), samSiteRadar:getDCSRepresentation())	
-				if samSiteRadar:getMaxRangeFindingTarget() >= distance then
+		for j = 1, #abstractRadarElementRadars do
+			local abstractRadarElementRadar = abstractRadarElementRadars[j]
+			if  abstractRadarElementRadar:isExist() and radar:isExist() then
+				local distance = self:getDistanceToUnit(radar:getDCSRepresentation(), abstractRadarElementRadar:getDCSRepresentation())	
+				if abstractRadarElementRadar:getMaxRangeFindingTarget() >= distance then
 					return true
 				end
 			end
@@ -560,22 +579,25 @@ function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
-	local returnTargets = {}
-	if self:hasWorkingPowerSource() and self:isDestroyed() == false then
-		local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
-		for i = 1, #targets do
-			local target = targets[i]
-			-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
-			if target.object then
-				local iadsTarget = SkynetIADSContact:create(target)
-				iadsTarget:refresh()
-				if self:isTargetInRange(iadsTarget) then
-					table.insert(returnTargets, iadsTarget)
+	if ( timer.getTime() - self.cachedTargetsCurrentAge ) > self.cachedTargetsMaxAge then
+		self.cachedTargets = {}
+		self.cachedTargetsCurrentAge = timer.getTime()
+		if self:hasWorkingPowerSource() and self:isDestroyed() == false then
+			local targets = self:getController():getDetectedTargets(Controller.Detection.RADAR)
+			for i = 1, #targets do
+				local target = targets[i]
+				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
+				if target.object then
+					local iadsTarget = SkynetIADSContact:create(target)
+					iadsTarget:refresh()
+					if self:isTargetInRange(iadsTarget) then
+						table.insert(self.cachedTargets, iadsTarget)
+					end
 				end
 			end
 		end
 	end
-	return returnTargets
+	return self.cachedTargets
 end
 
 function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)

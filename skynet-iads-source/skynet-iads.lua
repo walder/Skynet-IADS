@@ -289,33 +289,77 @@ function SkynetIADS.evaluateContacts(self)
 		self:setSAMSitesToAutonomousMode()
 		return
 	end
-	
-	self:updateSAMSitesIfNoEWRadarCoverage()
-	
+
 	local ewRadars = self:getUsableEarlyWarningRadars()
+	local samSites = self:getUsableSAMSites()
+
+	--will add SAM Sites acting as EW Rardars to the ewRadars array:
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		--We inform SAM sites that a target update is about to happen. If they have no targets in range after the cycle they go dark
+		samSite:targetCycleUpdateStart()
+		if samSite:getActAsEW() then
+			table.insert(ewRadars, samSite)
+		end
+		--if the sam site is not in ew mode and active we grab the detected targets right here
+		if samSite:isActive() and samSite:getActAsEW() == false then
+			local contacts = samSite:getDetectedTargets()
+			for j = 1, #contacts do
+				local contact = contacts[j]
+				self:mergeContact(contact)
+			end
+		end
+	end
+
+	local samSitesToTrigger = {}
+	
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
-		--call go Live in case ewRadar had to shut down (HARM attack)
+		--call go live in case ewRadar had to shut down (HARM attack)
 		ewRadar:goLive()
 		local ewContacts = ewRadar:getDetectedTargets()
-		for j = 1, #ewContacts do
-			local contact = ewContacts[j]
-			self:mergeContact(contact)
+		if #ewContacts > 0 then
+			local samSitesUnderCoverage = ewRadar:getSAMSitesInCoveredArea()
+			for j = 1, #samSitesUnderCoverage do
+				local samSiteUnterCoverage = samSitesUnderCoverage[j]
+				if samSiteUnterCoverage:isActive() == false then
+					--we add them to a hash to make sure each SAM site is in the collection only once
+					samSitesToTrigger[samSiteUnterCoverage:getDCSName()] = samSiteUnterCoverage
+				end
+			end
+			for j = 1, #ewContacts do
+				local contact = ewContacts[j]
+				self:mergeContact(contact)
+			end
+		end
+	end
+
+	self:cleanAgedTargets()
+	
+	for samName, samToTrigger in pairs(samSitesToTrigger) do
+		if samToTrigger:isActive() == false then
+			for j = 1, #self.contacts do
+				local contact = self.contacts[j]
+				-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
+				-- currently every type of object in the air is handed of to the sam site, including missiles
+				local description = contact:getDesc()
+				local category = description.category
+				if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
+					samToTrigger:informOfContact(contact)
+				end
+			end
 		end
 	end
 	
-	local usableSamSites = self:getUsableSAMSites()
-	for i = 1, #usableSamSites do
-		local samSite = usableSamSites[i]
-		--see if this can be written with better code. We inform SAM sites that a target update is about to happen. if they have no targets in range after the cycle they go dark
-		samSite:targetCycleUpdateStart()
-		local samContacts = samSite:getDetectedTargets()
-		for j = 1, #samContacts do
-			local contact = samContacts[j]
-			self:mergeContact(contact)
-		end
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		samSite:targetCycleUpdateEnd()
 	end
 	
+	self:printSystemStatus()
+end
+
+function SkynetIADS:cleanAgedTargets()
 	local contactsToKeep = {}
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
@@ -323,38 +367,21 @@ function SkynetIADS.evaluateContacts(self)
 			table.insert(contactsToKeep, contact)
 		end
 	end
-	self.contacts = contactsToKeep	
-	
-	for i = 1, #self.contacts do
-		local contact = self.contacts[i]
-		-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-		-- currently every type of object in the air is handed of to the sam site, including missiles
-		local description = contact:getDesc()
-		local category = description.category
-		if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
-			self:correlateWithSAMSites(contact)
-		end
-	end
-	
-	for i = 1, #usableSamSites do
-		local samSite = usableSamSites[i]
-		samSite:targetCycleUpdateEnd()
-	end
-	
-	self:printSystemStatus()
+	self.contacts = contactsToKeep
 end
 
-function SkynetIADS:updateSAMSitesIfNoEWRadarCoverage()
+function SkynetIADS:updateAutonomousStatesOfSAMSites()
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
-		
+	
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		if samSite:getActAsEW() then
 			table.insert(ewRadars, samSite)
 		end
 	end
-
+	
+	--only update when either ewRadar moves (ship or aircraft) or ew Radar or SAM Site acting as EW is destroyed
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		local inRange = false
@@ -402,11 +429,17 @@ function SkynetIADS:getDebugSettings()
 	return self.debugOutput
 end
 
-function SkynetIADS:correlateWithSAMSites(detectedAircraft)	
-	local usableSamSites = self:getUsableSAMSites()
-	for i = 1, #usableSamSites do
-		local samSite = usableSamSites[i]		
-		samSite:informOfContact(detectedAircraft)
+function SkynetIADS:buildSAMSitesInCoveredArea()
+	local samSites = self:getSAMSites()
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		samSite:updateSAMSitesInCoveredArea()
+	end
+	
+	local ewRadars = self:getEarlyWarningRadars()
+	for i = 1, #ewRadars do
+		local ewRadar = ewRadars[i]
+		ewRadar:updateSAMSitesInCoveredArea()
 	end
 end
 
@@ -414,6 +447,8 @@ end
 function SkynetIADS:activate()
 	mist.removeFunction(self.ewRadarScanMistTaskID)
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+	self:buildSAMSitesInCoveredArea()
+	self:updateAutonomousStatesOfSAMSites()
 end
 
 function SkynetIADS:deactivate()

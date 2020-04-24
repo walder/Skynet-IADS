@@ -39,6 +39,7 @@ end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
+	self.iads:updateAutonomousStatesOfSAMSites()
 	return self
 end
 
@@ -102,6 +103,7 @@ function SkynetIADSAbstractElement:onEvent(event)
 	if event.id == world.event.S_EVENT_DEAD then
 		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
 			self:goDark()
+			self.iads:updateAutonomousStatesOfSAMSites()
 		end
 		if self:hasActiveConnectionNode() == false then
 			self:goAutonomous()
