@@ -11,7 +11,6 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	instance.iads = iads
 	instance.natoName = "UNKNOWN"
 	instance:setDCSRepresentation(dcsRepresentation)
-	--TODO: remove Event handler function on IADS cleanup
 	world.addEventHandler(instance)
 	return instance
 end
@@ -98,15 +97,15 @@ function SkynetIADSAbstractElement:getDescription()
 end
 
 function SkynetIADSAbstractElement:onEvent(event)
-	--env.info("called handler")
 	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
 	if event.id == world.event.S_EVENT_DEAD then
 		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
 			self:goDark()
-			self.iads:updateAutonomousStatesOfSAMSites()
+			self.iads:updateAutonomousStatesOfSAMSites(event.initiator)
 		end
 		if self:hasActiveConnectionNode() == false then
 			self:goAutonomous()
+			self.iads:updateAutonomousStatesOfSAMSites(event.initiator)
 		end
 	end
 	if event.id == world.event.S_EVENT_SHOT then

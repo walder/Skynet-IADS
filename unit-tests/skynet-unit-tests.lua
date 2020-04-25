@@ -28,7 +28,7 @@ Update Time in MS stress test, before optimisiation:
 35 ms
 
 
-update after improvement:
+update after improvement step 1:
 26 ms
 16 ms
 18 ms
@@ -170,20 +170,90 @@ function TestIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
 end
 
-function TestIADS:testEarlyWarningRadarLoosesPower()
+function TestIADS:testPowerSourceConnectedToMultipleAbstractRadarElementSitesIsDestroyedAutonomousStateIsOnlyRebuiltOnce()
+
+	local iads = SkynetIADS:create()
+
 	ewWest2PowerSource = StaticObject.getByName('west Power Source')
-	self.iranIADS:getEarlyWarningRadarByUnitName('EW-west'):addPowerSource(ewWest2PowerSource)
-	local ewRadar = self.iranIADS:getEarlyWarningRadarByUnitName('EW-west')
+	local ewRadar = iads:addEarlyWarningRadar('EW-west'):addPowerSource(ewWest2PowerSource)
+	
+	local samSite = iads:addSAMSite('test-samsite-with-unit-as-power-source')
+	
+	lu.assertEquals(samSite:getAutonomousState(), false)
+	
+	local samSite2 = iads:addSAMSite('SAM-SA-15')
+	samSite2:addPowerSource(ewWest2PowerSource)
+	samSite2:goLive()
+	
+	local updateCalls = 0
+
+	function iads:enforceRebuildAutonomousStateOfSAMSites()
+		SkynetIADS.enforceRebuildAutonomousStateOfSAMSites(self)
+		updateCalls = updateCalls + 1
+	end
+	
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
 	trigger.action.explosion(ewWest2PowerSource:getPosition().p, 100)
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
-	--simulate update cycle of IADS
-	self.iranIADS:evaluateContacts(self.iranIADS)
-	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
 	lu.assertEquals(ewRadar:isActive(), false)
+	
+	lu.assertEquals(samSite:getAutonomousState(), true)
+	lu.assertEquals(samSite2:isActive(), false)
+	
+	-- we ensure the autonomous state is only rebuilt once when a power source connected to mulitple EW or SAM sites is destroyed
+	lu.assertEquals(updateCalls, 1)
+	
+	
 end
 
-function TestIADS:testSamSiteLoosesPower()
+function TestIADS:testEarlyWarningRadarAndSAMSiteLooseConnectionNodeAndAutonomousStateIsOnlyRebuiltOnce()
+
+	local iads = SkynetIADS:create()
+
+	ewWestConnectionNode = StaticObject.getByName('west Connection Node Destroy')
+	local ewRadar = iads:addEarlyWarningRadar('EW-west'):addConnectionNode(ewWestConnectionNode)
+	
+	local samSite = iads:addSAMSite('test-samsite-with-unit-as-power-source')
+	samSite:addConnectionNode(ewWestConnectionNode)
+	lu.assertEquals(samSite:getAutonomousState(), false)
+	
+	local updateCalls = 0
+
+	function iads:enforceRebuildAutonomousStateOfSAMSites()
+		SkynetIADS.enforceRebuildAutonomousStateOfSAMSites(self)
+		updateCalls = updateCalls + 1
+	end
+	
+	trigger.action.explosion(ewWestConnectionNode:getPosition().p, 100)
+	
+	lu.assertEquals(ewRadar:hasActiveConnectionNode(), false)
+	lu.assertEquals(samSite:hasActiveConnectionNode(), false)
+	lu.assertEquals(ewRadar:isActive(), false)
+	
+	lu.assertEquals(samSite:getAutonomousState(), true)
+	
+	-- we ensure the autonomous state is only rebuilt once when a connection node used by mulitple EW or SAM sites is destroyed
+	lu.assertEquals(updateCalls, 1)
+	
+end
+
+function TestIADS:testAWACSHasMovedAndThereforeRebuiltAutonomousStatesOfSAMSites()
+
+	local iads= SkynetIADS:create()
+	iads:addEarlyWarningRadar('EW-AWACS-A-50')
+
+	local updateCalls = 0
+	function iads:enforceRebuildAutonomousStateOfSAMSites()
+		SkynetIADS.enforceRebuildAutonomousStateOfSAMSites(self)
+		updateCalls = updateCalls + 1
+	end
+	
+	iads:evaluateContacts()
+	
+end
+
+
+function TestIADS:testSAMSiteLoosesPower()
 	local powerSource = StaticObject.getByName('SA-6 Power')
 	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):addPowerSource(powerSource)
 	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites)
@@ -202,14 +272,12 @@ function TestIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites)
 	trigger.action.explosion(sa6ConnectionNode:getPosition().p, 100)
 	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites-1)
-	--simulate update cycle of IADS
-	self.iranIADS.evaluateContacts(self.iranIADS)
+
 	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites-1)
 	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
 	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6')
 	lu.assertEquals(samSite:isActive(), true)
-	--simulate update cycle of IADS
-	self.iranIADS.evaluateContacts(self.iranIADS)
+
 	lu.assertEquals(samSite:getAutonomousState(), true)
 	lu.assertEquals(samSite:isActive(), true)
 end
@@ -224,10 +292,6 @@ function TestIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 	lu.assertEquals(samSite:hasActiveConnectionNode(), false)
 	lu.assertEquals(#samSite:getRadars(), 1)
 	lu.assertEquals(samSite:isActive(), false)
-	--simulate update cycle of IADS
---	self.iranIADS:evaluateContacts()
---	lu.assertEquals(samSite:isActive(), false)
-	samSite:goDark()
 end
 
 function TestIADS:testOneCommandCenterIsDestroyed()
@@ -1292,12 +1356,12 @@ end
 
 function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInToIADS()
 	local iads = SkynetIADS:create()
-	local samSite = iads:addSAMSite("Destruction-test-sam")
+	local samSite = iads:addSAMSite("Destruction-test-sam"):setActAsEW(true)
+	local samSite2 = iads:addSAMSite('prefixtest-sam')
+	lu.assertEquals(samSite2:getAutonomousState(), false)
 	lu.assertEquals(samSite:isDestroyed(), false)
-	samSite:goLive()
-	lu.assertEquals(samSite:isActive(), true)
 	lu.assertEquals(samSite:hasWorkingRadar(), true)
-	lu.assertEquals(#iads:getUsableSAMSites(), 1)
+	lu.assertEquals(#iads:getUsableSAMSites(), 2)
 	local radars = samSite:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
@@ -1312,10 +1376,13 @@ function TestSamSites:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInT
 	lu.assertEquals(samSite:isDestroyed(), true)
 	lu.assertEquals(samSite:hasWorkingRadar(), false)
 	lu.assertEquals(#iads:getDestroyedSAMSites(), 1)
-	lu.assertEquals(#iads:getUsableSAMSites(), 0)
+	lu.assertEquals(#iads:getUsableSAMSites(), 1)
 	lu.assertEquals(samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(samSite:getInitialNumberOfMissiles(), 6)
 	lu.assertEquals(samSite:hasRemainingAmmo(), false)
+	
+	--after destruction of samSite acting as EW samSite2 must be autonomous:
+	lu.assertEquals(samSite2:getAutonomousState(), true)
 	
 	--test build SAM with destroyed elements
 	self.samSiteName = "Destruction-test-sam"
@@ -3075,6 +3142,7 @@ function TestEarlyWarningRadars:testCacheDetectedTargets()
 end
 
 lu.LuaUnit.run()
+
 
 --clean miste left over scheduled tasks form unit tests
 

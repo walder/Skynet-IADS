@@ -21,6 +21,7 @@ function SkynetIADS:create(name)
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
+	iads.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite = nil
 	iads.debugOutput = {}
 	iads.debugOutput.IADSStatus = false
 	iads.debugOutput.samWentDark = false
@@ -35,7 +36,7 @@ function SkynetIADS:create(name)
 	iads.debugOutput.warnings = true
 	iads.debugOutput.harmDefence = false
 	iads.debugOutput.samSiteStatusEnvOutput = false
-	iads.earlyWarningRadarStatusEnvOutput = false
+	iads.debugOutput.earlyWarningRadarStatusEnvOutput = false
 	return iads
 end
 
@@ -370,7 +371,14 @@ function SkynetIADS:cleanAgedTargets()
 	self.contacts = contactsToKeep
 end
 
-function SkynetIADS:updateAutonomousStatesOfSAMSites()
+function SkynetIADS:updateAutonomousStatesOfSAMSites(deadUnit)
+	if deadUnit == nil or self.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite ~= deadUnit then
+		self:enforceRebuildAutonomousStateOfSAMSites()
+		self.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite = deadUnit
+	end
+end
+
+function SkynetIADS:enforceRebuildAutonomousStateOfSAMSites()
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
 	
@@ -380,8 +388,7 @@ function SkynetIADS:updateAutonomousStatesOfSAMSites()
 			table.insert(ewRadars, samSite)
 		end
 	end
-	
-	--only update when either ewRadar moves (ship or aircraft) or ew Radar or SAM Site acting as EW is destroyed
+
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		local inRange = false
