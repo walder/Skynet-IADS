@@ -40,6 +40,10 @@ function SkynetIADS:create(name)
 	return iads
 end
 
+function SkynetIADS:setUpdateInterval(interval)
+	self.contactUpdateInterval = interval
+end
+
 function SkynetIADS:setCoalition(item)
 	if item then
 		local coalitionID = item:getCoalition()
@@ -124,12 +128,17 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 		ewRadar = SkynetIADSEWRadar:create(earlyWarningRadarUnit, self)
 	end
 	ewRadar:setupElements()
+	ewRadar:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())
 	ewRadar:goLive()
 	table.insert(self.earlyWarningRadars, ewRadar)
 	if self:getDebugSettings().addedEWRadar then
 			self:printOutput(ewRadar:getDescription().." added to IADS")
 	end
 	return ewRadar
+end
+
+function SkynetIADS:getCachedTargetsMaxAge()
+	return self.contactUpdateInterval * 2
 end
 
 function SkynetIADS:getEarlyWarningRadars()
@@ -187,6 +196,7 @@ function SkynetIADS:addSAMSite(samSiteName)
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
 	samSite:setupElements()
+	samSite:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())
 	samSite:goLive()
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutput("you have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
@@ -294,6 +304,8 @@ function SkynetIADS.evaluateContacts(self)
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
 
+	-- rewrote this part of the code to keep loops to a minimum
+	
 	--will add SAM Sites acting as EW Rardars to the ewRadars array:
 	for i = 1, #samSites do
 		local samSite = samSites[i]
@@ -318,13 +330,18 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = ewRadars[i]
 		--call go live in case ewRadar had to shut down (HARM attack)
 		ewRadar:goLive()
+		-- if a awacs has travelled more than a predeterminded distance we update the autonomous state of the sams
+		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
+			self:updateAutonomousStatesOfSAMSites()
+		end
 		local ewContacts = ewRadar:getDetectedTargets()
 		if #ewContacts > 0 then
 			local samSitesUnderCoverage = ewRadar:getSAMSitesInCoveredArea()
 			for j = 1, #samSitesUnderCoverage do
 				local samSiteUnterCoverage = samSitesUnderCoverage[j]
+				-- only if a SAM site is not active we add it to the hash of SAM sites to be iterated later on
 				if samSiteUnterCoverage:isActive() == false then
-					--we add them to a hash to make sure each SAM site is in the collection only once
+					--we add them to a hash to make sure each SAM site is in the collection only once, reducing the number of loops we conduct later on
 					samSitesToTrigger[samSiteUnterCoverage:getDCSName()] = samSiteUnterCoverage
 				end
 			end
@@ -338,16 +355,14 @@ function SkynetIADS.evaluateContacts(self)
 	self:cleanAgedTargets()
 	
 	for samName, samToTrigger in pairs(samSitesToTrigger) do
-		if samToTrigger:isActive() == false then
-			for j = 1, #self.contacts do
-				local contact = self.contacts[j]
-				-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-				-- currently every type of object in the air is handed of to the sam site, including missiles
-				local description = contact:getDesc()
-				local category = description.category
-				if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
-					samToTrigger:informOfContact(contact)
-				end
+		for j = 1, #self.contacts do
+			local contact = self.contacts[j]
+			-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
+			-- currently every type of object in the air is handed of to the sam site, including missiles
+			local description = contact:getDesc()
+			local category = description.category
+			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
+				samToTrigger:informOfContact(contact)
 			end
 		end
 	end

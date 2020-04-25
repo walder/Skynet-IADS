@@ -39,6 +39,15 @@ update after improvement step 1:
 24 ms
 17 ms
 18 ms
+
+update after improvement 25.04.2020:
+5 ms
+10 ms
+5 ms
+10 ms
+5 ms
+19 ms
+7 ms
 --]]
 
 ---IADS Unit Tests
@@ -237,10 +246,10 @@ function TestIADS:testEarlyWarningRadarAndSAMSiteLooseConnectionNodeAndAutonomou
 	
 end
 
-function TestIADS:testAWACSHasMovedAndThereforeRebuiltAutonomousStatesOfSAMSites()
+function TestIADS:testAWACSHasMovedAndThereforeRebuildAutonomousStatesOfSAMSites()
 
-	local iads= SkynetIADS:create()
-	iads:addEarlyWarningRadar('EW-AWACS-A-50')
+	local iads = SkynetIADS:create()
+	local awacs = iads:addEarlyWarningRadar('EW-AWACS-A-50')
 
 	local updateCalls = 0
 	function iads:enforceRebuildAutonomousStateOfSAMSites()
@@ -248,7 +257,22 @@ function TestIADS:testAWACSHasMovedAndThereforeRebuiltAutonomousStatesOfSAMSites
 		updateCalls = updateCalls + 1
 	end
 	
+	lu.assertEquals(awacs:getDistanceTraveledSinceLastUpdate(), 0)
+	lu.assertEquals(getmetatable(awacs), SkynetIADSAWACSRadar)
+	lu.assertEquals(awacs:getMaxAllowedMovementForAutonomousUpdateInNM(), 11)
+	lu.assertEquals(awacs:isUpdateOfAutonomousStateOfSAMSitesRequired(), false)
+	
 	iads:evaluateContacts()
+	lu.assertEquals(updateCalls, 0)
+	
+	--test distance calculation by giving the awacs a different position:
+	local firstPos = Unit.getByName('EW-AWACS-KJ-2000'):getPosition().p
+	awacs.lastUpdatePosition = firstPos
+	lu.assertEquals(awacs:getDistanceTraveledSinceLastUpdate(), 763)
+	lu.assertEquals(awacs:isUpdateOfAutonomousStateOfSAMSitesRequired(), true)
+	
+	iads:evaluateContacts()
+	lu.assertEquals(updateCalls, 1)
 	
 end
 
@@ -649,6 +673,25 @@ function TestIADS:testGetSAMSitesByPrefix()
 	self:setUp();
 	local samSites = self.iranIADS:getSAMSitesByPrefix('SAM-SA-15')
 	lu.assertEquals(#samSites, 3)
+end
+
+function TestIADS:testSetMaxAgeOfCachedTargets()
+	local iads = SkynetIADS:create()
+	
+	-- test default value
+	lu.assertEquals(iads.contactUpdateInterval, 5)
+	
+	iads:setUpdateInterval(10)
+	lu.assertEquals(iads.contactUpdateInterval, 10)
+	
+	lu.assertEquals(iads:getCachedTargetsMaxAge(), 20)
+	
+	local ewRadar = iads:addEarlyWarningRadar('EW-west')
+	local samSite = iads:addSAMSite('SAM-SA-15-1')
+	
+	lu.assertEquals(ewRadar.cachedTargetsMaxAge, 20)
+	lu.assertEquals(samSite.cachedTargetsMaxAge, 20)
+	
 end
 
 TestMooseA2ADispatcherConnector = {}

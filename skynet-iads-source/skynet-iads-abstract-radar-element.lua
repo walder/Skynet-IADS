@@ -56,6 +56,10 @@ function SkynetIADSAbstractRadarElement:weaponFired(event)
 	end
 end
 
+function SkynetIADSAbstractRadarElement:setCachedTargetsMaxAge(maxAge)
+	self.cachedTargetsMaxAge = maxAge
+end
+
 function SkynetIADSAbstractRadarElement:cleanUp()
 	for i = 1, #self.pointDefences do
 		local pointDefence = self.pointDefences[i]
@@ -462,7 +466,7 @@ function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarE
 		for j = 1, #abstractRadarElementRadars do
 			local abstractRadarElementRadar = abstractRadarElementRadars[j]
 			if  abstractRadarElementRadar:isExist() and radar:isExist() then
-				local distance = self:getDistanceToUnit(radar:getDCSRepresentation(), abstractRadarElementRadar:getDCSRepresentation())	
+				local distance = self:getDistanceToUnit(radar:getDCSRepresentation():getPosition().p, abstractRadarElementRadar:getDCSRepresentation():getPosition().p)	
 				if abstractRadarElementRadar:getMaxRangeFindingTarget() >= distance then
 					return true
 				end
@@ -472,8 +476,8 @@ function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarE
 	return false
 end
 
-function SkynetIADSAbstractRadarElement:getDistanceToUnit(radar, ewRadar)
-	return mist.utils.round(mist.utils.get2DDist(radar:getPosition().p, ewRadar:getPosition().p, 0))
+function SkynetIADSAbstractRadarElement:getDistanceToUnit(unitPosA, unitPosB)
+	return mist.utils.round(mist.utils.get2DDist(unitPosA, unitPosB, 0))
 end
 
 function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)

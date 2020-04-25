@@ -40,6 +40,7 @@ function SkynetIADSSamSite:targetCycleUpdateEnd()
 end
 
 function SkynetIADSSamSite:informOfContact(contact)
+	-- we make sure isTargetInRange (expensive call) is only triggerd if not previous calls to this method resultet in targets in range
 	if self.targetsInRange == false and self:isTargetInRange(contact) then
 		self:goLive()
 		self.targetsInRange = true
