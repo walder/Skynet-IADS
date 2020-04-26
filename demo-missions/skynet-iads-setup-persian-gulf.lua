@@ -84,7 +84,7 @@ end
 blueIADS = SkynetIADS:create('UAE')
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
---blueIADS:activate()
+blueIADS:activate()
 blueIADS:addRadioMenu()
 
 local iadsDebug = blueIADS:getDebugSettings()

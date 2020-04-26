@@ -82,7 +82,8 @@ end
 
 
 function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
-	local samSites = self.iads:getSAMSites()
+	local samSites = self.iads:getUsableSAMSites()
+	self.samSitesInCoveredArea = {}
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		if samSite:isInRadarDetectionRangeOf(self) and samSite ~= self then

@@ -200,6 +200,11 @@ If you dereference the IADS remember to call ```deactivate()``` otherwise backgr
 redIADS:deactivate()
 ```
 
+Set the update interval in seconds of the IADS. This determines in what interval the IADS wil turn SAM sites of or on according to targets it has detected:
+```lua
+redIADS:setUpdateInterval(5)
+```
+
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
 
