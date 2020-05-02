@@ -582,7 +582,7 @@ The result will be that the SAM site won't go live. This bug was observed in DCS
 
 ## How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?
 In general you can look at the range circles in the mission editor. However these ranges are greater than the actual in game detection distance of an EW radar or SAM site.
-The following screen shot shows the range of the 1L13 EWR. The mission editor shows a range of 64 NM (nautical miles) where as the in game range is 42 NM.
+The following screen shot shows the range of the 1L13 EWR. The mission editor shows a range of 64 NM (nautical miles) where as the in game range is 43 NM.
 ![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
 
 
