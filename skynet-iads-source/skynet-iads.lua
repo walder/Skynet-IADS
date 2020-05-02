@@ -594,6 +594,7 @@ function SkynetIADS:printDetailedEarlyWarningRadarStatus()
 		local intactPowerSources = numPowerSources - numDamagedPowerSources 
 		
 		local detectedTargets = ewRadar:getDetectedTargets()
+		local samSitesInCoveredArea = ewRadar:getSAMSitesInCoveredArea()
 		
 		local unitName = "DESTROYED"
 		
@@ -614,10 +615,18 @@ function SkynetIADS:printDetailedEarlyWarningRadarStatus()
 			env.info("NO POWER SOURCES SET")
 		end
 		
+		env.info("SAM SITES IN COVERED AREA: "..#samSitesInCoveredArea)
+		for j = 1, #samSitesInCoveredArea do
+			local samSiteCovered = samSitesInCoveredArea[j]
+			env.info(samSiteCovered:getDCSName())
+		end
+		
 		for j = 1, #detectedTargets do
 			local contact = detectedTargets[j]
-			local distance = mist.utils.round(mist.utils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
-			env.info("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+			if firstRadar ~= nil and firstRadar:isExist() then
+				local distance = mist.utils.round(mist.utils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+				env.info("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+			end
 		end
 		
 		env.info("---------------------------------------------------")
@@ -660,8 +669,11 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		
 		local detectedTargets = samSite:getDetectedTargets()
 		
+		local samSitesInCoveredArea = samSite:getSAMSitesInCoveredArea()
+		
 		env.info("GROUP: "..samSite:getDCSRepresentation():getName().." | TYPE: "..samSite:getNatoName())
 		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()))
+		
 		if numConnectionNodes > 0 then
 			env.info("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
 		else
@@ -673,12 +685,18 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 			env.info("NO POWER SOURCES SET")
 		end
 		
-	
+		env.info("SAM SITES IN COVERED AREA: "..#samSitesInCoveredArea)
+		for j = 1, #samSitesInCoveredArea do
+			local samSiteCovered = samSitesInCoveredArea[j]
+			env.info(samSiteCovered:getDCSName())
+		end
 		
 		for j = 1, #detectedTargets do
 			local contact = detectedTargets[j]
-			local distance = mist.utils.round(mist.utils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
-			env.info("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+			if firstRadar ~= nil and firstRadar:isExist() then
+				local distance = mist.utils.round(mist.utils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+				env.info("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+			end
 		end
 		
 		env.info("---------------------------------------------------")
