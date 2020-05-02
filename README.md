@@ -588,7 +588,7 @@ In this example the SAM site to the north east would not be in range of the EW r
 ![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
 
 Set the debug options ```samSiteStatusEnvOutput``` and ```earlyWarningRadarStatusEnvOutput``` to get detailed information on every SAM site and EW radar.
-In the area marked by the red box you will see which SAM sites are in range of SAM site or EW radar.
+The text marked in the red box will show you to see which SAM sites are in the covered area of a SAM site or EW radar.
 ![SAM sites in covered area](https://github.com/walder/Skynet-IADS/raw/master/images/radar-emitter-status-dcs-log.png) 
 
 
