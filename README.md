@@ -580,6 +580,12 @@ If a SAM site or EW radar detects an inbound HARM it just turns off its radar as
 Yes, when placing multi unit SAM sites (e.g. SA-3 Patriot..) make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
 The result will be that the SAM site won't go live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
 
+## How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?
+In general you can look at the range circles in the mission editor. However these ranges are greater than the actual in game detection distance of an EW radar or SAM site.
+The following screen shot shows the range of the 1L13 EWR. The mission editor shows a range of 64 NM (nautical miles) where as the in game range is 42 NM.
+![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
+
+
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
 I based the SAM site setup on [Grimes SAM DB](https://forums.eagle.ru/showthread.php?t=118175) from his IADS script, however I removed range data since Skynet loads that from DCS.
