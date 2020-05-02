@@ -581,8 +581,10 @@ Yes, when placing multi unit SAM sites (e.g. SA-3 Patriot..) make sure the first
 The result will be that the SAM site won't go live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
 
 ## How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?
-In general you can look at the range circles in the mission editor. However these ranges are greater than the actual in game detection distance of an EW radar or SAM site.
+To get a rough idea you can look at the range circles in the mission editor. However these ranges are greater than the actual in game detection ranges of an EW radar or SAM site.
 The following screen shot shows the range of the 1L13 EWR. The mission editor shows a range of 64 NM (nautical miles) where as the in game range is 43 NM.
+
+In this example the SAM site to the north east would nod be in range of the EW radar, therefore it would go in to autonomous mode once the mission starts. 
 ![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
 
 
