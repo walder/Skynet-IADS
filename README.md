@@ -585,10 +585,14 @@ To get a rough idea you can look at the range circles in the mission editor. How
 The following screen shot shows the range of the 1L13 EWR. The mission editor shows a range of 64 NM (nautical miles) where as the in game range is 43 NM.
 
 In this example the SAM site to the north east would not be in range of the EW radar, therefore it would go in to autonomous mode once the mission starts. 
+
+
 ![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
 
 Set the debug options ```samSiteStatusEnvOutput``` and ```earlyWarningRadarStatusEnvOutput``` to get detailed information on every SAM site and EW radar.
-The text marked in the red box will show you to see which SAM sites are in the covered area of a SAM site or EW radar.
+The text marked in the red box will show you which SAM sites are in the covered area of a SAM site or EW radar.
+
+
 ![SAM sites in covered area](https://github.com/walder/Skynet-IADS/raw/master/images/radar-emitter-status-dcs-log.png) 
 
 
