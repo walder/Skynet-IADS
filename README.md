@@ -584,8 +584,12 @@ The result will be that the SAM site won't go live. This bug was observed in DCS
 To get a rough idea you can look at the range circles in the mission editor. However these ranges are greater than the actual in game detection ranges of an EW radar or SAM site.
 The following screen shot shows the range of the 1L13 EWR. The mission editor shows a range of 64 NM (nautical miles) where as the in game range is 43 NM.
 
-In this example the SAM site to the north east would nod be in range of the EW radar, therefore it would go in to autonomous mode once the mission starts. 
+In this example the SAM site to the north east would not be in range of the EW radar, therefore it would go in to autonomous mode once the mission starts. 
 ![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
+
+Set the debug options ```samSiteStatusEnvOutput``` and ```earlyWarningRadarStatusEnvOutput``` to get detailed information on every SAM site and EW radar.
+In the area marked by the red box you will see which SAM sites are in range of SAM site or EW radar.
+![SAM sites in covered area](https://github.com/walder/Skynet-IADS/raw/master/images/radar-emitter-status-dcs-log.png) 
 
 
 # Thanks
