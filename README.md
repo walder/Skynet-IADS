@@ -306,7 +306,7 @@ samSite:setGoLiveRangeInPercent(90)
 ### Adding EW radars
 
 #### Add multiple EW radars
-Adds EW radars with prefix in unit name to the IADS:
+Adds EW radars with prefix in unit name to the IADS. Previously added EW sites are cleared:
 ```lua
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
