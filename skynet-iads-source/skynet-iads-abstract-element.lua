@@ -66,6 +66,10 @@ function SkynetIADSAbstractElement:getDCSName()
 	return self:getDCSRepresentation():getName()
 end
 
+function SkynetIADSAbstractElement:getDCSPosition()
+	return self:getDCSRepresentation():getPosition()
+end
+
 -- generic function to theck if power plants, command centers, connection nodes are still alive
 function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	local isAlive = (#objects == 0)

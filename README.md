@@ -301,6 +301,33 @@ During this time a target might have already left the engageement zone of SAM si
 samSite:setGoLiveRangeInPercent(90)
 ```
 
+### Callback functions when SAMSite is going Live or Dark
+SAM site can have a user defined function on goLive and goDark events.
+When going live:
+```lua
+samSite:onGoLive(function(unit)
+  ... do something here ..
+end)
+```
+or when going dark:
+
+```lua
+samSite:onGoDark(function(unit)
+  ... do something here ..
+end)
+```
+
+the function will have the samSite object avaiable for user to interact with the SAM.
+this example will cause all SA-15 batteries connected to IADS to move 1500m in a random direction and speed when going dark
+
+```lua
+redTor = redIADS:getSAMSitesByNatoName('SA-15')
+
+redTor:onGoDark(function(unit)
+	mist.groupRandomDistSelf(unit:getDCSName() , 1500)
+end)
+```
+
 ## EW radar configuration
 
 ### Adding EW radars
@@ -385,6 +412,8 @@ SAM Site or EW radar will go dark if it looses connection to IADS (default behav
 ```lua
 SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 ```
+
+
 
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an aircraft in the strike package.

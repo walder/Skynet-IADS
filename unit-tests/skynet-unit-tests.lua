@@ -795,7 +795,6 @@ function TestSamSites:tearDown()
 	self.samSiteName = nil
 end
 
-
 function TestSamSites:testCheckOneGenericObjectAliveForUnitWorks()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
@@ -2658,6 +2657,51 @@ function TestSamSites:testUpdateSAMSitesInCoveredArea()
 	lu.assertEquals(#self.samSite:updateSAMSitesInCoveredArea(), 0)	
 end
 
+
+
+function TestSamSites:testCheckHookOnGoLive()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+
+	self.samSite:onGoLive(function(battery)
+		battery:goDark()
+
+	end)
+	
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+function TestSamSites:testCheckHookOnGoDark()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+
+	self.samSite:onGoDark(function(battery)
+		battery:goLive()
+	end)
+
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+end
+
+
+
+
 TestJammer = {}
 
 function TestJammer:setUp()
@@ -2784,6 +2828,8 @@ function TestJammer:testDestroyEmitter()
 	end
 	lu.assertEquals(alive, false)
 end
+
+
 
 TestEarlyWarningRadars = {}
 
