@@ -1,4 +1,4 @@
--- BUILD Timestamp: Wed 06/03/2020  0:15:10.80  
+-- BUILD Timestamp: Wed 06/03/2020  0:36:31.04  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1523,7 +1523,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
 	instance.goDarkFunctionHook = nil
-	instance.goDarkFunctionArgs = nil
+	instance.goDarkFunctionArgs = {}
 	instance.goLiveFunctionHook = nil
 	instance.goLiveFunctionArgs = {}
 	instance.cachedTargets = {}
@@ -2422,7 +2422,7 @@ function SkynetIADSJammer:create(emitter, iads)
 	setmetatable(jammer, SkynetIADSJammer)
 	jammer.radioMenu = nil
 	jammer.emitter = emitter
-	jammer.jammerTaskID = nill
+	jammer.jammerTaskID = nil
 	jammer.iads = {iads}
 	jammer.maximumEffectiveDistanceNM = 200
 	--jammer probability settings are stored here, visualisation, see: https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0
