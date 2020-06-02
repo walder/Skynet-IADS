@@ -1,4 +1,4 @@
--- BUILD Timestamp: 02.05.2020 13:40:18.84  
+-- BUILD Timestamp: Tue 06/02/2020 20:19:52.06  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1369,6 +1369,10 @@ function SkynetIADSAbstractElement:getDCSName()
 	return self:getDCSRepresentation():getName()
 end
 
+function SkynetIADSAbstractElement:getDCSPosition()
+	return self:getDCSRepresentation():getPosition()
+end
+
 -- generic function to theck if power plants, command centers, connection nodes are still alive
 function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	local isAlive = (#objects == 0)
@@ -1518,9 +1522,14 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmPresetShutdownTime = 180
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
+	instance.goDarkFunctionHook = nil
+	instance.goDarkFunctionArgs = nil
+	instance.goLiveFunctionHook = nil
+	instance.goLiveFunctionArgs = {}
 	instance.cachedTargets = {}
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
+
 	return instance
 end
 
@@ -1836,6 +1845,16 @@ function SkynetIADSAbstractRadarElement:getEngagementZone()
 	return self.goLiveRange
 end
 
+function SkynetIADSAbstractRadarElement:onGoLive( goLiveCallBackFunction, ... )
+	self.goLiveFunctionHook = goLiveCallBackFunction
+	self.goLiveFunctionArgs = {}
+	if arg then
+	  self.goLiveFunctionArgs = arg
+	end  
+  
+	return self
+end
+
 function SkynetIADSAbstractRadarElement:goLive()
 	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil) 
 	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
@@ -1846,11 +1865,16 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+
+
 		end
 		self.aiState = true
 		self:pointDefencesStopActingAsEW()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
+		end
+		if type(self.goLiveFunctionHook) == "function" then
+			self:goLiveFunctionHook(self,unpack(goLiveFunctionArgs))
 		end
 		self:scanForHarms()
 	end
@@ -1861,6 +1885,16 @@ function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
 		local pointDefence = self.pointDefences[i]
 		pointDefence:setActAsEW(false)
 	end
+end
+
+
+function SkynetIADSAbstractRadarElement:onGoDark( goDarkCallBackFunction, ... )
+	self.goDarkFunctionHook = goDarkCallBackFunction
+	self.goDarkFunctionArgs = {}
+	if arg then
+	  self.goDarkFunctionArgs = arg
+	end  
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
@@ -1885,6 +1919,9 @@ function SkynetIADSAbstractRadarElement:goDark()
 		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
 			self.iads:printOutput(self:getDescription().." going dark")
+		end
+		if type(self.goDarkFunctionHook) == "function" then
+			self:goDarkFunctionHook(self,unpack(self.goDarkFunctionArgs))
 		end
 	end
 end
