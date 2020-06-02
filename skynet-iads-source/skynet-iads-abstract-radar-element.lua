@@ -37,7 +37,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
 	instance.goDarkFunctionHook = nil
-	instance.goDarkFunctionArgs = nil
+	instance.goDarkFunctionArgs = {}
 	instance.goLiveFunctionHook = nil
 	instance.goLiveFunctionArgs = {}
 	instance.cachedTargets = {}

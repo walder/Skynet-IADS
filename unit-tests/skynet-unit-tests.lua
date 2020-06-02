@@ -2662,6 +2662,7 @@ end
 function TestSamSites:testCheckHookOnGoLive()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
+	
 	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:goLive()
@@ -2671,12 +2672,22 @@ function TestSamSites:testCheckHookOnGoLive()
 
 	self.samSite:onGoLive(function(battery)
 		battery:goDark()
-
 	end)
 	
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:isActive(), false)
+
+	self.samSite:onGoLive(nil)
+
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+
+
 end
 
 function TestSamSites:testCheckHookOnGoDark()
@@ -2698,6 +2709,16 @@ function TestSamSites:testCheckHookOnGoDark()
 	lu.assertEquals(self.samSite:isActive(), true)
 	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), true)
+
+	self.samSite:onGoDark(nil)
+
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+
 	
 end
 
