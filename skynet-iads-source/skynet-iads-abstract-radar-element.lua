@@ -365,7 +365,6 @@ function SkynetIADSAbstractRadarElement:onGoLive( goLiveCallBackFunction, ... )
 	if arg then
 	  self.goLiveFunctionArgs = arg
 	end  
-  
 	return self
 end
 
@@ -388,7 +387,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			self.iads:printOutput(self:getDescription().." going live")
 		end
 		if type(self.goLiveFunctionHook) == "function" then
-			self:goLiveFunctionHook(self,unpack(goLiveFunctionArgs))
+			self:goLiveFunctionHook(self,unpack(self.goLiveFunctionArgs))
 		end
 		self:scanForHarms()
 	end

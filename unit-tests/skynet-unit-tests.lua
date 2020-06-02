@@ -2662,6 +2662,7 @@ end
 function TestSamSites:testCheckHookOnGoLive()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
+	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:isActive(), true)
@@ -2681,6 +2682,7 @@ end
 function TestSamSites:testCheckHookOnGoDark()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
+	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:isActive(), true)

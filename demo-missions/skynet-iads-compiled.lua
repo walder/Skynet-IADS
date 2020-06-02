@@ -1,4 +1,4 @@
--- BUILD Timestamp: Tue 06/02/2020 20:19:52.06  
+-- BUILD Timestamp: Wed 06/03/2020  0:15:10.80  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1851,7 +1851,6 @@ function SkynetIADSAbstractRadarElement:onGoLive( goLiveCallBackFunction, ... )
 	if arg then
 	  self.goLiveFunctionArgs = arg
 	end  
-  
 	return self
 end
 
@@ -1874,7 +1873,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			self.iads:printOutput(self:getDescription().." going live")
 		end
 		if type(self.goLiveFunctionHook) == "function" then
-			self:goLiveFunctionHook(self,unpack(goLiveFunctionArgs))
+			self:goLiveFunctionHook(self,unpack(self.goLiveFunctionArgs))
 		end
 		self:scanForHarms()
 	end
