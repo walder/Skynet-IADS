@@ -360,7 +360,6 @@ function SkynetIADSAbstractRadarElement:getEngagementZone()
 end
 
 function SkynetIADSAbstractRadarElement:onGoLive( goLiveCallBackFunction, ... )
-	-- self:F( "onGoLive" )
 	self.goLiveFunctionHook = goLiveCallBackFunction
 	self.goLiveFunctionArgs = {}
 	if arg then
@@ -389,7 +388,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			self.iads:printOutput(self:getDescription().." going live")
 		end
 		if type(self.goLiveFunctionHook) == "function" then
-			self:goLiveFunctionHook(self)
+			self:goLiveFunctionHook(self,unpack(goLiveFunctionArgs))
 		end
 		self:scanForHarms()
 	end
@@ -404,8 +403,6 @@ end
 
 
 function SkynetIADSAbstractRadarElement:onGoDark( goDarkCallBackFunction, ... )
-	-- self:F( "onGoDark" )
-
 	self.goDarkFunctionHook = goDarkCallBackFunction
 	self.goDarkFunctionArgs = {}
 	if arg then
