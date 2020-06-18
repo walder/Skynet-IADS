@@ -1102,7 +1102,7 @@ function TestSkynetIADSSamSite:testSA2WillGoDarkWithTargetsInRangeAndHARMDetecte
 	
 	self.samSite:informOfContact(target)
 	self.samSite:goSilentToEvadeHARM(5)
-	self.samSite:goDark()
+
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
@@ -1156,6 +1156,66 @@ function TestSkynetIADSSamSite:testSA2OutOfMissilesNoMissilesInFlightIsInformedO
 	lu.assertEquals(self.samSite:isActive(), false)
 	
 end
+
+function TestSkynetIADSSamSite:testControllerNotDisabledWhenGoingDarkAndOutOfAmmo()
+	self.samSiteName = "test-SAM-SA-2-test"
+	self:setUp()
+	
+	local stateCalled = false
+	local mockController = {}
+	function mockController:setOnOff(state)
+		lu.assertEquals(state, false)
+		stateCalled = true
+	end
+	
+	local optionCalled = false
+	function mockController:setOption(opt, val)
+		optionCalled = true
+	end
+	
+	function self.samSite:getController()
+		return mockController
+	end
+	
+	function self.samSite:hasRemainingAmmo()
+		return false
+	end
+	
+	self.samSite:goDark()
+	lu.assertEquals(stateCalled, false)
+	lu.assertEquals(optionCalled, true)
+	
+end
+
+function TestSkynetIADSSamSite:testControllerDisabledWhenGoingDarkAndHasRemainingAmmo()
+	self.samSiteName = "test-SAM-SA-2-test"
+	self:setUp()
+	
+	local stateCalled = false
+	local mockController = {}
+	function mockController:setOnOff(state)
+		lu.assertEquals(state, false)
+		stateCalled = true
+	end
+	
+	local optionCalled = false
+	function mockController:setOption(opt, val)
+		optionCalled = true
+	end
+	
+	function self.samSite:getController()
+		return mockController
+	end
+	
+	function self.samSite:hasRemainingAmmo()
+		return true
+	end
+	
+	self.samSite:goDark()
+	lu.assertEquals(stateCalled, true)
+	lu.assertEquals(optionCalled, false)
+end
+
 
 function TestSkynetIADSSamSite:testSA2InformOfContactTargetNotInRange()
 	self.samSiteName = "test-SAM-SA-2-test"

@@ -13,6 +13,7 @@ function SkynetIADS:create(name)
 	iads.samSites = {}
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
+	iads.samSetupMistTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
@@ -21,6 +22,7 @@ function SkynetIADS:create(name)
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
+	iads.samSetupTime = 60
 	iads.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite = nil
 	iads.debugOutput = {}
 	iads.debugOutput.IADSStatus = false
@@ -480,10 +482,23 @@ function SkynetIADS:getDebugSettings()
 end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
-function SkynetIADS:activate()
+function SkynetIADS.activate(self)
 	mist.removeFunction(self.ewRadarScanMistTaskID)
+	mist.removeFunction(self.samSetupMistTaskID)
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 	self:updateIADSCoverage()
+end
+
+function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
+	if setupTime then
+		self.samSetupTime = setupTime
+	end
+	local samSites = self:getSAMSites()
+	for i = 1, #samSites do
+		local sam = samSites[i]
+		sam:goLive()
+	end
+	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
 end
 
 function SkynetIADS:deactivate()

@@ -650,4 +650,26 @@ function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWillTriggerAutonomousState
 	lu.assertEquals(numTimesCalledUpdate, 3)
 	
 end
+
+function TestSkynetIADS:testSetupSAMSites()
+	self:setUp()
+	
+	local numCalls = 0
+	
+	local sams = self.iranIADS:getSAMSites()
+	for i = 1, #sams do
+		local sam = sams[i]
+		function sam:goLive()
+			numCalls = numCalls + 1
+		end
+	end
+
+	lu.assertEquals(self.iranIADS.samSetupMistTaskID, nil)
+	lu.assertEquals(self.iranIADS.samSetupTime, 60)
+	self.iranIADS:setupSAMSitesAndThenActivate(10)
+	lu.assertEquals(numCalls, #self.iranIADS:getSAMSites())
+	lu.assertNotEquals(self.iranIADS.samSetupMistTaskID, nil)
+	lu.assertEquals(self.iranIADS.samSetupTime, 10)
+end
+
 end

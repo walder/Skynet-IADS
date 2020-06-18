@@ -8,7 +8,7 @@ function SkynetIADSJammer:create(emitter, iads)
 	setmetatable(jammer, SkynetIADSJammer)
 	jammer.radioMenu = nil
 	jammer.emitter = emitter
-	jammer.jammerTaskID = nill
+	jammer.jammerTaskID = nil
 	jammer.iads = {iads}
 	jammer.maximumEffectiveDistanceNM = 200
 	--jammer probability settings are stored here, visualisation, see: https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0

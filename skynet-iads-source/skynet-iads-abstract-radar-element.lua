@@ -388,10 +388,11 @@ function SkynetIADSAbstractRadarElement:goDark()
 	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
-			-- if a harm is the reason for shutdown we turn off the controller, this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
-			if self.harmSilenceID then
+			-- if the SAM site still has ammo we turn off the controller, this prevents rearming, however this way the SAM site is frozen in a red state, on the next actication it will be up and running much faster, therefore it will instantaneously engage targets
+			-- also  this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
+			if self:hasRemainingAmmo() then
 				controller:setOnOff(false)
-			--if the reason is not a HARM we shut it down via the ALARM_STATE, the reason for this is that the SAM site can reload ammo in this state
+			--if the SAM is out of ammo we set the state to green, and ROE to weapon hold, this way it will shut down its radar and it can be rearmed
 			else
 				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
