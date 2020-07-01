@@ -40,7 +40,8 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
 	instance.goLiveTime = 0
-	instance.noCacheActiveForSecondsAfterGoLive = 1
+	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
+	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
 end
 
@@ -588,7 +589,7 @@ function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
-	if ( timer.getTime() - self.cachedTargetsCurrentAge > self.cachedTargetsMaxAge ) or ( self.goLiveTime - timer.getTime() < self.noCacheActiveForSecondsAfterGoLive ) then
+	if ( timer.getTime() - self.cachedTargetsCurrentAge > self.cachedTargetsMaxAge ) or ( timer.getTime() - self.goLiveTime < self.noCacheActiveForSecondsAfterGoLive ) then
 		self.cachedTargets = {}
 		self.cachedTargetsCurrentAge = timer.getTime()
 		if self:hasWorkingPowerSource() and self:isDestroyed() == false then
