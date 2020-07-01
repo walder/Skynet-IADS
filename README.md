@@ -210,7 +210,7 @@ This has the advantage that the SAM sites will fire faster after beeing woken up
 If your start your mission at a friendly base far away from the enemy IADS this in no big deal. If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
 
 This function will not shorten the time from a radar lock until a SAM site fires. It will however reduce total reaction time of a SAM site after beeing notified by Skynet to go live.
-A TOR SAM needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR for 8 seconds.
+For example: the SA-15 Tor SAM needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR for 8 seconds.
 
  By default Skynet will activate the SAMs for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
 ```lua
