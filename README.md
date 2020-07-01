@@ -180,26 +180,6 @@ Activate the IADS:
 redIADS:activate()
 ```
 
-Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAMs to run through their setup cycle. After that they are frozen in a red state, ready to fire.
-This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars up giving away their position. 
-
-If your start your mission at a friendly base far away from the enemy IADS this in no big deal. If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
-
-This function will not shorten the time you get from a radar lock until a SAM site fires. It will however reduce total reaction time after beeing notified by Skynet to go live.
-A TOR SAM needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR for 8 seconds.
-
- By default Skynet will activate the SAMS for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
-```lua
-redIADS:setupSAMSitesAndThenActivate()
-```
-
-You can also pass the number of seconds you would like to warm up the SAM sites if you think 60 seconds is to long:
-```lua
-redIADS:setupSAMSitesAndThenActivate(30)
-```
-
-No separate call to ```redIADS:activate()``` must be made.
-
 # Advanced setup
 This is the danger zone. Call Kenny Loggins. Some experience with scripting is recommended.
 You can handcraft your IADS with the following functions. If you refrence units that don't exist a message will be displayed when the mission loads.
@@ -223,6 +203,27 @@ Set the update interval in seconds of the IADS. This determines in what interval
 ```lua
 redIADS:setUpdateInterval(5)
 ```
+
+Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAMs to run through their setup cycle. After that they are frozen in a red state, ready to fire.
+This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars up giving away their position. 
+
+If your start your mission at a friendly base far away from the enemy IADS this in no big deal. If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
+
+This function will not shorten the time you get from a radar lock until a SAM site fires. It will however reduce total reaction time after beeing notified by Skynet to go live.
+A TOR SAM needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR for 8 seconds.
+
+ By default Skynet will activate the SAMS for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
+```lua
+redIADS:setupSAMSitesAndThenActivate()
+```
+
+You can also pass the number of seconds you would like to warm up the SAM sites if you think 60 seconds is to long:
+```lua
+redIADS:setupSAMSitesAndThenActivate(30)
+```
+
+No separate call to ```redIADS:activate()``` must be made.
+
 
 ### Adding a command center
 The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
