@@ -1,4 +1,4 @@
--- BUILD Timestamp: 02.05.2020 13:40:18.84  
+-- BUILD Timestamp: 01.07.2020 21:06:26.18  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -445,6 +445,7 @@ function SkynetIADS:create(name)
 	iads.samSites = {}
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
+	iads.samSetupMistTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
@@ -453,6 +454,7 @@ function SkynetIADS:create(name)
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
+	iads.samSetupTime = 60
 	iads.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite = nil
 	iads.debugOutput = {}
 	iads.debugOutput.IADSStatus = false
@@ -912,10 +914,23 @@ function SkynetIADS:getDebugSettings()
 end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
-function SkynetIADS:activate()
+function SkynetIADS.activate(self)
 	mist.removeFunction(self.ewRadarScanMistTaskID)
+	mist.removeFunction(self.samSetupMistTaskID)
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 	self:updateIADSCoverage()
+end
+
+function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
+	if setupTime then
+		self.samSetupTime = setupTime
+	end
+	local samSites = self:getSAMSites()
+	for i = 1, #samSites do
+		local sam = samSites[i]
+		sam:goLive()
+	end
+	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
 end
 
 function SkynetIADS:deactivate()
@@ -1521,14 +1536,16 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargets = {}
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
+	instance.goLiveTime = 0
+	instance.noCacheActiveForSecondsAfterGoLive = 1
 	return instance
 end
 
 --TODO: this method could be updated to only return Radar weapons fired, this way a SAM firing an IR weapon could go dark faster in the goDark() method
 function SkynetIADSAbstractRadarElement:weaponFired(event)
 	if event.id == world.event.S_EVENT_SHOT then
-		weapon = event.weapon
-		launcherFired = event.initiator
+		local weapon = event.weapon
+		local launcherFired = event.initiator
 		for i = 1, #self.launchers do
 			local launcher = self.launchers[i]
 			if launcher:getDCSRepresentation() == launcherFired then
@@ -1846,6 +1863,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			self.goLiveTime = timer.getTime()
 		end
 		self.aiState = true
 		self:pointDefencesStopActingAsEW()
@@ -1870,10 +1888,11 @@ function SkynetIADSAbstractRadarElement:goDark()
 	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
-			-- if a harm is the reason for shutdown we turn off the controller, this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
-			if self.harmSilenceID then
+			-- if the SAM site still has ammo we turn off the controller, this prevents rearming, however this way the SAM site is frozen in a red state, on the next actication it will be up and running much faster, therefore it will instantaneously engage targets
+			-- also  this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
+			if self:hasRemainingAmmo() then
 				controller:setOnOff(false)
-			--if the reason is not a HARM we shut it down via the ALARM_STATE, the reason for this is that the SAM site can reload ammo in this state
+			--if the SAM is out of ammo we set the state to green, and ROE to weapon hold, this way it will shut down its radar and it can be rearmed
 			else
 				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
@@ -2066,7 +2085,7 @@ function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
-	if ( timer.getTime() - self.cachedTargetsCurrentAge ) > self.cachedTargetsMaxAge then
+	if ( timer.getTime() - self.cachedTargetsCurrentAge > self.cachedTargetsMaxAge ) or ( self.goLiveTime - timer.getTime() < self.noCacheActiveForSecondsAfterGoLive ) then
 		self.cachedTargets = {}
 		self.cachedTargetsCurrentAge = timer.getTime()
 		if self:hasWorkingPowerSource() and self:isDestroyed() == false then
@@ -2386,7 +2405,7 @@ function SkynetIADSJammer:create(emitter, iads)
 	setmetatable(jammer, SkynetIADSJammer)
 	jammer.radioMenu = nil
 	jammer.emitter = emitter
-	jammer.jammerTaskID = nill
+	jammer.jammerTaskID = nil
 	jammer.iads = {iads}
 	jammer.maximumEffectiveDistanceNM = 200
 	--jammer probability settings are stored here, visualisation, see: https://docs.google.com/spreadsheets/d/16rnaU49ZpOczPEsdGJ6nfD0SLPxYLEYKmmo4i2Vfoe0/edit#gid=0
@@ -2661,7 +2680,7 @@ function SkynetIADSSamSite:targetCycleUpdateEnd()
 end
 
 function SkynetIADSSamSite:informOfContact(contact)
-	-- we make sure isTargetInRange (expensive call) is only triggerd if not previous calls to this method resultet in targets in range
+	-- we make sure isTargetInRange (expensive call) is only triggered if no previous calls to this method resulted in targets in range
 	if self.targetsInRange == false and self:isTargetInRange(contact) then
 		self:goLive()
 		self.targetsInRange = true

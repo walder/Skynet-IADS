@@ -1833,29 +1833,6 @@ Launcher:
 end
 
 --[[
-function TestSkynetIADSSamSite:testCleanupMistScheduleFunctions()
-	self.samSiteName = "SAM-SA-6"
-	self:setUp()
-	self.samSite:goLive()
-	self.ewRadarName = "EW-west22"
-	--clean any existing mist scheduleFunctions 
---	local i = 0
-	--while i < 1000000 do
-	--	mist.removeFunction(i)
-	--	i = i + 1
-	--end
-	self:setUp()
-	self.samSite:goLive()
-	local i = 0
-	while i < 1000000 do
-		local hasFunction = mist.removeFunction(i)
-		lu.assertEquals(hasFunction, nil)
-		i = i + 1
-	end-
-end
---]]
-
---[[
 function TestSkynetIADSSamSite:testCallMethodOnTableElements()
 	local test = {}
 	function test:theMethod(value)
@@ -1951,4 +1928,38 @@ function TestSkynetIADSSamSite:testUpdateSAMSitesInCoveredArea()
 	end
 	lu.assertEquals(#self.samSite:updateSAMSitesInCoveredArea(), 0)	
 end
+
+
+--[[
+this test ensures that targets are cached in the sam site, calls to the getDetectedTargets function of the controller are cpu intensive
+multiple calls are made within miliseconds on the same SAM or EW site when updating the IADS status, therefore only the first call ist to the acutall controller
+after that results are cached for a few seconds (default IADS setting is for one update cycle, e.g. 5 seconds).
+--]]
+
+function TestSkynetIADSSamSite:testCacheDetectedTargets()
+	self.skynetIADS:addSAMSitesByPrefix('SAM')
+	self.samSite = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
+	self.samSite:goDark()
+	self.samSite:goLive()
+	-- deactivate no cache after goLive
+	self.samSite.noCacheActiveForSecondsAfterGoLive = 0
+	lu.assertEquals(self.samSite:getDetectedTargets() == self.samSite:getDetectedTargets(), true)
+	self.samSite.cachedTargetsMaxAge = -1
+	lu.assertEquals(self.samSite:getDetectedTargets() == self.samSite:getDetectedTargets(), false)
+	
+end
+
+--[[
+the IADS turns controllers of a SAM or EW site on and of. This has the advantage that a SAM site will react faster  after beeing waken up by the IADS
+the down side is that the first call to getDetectedTarget() on a controller after a goLive returns no targets, this result is cached causing the SAM site to misbehave in the IADS.
+Therefore for the first seconds after goLive the cache of getDetectedTargets is bypassed, ensuring targets are stored and the SAM site behaves correctly. 
+--]]
+function TestSkynetIADSSamSite:testCacheInvalidatedFirstfewSecondsAfterControllerIsActivated()
+	self.skynetIADS:addSAMSitesByPrefix('SAM')
+	self.samSite = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
+	self.samSite:goDark()
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:getDetectedTargets() == self.samSite:getDetectedTargets(), false)
+end
+
 end

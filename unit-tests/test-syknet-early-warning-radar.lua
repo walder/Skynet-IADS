@@ -408,18 +408,4 @@ function TestSkynetIADSEWRadar:testUpdateSAMSitesInCoveredArea()
 	lu.assertEquals(samSites[2]:getDCSRepresentation():getName(), "SAM-SA-19")
 	lu.assertEquals(samSites[3]:getDCSRepresentation():getName(), "SAM-SA-15")
 end
-
-function TestSkynetIADSEWRadar:testCacheDetectedTargets()
-	self.ewRadarName = "EW-west23"
-	self:setUp()
-	local targets = self.ewRadar:getDetectedTargets()
-	local targets2 = self.ewRadar:getDetectedTargets()
-	lu.assertIs(targets, targets2)
-	
-	local targets = self.ewRadar:getDetectedTargets()
-	self.ewRadar.cachedTargetsMaxAge = -1
-	local targets2 = self.ewRadar:getDetectedTargets()
-	lu.assertNotIs(targets, targets2)
-	
-end
 end

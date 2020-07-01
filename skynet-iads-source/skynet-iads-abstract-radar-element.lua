@@ -39,14 +39,16 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargets = {}
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
+	instance.goLiveTime = 0
+	instance.noCacheActiveForSecondsAfterGoLive = 1
 	return instance
 end
 
 --TODO: this method could be updated to only return Radar weapons fired, this way a SAM firing an IR weapon could go dark faster in the goDark() method
 function SkynetIADSAbstractRadarElement:weaponFired(event)
 	if event.id == world.event.S_EVENT_SHOT then
-		weapon = event.weapon
-		launcherFired = event.initiator
+		local weapon = event.weapon
+		local launcherFired = event.initiator
 		for i = 1, #self.launchers do
 			local launcher = self.launchers[i]
 			if launcher:getDCSRepresentation() == launcherFired then
@@ -364,6 +366,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			self.goLiveTime = timer.getTime()
 		end
 		self.aiState = true
 		self:pointDefencesStopActingAsEW()
@@ -585,7 +588,7 @@ function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
-	if ( timer.getTime() - self.cachedTargetsCurrentAge ) > self.cachedTargetsMaxAge then
+	if ( timer.getTime() - self.cachedTargetsCurrentAge > self.cachedTargetsMaxAge ) or ( self.goLiveTime - timer.getTime() < self.noCacheActiveForSecondsAfterGoLive ) then
 		self.cachedTargets = {}
 		self.cachedTargetsCurrentAge = timer.getTime()
 		if self:hasWorkingPowerSource() and self:isDestroyed() == false then
