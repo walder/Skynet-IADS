@@ -47,7 +47,6 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-11 Gadfly',
 		},
-		['mobile'] = true,
 		['harm_detection_chance'] = 70
 	},
 	['s-125'] = {
@@ -90,7 +89,6 @@ samTypesDB = {
 	},
 	['Kub'] = {
 		['type'] = 'complex',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Kub 1S91 str'] = {
 			},
@@ -159,7 +157,6 @@ samTypesDB = {
 	},	
 	['Roland ADS'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Roland ADS'] = {
 			},
@@ -176,7 +173,6 @@ samTypesDB = {
 	},		
 	['2S6 Tunguska'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['2S6 Tunguska'] = {
 			},
@@ -191,7 +187,6 @@ samTypesDB = {
 	},		
 	['Osa'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Osa 9A33 ln'] = {
 			},
@@ -208,7 +203,6 @@ samTypesDB = {
 	},	
 	['Strela-10M3'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Strela-10M3'] = {
 				['trackingRadar'] = true,
@@ -224,7 +218,6 @@ samTypesDB = {
 	},	
 	['Strela-1 9P31'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Strela-1 9P31'] = {
 			},
@@ -240,7 +233,6 @@ samTypesDB = {
 	},
 	['Tor'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Tor 9A331'] = {
 			},
@@ -255,7 +247,6 @@ samTypesDB = {
 	},
 	['Gepard'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Gepard'] = {
 			},
@@ -291,7 +282,6 @@ samTypesDB = {
     },	
 	['ZSU-23-4 Shilka'] = {
 		['type'] = 'single',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['ZSU-23-4 Shilka'] = {
 			},
@@ -344,7 +334,6 @@ samTypesDB = {
 	},
 	['Dog Ear'] = {
 		['type'] = 'ewr',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Dog Ear radar'] = {
 			},
@@ -356,7 +345,6 @@ samTypesDB = {
 	},
 	['Roland Radar'] = {
 		['type'] = 'ewr',
-		['mobile'] = true,
 		['searchRadar'] = {
 			['Roland Radar'] = {
 			},
@@ -364,6 +352,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'Roland EWR',
 		},
+		['harm_detection_chance'] = 60
 	},
 	['p-19 s-125 sr'] = {
 		['searchRadar'] = {

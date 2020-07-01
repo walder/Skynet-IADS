@@ -35,7 +35,7 @@ Every single launcher and radar unit's distance of a SAM site is analysed indivi
 If at least one launcher and radar is within range, the SAM Site will become active. 
 This allows for a scattered placement of radar and launcher units as in real life.
 
-If SAM sites or radar guided AAA run out of Ammo they will go dark. In the case of a SAM site it will wait with going dark as long as the last fired missile is still in the air.
+If SAM sites or radar guided AAA run out of ammo they will go dark. In the case of a SAM site it will wait with going dark as long as the last fired missile is still in the air.
 
 If an EW radar or a SAM site acting as EW radar is destoyed surrounding SAM sites can be left withouth EW radar coverage. This can also happen if a SAM site is outside of AWACS coverage.
 SAM sites will go autonomous in such a case meaning they will use their organic radars or just stay dark depending on setup.
