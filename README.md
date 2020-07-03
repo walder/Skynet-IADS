@@ -345,14 +345,6 @@ Give these sites a special prefix in the group name, e.g.: ```'SAM-SECTOR-A'```.
 redIADS:getSAMSitesByPrefix('SAM-SECTOR-A')
 ```
 
-#### Setting an option
-You can daisy chain options on a single SAM site or a table of SAM sites like this:
-```lua
-redIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-```  
-
-In the following examples ```samSite``` refers to an single SAM site or a table of SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing SAM sites](#accessing-sam-sites-in-the-iads)
-
 ### Act as EW radar
 Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
 ```lua
@@ -365,7 +357,7 @@ Set the distance at which a SAM site will switch on its radar:
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
-#### The engagement zone options are:  
+#### engagement zone options  
 
 SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
 ```lua
