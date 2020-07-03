@@ -14,67 +14,6 @@ Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) 
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
-Table of Contents
-=================
-
-* [Skynet\-IADS](#skynet-iads)
-* [Abstract](#abstract)
-* [Quick start](#quick-start)
-* [Skynet IADS Elements](#skynet-iads-elements)
-  * [IADS](#iads)
-  * [Track files](#track-files)
-  * [Comand Centers](#comand-centers)
-  * [SAM Sites](#sam-sites)
-  * [Early Warning Radars](#early-warning-radars)
-  * [Power Sources](#power-sources)
-  * [Connection Nodes](#connection-nodes)
-  * [AWACS (Airborne Early Warning and Control System)](#awacs-airborne-early-warning-and-control-system)
-  * [Ships](#ships)
-* [Tactics](#tactics)
-  * [HARM defence](#harm-defence)
-  * [Point defence](#point-defence)
-  * [Electronic Warfare](#electronic-warfare)
-* [Using Skynet in the mission editor](#using-skynet-in-the-mission-editor)
-  * [Placing units](#placing-units)
-  * [Preparing a SAM site](#preparing-a-sam-site)
-  * [Preparing an EW radar](#preparing-an-ew-radar)
-  * [Adding the Skynet Code](#adding-the-skynet-code)
-  * [Setting up yor IADS](#setting-up-yor-iads)
-  * [Adding the Skynet IADS](#adding-the-skynet-iads)
-* [Advanced setup](#advanced-setup)
-  * [IADS configuration](#iads-configuration)
-    * [Adding a command center](#adding-a-command-center)
-  * [SAM site configuration](#sam-site-configuration)
-    * [Adding SAM sites](#adding-sam-sites)
-      * [Add multiple SAM sites](#add-multiple-sam-sites)
-      * [Add a SAM site manually](#add-a-sam-site-manually)
-    * [Accessing SAM sites in the IADS](#accessing-sam-sites-in-the-iads)
-    * [Act as EW radar](#act-as-ew-radar)
-    * [Engagement zone](#engagement-zone)
-      * [engagement zone options](#engagement-zone-options)
-  * [EW radar configuration](#ew-radar-configuration)
-    * [Adding EW radars](#adding-ew-radars)
-      * [Add multiple EW radars](#add-multiple-ew-radars)
-      * [Add EW radars manually](#add-ew-radars-manually)
-    * [Accessing EW radars in the IADS](#accessing-ew-radars-in-the-iads)
-  * [Options for SAM sites and EW radars](#options-for-sam-sites-and-ew-radars)
-    * [Setting an option](#setting-an-option)
-    * [Daisy chaining options](#daisy-chaining-options)
-    * [Power sources and connection nodes](#power-sources-and-connection-nodes)
-    * [HARM Defence](#harm-defence-1)
-    * [Point defence](#point-defence-1)
-    * [Autonomous mode behaviour](#autonomous-mode-behaviour)
-      * [The autonomous mode options are:](#the-autonomous-mode-options-are)
-  * [Adding a jammer](#adding-a-jammer)
-    * [Advanced functions](#advanced-functions)
-  * [Setting debug information](#setting-debug-information)
-* [Example Setup](#example-setup)
-* [FAQ](#faq)
-  * [What air defence units shall I add to the Skynet IADS?](#what-air-defence-units-shall-i-add-to-the-skynet-iads)
-  * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
-  * [Are there known bugs?](#are-there-known-bugs)
-  * [How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?](#how-do-i-know-if-a-sam-site-is-in-range-of-an-ew-site-or-a-sam-site-in-ew-mode)
-* [Thanks](#thanks)
 
 # Quick start
 Tired of reading already? Download the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.
@@ -356,7 +295,7 @@ Set the distance at which a SAM site will switch on its radar:
 samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 ```
 
-#### engagement zone options  
+#### Engagement zone options  
 
 SAM site will go live when target is within the red circle in the mission editor (default Skynet behaviour): 
 ```lua
@@ -385,7 +324,7 @@ Adds EW radars with prefix in unit name to the IADS. Previously added EW sites a
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 ``` 
 
-#### Add EW radars manually
+#### Add an EW radar manually
 You can add EW radars manually, must be a valid unit name: 
 ```lua
 redIADS:addEarlyWarningRadar('EWR West')
