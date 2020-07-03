@@ -2,15 +2,15 @@ do
 
 SkynetMooseA2ADispatcherConnector = {}
 
-function SkynetMooseA2ADispatcherConnector:create(dcsObject)
+function SkynetMooseA2ADispatcherConnector:create(iads)
 	local instance = {}
 	setmetatable(instance, self)
 	self.__index = self
-	instance.dcsObject = dcsObject
 	instance.iadsCollection = {}
 	instance.mooseGroups = {}
 	instance.ewRadarGroupNames = {}
 	instance.samSiteGroupNames = {}
+	table.insert(instance.iadsCollection, iads)
 	return instance
 end
 
@@ -19,7 +19,7 @@ function SkynetMooseA2ADispatcherConnector:addIADS(iads)
 end
 
 function SkynetMooseA2ADispatcherConnector:addMooseGroup(mooseGroup)
-	table.insert(self.mooseGroups, moooseGroup)
+	table.insert(self.mooseGroups, mooseGroup)
 end
 
 function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
@@ -28,7 +28,7 @@ function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
 		local ewRadars = self.iadsCollection[i]:getUsableEarlyWarningRadars()
 		for j = 1, #ewRadars do
 			local ewRadar = ewRadars[j]
-			table.insert(self.ewRadarGroupNames, ewRadar:getDCSRepresentation():getGroup():getName())
+			table.insert(self.ewRadarGroupNames, ewRadar:getDCSName())
 		end
 	end
 	return self.ewRadarGroupNames
@@ -40,13 +40,16 @@ function SkynetMooseA2ADispatcherConnector:getSAMSiteGroupNames()
 		local samSites = self.iadsCollection[i]:getUsableSAMSites()
 		for j = 1, #samSites do
 			local samSite = samSites[j]
-			table.insert(self.samSiteGroupNames, samSite:getDCSRepresentation():getName())
+			table.insert(self.samSiteGroupNames, samSite:getDCSName())
 		end
 	end
 	return self.samSiteGroupNames
 end
 
 function SkynetMooseA2ADispatcherConnector:update()
+	
+	--mooseGroup elements are type of:
+	--https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/Core.Set.html##(SET_GROUP)
 	
 	--remove previously set group names:
 	for i = 1, #self.mooseGroups do
@@ -55,7 +58,7 @@ function SkynetMooseA2ADispatcherConnector:update()
 		mooseGroup:RemoveGroupsByName(self.samSiteGroupNames)
 	end
 	
-	--add current group names:
+	--add current group names of IADS:
 	for j = 1, #self.mooseGroups do
 		mooseGroup = self.mooseGroups[i]
 	

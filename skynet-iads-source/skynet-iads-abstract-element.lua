@@ -93,7 +93,7 @@ function SkynetIADSAbstractElement:getNatoName()
 end
 
 function SkynetIADSAbstractElement:getDescription()
-	return "IADS ELEMENT: "..self:getDCSRepresentation():getName().." | Type : "..tostring(self:getNatoName())
+	return "IADS ELEMENT: "..self:getDCSName().." | Type : "..tostring(self:getNatoName())
 end
 
 function SkynetIADSAbstractElement:onEvent(event)

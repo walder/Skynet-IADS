@@ -29,32 +29,6 @@ function TestSkynetIADSSamSite:tearDown()
 	self.samSiteName = nil
 end
 
-
-function TestSkynetIADSSamSite:testCheckOneGenericObjectAliveForUnitWorks()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	local unit = Unit.getByName('SAM-SA-6-2-connection-node-unit')
-	self.samSite:addConnectionNode(unit)
-	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), true)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
-	trigger.action.explosion(unit:getPosition().p, 1000)
-	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), false)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
-end
-
-function TestSkynetIADSSamSite:testCheckOneGenericObjectAliveForStaticObjectsWorks()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	local static = StaticObject.getByName('SAM-SA-6-2-coonection-node-static')
-	self.samSite:addConnectionNode(static)
-	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), true)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
-	trigger.action.explosion(static:getPosition().p, 1000)
-	lu.assertEquals(self.samSite:genericCheckOneObjectIsAlive(self.samSite.connectionNodes), false)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
-end
-
-
 -- TODO: write test for updateMissilesInFlight in AbstractRadarElement
 function TestSkynetIADSSamSite:testUpdateMissilesInFlight()
 	self.samSiteName = "SAM-SA-6-2"
@@ -1287,25 +1261,7 @@ function TestSkynetIADSSamSite:testSA8GoLiveRangeInPercent()
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
-function TestSkynetIADSSamSite:testPowerSourceStaticObjectGroundVehiclesAndDestrutionSuccessful()
-	self.samSiteName = "test-samsite-with-unit-as-power-source"
-	self:setUp()
-	local powerSource = StaticObject.getByName("test-ground-vehicle-power-source")
-	local connectionNode = StaticObject.getByName("test-ground-vehicle-connection-node")
-	self.samSite:addPowerSource(powerSource)
-	self.samSite:addConnectionNode(connectionNode)
-	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), true)
-	trigger.action.explosion(powerSource:getPosition().p, 3000)
-	trigger.action.explosion(connectionNode:getPosition().p, 500)
-	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
-	local event = {}
-	event.id = world.event.S_EVENT_DEAD
-	self.samSite:onEvent(event)
-	self.skynetIADS.evaluateContacts(self.skynetIADS)
-end
-
+--TODO: see if we can remove this test
 function TestSkynetIADSSamSite:testPowerSourceUnitAndDescrutionSuccessful()
 	self.samSiteName = "test-samsite-with-unit-as-power-source"
 	self:setUp()
