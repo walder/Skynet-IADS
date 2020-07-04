@@ -266,13 +266,14 @@ Set the update interval in seconds of the IADS. This determines in what interval
 redIADS:setUpdateInterval(5)
 ```
 
-Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAMs to run through their setup cycle. After that they are frozen in a red state, ready to fire.
-This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars up giving away their position. 
+### Warm up the SAM sites of an IADS
+Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire. This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
 
-If your start your mission at a friendly base far away from the enemy IADS this in no big deal. If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
+If you start your mission at a friendly base far away from the enemy IADS this in no big deal. If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
 
-This function will not shorten the time from a radar lock until a SAM site fires. It will however reduce total reaction time of a SAM site after beeing notified by Skynet to go live.
-For example: the SA-15 Tor needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR for 8 seconds.
+This function will not shorten the time from a radar lock until a SAM site fires. It will however reduce total reaction time of a SAM site after beeing notified by Skynet to go live. 
+
+For example: the SA-15 Tor needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR (radar warning receiver) for 8 seconds.
 
  By default Skynet will activate the SAMs for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
 ```lua
@@ -454,7 +455,7 @@ Set how the SAM site or EW radar will behave if it looses connection to the IADS
 ewRadarOrSamSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 ```
 
-#### The autonomous mode options are: 
+#### Autonomous mode options 
 SAM site or EW radar will behave in the default DCS AI. Alarm State will be red and ROE weapons free (default Skynet behaviour for SAM sites):
 ```lua
 SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
