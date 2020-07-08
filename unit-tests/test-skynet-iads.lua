@@ -652,8 +652,6 @@ function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWillTriggerAutonomousState
 end
 
 function TestSkynetIADS:testSetupSAMSites()
-	self:setUp()
-	
 	local numCalls = 0
 	
 	local sams = self.iranIADS:getSAMSites()
@@ -670,6 +668,15 @@ function TestSkynetIADS:testSetupSAMSites()
 	lu.assertEquals(numCalls, #self.iranIADS:getSAMSites())
 	lu.assertNotEquals(self.iranIADS.samSetupMistTaskID, nil)
 	lu.assertEquals(self.iranIADS.samSetupTime, 10)
+end
+
+--TODO:Finish Unit Test
+function TestSkynetIADS:testAddMooseDispatcher()
+	
+	local mockMooseDispatcher = {}
+	self.iads:addMooseDispatcher(mockMooseDispatcher)
+	self.iads:evaluateContacts()
+	
 end
 
 end

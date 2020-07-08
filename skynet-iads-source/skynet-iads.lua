@@ -382,6 +382,9 @@ function SkynetIADS.evaluateContacts(self)
 		samSite:targetCycleUpdateEnd()
 	end
 	
+	--update moose connector:
+	self:getMooseConnector():update()
+	
 	self:printSystemStatus()
 end
 
@@ -565,6 +568,17 @@ function SkynetIADS:getCoalitionString()
 	end
 	
 	return coalitionStr
+end
+
+function SkynetIADS:getMooseConnector()
+	if self.mooseConnector == nil then
+		self.mooseConnector = SkynetMooseA2ADispatcherConnector:create(self)
+	end
+	return self.mooseConnector
+end
+
+function SkynetIADS:addMooseDispatcher(mooseDispatcher)
+	self:getMooseConnector():addMooseGroup(mooseDispatcher)
 end
 
 function SkynetIADS:printDetailedEarlyWarningRadarStatus()

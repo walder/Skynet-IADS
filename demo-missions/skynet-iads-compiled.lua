@@ -1,4 +1,4 @@
--- BUILD Timestamp: 08.07.2020 18:51:51.15  
+-- BUILD Timestamp: 08.07.2020 20:11:18.29  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -803,6 +803,9 @@ function SkynetIADS.evaluateContacts(self)
 		samSite:targetCycleUpdateEnd()
 	end
 	
+	--update moose connector:
+	self:getMooseConnector():update()
+	
 	self:printSystemStatus()
 end
 
@@ -986,6 +989,17 @@ function SkynetIADS:getCoalitionString()
 	end
 	
 	return coalitionStr
+end
+
+function SkynetIADS:getMooseConnector()
+	if self.mooseConnector == nil then
+		self.mooseConnector = SkynetMooseA2ADispatcherConnector:create(self)
+	end
+	return self.mooseConnector
+end
+
+function SkynetIADS:addMooseDispatcher(mooseDispatcher)
+	self:getMooseConnector():addMooseGroup(mooseDispatcher)
 end
 
 function SkynetIADS:printDetailedEarlyWarningRadarStatus()
@@ -1240,6 +1254,76 @@ function SkynetIADS:printSystemStatus()
 	
 	if self:getDebugSettings().samSiteStatusEnvOutput then
 		self:printDetailedSAMSiteStatus()
+	end
+end
+
+end
+do
+
+SkynetMooseA2ADispatcherConnector = {}
+
+function SkynetMooseA2ADispatcherConnector:create(iads)
+	local instance = {}
+	setmetatable(instance, self)
+	self.__index = self
+	instance.iadsCollection = {}
+	instance.mooseGroups = {}
+	instance.ewRadarGroupNames = {}
+	instance.samSiteGroupNames = {}
+	table.insert(instance.iadsCollection, iads)
+	return instance
+end
+
+function SkynetMooseA2ADispatcherConnector:addIADS(iads)
+	table.insert(self.iadsCollection, iads)
+end
+
+function SkynetMooseA2ADispatcherConnector:addMooseGroup(mooseGroup)
+	table.insert(self.mooseGroups, mooseGroup)
+end
+
+function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
+	self.ewRadarGroupNames = {}
+	for i = 1, #self.iadsCollection do
+		local ewRadars = self.iadsCollection[i]:getUsableEarlyWarningRadars()
+		for j = 1, #ewRadars do
+			local ewRadar = ewRadars[j]
+			table.insert(self.ewRadarGroupNames, ewRadar:getDCSName())
+		end
+	end
+	return self.ewRadarGroupNames
+end
+
+function SkynetMooseA2ADispatcherConnector:getSAMSiteGroupNames()
+	self.samSiteGroupNames = {}
+	for i = 1, #self.iadsCollection do
+		local samSites = self.iadsCollection[i]:getUsableSAMSites()
+		for j = 1, #samSites do
+			local samSite = samSites[j]
+			table.insert(self.samSiteGroupNames, samSite:getDCSName())
+		end
+	end
+	return self.samSiteGroupNames
+end
+
+function SkynetMooseA2ADispatcherConnector:update()
+	
+	--mooseGroup elements are type of:
+	--https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/Core.Set.html##(SET_GROUP)
+	
+	--remove previously set group names:
+	for i = 1, #self.mooseGroups do
+		local mooseGroup = self.mooseGroups[i]
+		mooseGroup:RemoveGroupsByName(self.ewRadarGroupNames)
+		mooseGroup:RemoveGroupsByName(self.samSiteGroupNames)
+	end
+	
+	--add current group names of IADS:
+	for i = 1, #self.mooseGroups do
+		local mooseGroup = self.mooseGroups[i]
+		mooseGroup:AddGroupsByName(self:getEarlyWarningRadarGroupNames())
+		mooseGroup:AddGroupsByName(self:getSAMSiteGroupNames())
+		mooseGroup:FilterStart()
 	end
 end
 

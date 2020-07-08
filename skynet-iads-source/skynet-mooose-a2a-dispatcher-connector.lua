@@ -53,15 +53,17 @@ function SkynetMooseA2ADispatcherConnector:update()
 	
 	--remove previously set group names:
 	for i = 1, #self.mooseGroups do
-		mooseGroup = self.mooseGroups[i]
+		local mooseGroup = self.mooseGroups[i]
 		mooseGroup:RemoveGroupsByName(self.ewRadarGroupNames)
 		mooseGroup:RemoveGroupsByName(self.samSiteGroupNames)
 	end
 	
 	--add current group names of IADS:
-	for j = 1, #self.mooseGroups do
-		mooseGroup = self.mooseGroups[i]
-	
+	for i = 1, #self.mooseGroups do
+		local mooseGroup = self.mooseGroups[i]
+		mooseGroup:AddGroupsByName(self:getEarlyWarningRadarGroupNames())
+		mooseGroup:AddGroupsByName(self:getSAMSiteGroupNames())
+		mooseGroup:FilterStart()
 	end
 end
 
