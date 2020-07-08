@@ -26,7 +26,7 @@ local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
 iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
-local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(100)
+iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(0)
 
 local conNode = SkynetIADSAbstractDCSObjectWrapper:create(nil)
 iranIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(iranIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true):addConnectionNode(conNode)
@@ -62,11 +62,13 @@ jammer:addRadioMenu()
 --blueIadsDebug.harmDefence = true
 --blueIadsDebug.contacts = true
 
+--[[
 local launchers = sam:getLaunchers()
 for i=1, #launchers do
 	local launcher = launchers[i]:getDCSRepresentation()
 --	trigger.action.explosion(launcher:getPosition().p, 9000)
 end
+--]]
 --test to check in game ammo changes, to build unit tests on
 
 posCounter = 0

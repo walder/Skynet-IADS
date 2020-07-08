@@ -93,5 +93,16 @@ end
 function TestSkynetIADSAbstractElement:testGetDCSRepresentation()
 	lu.assertEquals(self.abstractElement:getDCSRepresentation(), Group.getByName("SAM-SA-6-2"))
 end
+
+function TestSkynetIADSAbstractElement:testGetDCSName()
+	lu.assertEquals(self.abstractElement:getDCSName(), "SAM-SA-6-2")
 	
+	--overwrite the DCSRepresentation to test caching on the DCS unit / group name
+	function self.abstractElement:getDCSRepresentation()
+		return nil
+	end
+
+	lu.assertEquals(self.abstractElement:getDCSName(), "SAM-SA-6-2")
+
+end
 end

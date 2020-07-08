@@ -1,5 +1,14 @@
 This guide is work in progress and will be updated.
 
+# Contributing
+
+#Required software
+You will need a working copy of DCS to enhance Skynet.
+
+#Design philosophy
+
+#Versioning
+Skynet uses semantic versioning.
 
 # setting up your editor
 I recomend you use [!notepad++](https://notepad-plus-plus.org/downloads/) to edit lua files.

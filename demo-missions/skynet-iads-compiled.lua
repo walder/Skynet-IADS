@@ -1,4 +1,4 @@
--- BUILD Timestamp: 01.07.2020 23:14:19.09  
+-- BUILD Timestamp: 08.07.2020 18:51:51.15  
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -605,7 +605,7 @@ function SkynetIADS:getSAMSitesByPrefix(prefix)
 	local returnSams = {}
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
-		local groupName = samSite:getDCSRepresentation():getName()
+		local groupName = samSite:getDCSName()
 		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
 			table.insert(returnSams, samSite)
@@ -1035,7 +1035,7 @@ function SkynetIADS:printDetailedEarlyWarningRadarStatus()
 		local unitName = "DESTROYED"
 		
 		if ewRadar:getDCSRepresentation():isExist() then
-			unitName = ewRadar:getDCSRepresentation():getName()
+			unitName = ewRadar:getDCSName()
 		end
 		
 		env.info("UNIT: "..unitName.." | TYPE: "..ewRadar:getNatoName())
@@ -1107,7 +1107,7 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		
 		local samSitesInCoveredArea = samSite:getSAMSitesInCoveredArea()
 		
-		env.info("GROUP: "..samSite:getDCSRepresentation():getName().." | TYPE: "..samSite:getNatoName())
+		env.info("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
 		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()))
 		
 		if numConnectionNodes > 0 then
@@ -1317,6 +1317,7 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	instance.powerSources = {}
 	instance.iads = iads
 	instance.natoName = "UNKNOWN"
+	instance.dcsName = ""
 	instance:setDCSRepresentation(dcsRepresentation)
 	world.addEventHandler(instance)
 	return instance
@@ -1370,7 +1371,7 @@ function SkynetIADSAbstractElement:hasWorkingPowerSource()
 end
 
 function SkynetIADSAbstractElement:getDCSName()
-	return self:getDCSRepresentation():getName()
+	return self.dcsName
 end
 
 -- generic function to theck if power plants, command centers, connection nodes are still alive
@@ -1389,6 +1390,9 @@ end
 
 function SkynetIADSAbstractElement:setDCSRepresentation(representation)
 	self.dcsRepresentation = representation
+	if self.dcsRepresentation then
+		self.dcsName = self:getDCSRepresentation():getName()
+	end
 end
 
 function SkynetIADSAbstractElement:getDCSRepresentation()
@@ -1400,7 +1404,7 @@ function SkynetIADSAbstractElement:getNatoName()
 end
 
 function SkynetIADSAbstractElement:getDescription()
-	return "IADS ELEMENT: "..self:getDCSRepresentation():getName().." | Type : "..tostring(self:getNatoName())
+	return "IADS ELEMENT: "..self:getDCSName().." | Type : "..tostring(self:getNatoName())
 end
 
 function SkynetIADSAbstractElement:onEvent(event)
@@ -1526,6 +1530,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
 	instance.goLiveTime = 0
+	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
 	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
 end
@@ -2057,7 +2062,7 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self.objectsIdentifiedAsHarms = {}
 	local harmTime = self:getHarmShutDownTime()
 	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutput("HARM DEFENCE: "..self:getDCSRepresentation():getName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
+		self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
 	end
 	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
 	self:goDark()
@@ -2201,7 +2206,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 						local shallReactToHarm = self:shallReactToHARM()
 						
 					--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
-					--		env.info("detect as HARM: "..self:getDCSRepresentation():getName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
+					--		env.info("detect as HARM: "..self:getDCSName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
 					--	end
 						
 						-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
@@ -2216,7 +2221,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 						end
 						if numDetections == 2 and shallReactToHarm == false then
 							if self.iads:getDebugSettings().harmDefence then
-								self.iads:printOutput("HARM DEFENCE: "..self:getDCSRepresentation():getName().." will not react")
+								self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." will not react")
 							end
 						end
 					end

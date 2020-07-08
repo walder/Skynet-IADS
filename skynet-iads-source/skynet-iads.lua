@@ -184,7 +184,7 @@ function SkynetIADS:getSAMSitesByPrefix(prefix)
 	local returnSams = {}
 	for i = 1, #self.samSites do
 		local samSite = self.samSites[i]
-		local groupName = samSite:getDCSRepresentation():getName()
+		local groupName = samSite:getDCSName()
 		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
 			table.insert(returnSams, samSite)
@@ -614,7 +614,7 @@ function SkynetIADS:printDetailedEarlyWarningRadarStatus()
 		local unitName = "DESTROYED"
 		
 		if ewRadar:getDCSRepresentation():isExist() then
-			unitName = ewRadar:getDCSRepresentation():getName()
+			unitName = ewRadar:getDCSName()
 		end
 		
 		env.info("UNIT: "..unitName.." | TYPE: "..ewRadar:getNatoName())
@@ -686,7 +686,7 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		
 		local samSitesInCoveredArea = samSite:getSAMSitesInCoveredArea()
 		
-		env.info("GROUP: "..samSite:getDCSRepresentation():getName().." | TYPE: "..samSite:getNatoName())
+		env.info("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
 		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()))
 		
 		if numConnectionNodes > 0 then

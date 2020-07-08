@@ -10,6 +10,7 @@ function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
 	instance.powerSources = {}
 	instance.iads = iads
 	instance.natoName = "UNKNOWN"
+	instance.dcsName = ""
 	instance:setDCSRepresentation(dcsRepresentation)
 	world.addEventHandler(instance)
 	return instance
@@ -63,7 +64,7 @@ function SkynetIADSAbstractElement:hasWorkingPowerSource()
 end
 
 function SkynetIADSAbstractElement:getDCSName()
-	return self:getDCSRepresentation():getName()
+	return self.dcsName
 end
 
 -- generic function to theck if power plants, command centers, connection nodes are still alive
@@ -82,6 +83,9 @@ end
 
 function SkynetIADSAbstractElement:setDCSRepresentation(representation)
 	self.dcsRepresentation = representation
+	if self.dcsRepresentation then
+		self.dcsName = self:getDCSRepresentation():getName()
+	end
 end
 
 function SkynetIADSAbstractElement:getDCSRepresentation()
