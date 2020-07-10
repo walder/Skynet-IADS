@@ -1261,22 +1261,6 @@ function TestSkynetIADSSamSite:testSA8GoLiveRangeInPercent()
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
---TODO: see if we can remove this test
-function TestSkynetIADSSamSite:testPowerSourceUnitAndDescrutionSuccessful()
-	self.samSiteName = "test-samsite-with-unit-as-power-source"
-	self:setUp()
-	local powerSource = Unit.getByName("test-unit-as-sam-power-source")
-	local connectionNode = Unit.getByName("test-unit-as-sam-connection-node")
-	self.samSite:addPowerSource(powerSource)
-	self.samSite:addConnectionNode(connectionNode)
-	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
-	trigger.action.explosion(powerSource:getPosition().p, 500)
-	trigger.action.explosion(connectionNode:getPosition().p, 3000)
-	lu.assertEquals(self.samSite:hasActiveConnectionNode(), false)
-	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
-	self.skynetIADS.evaluateContacts(self.skynetIADS)
-end
-
 function TestSkynetIADSSamSite:testShutDownTimes()
 	self.samSiteName = "SAM-SA-6"
 	self:setUp()

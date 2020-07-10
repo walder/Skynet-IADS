@@ -56,7 +56,7 @@ function TestMooseA2ADispatcherConnector:testGetSAMSitesGroupNames()
 	lu.assertEquals(numSams, SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED)
 end
 
-function TestMooseA2ADispatcherConnector:testUpdate()
+function TestMooseA2ADispatcherConnector:testAddMooseSetGroupAndUpdate()
 
 	local mockMooseSetGroup = {}
 	mockMooseSetGroup.connector = self.connector
@@ -102,8 +102,8 @@ function TestMooseA2ADispatcherConnector:testUpdate()
 		calledFilterStart = calledFilterStart + 1
 	end
 	
-	self.connector:addMooseGroup(mockMooseSetGroup)
-	self.connector:update()
+	self.connector:addMooseSetGroup(mockMooseSetGroup)
+
 	
 	lu.assertEquals(numRemoveCalls, 2)
 	lu.assertEquals(numAddCalls, 2)

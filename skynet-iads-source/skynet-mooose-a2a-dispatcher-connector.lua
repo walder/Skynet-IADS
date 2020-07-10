@@ -18,8 +18,9 @@ function SkynetMooseA2ADispatcherConnector:addIADS(iads)
 	table.insert(self.iadsCollection, iads)
 end
 
-function SkynetMooseA2ADispatcherConnector:addMooseGroup(mooseGroup)
-	table.insert(self.mooseGroups, mooseGroup)
+function SkynetMooseA2ADispatcherConnector:addMooseSetGroup(mooseSetGroup)
+	table.insert(self.mooseGroups, mooseSetGroup)
+	self:update()
 end
 
 function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()

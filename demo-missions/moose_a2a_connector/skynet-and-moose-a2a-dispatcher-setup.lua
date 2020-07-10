@@ -26,17 +26,20 @@ iadsDebug.earlyWarningRadarStatusEnvOutput = true
 --]]
 
 redIADS:addSAMSitesByPrefix('SAM')
-redIADS:addEarlyWarningRadarsByPrefix('EW')
+
+local power = StaticObject.getByName('power-source')
+redIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(power)
 
 redIADS:activate()
 
 
 -- Define a SET_GROUP object that builds a collection of groups that define the EWR network.
--- Here we build the network with all the groups that have a name starting with DF CCCP AWACS and DF CCCP EWR.
 DetectionSetGroup = SET_GROUP:New()
 
--- add the detection group to the Skynet IADS:
-redIADS:addMooseDispatcher(DetectionSetGroup)
+-- add the MOOSE SET_GROUP to the Skynet IADS, from now on Skynet will update active radars that the MOOSE SET_GROUP can use for EW detection.
+redIADS:addMooseSetGroup(DetectionSetGroup)
+
+
 
 --DetectionSetGroup:AddGroupsByName('EW-1')
 --DetectionSetGroup:FilterStart()
@@ -61,4 +64,7 @@ A2ADispatcher:SetSquadronGrouping( "Kutaisi", 2 )
 A2ADispatcher:SetSquadronGci( "Kutaisi", 900, 1200 )
 A2ADispatcher:SetTacticalDisplay(true)
 A2ADispatcher:Start()
+
+DetectionSetGroup:TraceOnOff(true)
+DetectionSetGroup:TraceAll()
 end

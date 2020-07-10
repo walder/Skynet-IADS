@@ -1,4 +1,4 @@
--- BUILD Timestamp: 08.07.2020 20:11:18.29  
+env.info("--- SKYNET VERSION: 1.0.0 | BUILD TIME: 10.07.2020 1959Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -761,7 +761,7 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = ewRadars[i]
 		--call go live in case ewRadar had to shut down (HARM attack)
 		ewRadar:goLive()
-		-- if a awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
+		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
 			self:updateAutonomousStatesOfSAMSites()
 		end
@@ -788,8 +788,8 @@ function SkynetIADS.evaluateContacts(self)
 	for samName, samToTrigger in pairs(samSitesToTrigger) do
 		for j = 1, #self.contacts do
 			local contact = self.contacts[j]
-			-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-			-- currently every type of object in the air is handed of to the sam site, including missiles
+			-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
+			-- currently every type of object in the air is handed of to the SAM site, including missiles
 			local description = contact:getDesc()
 			local category = description.category
 			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
@@ -802,9 +802,6 @@ function SkynetIADS.evaluateContacts(self)
 		local samSite = samSites[i]
 		samSite:targetCycleUpdateEnd()
 	end
-	
-	--update moose connector:
-	self:getMooseConnector():update()
 	
 	self:printSystemStatus()
 end
@@ -837,6 +834,8 @@ end
 function SkynetIADS:updateIADSCoverage()
 	self:buildSAMSitesInCoveredArea()
 	self:enforceRebuildAutonomousStateOfSAMSites()
+	--update moose connector:
+	self:getMooseConnector():update()
 end
 
 function SkynetIADS:updateAutonomousStatesOfSAMSites(deadUnit)
@@ -998,8 +997,8 @@ function SkynetIADS:getMooseConnector()
 	return self.mooseConnector
 end
 
-function SkynetIADS:addMooseDispatcher(mooseDispatcher)
-	self:getMooseConnector():addMooseGroup(mooseDispatcher)
+function SkynetIADS:addMooseSetGroup(mooseSetGroup)
+	self:getMooseConnector():addMooseSetGroup(mooseSetGroup)
 end
 
 function SkynetIADS:printDetailedEarlyWarningRadarStatus()
@@ -1278,8 +1277,9 @@ function SkynetMooseA2ADispatcherConnector:addIADS(iads)
 	table.insert(self.iadsCollection, iads)
 end
 
-function SkynetMooseA2ADispatcherConnector:addMooseGroup(mooseGroup)
-	table.insert(self.mooseGroups, mooseGroup)
+function SkynetMooseA2ADispatcherConnector:addMooseSetGroup(mooseSetGroup)
+	table.insert(self.mooseGroups, mooseSetGroup)
+	self:update()
 end
 
 function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
