@@ -15,11 +15,12 @@ if (Test-Path ../demo-missions/skynet-iads-compiled.lua) {
 Move-Item -Path skynet-iads-compiled.lua ../demo-missions/skynet-iads-compiled.lua
 
 $toc = ./bin/gh-md-toc.exe ../skynet-iads-source/README_source.md
+$toc = $toc -replace "\*", "`n `* "
 $readme = Get-Content ../skynet-iads-source/README_source.md
 $readmeWithTOC = $readme -replace "{TOC_PLACEHOLDER}", $toc
 
 if (Test-Path ../README.md) {
-	Remove-Item README.md
+	Remove-Item ../README.md
 }
 
 Add-Content ../README.md $readmeWithTOC
