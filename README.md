@@ -80,8 +80,7 @@ Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support sett
    * [How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?](#how-do-i-know-if-a-sam-site-is-in-range-of-an-ew-site-or-a-sam-site-in-ew-mode)
    * [How do I connect Skynet with the MOOSE AI\_A2A\_DISPATCHER and what are the benefits of that?](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that)
  * [Thanks](#thanks)
-  Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
-
+ 
 
 # Quick start
 Tired of reading already? Download the [demo mission](/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.

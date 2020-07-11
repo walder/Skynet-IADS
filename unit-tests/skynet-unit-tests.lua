@@ -14,12 +14,7 @@ Patriot
 ]]--
 
 --[[
-Create Table of Contents from markdown with:
-https://github.com/ekalinin/github-markdown-toc.go
-
-call:
-gh-md-toc.exe ../Readme.md
-
+Call build script with version number: .\build-compiled-script.ps1 1.1.0  
 --]]
 
 ---IADS Unit Tests
