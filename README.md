@@ -48,6 +48,7 @@ Table of Contents
   * [IADS configuration](#iads-configuration)
     * [Warm up the SAM sites of an IADS](#warm-up-the-sam-sites-of-an-iads)
     * [Adding a command center](#adding-a-command-center)
+    * [Connecting Skynet to the MOOSE AI\_A2A\_DISPATCHER](#connecting-skynet-to-the-moose-ai_a2a_dispatcher)
   * [SAM site configuration](#sam-site-configuration)
     * [Adding SAM sites](#adding-sam-sites)
       * [Add multiple SAM sites](#add-multiple-sam-sites)
@@ -78,6 +79,7 @@ Table of Contents
   * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
   * [Are there known bugs?](#are-there-known-bugs)
   * [How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?](#how-do-i-know-if-a-sam-site-is-in-range-of-an-ew-site-or-a-sam-site-in-ew-mode)
+  * [How do I connect Skynet with the MOOSE AI\_A2A\_DISPATCHER and what are the benefits of that?](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that)
 * [Thanks](#thanks)
 
 # Quick start
