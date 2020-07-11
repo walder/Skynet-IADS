@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.0.0 | BUILD TIME: 11.07.2020 1017Z ---")
+env.info("--- SKYNET VERSION: 1.1.0 | BUILD TIME: 11.07.2020 1144Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -834,7 +834,7 @@ end
 function SkynetIADS:updateIADSCoverage()
 	self:buildSAMSitesInCoveredArea()
 	self:enforceRebuildAutonomousStateOfSAMSites()
-	--update moose connector:
+	--update moose connector with radar group names Skynet is able to use
 	self:getMooseConnector():update()
 end
 
