@@ -8,7 +8,7 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
-You can also connect [Skynet with the AI_A2A_DISPATCHER]#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that) by MOOSE to add interceptors to the IADS.
+You can also connect [Skynet with the AI_A2A_DISPATCHER](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that) by MOOSE to add interceptors to the IADS.
 
 This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=9J9kntzkSQY).
 
