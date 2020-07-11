@@ -309,8 +309,8 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
-### connecting Skynet to the MOOSE AI_A2A_DISPATCHER
-You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to fire SAMs but also to scramble fighters.
+### Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
+You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to direct SAM site but also to scramble fighters.
 Skynet will set the radars it can use on the SET_GROUP object of a dispatcher. Meaning that if a radar is lost in Skynet it will no longer be availabe to detect and scramble interceptors.
 
 Add the object of type SET_GROUP to the iads like this (in this example ```DectionSetGroup```):
@@ -690,10 +690,10 @@ The text marked in the red box will show you which SAM sites are in the covered 
 ![SAM sites in covered area](/images/radar-emitter-status-dcs-log.png) 
 
 ## How do I connect Skynet with the MOOSE AI_A2A_DISPATCHER and what are the benefits of that?
-IRL an IADS would most likely not only handle SAM sites but also pass information to interceptor aircraft. By connecting Skynet to the AI_A2A_DISPATCHER of MOOSE you are able
-to add interceptors to the IADS. See [this function](#connecting-skynet-to-the-moose-ai_a2a_dispatcher) and the [moose_a2a_connector demo mission](demo-missions/moose_a2a_connector) for more information.
+IRL an IADS would most likely not only handle SAM sites but also pass information to interceptor aircraft. By connecting Skynet to the [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html) by MOOSE you are able
+to add interceptors to the IADS. See [Skynet Moose AI_A2A_DISPATCHER](#connecting-skynet-to-the-moose-ai_a2a_dispatcher) and the [moose_a2a_connector demo mission](demo-missions/moose_a2a_connector) for more information.
 
-An example setup of Skynet and the [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html):
+An example setup of Skynet and the [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html) :
 ```lua
 
 --Setup Syknet IADS:
