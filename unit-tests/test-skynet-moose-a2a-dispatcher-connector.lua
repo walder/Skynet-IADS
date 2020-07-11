@@ -23,7 +23,7 @@ function TestMooseA2ADispatcherConnector:testGetEarlyWarningRadarGroupNames()
 		local ewName = ewRadarNames[i]
 		local ewFound = false
 		for j = 1, #usableEWRadars do
-			local ewNameInIADS = usableEWRadars[j]:getDCSName()
+			local ewNameInIADS = usableEWRadars[j]:getDCSRepresentation():getGroup:getName()
 			if ewName == ewNameInIADS then
 				ewFound = true
 			end
@@ -96,18 +96,12 @@ function TestMooseA2ADispatcherConnector:testAddMooseSetGroupAndUpdate()
 		
 		numAddCalls = numAddCalls + 1
 	end
-	
-	local calledFilterStart = 0
-	function mockMooseSetGroup:FilterStart()
-		calledFilterStart = calledFilterStart + 1
-	end
-	
+		
 	self.connector:addMooseSetGroup(mockMooseSetGroup)
 
 	
 	lu.assertEquals(numRemoveCalls, 2)
 	lu.assertEquals(numAddCalls, 2)
-	lu.assertEquals(calledFilterStart, 1)
 end
 
 end

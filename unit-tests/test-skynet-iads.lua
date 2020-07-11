@@ -531,6 +531,56 @@ function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 
 end
 
+--TODO:Finish Unit Test
+function TestSkynetIADS:testAddMooseSetGroup()
+
+	local mockMooseSetGroup = {}
+	local mockMooseConnector = {}
+	local setGroupCalled = false
+	
+	function mockMooseConnector:addMooseSetGroup(group)
+		setGroupCalled = true
+		lu.assertEquals(mockMooseSetGroup, group)
+	end
+	
+	function self.iranIADS:getMooseConnector()
+		return mockMooseConnector
+	end
+	
+	self.iranIADS:addMooseSetGroup(mockMooseSetGroup)
+	lu.assertEquals(setGroupCalled, true)
+end
+
+-- this test ensures all the required calls to update the iads coverage are called
+-- its fully mocked the single functions are unit tested in other test cases
+function TestSkynetIADS:testUpdateIADSCoverage()
+
+	local coveredAreaCalled = false
+	function self.iranIADS:buildSAMSitesInCoveredArea()
+		coveredAreaCalled = true
+	end
+	
+	local enforceBuildAutonomous = false
+	function self.iranIADS:enforceRebuildAutonomousStateOfSAMSites()
+		enforceBuildAutonomous = true
+	end
+	
+	local mockMooseConnector = {}
+	local updateCalled = false
+	function mockMooseConnector:update()
+		updateCalled = true
+	end
+	function self.iranIADS:getMooseConnector()
+		return mockMooseConnector
+	end
+	
+	self.iranIADS:updateIADSCoverage()
+	
+	lu.assertEquals(coveredAreaCalled, true)
+	lu.assertEquals(enforceBuildAutonomous, true)
+	lu.assertEquals(updateCalled, true)
+end
+
 function TestSkynetIADS:testWillSAMSitesWithNoCoverageGoAutonomous()
 	self:tearDown()
 
@@ -668,15 +718,6 @@ function TestSkynetIADS:testSetupSAMSites()
 	lu.assertEquals(numCalls, #self.iranIADS:getSAMSites())
 	lu.assertNotEquals(self.iranIADS.samSetupMistTaskID, nil)
 	lu.assertEquals(self.iranIADS.samSetupTime, 10)
-end
-
---TODO:Finish Unit Test
-function TestSkynetIADS:testAddMooseDispatcher()
-	
-	local mockMooseDispatcher = {}
-	self.iads:addMooseDispatcher(mockMooseDispatcher)
-	self.iads:evaluateContacts()
-	
 end
 
 end

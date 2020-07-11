@@ -28,7 +28,8 @@ iadsDebug.earlyWarningRadarStatusEnvOutput = true
 redIADS:addSAMSitesByPrefix('SAM')
 
 local power = StaticObject.getByName('power-source')
-redIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(power)
+redIADS:addEarlyWarningRadarsByPrefix('EW')
+redIADS:getEarlyWarningRadarByUnitName('EW-1'):addConnectionNode(power)
 
 redIADS:activate()
 
@@ -38,11 +39,6 @@ DetectionSetGroup = SET_GROUP:New()
 
 -- add the MOOSE SET_GROUP to the Skynet IADS, from now on Skynet will update active radars that the MOOSE SET_GROUP can use for EW detection.
 redIADS:addMooseSetGroup(DetectionSetGroup)
-
-
-
---DetectionSetGroup:AddGroupsByName('EW-1')
---DetectionSetGroup:FilterStart()
 
 -- Setup the detection and group targets to a 30km range!
 Detection = DETECTION_AREAS:New( DetectionSetGroup, 30000 )
@@ -65,6 +61,12 @@ A2ADispatcher:SetSquadronGci( "Kutaisi", 900, 1200 )
 A2ADispatcher:SetTacticalDisplay(true)
 A2ADispatcher:Start()
 
-DetectionSetGroup:TraceOnOff(true)
-DetectionSetGroup:TraceAll()
+--test to see which groups are added and removed to the SET_GROUP at runtime by Skynet:
+function outputNames()
+	env.info("IADS Radar Groups added by Skynet:")
+	env.info(DetectionSetGroup:GetObjectNames())
+end
+
+mist.scheduleFunction(outputNames, self, 1, 2)
+--end test
 end

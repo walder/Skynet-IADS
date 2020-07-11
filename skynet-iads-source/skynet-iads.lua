@@ -413,7 +413,7 @@ end
 function SkynetIADS:updateIADSCoverage()
 	self:buildSAMSitesInCoveredArea()
 	self:enforceRebuildAutonomousStateOfSAMSites()
-	--update moose connector:
+	--update moose connector with radar group names Skynet is able to use
 	self:getMooseConnector():update()
 end
 

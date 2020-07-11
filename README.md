@@ -306,6 +306,15 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
+### connecting Skynet to the MOOSE AI_A2A_DISPATCHER
+You can connect Skynet IADS with MOOSE's AI_A2A_DISPATCHER. This allows the IADS not only to fire SAMs but also to scramble fighters.
+Skynet will set the radars it can use on the SET_GROUP object of a dispatcher. Meaning that if a radar is lost in Skynet it will no longer be availabe to detect and scramble interceptors.
+
+Add the object of type SET_GROUP to the iads like this (in this example DectionSetGroup):
+```lua
+redIADS:addMooseSetGroup(DetectionSetGroup)
+```
+
 ## SAM site configuration
 
 ### Adding SAM sites
@@ -652,7 +661,7 @@ This is due to the short range of their radars. By the time the IADS wakes them 
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## What exactly does Skynet do with the SAMS?
-Basically one can only toggle a radar unit's alarm state and its rules of engagement via the scripting enginge. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
+Basically one can toggle a radar unit's controller (on and off), alarm state and its rules of engagement via the scripting enginge. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
 Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
 
 No god like intervention is used (like magically exploding HARMS via the scripting engine).
@@ -677,6 +686,48 @@ The text marked in the red box will show you which SAM sites are in the covered 
 
 ![SAM sites in covered area](https://github.com/walder/Skynet-IADS/raw/master/images/radar-emitter-status-dcs-log.png) 
 
+## How do I connect Skynet with the MOOSE AI_A2A_DISPATCHER and what are the benefits of that?
+IRL an IADS would most likely not only handle SAM sites but also pass information to interceptor aircraft. By connecting Skynet to the AI_A2A_DISPATCHER of MOOSE you are able
+to add interceptors to the IADS. See [this function](#connecting-Skynet-to-the-MOOSE AI_A2A_DISPATCHER) and the [moose_a2a_connector demo mission](demo-missions/moose_a2a_connector) for more information.
+
+This is how you connect Skynet to the MOOSE [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html):
+```lua
+
+--Setup Syknet IADS:
+redIADS = SkynetIADS:create('Enemy IADS')
+redIADS:addSAMSitesByPrefix('SAM')
+redIADS:addEarlyWarningRadarsByPrefix('EW')
+redIADS:activate()
+
+-- START MOOSE CODE:
+
+-- Define a SET_GROUP object that builds a collection of groups that define the EWR network.
+DetectionSetGroup = SET_GROUP:New()
+
+-- Setup the detection and group targets to a 30km range!
+Detection = DETECTION_AREAS:New( DetectionSetGroup, 30000 )
+
+-- Setup the A2A dispatcher, and initialize it.
+A2ADispatcher = AI_A2A_DISPATCHER:New( Detection )
+
+-- Set 100km as the radius to engage any target by airborne friendlies.
+A2ADispatcher:SetEngageRadius() -- 100000 is the default value.
+
+-- Set 200km as the radius to ground control intercept.
+A2ADispatcher:SetGciRadius() -- 200000 is the default value.
+
+CCCPBorderZone = ZONE_POLYGON:New( "RED-BORDER", GROUP:FindByName( "RED-BORDER" ) )
+A2ADispatcher:SetBorderZone( CCCPBorderZone )
+A2ADispatcher:SetSquadron( "Kutaisi", AIRBASE.Caucasus.Kutaisi, { "Squadron red SU-27" }, 2 )
+A2ADispatcher:SetSquadronGrouping( "Kutaisi", 2 )
+A2ADispatcher:SetSquadronGci( "Kutaisi", 900, 1200 )
+A2ADispatcher:SetTacticalDisplay(true)
+A2ADispatcher:Start()
+--END MOOSE CODE
+
+-- add the MOOSE SET_GROUP to the Skynet IADS, from now on Skynet will update active radars that the MOOSE SET_GROUP can use for EW detection
+redIADS:addMooseSetGroup(DetectionSetGroup)
+```
 
 # Thanks
 Special thaks to Spearzone and Coranthia for researching public available information on IADS networks and getting me up to speed on how such a system works.
