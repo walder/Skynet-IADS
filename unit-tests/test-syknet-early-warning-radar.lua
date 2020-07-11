@@ -404,8 +404,8 @@ function TestSkynetIADSEWRadar:testUpdateSAMSitesInCoveredArea()
 	self.iads:addSAMSitesByPrefix('SAM')
 	lu.assertEquals(#self.ewRadar:updateSAMSitesInCoveredArea(), 3)
 	local samSites = self.ewRadar:getSAMSitesInCoveredArea()
-	lu.assertEquals(samSites[1]:getDCSRepresentation():getName(), "SAM-SA-2")
-	lu.assertEquals(samSites[2]:getDCSRepresentation():getName(), "SAM-SA-19")
+	lu.assertEquals(samSites[2]:getDCSRepresentation():getName(), "SAM-SA-2")
+	lu.assertEquals(samSites[1]:getDCSRepresentation():getName(), "SAM-SA-19")
 	lu.assertEquals(samSites[3]:getDCSRepresentation():getName(), "SAM-SA-15")
 end
 end

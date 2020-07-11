@@ -18,8 +18,9 @@ function SkynetMooseA2ADispatcherConnector:addIADS(iads)
 	table.insert(self.iadsCollection, iads)
 end
 
-function SkynetMooseA2ADispatcherConnector:addMooseGroup(mooseGroup)
-	table.insert(self.mooseGroups, mooseGroup)
+function SkynetMooseA2ADispatcherConnector:addMooseSetGroup(mooseSetGroup)
+	table.insert(self.mooseGroups, mooseSetGroup)
+	self:update()
 end
 
 function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
@@ -28,7 +29,7 @@ function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
 		local ewRadars = self.iadsCollection[i]:getUsableEarlyWarningRadars()
 		for j = 1, #ewRadars do
 			local ewRadar = ewRadars[j]
-			table.insert(self.ewRadarGroupNames, ewRadar:getDCSName())
+			table.insert(self.ewRadarGroupNames, ewRadar:getDCSRepresentation():getGroup():getName())
 		end
 	end
 	return self.ewRadarGroupNames
@@ -53,15 +54,16 @@ function SkynetMooseA2ADispatcherConnector:update()
 	
 	--remove previously set group names:
 	for i = 1, #self.mooseGroups do
-		mooseGroup = self.mooseGroups[i]
+		local mooseGroup = self.mooseGroups[i]
 		mooseGroup:RemoveGroupsByName(self.ewRadarGroupNames)
 		mooseGroup:RemoveGroupsByName(self.samSiteGroupNames)
 	end
 	
-	--add current group names of IADS:
-	for j = 1, #self.mooseGroups do
-		mooseGroup = self.mooseGroups[i]
-	
+	--add group names of IADS radars that are currently usable by the IADS:
+	for i = 1, #self.mooseGroups do
+		local mooseGroup = self.mooseGroups[i]
+		mooseGroup:AddGroupsByName(self:getEarlyWarningRadarGroupNames())
+		mooseGroup:AddGroupsByName(self:getSAMSiteGroupNames())
 	end
 end
 

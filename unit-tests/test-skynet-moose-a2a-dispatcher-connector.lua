@@ -23,7 +23,7 @@ function TestMooseA2ADispatcherConnector:testGetEarlyWarningRadarGroupNames()
 		local ewName = ewRadarNames[i]
 		local ewFound = false
 		for j = 1, #usableEWRadars do
-			local ewNameInIADS = usableEWRadars[j]:getDCSName()
+			local ewNameInIADS = usableEWRadars[j]:getDCSRepresentation():getGroup:getName()
 			if ewName == ewNameInIADS then
 				ewFound = true
 			end
@@ -56,8 +56,7 @@ function TestMooseA2ADispatcherConnector:testGetSAMSitesGroupNames()
 	lu.assertEquals(numSams, SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED)
 end
 
---TODO: finish tests for remove groups
-function TestMooseA2ADispatcherConnector:testUpdateMooseGroup()
+function TestMooseA2ADispatcherConnector:testAddMooseSetGroupAndUpdate()
 
 	local mockMooseSetGroup = {}
 	mockMooseSetGroup.connector = self.connector
@@ -74,10 +73,35 @@ function TestMooseA2ADispatcherConnector:testUpdateMooseGroup()
 		end
 	end
 	
-	self.connector:addMooseGroup(mockMooseSetGroup)
-	self.connector:update()
+	local samGroups = {}
+	function self.connector:getSAMSiteGroupNames()
+		return samGroups
+	end
+
+	local ewGroups = {}
+	function self.connector:getEarlyWarningRadarGroupNames()
+		return ewGroups
+	end
+	
+	local numAddCalls = 0
+	function mockMooseSetGroup:AddGroupsByName(groupNames)
+	
+		if numAddCalls == 0 then
+			lu.assertEquals(groupNames, samGroups)
+		end
+		
+		if numAddCalls == 1 then
+			lu.assertEquals(groupNames, ewGroups)
+		end
+		
+		numAddCalls = numAddCalls + 1
+	end
+		
+	self.connector:addMooseSetGroup(mockMooseSetGroup)
+
 	
 	lu.assertEquals(numRemoveCalls, 2)
+	lu.assertEquals(numAddCalls, 2)
 end
 
 end

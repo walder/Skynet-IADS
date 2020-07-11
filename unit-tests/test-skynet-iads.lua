@@ -4,16 +4,16 @@ TestSkynetIADS = {}
 function TestSkynetIADS:setUp()
 	self.numSAMSites = SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED 
 	self.numEWSites = SKYNET_UNIT_TESTS_NUM_EW_SITES_RED
-	self.iranIADS = SkynetIADS:create()
-	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
-	self.iranIADS:addSAMSitesByPrefix('SAM')
+	self.testIADS = SkynetIADS:create()
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.testIADS:addSAMSitesByPrefix('SAM')
 end
 
 function TestSkynetIADS:tearDown()
-	if	self.iranIADS then
-		self.iranIADS:deactivate()
+	if	self.testIADS then
+		self.testIADS:deactivate()
 	end
-	self.iranIADS = nil
+	self.testIADS = nil
 end
 
 -- this function checks constants in DCS that the IADS relies on. A change to them might indicate that functionallity is broken.
@@ -28,32 +28,32 @@ end
 
 function TestSkynetIADS:testCaclulateNumberOfSamSitesAndEWRadars()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
-	lu.assertEquals(#self.iranIADS:getSAMSites(), 0)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 0)
-	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
-	self.iranIADS:addSAMSitesByPrefix('SAM')
-	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), self.numEWSites)
+	self.testIADS = SkynetIADS:create()
+	lu.assertEquals(#self.testIADS:getSAMSites(), 0)
+	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), 0)
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.testIADS:addSAMSitesByPrefix('SAM')
+	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
+	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), self.numEWSites)
 end
 
 function TestSkynetIADS:testCaclulateNumberOfSamSitesAndEWRadarsWhenAddMethodsCalledTwice()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
-	lu.assertEquals(#self.iranIADS:getSAMSites(), 0)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 0)
-	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
-	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
-	self.iranIADS:addSAMSitesByPrefix('SAM')
-	self.iranIADS:addSAMSitesByPrefix('SAM')
-	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), self.numEWSites)
+	self.testIADS = SkynetIADS:create()
+	lu.assertEquals(#self.testIADS:getSAMSites(), 0)
+	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), 0)
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.testIADS:addSAMSitesByPrefix('SAM')
+	self.testIADS:addSAMSitesByPrefix('SAM')
+	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
+	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), self.numEWSites)
 end
 
 function TestSkynetIADS:testDoubleActivateCall()
-	self.iranIADS:activate()
-	self.iranIADS:activate()
-	local ews = self.iranIADS:getEarlyWarningRadars()
+	self.testIADS:activate()
+	self.testIADS:activate()
+	local ews = self.testIADS:getEarlyWarningRadars()
 	for i = 1, #ews do
 		local ew = ews[i]
 		local category = ew:getDCSRepresentation():getDesc().category
@@ -66,16 +66,16 @@ end
 
 function TestSkynetIADS:testWrongCaseStringWillNotLoadSAMGroup()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
-	self.iranIADS:addSAMSitesByPrefix('sam')
-	lu.assertEquals(#self.iranIADS:getSAMSites(), 0)
+	self.testIADS = SkynetIADS:create()
+	self.testIADS:addSAMSitesByPrefix('sam')
+	lu.assertEquals(#self.testIADS:getSAMSites(), 0)
 end	
 
 function TestSkynetIADS:testWrongCaseStringWillNotLoadEWRadars()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
-	self.iranIADS:addEarlyWarningRadarsByPrefix('ew')
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 0)
+	self.testIADS = SkynetIADS:create()
+	self.testIADS:addEarlyWarningRadarsByPrefix('ew')
+	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), 0)
 end	
 
 function TestSkynetIADS:testEvaluateContacts1EWAnd1SAMSiteWithContactInRange()
@@ -110,7 +110,7 @@ function TestSkynetIADS:testEvaluateContacts1EWAnd1SAMSiteWithContactInRange()
 end
 
 function TestSkynetIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
-	local ewRadar = self.iranIADS:getEarlyWarningRadarByUnitName('EW-west')
+	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west')
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
 end
 
@@ -214,27 +214,27 @@ end
 
 function TestSkynetIADS:testSAMSiteLoosesPower()
 	local powerSource = StaticObject.getByName('SA-6 Power')
-	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):addPowerSource(powerSource)
-	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites)
+	local samSite = self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):addPowerSource(powerSource)
+	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites)
 	lu.assertEquals(samSite:isActive(), false)
 	samSite:goLive()
 	lu.assertEquals(samSite:isActive(), true)
 	trigger.action.explosion(powerSource:getPosition().p, 100)
-	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites-1)
+	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites-1)
 	lu.assertEquals(samSite:isActive(), false)
 end
 
 function TestSkynetIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
-	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):addConnectionNode(sa6ConnectionNode)
-	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
-	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites)
+	self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):addConnectionNode(sa6ConnectionNode)
+	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
+	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites)
 	trigger.action.explosion(sa6ConnectionNode:getPosition().p, 100)
-	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites-1)
+	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites-1)
 
-	lu.assertEquals(#self.iranIADS:getUsableSAMSites(), self.numSAMSites-1)
-	lu.assertEquals(#self.iranIADS:getSAMSites(), self.numSAMSites)
-	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6')
+	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites-1)
+	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
+	local samSite = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
 	lu.assertEquals(samSite:isActive(), true)
 
 	lu.assertEquals(samSite:getAutonomousState(), true)
@@ -243,9 +243,9 @@ end
 
 function TestSkynetIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 	local sa6ConnectionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
-	local samSite = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
+	local samSite = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSite:isActive(), false)
-	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(sa6ConnectionNode2):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(sa6ConnectionNode2):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), true)
 	trigger.action.explosion(sa6ConnectionNode2:getPosition().p, 100)
 	lu.assertEquals(samSite:hasActiveConnectionNode(), false)
@@ -256,23 +256,23 @@ end
 function TestSkynetIADS:testOneCommandCenterIsDestroyed()
 	local powerStation1 = StaticObject.getByName("Command Center Power")
 	local commandCenter1 = StaticObject.getByName("Command Center")	
-	lu.assertEquals(#self.iranIADS:getCommandCenters(), 0)
-	self.iranIADS:addCommandCenter(commandCenter1):addPowerSource(powerStation1)
-	lu.assertEquals(#self.iranIADS:getCommandCenters(), 1)
-	lu.assertEquals(self.iranIADS:isCommandCenterUsable(), true)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 0)
+	self.testIADS:addCommandCenter(commandCenter1):addPowerSource(powerStation1)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
 	trigger.action.explosion(commandCenter1:getPosition().p, 10000)
-	lu.assertEquals(#self.iranIADS:getCommandCenters(), 1)
-	lu.assertEquals(self.iranIADS:isCommandCenterUsable(), false)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
 end
 
 function TestSkynetIADS:testSetSamSitesToAutonomous()
-	local samSiteDark = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6')
-	local samSiteActive = self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
+	local samSiteDark = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
+	local samSiteActive = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), false)
-	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-	self.iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
-	self.iranIADS:setSAMSitesToAutonomousMode()
+	self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
+	self.testIADS:setSAMSitesToAutonomousMode()
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), true)
 	samSiteActive:goDark()
@@ -282,9 +282,9 @@ end
 function TestSkynetIADS:testSetOptionsForSAMSiteType()
 	local powerSource = StaticObject.getByName('SA-11-power-source')
 	local connectionNode = StaticObject.getByName('SA-11-connection-node')
-	lu.assertEquals(#self.iranIADS:getSAMSitesByNatoName('SA-6'), 2)
-	--lu.assertIs(getmetatable(self.iranIADS:getSAMSitesByNatoName('SA-6')), SkynetIADSTableForwarder)
-	local samSites = self.iranIADS:getSAMSitesByNatoName('SA-6'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	lu.assertEquals(#self.testIADS:getSAMSitesByNatoName('SA-6'), 2)
+	--lu.assertIs(getmetatable(self.testIADS:getSAMSitesByNatoName('SA-6')), SkynetIADSTableForwarder)
+	local samSites = self.testIADS:getSAMSitesByNatoName('SA-6'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(#samSites, 2)
 	for i = 1, #samSites do
 		local samSite = samSites[i]
@@ -299,8 +299,8 @@ end
 
 function TestSkynetIADS:testSetOptionsForAllAddedSamSitesByPrefix()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
-	local samSites = self.iranIADS:addSAMSitesByPrefix('SAM'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	self.testIADS = SkynetIADS:create()
+	local samSites = self.testIADS:addSAMSitesByPrefix('SAM'):setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(#samSites, self.numSAMSites)
 	for i = 1, #samSites do
 		local samSite = samSites[i]
@@ -314,7 +314,7 @@ function TestSkynetIADS:testSetOptionsForAllAddedSamSitesByPrefix()
 end
 
 function TestSkynetIADS:testSetOptionsForAllAddedSAMSites()
-	local samSites = self.iranIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	local samSites = self.testIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	lu.assertEquals(#samSites, self.numSAMSites)
 	for i = 1, #samSites do
 		local samSite = samSites[i]
@@ -329,8 +329,8 @@ end
 
 function TestSkynetIADS:testSetOptionsForAllAddedEWSitesByPrefix()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
-	local ewSites = self.iranIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(powerSource):addConnectionNode(connectionNode)
+	self.testIADS = SkynetIADS:create()
+	local ewSites = self.testIADS:addEarlyWarningRadarsByPrefix('EW'):addPowerSource(powerSource):addConnectionNode(connectionNode)
 	lu.assertEquals(#ewSites, self.numEWSites)
 	for i = 1, #ewSites do
 		local ewSite = ewSites[i]
@@ -341,7 +341,7 @@ function TestSkynetIADS:testSetOptionsForAllAddedEWSitesByPrefix()
 end
 
 function TestSkynetIADS:testSetOptionsForAllAddedEWSites()
-	local ewSites = self.iranIADS:getEarlyWarningRadars()
+	local ewSites = self.testIADS:getEarlyWarningRadars()
 	lu.assertEquals(#ewSites, self.numEWSites)
 	for i = 1, #ewSites do
 		local ewSite = ewSites[i]
@@ -354,27 +354,27 @@ end
 function TestSkynetIADS:testOneCommandCenterLoosesPower()
 	local commandCenter2Power = StaticObject.getByName("Command Center2 Power")
 	local commandCenter2 = StaticObject.getByName("Command Center2")
-	lu.assertEquals(#self.iranIADS:getCommandCenters(), 0)
-	lu.assertEquals(self.iranIADS:isCommandCenterUsable(), true)
-	local comCenter = self.iranIADS:addCommandCenter(commandCenter2):addPowerSource(commandCenter2Power)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 0)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
+	local comCenter = self.testIADS:addCommandCenter(commandCenter2):addPowerSource(commandCenter2Power)
 	lu.assertEquals(#comCenter:getPowerSources(), 1)
-	lu.assertEquals(#self.iranIADS:getCommandCenters(), 1)
-	lu.assertEquals(self.iranIADS:isCommandCenterUsable(), true)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
 	trigger.action.explosion(commandCenter2Power:getPosition().p, 10000)
-	lu.assertEquals(#self.iranIADS:getCommandCenters(), 1)
-	lu.assertEquals(self.iranIADS:isCommandCenterUsable(), false)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
 end
 
 function TestSkynetIADS:testMergeContacts()
-	lu.assertEquals(#self.iranIADS:getContacts(), 0)
-	self.iranIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
-	lu.assertEquals(#self.iranIADS:getContacts(), 1)
+	lu.assertEquals(#self.testIADS:getContacts(), 0)
+	self.testIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
+	lu.assertEquals(#self.testIADS:getContacts(), 1)
 	
-	self.iranIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
-	lu.assertEquals(#self.iranIADS:getContacts(), 1)
+	self.testIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
+	lu.assertEquals(#self.testIADS:getContacts(), 1)
 	
-	self.iranIADS:mergeContact(IADSContactFactory('test-in-firing-range-of-sa-2'))
-	lu.assertEquals(#self.iranIADS:getContacts(), 2)
+	self.testIADS:mergeContact(IADSContactFactory('test-in-firing-range-of-sa-2'))
+	lu.assertEquals(#self.testIADS:getContacts(), 2)
 	
 end
 
@@ -400,45 +400,45 @@ end
 
 function TestSkynetIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsOrStaticObjectsWithSamePrefix()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
+	self.testIADS = SkynetIADS:create()
 	local calledPrint = false
-	function self.iranIADS:printOutput(str, isWarning)
+	function self.testIADS:printOutput(str, isWarning)
 		calledPrint = true
 	end
-	self.iranIADS:addSAMSitesByPrefix('prefixtest')
-	lu.assertEquals(#self.iranIADS:getSAMSites(), 1)
+	self.testIADS:addSAMSitesByPrefix('prefixtest')
+	lu.assertEquals(#self.testIADS:getSAMSites(), 1)
 	lu.assertEquals(calledPrint, false)
 end
 
 function TestSkynetIADS:testOnlyLoadGroupsWithPrefixForSAMSiteNotOtherUnitsOrStaticObjectsWithSamePrefix2()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
+	self.testIADS = SkynetIADS:create()
 	local calledPrint = false
-	function self.iranIADS:printOutput(str, isWarning)
+	function self.testIADS:printOutput(str, isWarning)
 		calledPrint = true
 	end
 	--happened when the string.find method was not set to plain special characters messed up the regex pattern
-	self.iranIADS:addSAMSitesByPrefix('IADS-EW')
-	lu.assertEquals(#self.iranIADS:getSAMSites(), 1)
+	self.testIADS:addSAMSitesByPrefix('IADS-EW')
+	lu.assertEquals(#self.testIADS:getSAMSites(), 1)
 	lu.assertEquals(calledPrint, false)
 end
 
 function TestSkynetIADS:testOnlyLoadUnitsWithPrefixForEWSiteNotStaticObjectssWithSamePrefix()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
+	self.testIADS = SkynetIADS:create()
 	local calledPrint = false
-	function self.iranIADS:printOutput(str, isWarning)
+	function self.testIADS:printOutput(str, isWarning)
 		calledPrint = true
 	end
-	self.iranIADS:addEarlyWarningRadarsByPrefix('prefixewtest')
-	lu.assertEquals(#self.iranIADS:getEarlyWarningRadars(), 1)
+	self.testIADS:addEarlyWarningRadarsByPrefix('prefixewtest')
+	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), 1)
 	lu.assertEquals(calledPrint, false)
 end
 
 function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 	
 	-- make sure we don't get any targets in the test mission
-	local ewRadars = self.iranIADS:getEarlyWarningRadars()
+	local ewRadars = self.testIADS:getEarlyWarningRadars()
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
 		function ewRadar:getDetectedTargets()
@@ -447,7 +447,7 @@ function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 	end
 	
 	
-	local samSites = self.iranIADS:getSAMSites()
+	local samSites = self.testIADS:getSAMSites()
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		function samSite:getDetectedTargets()
@@ -456,9 +456,9 @@ function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 	end
 	
 
-	self.iranIADS:evaluateContacts()
+	self.testIADS:evaluateContacts()
 	-- verifies we have a clean test setup
-	lu.assertEquals(#self.iranIADS.contacts, 0)
+	lu.assertEquals(#self.testIADS.contacts, 0)
 	
 
 	
@@ -472,20 +472,20 @@ function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 	end
 	
 	
-	table.insert(self.iranIADS.contacts, mockContactGroundUnit)
+	table.insert(self.testIADS.contacts, mockContactGroundUnit)
 	
 	local correlatedCalled = false
-	function self.iranIADS:correlateWithSAMSites(contact)
+	function self.testIADS:correlateWithSAMSites(contact)
 		correlatedCalled = true
 	end
 	
-	self.iranIADS:evaluateContacts()
+	self.testIADS:evaluateContacts()
 	lu.assertEquals(correlatedCalled, false)
-	lu.assertEquals(#self.iranIADS.contacts, 1)
+	lu.assertEquals(#self.testIADS.contacts, 1)
 	
 	
 	
-	self.iranIADS.contacts = {}
+	self.testIADS.contacts = {}
 	
 	-- ships should not be passed to the SAM	
 	local mockContactShip = {}
@@ -496,17 +496,17 @@ function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 		return 0
 	end
 	
-	table.insert(self.iranIADS.contacts, mockContactShip)
+	table.insert(self.testIADS.contacts, mockContactShip)
 	
 	correlatedCalled = false
-	function self.iranIADS:correlateWithSAMSites(contact)
+	function self.testIADS:correlateWithSAMSites(contact)
 		correlatedCalled = true
 	end
-	self.iranIADS:evaluateContacts()
+	self.testIADS:evaluateContacts()
 	lu.assertEquals(correlatedCalled, false)
-	lu.assertEquals(#self.iranIADS.contacts, 1)
+	lu.assertEquals(#self.testIADS.contacts, 1)
 	
-	self.iranIADS.contacts = {}
+	self.testIADS.contacts = {}
 	
 	-- aircraft should be passed to the SAM	
 	local mockContactAirplane = {}
@@ -517,33 +517,83 @@ function TestSkynetIADS:testDontPassShipsGroundUnitsAndStructuresToSAMSites()
 		return 0
 	end
 	
-	table.insert(self.iranIADS.contacts, mockContactAirplane)
+	table.insert(self.testIADS.contacts, mockContactAirplane)
 	
 	correlatedCalled = false
-	function self.iranIADS:correlateWithSAMSites(contact)
+	function self.testIADS:correlateWithSAMSites(contact)
 	--	correlatedCalled = true
 	end
-	self.iranIADS:evaluateContacts()
+	self.testIADS:evaluateContacts()
 	--TODO: FIX TEST
 	--lu.assertEquals(correlatedCalled, true)
-	lu.assertEquals(#self.iranIADS.contacts, 1)
-	self.iranIADS.contacts = {}
+	lu.assertEquals(#self.testIADS.contacts, 1)
+	self.testIADS.contacts = {}
 
+end
+
+--TODO:Finish Unit Test
+function TestSkynetIADS:testAddMooseSetGroup()
+
+	local mockMooseSetGroup = {}
+	local mockMooseConnector = {}
+	local setGroupCalled = false
+	
+	function mockMooseConnector:addMooseSetGroup(group)
+		setGroupCalled = true
+		lu.assertEquals(mockMooseSetGroup, group)
+	end
+	
+	function self.testIADS:getMooseConnector()
+		return mockMooseConnector
+	end
+	
+	self.testIADS:addMooseSetGroup(mockMooseSetGroup)
+	lu.assertEquals(setGroupCalled, true)
+end
+
+-- this test ensures all the required calls to update the iads coverage are called
+-- its fully mocked the single functions are unit tested in other test cases
+function TestSkynetIADS:testUpdateIADSCoverage()
+
+	local coveredAreaCalled = false
+	function self.testIADS:buildSAMSitesInCoveredArea()
+		coveredAreaCalled = true
+	end
+	
+	local enforceBuildAutonomous = false
+	function self.testIADS:enforceRebuildAutonomousStateOfSAMSites()
+		enforceBuildAutonomous = true
+	end
+	
+	local mockMooseConnector = {}
+	local updateCalled = false
+	function mockMooseConnector:update()
+		updateCalled = true
+	end
+	function self.testIADS:getMooseConnector()
+		return mockMooseConnector
+	end
+	
+	self.testIADS:updateIADSCoverage()
+	
+	lu.assertEquals(coveredAreaCalled, true)
+	lu.assertEquals(enforceBuildAutonomous, true)
+	lu.assertEquals(updateCalled, true)
 end
 
 function TestSkynetIADS:testWillSAMSitesWithNoCoverageGoAutonomous()
 	self:tearDown()
 
-	self.iranIADS = SkynetIADS:create()
+	self.testIADS = SkynetIADS:create()
 	
-	local autonomousSAM = self.iranIADS:addSAMSite('test-SAM-SA-2-test')
-	local nonAutonomousSAM = self.iranIADS:addSAMSite('SAM-SA-6')
-	local ewSAM = self.iranIADS:addSAMSite('SAM-SA-10'):setActAsEW(true)
-	local sa15 = self.iranIADS:addSAMSite('SAM-SA-15-1')
+	local autonomousSAM = self.testIADS:addSAMSite('test-SAM-SA-2-test')
+	local nonAutonomousSAM = self.testIADS:addSAMSite('SAM-SA-6')
+	local ewSAM = self.testIADS:addSAMSite('SAM-SA-10'):setActAsEW(true)
+	local sa15 = self.testIADS:addSAMSite('SAM-SA-15-1')
 	
-	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW')
 	
-	self.iranIADS:updateIADSCoverage()
+	self.testIADS:updateIADSCoverage()
 	
 	lu.assertEquals(autonomousSAM:getAutonomousState(), true)
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
@@ -553,12 +603,12 @@ end
 
 function TestSkynetIADS:testSAMSiteLoosesConnectionThenAddANewOneAgain()
 	self:tearDown()
-	self.iranIADS = SkynetIADS:create()
+	self.testIADS = SkynetIADS:create()
 	local connectionNode = StaticObject.getByName('SA-6 Connection Node-autonomous-test')
-	local nonAutonomousSAM = self.iranIADS:addSAMSite('SAM-SA-6'):addConnectionNode(connectionNode)
-	self.iranIADS:addEarlyWarningRadarsByPrefix('EW')
+	local nonAutonomousSAM = self.testIADS:addSAMSite('SAM-SA-6'):addConnectionNode(connectionNode)
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW')
 	
-	self.iranIADS:updateIADSCoverage()
+	self.testIADS:updateIADSCoverage()
 	
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
 	trigger.action.explosion(connectionNode:getPosition().p, 500)
@@ -602,7 +652,7 @@ end
 
 function TestSkynetIADS:testGetSAMSitesByPrefix()
 	self:setUp();
-	local samSites = self.iranIADS:getSAMSitesByPrefix('SAM-SA-15')
+	local samSites = self.testIADS:getSAMSitesByPrefix('SAM-SA-15')
 	lu.assertEquals(#samSites, 3)
 end
 
@@ -652,11 +702,9 @@ function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWillTriggerAutonomousState
 end
 
 function TestSkynetIADS:testSetupSAMSites()
-	self:setUp()
-	
 	local numCalls = 0
 	
-	local sams = self.iranIADS:getSAMSites()
+	local sams = self.testIADS:getSAMSites()
 	for i = 1, #sams do
 		local sam = sams[i]
 		function sam:goLive()
@@ -664,12 +712,12 @@ function TestSkynetIADS:testSetupSAMSites()
 		end
 	end
 
-	lu.assertEquals(self.iranIADS.samSetupMistTaskID, nil)
-	lu.assertEquals(self.iranIADS.samSetupTime, 60)
-	self.iranIADS:setupSAMSitesAndThenActivate(10)
-	lu.assertEquals(numCalls, #self.iranIADS:getSAMSites())
-	lu.assertNotEquals(self.iranIADS.samSetupMistTaskID, nil)
-	lu.assertEquals(self.iranIADS.samSetupTime, 10)
+	lu.assertEquals(self.testIADS.samSetupMistTaskID, nil)
+	lu.assertEquals(self.testIADS.samSetupTime, 60)
+	self.testIADS:setupSAMSitesAndThenActivate(10)
+	lu.assertEquals(numCalls, #self.testIADS:getSAMSites())
+	lu.assertNotEquals(self.testIADS.samSetupMistTaskID, nil)
+	lu.assertEquals(self.testIADS.samSetupTime, 10)
 end
 
 end

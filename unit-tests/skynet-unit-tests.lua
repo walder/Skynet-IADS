@@ -13,9 +13,12 @@ SA-3
 Patriot
 ]]--
 
---[[ Compile Scripts:
+--[[
+Create Table of Contents from markdown with:
+https://github.com/ekalinin/github-markdown-toc.go
 
-echo -- BUILD Timestamp: %DATE% %TIME% > skynet-iads-compiled.lua && type skynet-iads-supported-types.lua skynet-iads.lua  skynet-iads-table-delegator.lua skynet-iads-abstract-dcs-object-wrapper.lua skynet-iads-abstract-element.lua skynet-iads-abstract-radar-element.lua skynet-iads-awacs-radar.lua skynet-iads-command-center.lua skynet-iads-contact.lua skynet-iads-early-warning-radar.lua skynet-iads-jammer.lua skynet-iads-sam-search-radar.lua skynet-iads-sam-site.lua skynet-iads-sam-tracking-radar.lua syknet-iads-sam-launcher.lua >> skynet-iads-compiled.lua;
+call:
+gh-md-toc.exe ../Readme.md
 
 --]]
 

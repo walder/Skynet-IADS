@@ -1,4 +1,4 @@
--- BUILD Timestamp: 08.07.2020 18:51:51.15  
+env.info("--- SKYNET VERSION: 1.1.0 | BUILD TIME: 11.07.2020 1144Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -761,7 +761,7 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = ewRadars[i]
 		--call go live in case ewRadar had to shut down (HARM attack)
 		ewRadar:goLive()
-		-- if a awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
+		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
 			self:updateAutonomousStatesOfSAMSites()
 		end
@@ -788,8 +788,8 @@ function SkynetIADS.evaluateContacts(self)
 	for samName, samToTrigger in pairs(samSitesToTrigger) do
 		for j = 1, #self.contacts do
 			local contact = self.contacts[j]
-			-- the DCS Radar only returns enemy aircraft, if that should change an coalition check will be required
-			-- currently every type of object in the air is handed of to the sam site, including missiles
+			-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
+			-- currently every type of object in the air is handed of to the SAM site, including missiles
 			local description = contact:getDesc()
 			local category = description.category
 			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
@@ -834,6 +834,8 @@ end
 function SkynetIADS:updateIADSCoverage()
 	self:buildSAMSitesInCoveredArea()
 	self:enforceRebuildAutonomousStateOfSAMSites()
+	--update moose connector with radar group names Skynet is able to use
+	self:getMooseConnector():update()
 end
 
 function SkynetIADS:updateAutonomousStatesOfSAMSites(deadUnit)
@@ -986,6 +988,17 @@ function SkynetIADS:getCoalitionString()
 	end
 	
 	return coalitionStr
+end
+
+function SkynetIADS:getMooseConnector()
+	if self.mooseConnector == nil then
+		self.mooseConnector = SkynetMooseA2ADispatcherConnector:create(self)
+	end
+	return self.mooseConnector
+end
+
+function SkynetIADS:addMooseSetGroup(mooseSetGroup)
+	self:getMooseConnector():addMooseSetGroup(mooseSetGroup)
 end
 
 function SkynetIADS:printDetailedEarlyWarningRadarStatus()
@@ -1240,6 +1253,76 @@ function SkynetIADS:printSystemStatus()
 	
 	if self:getDebugSettings().samSiteStatusEnvOutput then
 		self:printDetailedSAMSiteStatus()
+	end
+end
+
+end
+do
+
+SkynetMooseA2ADispatcherConnector = {}
+
+function SkynetMooseA2ADispatcherConnector:create(iads)
+	local instance = {}
+	setmetatable(instance, self)
+	self.__index = self
+	instance.iadsCollection = {}
+	instance.mooseGroups = {}
+	instance.ewRadarGroupNames = {}
+	instance.samSiteGroupNames = {}
+	table.insert(instance.iadsCollection, iads)
+	return instance
+end
+
+function SkynetMooseA2ADispatcherConnector:addIADS(iads)
+	table.insert(self.iadsCollection, iads)
+end
+
+function SkynetMooseA2ADispatcherConnector:addMooseSetGroup(mooseSetGroup)
+	table.insert(self.mooseGroups, mooseSetGroup)
+	self:update()
+end
+
+function SkynetMooseA2ADispatcherConnector:getEarlyWarningRadarGroupNames()
+	self.ewRadarGroupNames = {}
+	for i = 1, #self.iadsCollection do
+		local ewRadars = self.iadsCollection[i]:getUsableEarlyWarningRadars()
+		for j = 1, #ewRadars do
+			local ewRadar = ewRadars[j]
+			table.insert(self.ewRadarGroupNames, ewRadar:getDCSRepresentation():getGroup():getName())
+		end
+	end
+	return self.ewRadarGroupNames
+end
+
+function SkynetMooseA2ADispatcherConnector:getSAMSiteGroupNames()
+	self.samSiteGroupNames = {}
+	for i = 1, #self.iadsCollection do
+		local samSites = self.iadsCollection[i]:getUsableSAMSites()
+		for j = 1, #samSites do
+			local samSite = samSites[j]
+			table.insert(self.samSiteGroupNames, samSite:getDCSName())
+		end
+	end
+	return self.samSiteGroupNames
+end
+
+function SkynetMooseA2ADispatcherConnector:update()
+	
+	--mooseGroup elements are type of:
+	--https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/Core.Set.html##(SET_GROUP)
+	
+	--remove previously set group names:
+	for i = 1, #self.mooseGroups do
+		local mooseGroup = self.mooseGroups[i]
+		mooseGroup:RemoveGroupsByName(self.ewRadarGroupNames)
+		mooseGroup:RemoveGroupsByName(self.samSiteGroupNames)
+	end
+	
+	--add group names of IADS radars that are currently usable by the IADS:
+	for i = 1, #self.mooseGroups do
+		local mooseGroup = self.mooseGroups[i]
+		mooseGroup:AddGroupsByName(self:getEarlyWarningRadarGroupNames())
+		mooseGroup:AddGroupsByName(self:getSAMSiteGroupNames())
 	end
 end
 
