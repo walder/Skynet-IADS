@@ -1,5 +1,5 @@
 # Skynet-IADS
-![logo](https://github.com/walder/Skynet-IADS/raw/master/images/SA3_2.jpg)
+![logo](/images/SA3_2.jpg)
 
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
@@ -79,10 +79,10 @@ Table of Contents
 * [Thanks](#thanks)
 
 # Quick start
-Tired of reading already? Download the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.
+Tired of reading already? Download the [demo mission](/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.
 
 # Skynet IADS Elements
-![Skynet IADS overview](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-overview.jpeg)
+![Skynet IADS overview](/images/skynet-overview.jpeg)
 
 ## IADS
 A Skynet IADS is a complete operational network. You can have multiple Skynet IADS instances per coalition in a DCS mission. A simple setup would be one IADS for the blue side and one IADS for the red side.
@@ -106,7 +106,7 @@ SAM sites will go autonomous in such a case meaning they will use their organic 
 Once a SAM site is within EW radar coverage again it will be updated by the IADS.
 
 ## Early Warning Radars
-Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar listed after the comment ```--- Start of EW radars:``` in [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) in an EW role in Skynet. 
+Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar listed after the comment ```--- Start of EW radars:``` in [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) in an EW role in Skynet. 
 Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
 You can also designate SAM sites to act as EW radars, in this case a SAM site will constantly have their radar on. Long range systems like the S-300 are used as EW radars in real life.
@@ -152,7 +152,7 @@ The site will calculate time to impact and shut down a random value between a fe
 This implementation is closer to real life. SAM sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
-See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
+See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
 
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
@@ -192,31 +192,31 @@ Here is an old school documentary [showing the Prowler in action](https://www.yo
 I suppose that must have been the effective range of 70's jamming tech.
 
 # Using Skynet in the mission editor
-It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder.
+It's quite simple to setup an IADS have a look at the demo missions in the [/demo-missions/](/demo-missions) folder.
 
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
 Place the IADS elements you wish to add on the map.
-![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup.png)  
+![Mission Editor IADS Setup](/images/iads-setup.png)  
 
 ## Preparing a SAM site
 There should be only be one SAM site type per group. If different SAM sites are mixed in one group distance calculation for the IADS will be messed up.
 The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
-![Mission Editor add SAM site](https://github.com/walder/Skynet-IADS/raw/master/images/add-sam-site.png)  
+![Mission Editor add SAM site](/images/add-sam-site.png)  
 
 ## Preparing an EW radar
 You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'.  
-![Mission Editor EW radar](https://github.com/walder/Skynet-IADS/raw/master/images/ew-setup.png)  
+![Mission Editor EW radar](/images/ew-setup.png)  
 
 ## Adding the Skynet Code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](https://github.com/walder/Skynet-IADS/tree/master/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](https://github.com/walder/Skynet-IADS/tree/master/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](https://github.com/walder/Skynet-IADS/tree/master/demo-missions) folder. 
-![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/load-scripts.png)  
+Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
+![Mission Editor IADS Setup](/images/load-scripts.png)  
 
 ## Setting up yor IADS
 I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
-![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/iads-setup-code.png)  
+![Mission Editor IADS Setup](/images/iads-setup-code.png)  
 
 ## Adding the Skynet IADS
 For the IADS to work you need four lines of code.
@@ -269,13 +269,16 @@ redIADS:setUpdateInterval(5)
 ```
 
 ### Warm up the SAM sites of an IADS
-Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire. This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
+Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire.
+This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
 
-If you start your mission at a friendly base far away from the enemy IADS this in no big deal. If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
+If you start your mission at a friendly base far away from the enemy IADS this in no big deal.
+If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
 
 This function will not shorten the time from a radar lock until a SAM site fires. It will however reduce total reaction time of a SAM site after beeing notified by Skynet to go live. 
 
-For example: the SA-15 Tor needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state. Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR (radar warning receiver) for 8 seconds.
+For example: the SA-15 Tor needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state.
+Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR (radar warning receiver) for 8 seconds.
 
  By default Skynet will activate the SAMs for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
 ```lua
@@ -307,10 +310,10 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
 ### connecting Skynet to the MOOSE AI_A2A_DISPATCHER
-You can connect Skynet IADS with MOOSE's AI_A2A_DISPATCHER. This allows the IADS not only to fire SAMs but also to scramble fighters.
+You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to fire SAMs but also to scramble fighters.
 Skynet will set the radars it can use on the SET_GROUP object of a dispatcher. Meaning that if a radar is lost in Skynet it will no longer be availabe to detect and scramble interceptors.
 
-Add the object of type SET_GROUP to the iads like this (in this example DectionSetGroup):
+Add the object of type SET_GROUP to the iads like this (in this example ```DectionSetGroup```):
 ```lua
 redIADS:addMooseSetGroup(DetectionSetGroup)
 ```
@@ -334,7 +337,7 @@ redIADS:addSAMSite('SA-6 Group2')
 ### Accessing SAM sites in the IADS
 The following functions exist to access SAM sites added to the IADS. They all support daisy chaining options:
 
-Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with 'SA-': Don't add Nato code names (Guideline, Gainful), just write 'SA-2', 'SA-6':
+Returns all SAM sites with the corresponding Nato name, see [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua). For all units beginning with 'SA-': Don't add Nato code names (Guideline, Gainful), just write 'SA-2', 'SA-6':
 ```lua
 redIADS:getSAMSitesByNatoName('SA-6')
 ```
@@ -441,7 +444,7 @@ ewRadarOrSamSite:addConnectionNode(connectionNode)
 ```
 
 ### HARM Defence
-You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
+You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
 ```lua
 ewRadarOrSamSite:setHARMDetectionChance(50)
 ```
@@ -480,7 +483,7 @@ SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an aircraft in the strike package.
 Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#debug-information) to see what the jammer is doing.
-Check [skynet-iads-jammer.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
+Check [skynet-iads-jammer.lua](/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
 
 Remember to set the AI aircraft acting as jammer in the Mission editor to ```Reaction to Threat = EVADE FIRE``` otherwise the AI will try and actively attack the SAM site.
 This way it will stick to the preset flight plan.
@@ -561,10 +564,10 @@ iadsDebug.harmDefence = true
 iadsDebug.samSiteStatusEnvOutput = true
 iadsDebug.earlyWarningRadarStatusEnvOutput = true
 ```
-![Mission Editor IADS Setup](https://github.com/walder/Skynet-IADS/raw/master/images/skynet-debug.png)  
+![Mission Editor IADS Setup](/images/skynet-debug.png)  
 
 # Example Setup
-This is an example of how you can set up your IADS used in the [demo mission](https://github.com/walder/Skynet-IADS/blob/master/demo-missions/skynet-test-persian-gulf.miz):
+This is an example of how you can set up your IADS used in the [demo mission](/demo-missions/skynet-test-persian-gulf.miz):
 ```lua
 do
 
@@ -655,7 +658,7 @@ end
 # FAQ
 
 ## What air defence units shall I add to the Skynet IADS?
-In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](https://github.com/walder/Skynet-IADS/blob/master/skynet-iads-source/skynet-iads-supported-types.lua) file. 
+In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](skynet-iads-source/skynet-iads-supported-types.lua) file. 
 Very short range units (like the Shilka AAA, Rapier) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
 This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
@@ -678,19 +681,19 @@ The following screenshot shows the range of the 1L13 EWR. The mission editor sho
 In this example the SAM site to the north east would not be in range of the EW radar, therefore it would go in to autonomous mode once the mission starts. 
 
 
-![1L13 EWR range differences](https://github.com/walder/Skynet-IADS/raw/master/images/ew-detection-distance-example.png)  
+![1L13 EWR range differences](/images/ew-detection-distance-example.png)  
 
 Set the debug options ```samSiteStatusEnvOutput``` and ```earlyWarningRadarStatusEnvOutput``` to get detailed information on every SAM site and EW radar.
 The text marked in the red box will show you which SAM sites are in the covered area of a SAM site or EW radar.
 
 
-![SAM sites in covered area](https://github.com/walder/Skynet-IADS/raw/master/images/radar-emitter-status-dcs-log.png) 
+![SAM sites in covered area](/images/radar-emitter-status-dcs-log.png) 
 
 ## How do I connect Skynet with the MOOSE AI_A2A_DISPATCHER and what are the benefits of that?
 IRL an IADS would most likely not only handle SAM sites but also pass information to interceptor aircraft. By connecting Skynet to the AI_A2A_DISPATCHER of MOOSE you are able
-to add interceptors to the IADS. See [this function](#connecting-Skynet-to-the-MOOSE AI_A2A_DISPATCHER) and the [moose_a2a_connector demo mission](demo-missions/moose_a2a_connector) for more information.
+to add interceptors to the IADS. See [this function](#connecting-skynet-to-the-moose-ai_a2a_dispatcher) and the [moose_a2a_connector demo mission](demo-missions/moose_a2a_connector) for more information.
 
-This is how you connect Skynet to the MOOSE [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html):
+An example setup of Skynet and the [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html):
 ```lua
 
 --Setup Syknet IADS:
@@ -700,7 +703,6 @@ redIADS:addEarlyWarningRadarsByPrefix('EW')
 redIADS:activate()
 
 -- START MOOSE CODE:
-
 -- Define a SET_GROUP object that builds a collection of groups that define the EWR network.
 DetectionSetGroup = SET_GROUP:New()
 
@@ -725,7 +727,7 @@ A2ADispatcher:SetTacticalDisplay(true)
 A2ADispatcher:Start()
 --END MOOSE CODE
 
--- add the MOOSE SET_GROUP to the Skynet IADS, from now on Skynet will update active radars that the MOOSE SET_GROUP can use for EW detection
+-- add the MOOSE SET_GROUP to the IADS, from now on Skynet will update active radars that the MOOSE SET_GROUP can use for EW detection.
 redIADS:addMooseSetGroup(DetectionSetGroup)
 ```
 
