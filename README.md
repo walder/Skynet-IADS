@@ -314,7 +314,7 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
 ### Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
-You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to direct SAM site but also to scramble fighters.
+You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to direct SAM sites but also to scramble fighters.
 Skynet will set the radars it can use on the SET_GROUP object of a dispatcher. Meaning that if a radar is lost in Skynet it will no longer be availabe to detect and scramble interceptors.
 
 Add the object of type SET_GROUP to the iads like this (in this example ```DectionSetGroup```):
