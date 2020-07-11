@@ -16,7 +16,8 @@ Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) 
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
- Table of Contents =================  
+ Table of Contents
+ =================  
  *  [Skynet\-IADS](#skynet-iads) 
  *  [Abstract](#abstract) 
  *  [Quick start](#quick-start) 
