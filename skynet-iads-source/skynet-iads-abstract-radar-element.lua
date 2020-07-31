@@ -575,7 +575,7 @@ end
 
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
-	self.objectsIdentifiedAsHarms = {}
+	--self.objectsIdentifiedAsHarms = {}
 	local harmTime = self:getHarmShutDownTime()
 	if self.iads:getDebugSettings().harmDefence then
 		self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
@@ -665,20 +665,23 @@ end
 
 function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
 	local validObjects = {}
+	local validCount = 0
 	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
 		local harm = unit['target']
 		if harm:getAge() <= self.objectsIdentifiedAsHarmsMaxTargetAge then
 			validObjects[harm:getName()] = {}
 			validObjects[harm:getName()]['target'] = harm
 			validObjects[harm:getName()]['count'] = unit['count']
+			validCount = validCount + 1
 		end
-	end
-	self.objectsIdentifiedAsHarms = validObjects
-	
-	--stop point defences acting as ew (always on), will occur of activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
-	if self:getNumberOfObjectsItentifiedAsHARMS() == 0 then
+	end	
+	--stop point defences acting as ew (always on), will occur if activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
+	--if in this iteration all harms where cleared we turn of the point defence. But in any other cases we dont turn of point defences, that interferes with other parts of the iads
+	-- when setting up the iads (letting pds go to read state)
+	if validCount == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
 		self:pointDefencesStopActingAsEW()
 	end
+	self.objectsIdentifiedAsHarms = validObjects
 end
 
 
@@ -690,7 +693,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 		self.lastJammerUpdate = 0
 	end
 	
-	--we use the regular interval of this method to update to other states:
+	--we use the regular interval of this method to update to other states: 
 	self:updateMissilesInFlight()	
 	self:cleanUpOldObjectsIdentifiedAsHARMS()
 	

@@ -499,9 +499,7 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	for i = 1, #samSites do
 		local sam = samSites[i]
 		sam:goLive()
-		--stop harm scan, because this function will shut down point defences
-		sam:stopScanningForHARMs()
-		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them and call a separate goLive call here, some SAMs will therefore receive 2 goLive calls
+		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them by calling a separate goLive call here, point defence SAMs will therefore receive 2 goLive calls
 		-- this should not have a negative impact on performance
 		local pointDefences = sam:getPointDefences()
 		for j = 1, #pointDefences do
@@ -509,17 +507,7 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 			pointDefence:goLive()
 		end
 	end
-	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.postSetupSAMSites, {self}, timer.getTime() + self.samSetupTime)
-end
-
-function SkynetIADS.postSetupSAMSites(self)
-	local samSites = self:getSAMSites()
-	for i = 1, #samSites do
-		local sam = samSites[i]
-		--turn on the scan again otherwise SAMs that fired a missile while in setup will not turn off anymore
-		sam:scanForHarms()
-	end
-	self:activate()
+	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
 end
 
 function SkynetIADS:deactivate()

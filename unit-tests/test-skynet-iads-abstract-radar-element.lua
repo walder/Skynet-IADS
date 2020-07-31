@@ -1205,11 +1205,12 @@ function TestSkynetIADSAbstractRadarElement:testDaisychainSAMOptions()
 	lu.assertIs(self.samSite:getPowerSources()[1], powerSource)
 end
 
-function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenSAMGoesDarkDueToHARMDefence()
+function TestSkynetIADSAbstractRadarElement:testPointDefenceActiveWhenSAMGoesDarkDueToHARMDefence()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
 	self.samSite:setActAsEW(true)
 	
+	--in this group there are two SA-15 units:
 	local sa15 = Group.getByName("SAM-SA-15-1")
 	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
 	pointDefence:setupElements()
@@ -1318,16 +1319,22 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	
 	local calledShutdown = false
 	
+	-- we start with one contact the sam detects
 	function self.samSite:getDetectedTargets()
 		return {iadsContact}
 	end
+	
+	-- in this test we simulate an impact point that is close enough for the contact to be identified as a HARM
 	function self.samSite:getDistanceInMetersToContact(a, b)
 		return 50
 	end
+	
+	--we simulate the impact point to be a radar of the SAM site
 	function self.samSite:calculateImpactPoint(a, b)
 		return self:getRadars()[1]:getPosition().p
 	end
 	
+	--we ensure it will react to HARM (no probability in this test)
 	function self.samSite:shallReactToHARM()
 		return true
 	end
@@ -1346,11 +1353,10 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	calledShutdown = false
 	
 	
-	--this test should not provoke a HARM inbound response due to the point defence still having ammo
-	
 	-- set the state for HARM Ignore to true and check if the method returns a sam site for daisy chaining
 	lu.assertEquals(self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true), self.samSite)
 	
+	--this test should not provoke a HARM inbound response due to the point defence still having ammo and the number of HARMS is not greater than the point defences
 	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
 	
@@ -1371,6 +1377,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	
 	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
 	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
 	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 3)	
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
@@ -1381,7 +1388,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	pointDefence:setActAsEW(false)
 	pointDefence:goDark()
 	
-	--this test if for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
+	--this test is for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
 	function self.samSite:getDetectedTargets()
 		return {iadsContact, iadsContact2}
 	end
@@ -1389,6 +1396,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)	
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
 	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(calledShutdown, false)
@@ -1401,7 +1409,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	pointDefence:goDark()
 	
 	
-	--this tests if there are a greater number of point defence launchers than HARMs inbound, radar emitter will not shut down:
+	--this tests if there are lower number of point defence launchers than HARMs inbound, radar emitter will not shut down:
 	function self.samSite:getDetectedTargets()
 		return {iadsContact}
 	end
@@ -1431,6 +1439,20 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
 	lu.assertEquals(calledShutdown, true)
 	
+end
+
+function TestSkynetIADSAbstractRadarElement:testPointDefencesAreNotActivatedWhenNoHARMSRemoved()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()	
+	local sa15 = Group.getByName("SAM-SA-15-1")
+	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
+	self.samSite:addPointDefence(pointDefence)
+	local calledStopPointDefence = false
+	function self.samSite:pointDefencesStopActingAsEW()
+		calledStopPointDefence = true
+	end
+	 self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(calledStopPointDefence, false)
 end
 
 function TestSkynetIADSAbstractRadarElement:testPointDefenceWillGoDarkWhenSAMItIsProtectingGoesDark()

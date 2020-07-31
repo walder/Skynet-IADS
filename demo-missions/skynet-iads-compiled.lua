@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 31.07.2020 2043Z ---")
+env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 31.07.2020 2351Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -920,9 +920,7 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	for i = 1, #samSites do
 		local sam = samSites[i]
 		sam:goLive()
-		--stop harm scan, because this function will shut down point defences
-		sam:stopScanningForHARMs()
-		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them and call a separate goLive call here, some SAMs will therefore receive 2 goLive calls
+		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them by calling a separate goLive call here, point defence SAMs will therefore receive 2 goLive calls
 		-- this should not have a negative impact on performance
 		local pointDefences = sam:getPointDefences()
 		for j = 1, #pointDefences do
@@ -930,17 +928,7 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 			pointDefence:goLive()
 		end
 	end
-	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.postSetupSAMSites, {self}, timer.getTime() + self.samSetupTime)
-end
-
-function SkynetIADS.postSetupSAMSites(self)
-	local samSites = self:getSAMSites()
-	for i = 1, #samSites do
-		local sam = samSites[i]
-		--turn on the scan again otherwise SAMs that fired a missile while in setup will not turn off anymore
-		sam:scanForHarms()
-	end
-	self:activate()
+	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
 end
 
 function SkynetIADS:deactivate()
@@ -2167,7 +2155,7 @@ end
 
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
-	self.objectsIdentifiedAsHarms = {}
+	--self.objectsIdentifiedAsHarms = {}
 	local harmTime = self:getHarmShutDownTime()
 	if self.iads:getDebugSettings().harmDefence then
 		self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
@@ -2257,20 +2245,23 @@ end
 
 function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
 	local validObjects = {}
+	local validCount = 0
 	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
 		local harm = unit['target']
 		if harm:getAge() <= self.objectsIdentifiedAsHarmsMaxTargetAge then
 			validObjects[harm:getName()] = {}
 			validObjects[harm:getName()]['target'] = harm
 			validObjects[harm:getName()]['count'] = unit['count']
+			validCount = validCount + 1
 		end
-	end
-	self.objectsIdentifiedAsHarms = validObjects
-	
-	--stop point defences acting as ew (always on), will occur of activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
-	if self:getNumberOfObjectsItentifiedAsHARMS() == 0 then
+	end	
+	--stop point defences acting as ew (always on), will occur if activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
+	--if in this iteration all harms where cleared we turn of the point defence. But in any other cases we dont turn of point defences, that interferes with other parts of the iads
+	-- when setting up the iads (letting pds go to read state)
+	if validCount == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
 		self:pointDefencesStopActingAsEW()
 	end
+	self.objectsIdentifiedAsHarms = validObjects
 end
 
 
@@ -2282,7 +2273,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 		self.lastJammerUpdate = 0
 	end
 	
-	--we use the regular interval of this method to update to other states:
+	--we use the regular interval of this method to update to other states: 
 	self:updateMissilesInFlight()	
 	self:cleanUpOldObjectsIdentifiedAsHARMS()
 	
