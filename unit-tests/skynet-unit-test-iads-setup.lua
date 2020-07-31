@@ -12,6 +12,7 @@ iadsDebug.ewRadarNoConnection = false
 iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
+iadsDebug.addedSAMSite = true
 iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
 --iadsDebug.samSiteStatusEnvOutput = true

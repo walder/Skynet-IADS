@@ -23,7 +23,7 @@ function TestMooseA2ADispatcherConnector:testGetEarlyWarningRadarGroupNames()
 		local ewName = ewRadarNames[i]
 		local ewFound = false
 		for j = 1, #usableEWRadars do
-			local ewNameInIADS = usableEWRadars[j]:getDCSRepresentation():getGroup:getName()
+			local ewNameInIADS = usableEWRadars[j]:getDCSRepresentation():getGroup():getName()
 			if ewName == ewNameInIADS then
 				ewFound = true
 			end

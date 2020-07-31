@@ -41,7 +41,6 @@ Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support sett
    * [Preparing a SAM site](#preparing-a-sam-site)
    * [Preparing an EW radar](#preparing-an-ew-radar)
    * [Adding the Skynet Code](#adding-the-skynet-code)
-   * [Setting up yor IADS](#setting-up-yor-iads)
    * [Adding the Skynet IADS](#adding-the-skynet-iads)
  * [Advanced setup](#advanced-setup)
    * [IADS configuration](#iads-configuration)
@@ -215,12 +214,10 @@ You can use any type of radar as an EW radar. Make sure you **name the unit** in
 ## Adding the Skynet Code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
-![Mission Editor IADS Setup](/images/load-scripts.png)  
 
-## Setting up yor IADS
 I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
-![Mission Editor IADS Setup](/images/iads-setup-code.png)  
+![Mission Editor IADS Setup](/images/load-scripts.png)  
 
 ## Adding the Skynet IADS
 For the IADS to work you need four lines of code.
