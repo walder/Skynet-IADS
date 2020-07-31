@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.0 | BUILD TIME: 11.07.2020 1144Z ---")
+env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 31.07.2020 2043Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -920,8 +920,27 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	for i = 1, #samSites do
 		local sam = samSites[i]
 		sam:goLive()
+		--stop harm scan, because this function will shut down point defences
+		sam:stopScanningForHARMs()
+		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them and call a separate goLive call here, some SAMs will therefore receive 2 goLive calls
+		-- this should not have a negative impact on performance
+		local pointDefences = sam:getPointDefences()
+		for j = 1, #pointDefences do
+			pointDefence = pointDefences[j]
+			pointDefence:goLive()
+		end
 	end
-	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
+	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.postSetupSAMSites, {self}, timer.getTime() + self.samSetupTime)
+end
+
+function SkynetIADS.postSetupSAMSites(self)
+	local samSites = self:getSAMSites()
+	for i = 1, #samSites do
+		local sam = samSites[i]
+		--turn on the scan again otherwise SAMs that fired a missile while in setup will not turn off anymore
+		sam:scanForHarms()
+	end
+	self:activate()
 end
 
 function SkynetIADS:deactivate()
@@ -1121,7 +1140,7 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		local samSitesInCoveredArea = samSite:getSAMSitesInCoveredArea()
 		
 		env.info("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
-		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()))
+		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT:"..tostring(samSite:getNumberOfMissilesInFlight()))
 		
 		if numConnectionNodes > 0 then
 			env.info("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
@@ -1710,6 +1729,10 @@ function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
 	return #self.missilesInFlight > 0
 end
 
+function SkynetIADSAbstractRadarElement:getNumberOfMissilesInFlight()
+	return #self.missilesInFlight
+end
+
 -- DCS does not send an event, when a missile is destroyed, so this method needs to be polled so that the missiles in flight are current, polling is done in the HARM Search call: evaluateIfTargetsContainHARMs
 function SkynetIADSAbstractRadarElement:updateMissilesInFlight()
 	local missilesInFlight = {}
@@ -1975,8 +1998,10 @@ function SkynetIADSAbstractRadarElement:goDark()
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			end
 		end
-		--called here so if SAM is destroyed it will still activate the point defences
-		self:pointDefencesGoLive()
+		-- point defence will only go live if the Radar Emitting site it is protecting goes dark and this is due to a it defending against a HARM
+		if (self.harmSilenceID ~= nil) then
+			self:pointDefencesGoLive()
+		end
 		self.aiState = false
 		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
@@ -2292,7 +2317,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					--		env.info("detect as HARM: "..self:getDCSName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
 					--	end
 						
-						-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
+						-- we use 2 detection cycles so a random object in the air pointing at the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
 						if numDetections == 2 and shallReactToHarm then
 							if self:shallIgnoreHARMShutdown() == false then
 								self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)

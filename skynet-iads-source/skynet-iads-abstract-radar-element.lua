@@ -137,6 +137,10 @@ function SkynetIADSAbstractRadarElement:hasMissilesInFlight()
 	return #self.missilesInFlight > 0
 end
 
+function SkynetIADSAbstractRadarElement:getNumberOfMissilesInFlight()
+	return #self.missilesInFlight
+end
+
 -- DCS does not send an event, when a missile is destroyed, so this method needs to be polled so that the missiles in flight are current, polling is done in the HARM Search call: evaluateIfTargetsContainHARMs
 function SkynetIADSAbstractRadarElement:updateMissilesInFlight()
 	local missilesInFlight = {}
@@ -402,8 +406,10 @@ function SkynetIADSAbstractRadarElement:goDark()
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 			end
 		end
-		--called here so if SAM is destroyed it will still activate the point defences
-		self:pointDefencesGoLive()
+		-- point defence will only go live if the Radar Emitting site it is protecting goes dark and this is due to a it defending against a HARM
+		if (self.harmSilenceID ~= nil) then
+			self:pointDefencesGoLive()
+		end
 		self.aiState = false
 		self:stopScanningForHARMs()
 		if self.iads:getDebugSettings().samWentDark then
@@ -719,7 +725,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 					--		env.info("detect as HARM: "..self:getDCSName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
 					--	end
 						
-						-- we use 2 detection cycles so a random object in the air pointing on the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
+						-- we use 2 detection cycles so a random object in the air pointing at the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
 						if numDetections == 2 and shallReactToHarm then
 							if self:shallIgnoreHARMShutdown() == false then
 								self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)

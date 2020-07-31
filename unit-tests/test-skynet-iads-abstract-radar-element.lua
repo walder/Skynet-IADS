@@ -1205,7 +1205,7 @@ function TestSkynetIADSAbstractRadarElement:testDaisychainSAMOptions()
 	lu.assertIs(self.samSite:getPowerSources()[1], powerSource)
 end
 
-function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIsActive()
+function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenSAMGoesDarkDueToHARMDefence()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
 	self.samSite:setActAsEW(true)
@@ -1225,8 +1225,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	self.samSite:finishHarmDefence()
 	self.samSite:goLive()
 	lu.assertEquals(pointDefence:getActAsEW(), false)
-	
-	-- TODO: test with two HARM defences
+
 end
 
 function TestSkynetIADSAbstractRadarElement:testCleanUpOldObjectsIdentifiedAsHARMS()
@@ -1402,7 +1401,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	pointDefence:goDark()
 	
 	
-	--this test if there are a greater number of point defence launchers than HARMs inbound, radar emitter will not shut down:
+	--this tests if there are a greater number of point defence launchers than HARMs inbound, radar emitter will not shut down:
 	function self.samSite:getDetectedTargets()
 		return {iadsContact}
 	end
@@ -1433,6 +1432,17 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	lu.assertEquals(calledShutdown, true)
 	
 end
+
+function TestSkynetIADSAbstractRadarElement:testPointDefenceWillGoDarkWhenSAMItIsProtectingGoesDark()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()	
+	local sa15 = Group.getByName("SAM-SA-15-1")
+	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
+	self.samSite:addPointDefence(pointDefence)
+	self.samSite:goDark()
+	lu.assertEquals(pointDefence:isActive(), false)
+end
+
 
 function TestSkynetIADSAbstractRadarElement:testPatriotLauncherAndRadar()
 

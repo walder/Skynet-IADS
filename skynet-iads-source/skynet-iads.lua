@@ -499,8 +499,27 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	for i = 1, #samSites do
 		local sam = samSites[i]
 		sam:goLive()
+		--stop harm scan, because this function will shut down point defences
+		sam:stopScanningForHARMs()
+		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them and call a separate goLive call here, some SAMs will therefore receive 2 goLive calls
+		-- this should not have a negative impact on performance
+		local pointDefences = sam:getPointDefences()
+		for j = 1, #pointDefences do
+			pointDefence = pointDefences[j]
+			pointDefence:goLive()
+		end
 	end
-	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
+	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.postSetupSAMSites, {self}, timer.getTime() + self.samSetupTime)
+end
+
+function SkynetIADS.postSetupSAMSites(self)
+	local samSites = self:getSAMSites()
+	for i = 1, #samSites do
+		local sam = samSites[i]
+		--turn on the scan again otherwise SAMs that fired a missile while in setup will not turn off anymore
+		sam:scanForHarms()
+	end
+	self:activate()
 end
 
 function SkynetIADS:deactivate()
@@ -700,7 +719,7 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		local samSitesInCoveredArea = samSite:getSAMSitesInCoveredArea()
 		
 		env.info("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
-		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()))
+		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT:"..tostring(samSite:getNumberOfMissilesInFlight()))
 		
 		if numConnectionNodes > 0 then
 			env.info("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)

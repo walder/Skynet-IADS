@@ -703,12 +703,15 @@ end
 
 function TestSkynetIADS:testSetupSAMSites()
 	local numCalls = 0
-	
+	local numHARMCalls = 0
 	local sams = self.testIADS:getSAMSites()
 	for i = 1, #sams do
 		local sam = sams[i]
 		function sam:goLive()
 			numCalls = numCalls + 1
+		end
+		function sam:stopScanningForHARMs()
+				numHARMCalls = numHARMCalls + 1
 		end
 	end
 
@@ -716,8 +719,37 @@ function TestSkynetIADS:testSetupSAMSites()
 	lu.assertEquals(self.testIADS.samSetupTime, 60)
 	self.testIADS:setupSAMSitesAndThenActivate(10)
 	lu.assertEquals(numCalls, #self.testIADS:getSAMSites())
+	lu.assertEquals(numHARMCalls, #self.testIADS:getSAMSites())
 	lu.assertNotEquals(self.testIADS.samSetupMistTaskID, nil)
 	lu.assertEquals(self.testIADS.samSetupTime, 10)
+end
+
+function TestSkynetIADS:testSetupSAMSiteWithPointDefence()
+	local iads = SkynetIADS:create()
+	local sa15 = iads:addSAMSite('SAM-SA-15-1')
+	iads:addSAMSite('SAM-SA-10'):addPointDefence(sa15)
+	iads:setupSAMSitesAndThenActivate()
+	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-10'):isActive(), true)
+	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-15-1'):isActive(), true)
+	
+end
+
+function TestSkynetIADS:testPostSetupCall()
+	local numHARMCalls = 0
+	local sams = self.testIADS:getSAMSites()
+	for i = 1, #sams do
+		local sam = sams[i]
+		function sam:scanForHarms()
+				numHARMCalls = numHARMCalls + 1
+		end
+	end
+	local activateCalled = false
+	function self.testIADS:activate()
+		activateCalled = true
+	end
+	self.testIADS:postSetupSAMSites()
+	lu.assertEquals(numHARMCalls, #self.testIADS:getSAMSites())
+	lu.assertEquals(activateCalled, true)
 end
 
 end
