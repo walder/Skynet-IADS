@@ -7,15 +7,17 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsObject)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsObject = dcsObject
+	instance.name = dcsObject:getName()
+	instance.typeName = dcsObject:getTypeName()
 	return instance
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getName()
-	return self.dcsObject:getName()
+	return self.name
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getTypeName()
-	return self.dcsObject:getTypeName()
+	return self.typeName
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getPosition()

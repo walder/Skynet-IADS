@@ -33,7 +33,11 @@ function SkynetIADSAWACSRadar:getMaxAllowedMovementForAutonomousUpdateInNM()
 end
 
 function SkynetIADSAWACSRadar:isUpdateOfAutonomousStateOfSAMSitesRequired()
-	return self:getDistanceTraveledSinceLastUpdate() > self:getMaxAllowedMovementForAutonomousUpdateInNM()
+	local isUpdateRequired = self:getDistanceTraveledSinceLastUpdate() > self:getMaxAllowedMovementForAutonomousUpdateInNM()
+	if isUpdateRequired then
+		self.lastUpdatePosition = nil
+	end
+	return isUpdateRequired
 end
 
 function SkynetIADSAWACSRadar:getDistanceTraveledSinceLastUpdate()

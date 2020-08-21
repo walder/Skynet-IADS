@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 31.07.2020 2351Z ---")
+env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 21.08.2020 1748Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -763,6 +763,10 @@ function SkynetIADS.evaluateContacts(self)
 		ewRadar:goLive()
 		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
+			--TODO: make update in this part more efficient, only the ewRadar of AWACS needs updating
+			--load the SAMS it is protecting, do autonomus check
+			-- then update to create new protected SAM Sites
+			--ewRadar:updateSAMSitesInCoveredArea()
 			self:updateAutonomousStatesOfSAMSites()
 		end
 		local ewContacts = ewRadar:getDetectedTargets()
@@ -1366,15 +1370,17 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsObject)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsObject = dcsObject
+	instance.name = dcsObject:getName()
+	instance.typeName = dcsObject:getTypeName()
 	return instance
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getName()
-	return self.dcsObject:getName()
+	return self.name
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getTypeName()
-	return self.dcsObject:getTypeName()
+	return self.typeName
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getPosition()
@@ -2366,7 +2372,11 @@ function SkynetIADSAWACSRadar:getMaxAllowedMovementForAutonomousUpdateInNM()
 end
 
 function SkynetIADSAWACSRadar:isUpdateOfAutonomousStateOfSAMSitesRequired()
-	return self:getDistanceTraveledSinceLastUpdate() > self:getMaxAllowedMovementForAutonomousUpdateInNM()
+	local isUpdateRequired = self:getDistanceTraveledSinceLastUpdate() > self:getMaxAllowedMovementForAutonomousUpdateInNM()
+	if isUpdateRequired then
+		self.lastUpdatePosition = nil
+	end
+	return isUpdateRequired
 end
 
 function SkynetIADSAWACSRadar:getDistanceTraveledSinceLastUpdate()
@@ -2407,21 +2417,12 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.name = instance.dcsObject:getName()
-	instance.typeName = instance.dcsObject:getTypeName()
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
 	return instance
 end
 
-function SkynetIADSContact:getName()
-	return self.name
-end
-
-function SkynetIADSContact:getTypeName()
-	return self.typeName
-end
 
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type

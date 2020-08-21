@@ -342,6 +342,10 @@ function SkynetIADS.evaluateContacts(self)
 		ewRadar:goLive()
 		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
+			--TODO: make update in this part more efficient, only the ewRadar of AWACS needs updating
+			--load the SAMS it is protecting, do autonomus check
+			-- then update to create new protected SAM Sites
+			--ewRadar:updateSAMSitesInCoveredArea()
 			self:updateAutonomousStatesOfSAMSites()
 		end
 		local ewContacts = ewRadar:getDetectedTargets()
