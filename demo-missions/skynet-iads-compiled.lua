@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 21.08.2020 1748Z ---")
+env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 21.08.2020 1819Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2347,6 +2347,7 @@ function SkynetIADSAWACSRadar:create(radarUnit, iads)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.lastUpdatePosition = nil
+	instance.natoName = radarUnit:getTypeName()
 	return instance
 end
 
@@ -2355,10 +2356,6 @@ function SkynetIADSAWACSRadar:setupElements()
 	local radar = SkynetIADSSAMSearchRadar:create(unit)
 	radar:setupRangeData()
 	table.insert(self.searchRadars, radar)
-end
-
-function SkynetIADSAWACSRadar:getNatoName()
-	return self:getDCSRepresentation():getTypeName()
 end
 
 -- AWACs will not scan for HARMS

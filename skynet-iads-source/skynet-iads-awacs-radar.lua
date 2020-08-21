@@ -8,6 +8,7 @@ function SkynetIADSAWACSRadar:create(radarUnit, iads)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.lastUpdatePosition = nil
+	instance.natoName = radarUnit:getTypeName()
 	return instance
 end
 
@@ -16,10 +17,6 @@ function SkynetIADSAWACSRadar:setupElements()
 	local radar = SkynetIADSSAMSearchRadar:create(unit)
 	radar:setupRangeData()
 	table.insert(self.searchRadars, radar)
-end
-
-function SkynetIADSAWACSRadar:getNatoName()
-	return self:getDCSRepresentation():getTypeName()
 end
 
 -- AWACs will not scan for HARMS
