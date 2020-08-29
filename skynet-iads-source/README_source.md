@@ -483,7 +483,7 @@ jammer:setMaximumEffectiveDistance(100)
 ```
 
 ## Setting debug information
-When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to turn these of in a live environment:
+When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to it off in a live environment:
 
 ```lua
 local iadsDebug = redIADS:getDebugSettings()  
