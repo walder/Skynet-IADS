@@ -148,7 +148,7 @@ The skill level you set on a SAM group is retained by Skynet. Make sure you name
 You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'.  
 ![Mission Editor EW radar](/images/ew-setup.png)  
 
-## Adding the Skynet Code
+## Adding the Skynet code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
 
