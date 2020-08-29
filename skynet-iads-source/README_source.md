@@ -420,7 +420,7 @@ SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an aircraft in the strike package.
-Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#debug-information) to see what the jammer is doing.
+Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#setting-debug-information) to see what the jammer is doing.
 Check [skynet-iads-jammer.lua](/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
 
 Remember to set the AI aircraft acting as jammer in the Mission editor to ```Reaction to Threat = EVADE FIRE``` otherwise the AI will try and actively attack the SAM site.
