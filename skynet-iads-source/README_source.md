@@ -595,6 +595,9 @@ end
 
 # FAQ
 
+## Does Skynet IADS have an impact on game performance?
+Skynet may actually improve game performance when using a lot of SAM AI units. This is because Skynet will turn off the AI of all SAM groups currently not in range of a target. By default these SAM groups would otherwise have their AI on. Skynet caches target information for a few seconds to reduce expensive calls on DCS radar detection.
+
 ## What air defence units shall I add to the Skynet IADS?
 In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](skynet-iads-source/skynet-iads-supported-types.lua) file. 
 Very short range units (like the Shilka AAA, Rapier) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
@@ -602,8 +605,7 @@ This is due to the short range of their radars. By the time the IADS wakes them 
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## What exactly does Skynet do with the SAMS?
-Basically one can toggle a radar unit's controller (on and off), alarm state and its rules of engagement via the scripting enginge. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
-Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
+Via the scripting engine one can toggle a radar emitter's group controller on and off. Further options are the alarm state and the rules of engagement. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
 
 No god like intervention is used (like magically exploding HARMS via the scripting engine).
 If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.
