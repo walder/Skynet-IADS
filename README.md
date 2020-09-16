@@ -40,7 +40,7 @@ Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support sett
    * [Placing units](#placing-units)
    * [Preparing a SAM site](#preparing-a-sam-site)
    * [Preparing an EW radar](#preparing-an-ew-radar)
-   * [Adding the Skynet Code](#adding-the-skynet-code)
+   * [Adding the Skynet code](#adding-the-skynet-code)
    * [Adding the Skynet IADS](#adding-the-skynet-iads)
  * [Advanced setup](#advanced-setup)
    * [IADS configuration](#iads-configuration)
@@ -73,6 +73,7 @@ Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support sett
    * [Setting debug information](#setting-debug-information)
  * [Example Setup](#example-setup)
  * [FAQ](#faq)
+   * [Does Skynet IADS have an impact on game performance?](#does-skynet-iads-have-an-impact-on-game-performance)
    * [What air defence units shall I add to the Skynet IADS?](#what-air-defence-units-shall-i-add-to-the-skynet-iads)
    * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
    * [Are there known bugs?](#are-there-known-bugs)
@@ -211,7 +212,7 @@ The skill level you set on a SAM group is retained by Skynet. Make sure you name
 You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'.  
 ![Mission Editor EW radar](/images/ew-setup.png)  
 
-## Adding the Skynet Code
+## Adding the Skynet code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
 Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
 
@@ -483,7 +484,7 @@ SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an aircraft in the strike package.
-Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#debug-information) to see what the jammer is doing.
+Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#setting-debug-information) to see what the jammer is doing.
 Check [skynet-iads-jammer.lua](/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
 
 Remember to set the AI aircraft acting as jammer in the Mission editor to ```Reaction to Threat = EVADE FIRE``` otherwise the AI will try and actively attack the SAM site.
@@ -546,7 +547,7 @@ jammer:setMaximumEffectiveDistance(100)
 ```
 
 ## Setting debug information
-When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to turn these of in a live environment:
+When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to turn it off in a live environment:
 
 ```lua
 local iadsDebug = redIADS:getDebugSettings()  
@@ -658,6 +659,9 @@ end
 
 # FAQ
 
+## Does Skynet IADS have an impact on game performance?
+Skynet may actually improve game performance when using a lot of SAM AI units. This is because Skynet will turn off the AI of all SAM groups currently not in range of a target. By default these SAM groups would otherwise have their AI on. Skynet caches target information for a few seconds to reduce expensive calls on DCS radar detection.
+
 ## What air defence units shall I add to the Skynet IADS?
 In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](skynet-iads-source/skynet-iads-supported-types.lua) file. 
 Very short range units (like the Shilka AAA, Rapier) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
@@ -665,8 +669,7 @@ This is due to the short range of their radars. By the time the IADS wakes them 
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## What exactly does Skynet do with the SAMS?
-Basically one can toggle a radar unit's controller (on and off), alarm state and its rules of engagement via the scripting enginge. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
-Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
+Via the scripting engine one can toggle a radar emitter's group controller on and off. Further options are the alarm state and the rules of engagement. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
 
 No god like intervention is used (like magically exploding HARMS via the scripting engine).
 If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.

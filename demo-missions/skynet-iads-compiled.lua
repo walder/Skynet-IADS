@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 16.09.2020 1956Z ---")
+env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 16.09.2020 2001Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -835,7 +835,7 @@ function SkynetIADS:buildSAMSitesInCoveredArea()
 	end
 end
 
---TODO: Write Unit Test
+--TODO: add EW radar association
 function SkynetIADS:buildRadarCoverageAssociation()
 	local samSites = self:getSAMSites()
 	--to build the basic coverage association we use all SAM sites. Checks if SAM site has power or is reachable are done when turning a SAM site on or off.
