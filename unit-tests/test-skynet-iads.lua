@@ -658,6 +658,37 @@ function TestSkynetIADS:testBuildSAMSitesInCoveredArea()
 	
 end
 
+--TODO: add more comparisons in this test
+-- especially checks of ew radar coverage!
+function TestSkynetIADS:testBuildRadarCoverageAssociation()
+	self:setUp()
+	self.testIADS:buildRadarCoverageAssociation()
+	local sa19 = self.testIADS:getSAMSiteByGroupName('SAM-SA-19')
+	local sa19Parent = sa19:getParentRadars()[1]
+	local sa2 = self.testIADS:getSAMSiteByGroupName('SAM-SA-2')
+	lu.assertEquals(sa2, sa19Parent)
+	
+	lu.assertEquals(#sa2:getChildRadars(), 2)
+	
+	sa2Child = sa2:getChildRadars()[1]
+	lu.assertEquals(sa2Child, sa19)
+	
+	sa2Child = sa2:getChildRadars()[2]
+	lu.assertEquals(sa2Child, self.testIADS:getSAMSiteByGroupName('SAM-SA-8'))
+
+	
+	local sa151 = self.testIADS:getSAMSiteByGroupName('SAM-SA-15-1')
+	local sa151Parent = sa151:getParentRadars()[1]
+	local sa10 = self.testIADS:getSAMSiteByGroupName('SAM-SA-10')
+	lu.assertEquals(sa10, sa151Parent)
+	
+	lu.assertEquals(#sa10:getChildRadars(), 1)
+	
+	sa10Child = sa10:getChildRadars()[1]
+	lu.assertEquals(sa151, sa10Child)
+	
+end
+	
 function TestSkynetIADS:testGetSAMSitesByPrefix()
 	self:setUp();
 	local samSites = self.testIADS:getSAMSitesByPrefix('SAM-SA-15')

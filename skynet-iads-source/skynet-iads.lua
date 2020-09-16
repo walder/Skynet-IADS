@@ -340,7 +340,7 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = ewRadars[i]
 		--call go live in case ewRadar had to shut down (HARM attack)
 		ewRadar:goLive()
-		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
+		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the SAMs
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
 			--TODO: make update in this part more efficient, only the ewRadar of AWACS needs updating
 			--load the SAMS it is protecting, do autonomus check
@@ -411,6 +411,23 @@ function SkynetIADS:buildSAMSitesInCoveredArea()
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
 		ewRadar:updateSAMSitesInCoveredArea()
+	end
+end
+
+--TODO: add EW radar association
+function SkynetIADS:buildRadarCoverageAssociation()
+	local samSites = self:getSAMSites()
+	--to build the basic coverage association we use all SAM sites. Checks if SAM site has power or is reachable are done when turning a SAM site on or off.
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		local samSitesToCompare = self:getSAMSites()
+		for j = 1, #samSitesToCompare do	
+			local samSiteToCompare = samSitesToCompare[j]
+			if samSite:isInRadarDetectionRangeOf(samSiteToCompare) and samSite ~= samSiteToCompare then
+				samSite:addParentRadar(samSiteToCompare)
+				samSiteToCompare:addChildRadar(samSite)
+			end
+		end
 	end
 end
 

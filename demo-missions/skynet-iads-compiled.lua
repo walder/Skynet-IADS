@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 21.08.2020 1819Z ---")
+env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 16.09.2020 1956Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -761,7 +761,7 @@ function SkynetIADS.evaluateContacts(self)
 		local ewRadar = ewRadars[i]
 		--call go live in case ewRadar had to shut down (HARM attack)
 		ewRadar:goLive()
-		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the sams
+		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the SAMs
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
 			--TODO: make update in this part more efficient, only the ewRadar of AWACS needs updating
 			--load the SAMS it is protecting, do autonomus check
@@ -832,6 +832,23 @@ function SkynetIADS:buildSAMSitesInCoveredArea()
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
 		ewRadar:updateSAMSitesInCoveredArea()
+	end
+end
+
+--TODO: Write Unit Test
+function SkynetIADS:buildRadarCoverageAssociation()
+	local samSites = self:getSAMSites()
+	--to build the basic coverage association we use all SAM sites. Checks if SAM site has power or is reachable are done when turning a SAM site on or off.
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		local samSitesToCompare = self:getSAMSites()
+		for j = 1, #samSitesToCompare do	
+			local samSiteToCompare = samSitesToCompare[j]
+			if samSite:isInRadarDetectionRangeOf(samSiteToCompare) and samSite ~= samSiteToCompare then
+				samSite:addParentRadar(samSiteToCompare)
+				samSiteToCompare:addChildRadar(samSite)
+			end
+		end
 	end
 end
 
@@ -1609,6 +1626,8 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
 	instance.samSitesInCoveredArea = {}
+	instance.parentRadars = {}
+	instance.childRadars = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
 	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
@@ -1669,6 +1688,42 @@ function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
 end
 
+
+--TODO: unit test this method
+function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
+	local isAdded = false
+	for i = 1, #self.parentRadars do
+		local parent = self.parentRadar[i]
+		if parent == parentRadar then
+			isAdded = true
+		end
+	end
+	if isAdded == false then
+		table.insert(self.parentRadars, parentRadar)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getParentRadars()
+	return self.parentRadars
+end
+
+--TODO: Unit test this method
+function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
+	local isAdded = false
+	for i = 1, #self.childRadars do
+		local child = self.childRadars[i]
+		if child == childRadar then
+			isAdded = true
+		end
+	end
+	if isAdded == false then
+		table.insert(self.childRadars, childRadar)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getChildRadars()
+	return self.childRadars
+end
 
 function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
 	local samSites = self.iads:getUsableSAMSites()

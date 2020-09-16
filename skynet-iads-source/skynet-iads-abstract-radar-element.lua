@@ -23,6 +23,8 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
 	instance.samSitesInCoveredArea = {}
+	instance.parentRadars = {}
+	instance.childRadars = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
 	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
@@ -83,6 +85,42 @@ function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
 end
 
+
+--TODO: unit test this method
+function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
+	local isAdded = false
+	for i = 1, #self.parentRadars do
+		local parent = self.parentRadar[i]
+		if parent == parentRadar then
+			isAdded = true
+		end
+	end
+	if isAdded == false then
+		table.insert(self.parentRadars, parentRadar)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getParentRadars()
+	return self.parentRadars
+end
+
+--TODO: Unit test this method
+function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
+	local isAdded = false
+	for i = 1, #self.childRadars do
+		local child = self.childRadars[i]
+		if child == childRadar then
+			isAdded = true
+		end
+	end
+	if isAdded == false then
+		table.insert(self.childRadars, childRadar)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getChildRadars()
+	return self.childRadars
+end
 
 function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
 	local samSites = self.iads:getUsableSAMSites()
