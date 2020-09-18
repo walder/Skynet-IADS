@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 16.09.2020 2001Z ---")
+env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 18.09.2020 1004Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -837,8 +837,8 @@ end
 
 --TODO: add EW radar association
 function SkynetIADS:buildRadarCoverageAssociation()
-	local samSites = self:getSAMSites()
 	--to build the basic coverage association we use all SAM sites. Checks if SAM site has power or is reachable are done when turning a SAM site on or off.
+	local samSites = self:getSAMSites()
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		local samSitesToCompare = self:getSAMSites()
@@ -2031,7 +2031,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
-	if ( self.aiState == true ) 
+	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
 	then

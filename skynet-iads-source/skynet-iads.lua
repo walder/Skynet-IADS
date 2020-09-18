@@ -416,8 +416,8 @@ end
 
 --TODO: add EW radar association
 function SkynetIADS:buildRadarCoverageAssociation()
-	local samSites = self:getSAMSites()
 	--to build the basic coverage association we use all SAM sites. Checks if SAM site has power or is reachable are done when turning a SAM site on or off.
+	local samSites = self:getSAMSites()
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		local samSitesToCompare = self:getSAMSites()

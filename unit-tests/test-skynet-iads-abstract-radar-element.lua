@@ -1205,6 +1205,28 @@ function TestSkynetIADSAbstractRadarElement:testDaisychainSAMOptions()
 	lu.assertIs(self.samSite:getPowerSources()[1], powerSource)
 end
 
+function TestSkynetIADSAbstractRadarElement:testWillSAMShutDownWhenItLoosesPowerAndAMissileIsInFlight()
+	self.samSiteName = "SAM-SA-11"
+	self:setUp()
+	local powerSource = StaticObject.getByName('SA-11-power-source')
+	self.samSite:addPowerSource(powerSource)
+	self.samSite:goLive()
+	
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+	-- simulate that the SAM site has a missile in flight
+	function self.samSite:hasMissilesInFlight()
+		return true
+	end
+
+	--trigger the explosion of the power source:
+	trigger.action.explosion(powerSource:getPosition().p, 100)
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
 function TestSkynetIADSAbstractRadarElement:testPointDefenceActiveWhenSAMGoesDarkDueToHARMDefence()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()

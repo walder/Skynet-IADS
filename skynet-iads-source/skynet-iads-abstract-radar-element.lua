@@ -428,7 +428,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
-	if ( self.aiState == true ) 
+	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
 	then
