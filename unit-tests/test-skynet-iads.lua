@@ -114,6 +114,7 @@ function TestSkynetIADS:testEarlyWarningRadarHasWorkingPowerSourceByDefault()
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), true)
 end
 
+--[[
 function TestSkynetIADS:testPowerSourceConnectedToMultipleAbstractRadarElementSitesIsDestroyedAutonomousStateIsOnlyRebuiltOnce()
 
 	local iads = SkynetIADS:create()
@@ -149,7 +150,9 @@ function TestSkynetIADS:testPowerSourceConnectedToMultipleAbstractRadarElementSi
 	
 	
 end
+--]]
 
+--[[
 function TestSkynetIADS:testEarlyWarningRadarAndSAMSiteLooseConnectionNodeAndAutonomousStateIsOnlyRebuiltOnce()
 
 	local iads = SkynetIADS:create()
@@ -180,6 +183,7 @@ function TestSkynetIADS:testEarlyWarningRadarAndSAMSiteLooseConnectionNodeAndAut
 	lu.assertEquals(updateCalls, 1)
 	
 end
+--]]
 
 function TestSkynetIADS:testAWACSHasMovedAndThereforeRebuildAutonomousStatesOfSAMSites()
 
@@ -686,6 +690,18 @@ function TestSkynetIADS:testBuildRadarCoverageAssociation()
 	
 	sa10Child = sa10:getChildRadars()[1]
 	lu.assertEquals(sa151, sa10Child)
+	
+	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
+	local ewRadarChildren = ewRadar:getChildRadars()
+	
+	lu.assertEquals(#ewRadarChildren, 2)
+	lu.assertEquals(#ewRadar:getParentRadars(), 0)
+	
+	local samSA6 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
+	lu.assertEquals(ewRadarChildren[1], samSA6)
+	
+	local samSA62 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
+	lu.assertEquals(ewRadarChildren[2], samSA62)
 	
 end
 	

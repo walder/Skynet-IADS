@@ -1220,10 +1220,9 @@ function TestSkynetIADSAbstractRadarElement:testWillSAMShutDownWhenItLoosesPower
 		return true
 	end
 
-	--trigger the explosion of the power source:
+	--trigger the explosion of the power source, this should shut down the SAM site
 	trigger.action.explosion(powerSource:getPosition().p, 100)
 	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
-	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 

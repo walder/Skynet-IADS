@@ -90,7 +90,7 @@ end
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
 	local isAdded = false
 	for i = 1, #self.parentRadars do
-		local parent = self.parentRadar[i]
+		local parent = self.parentRadars[i]
 		if parent == parentRadar then
 			isAdded = true
 		end
@@ -120,6 +120,30 @@ end
 
 function SkynetIADSAbstractRadarElement:getChildRadars()
 	return self.childRadars
+end
+
+--TODO: Unit test this method
+function SkynetIADSAbstractRadarElement:informChildrenOfGoDark()
+	local children = self:getChildRadars()
+	for i = 1, #children do
+		local childRadar = children[i]
+		childRadar:checkIfParentsAreConnectedToIADS()
+	end
+end
+
+--TODO: Unit test this method
+function SkynetIADSAbstractElement:checkIfParentsAreConnectedToIADS()
+	local parents = self:getParentRadars()
+	for i = 1, #parents do
+		local parent = parents[i]
+		--of one parent exists that still is connected to the IADS, the SAM site does not have to go autonomous
+		--TODO: Add check if the parent is in EW mode, otherwise it does not count to prevent autonomous
+		--instead of isDestroyed() write method, hasWorkingSearchRadars()
+		if parent:hasWorkingPowerSource() and parent:hasActiveConnectionNode() and parent:isDestroyed() == false then
+			return
+		end
+	end
+	self:goAutonomous()
 end
 
 function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
@@ -427,11 +451,13 @@ function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
 	end
 end
 
+
 function SkynetIADSAbstractRadarElement:goDark()
 	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
 	then
+		self:informChildrenOfGoDark()
 		if self:isDestroyed() == false then
 			local controller = self:getController()
 			-- if the SAM site still has ammo we turn off the controller, this prevents rearming, however this way the SAM site is frozen in a red state, on the next actication it will be up and running much faster, therefore it will instantaneously engage targets

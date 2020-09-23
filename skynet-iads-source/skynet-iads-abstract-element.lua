@@ -105,11 +105,9 @@ function SkynetIADSAbstractElement:onEvent(event)
 	if event.id == world.event.S_EVENT_DEAD then
 		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
 			self:goDark()
-			self.iads:updateAutonomousStatesOfSAMSites(event.initiator)
 		end
 		if self:hasActiveConnectionNode() == false then
 			self:goAutonomous()
-			self.iads:updateAutonomousStatesOfSAMSites(event.initiator)
 		end
 	end
 	if event.id == world.event.S_EVENT_SHOT then

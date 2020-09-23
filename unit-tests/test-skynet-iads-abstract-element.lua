@@ -43,43 +43,17 @@ function TestSkynetIADSAbstractElement:testPowerSourceAndConnectionNodeStaticObj
 
 	local powerSource = StaticObject.getByName("test-ground-vehicle-power-source")
 	local connectionNode = StaticObject.getByName("test-ground-vehicle-connection-node")
-	
-	--[[
-	in this test there will be 4 calls to updateAutonomousStatesOfSAMSites
-	because it is called when a connectionNode is added and when the powerSource is destroyed
-	due to the if statement in onEvent its called twice when the connectionNode is destroyed
-	onEvent could be rewritten to prevent call 3 and 4 however for the moment these double calls have no negative impact on the IADS code
-	--]] 
-	local numCalls = 0
-	function self.iads:updateAutonomousStatesOfSAMSites(deadUnit)
-		numCalls = numCalls + 1
-		if numCalls == 1 then
-			lu.assertEquals(deadUnit, nil)
-		end
-		if numCalls == 2 then
-			lu.assertEquals(deadUnit, powerSource)
-		end
 		
-		if numCalls == 3 then
-			lu.assertEquals(deadUnit, connectionNode)
-		end
-
-		if numCalls == 4 then
-			lu.assertEquals(deadUnit, connectionNode)
-		end
-		
-	end
-
 	self.abstractElement:addPowerSource(powerSource)
 	self.abstractElement:addConnectionNode(connectionNode)
 	lu.assertEquals(self.abstractElement:hasWorkingPowerSource(), true)
 	lu.assertEquals(self.abstractElement:hasActiveConnectionNode(), true)
+	
 	trigger.action.explosion(powerSource:getPosition().p, 100)
 	trigger.action.explosion(connectionNode:getPosition().p, 500)
+	
 	lu.assertEquals(self.abstractElement:hasWorkingPowerSource(), false)
 	lu.assertEquals(self.abstractElement:hasActiveConnectionNode(), false)
-	
-	lu.assertEquals(numCalls, 4)
 end	
 
 function TestSkynetIADSAbstractElement:testGetNatoName()

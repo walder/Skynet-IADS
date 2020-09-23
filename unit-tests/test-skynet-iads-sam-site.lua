@@ -30,14 +30,22 @@ function TestSkynetIADSSAMSite:tearDown()
 	self.samSiteName = nil
 end
 
+
 function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInToIADS()
-	local iads = SkynetIADS:create()
-	local samSite = iads:addSAMSite("Destruction-test-sam"):setActAsEW(true)
-	local samSite2 = iads:addSAMSite('prefixtest-sam')
+	
+	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), SkynetIADS:create('test')):setActAsEW(true)
+	samSite:setupElements()
+
+	local samSite2 = SkynetIADSSamSite:create(Group.getByName('prefixtest-sam'), SkynetIADS:create('test'))
+	samSite2:setupElements()
+	
+	samSite:addChildRadar(samSite2)
+	samSite2:addParentRadar(samSite)
+	
 	lu.assertEquals(samSite2:getAutonomousState(), false)
 	lu.assertEquals(samSite:isDestroyed(), false)
 	lu.assertEquals(samSite:hasWorkingRadar(), true)
-	lu.assertEquals(#iads:getUsableSAMSites(), 2)
+	
 	local radars = samSite:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
@@ -51,8 +59,7 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	lu.assertEquals(samSite:isActive(), false)
 	lu.assertEquals(samSite:isDestroyed(), true)
 	lu.assertEquals(samSite:hasWorkingRadar(), false)
-	lu.assertEquals(#iads:getDestroyedSAMSites(), 1)
-	lu.assertEquals(#iads:getUsableSAMSites(), 1)
+
 	lu.assertEquals(samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(samSite:getInitialNumberOfMissiles(), 6)
 	lu.assertEquals(samSite:hasRemainingAmmo(), false)
@@ -66,8 +73,11 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	lu.assertEquals(samSite:getNatoName(), "SA-6")
 	lu.assertEquals(#samSite:getRadars(), 3)
 	lu.assertEquals(#samSite:getLaunchers(), 2)
-	iads:deactivate()
+	
+	samSite:cleanUp()
+	samSite2:cleanUp()
 end	
+
 
 function TestSkynetIADSSAMSite:testInformOfContactNotInRange()
 	self.samSiteName = "SAM-SA-6"
