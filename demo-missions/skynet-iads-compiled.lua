@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.2-develop | BUILD TIME: 23.09.2020 1914Z ---")
+env.info("--- SKYNET VERSION: 1.1.2-develop | BUILD TIME: 24.09.2020 1106Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1698,34 +1698,28 @@ end
 
 --TODO: unit test this method
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
-	local isAdded = false
-	for i = 1, #self.parentRadars do
-		local parent = self.parentRadars[i]
-		if parent == parentRadar then
-			isAdded = true
-		end
-	end
-	if isAdded == false then
-		table.insert(self.parentRadars, parentRadar)
-	end
+	self:abstractAddRadar(parentRadar, self.parentRadars)
 end
 
 function SkynetIADSAbstractRadarElement:getParentRadars()
 	return self.parentRadars
 end
 
---TODO: Unit test this method
-function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
-	local isAdded = false
-	for i = 1, #self.childRadars do
-		local child = self.childRadars[i]
-		if child == childRadar then
+function SkynetIADSAbstractRadarElement:abstractAddRadar(radar, tbl)
+local isAdded = false
+	for i = 1, #tbl do
+		local child = tbl[i]
+		if child == radar then
 			isAdded = true
 		end
 	end
 	if isAdded == false then
-		table.insert(self.childRadars, childRadar)
+		table.insert(tbl, radar)
 	end
+end
+
+function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
+	self:abstractAddRadar(childRadar, self.childRadars)
 end
 
 function SkynetIADSAbstractRadarElement:getChildRadars()

@@ -29,6 +29,52 @@ function TestSkynetIADSAbstractRadarElement:tearDown()
 	self.samSiteName = nil
 end
 
+function TestSkynetIADSAbstractRadarElement:testAddChildRadar()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getChildRadars(), 0)
+	local childRad1 = {}
+	self.samSite:addChildRadar(childRad1)
+	lu.assertEquals(#self.samSite:getChildRadars(), 1)
+	
+	--try adding the same radar again, make sure its not added:
+	self.samSite:addChildRadar(childRad1)
+	lu.assertEquals(#self.samSite:getChildRadars(), 1)
+	
+	local childRad2 = {}
+	self.samSite:addChildRadar(childRad2)
+	lu.assertEquals(#self.samSite:getChildRadars(), 2)
+	
+	lu.assertEquals(self.samSite:getChildRadars()[1], childRad1)
+	lu.assertEquals(self.samSite:getChildRadars()[2], childRad2)
+	
+	--reset array to prevent teardownd issues with mock objects
+	self.samSite.childRadars = {}
+end
+
+function TestSkynetIADSAbstractRadarElement:testAddParentRadar()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getParentRadars(), 0)
+	local parentRad1 = {}
+	self.samSite:addParentRadar(parentRad1)
+	lu.assertEquals(#self.samSite:getParentRadars(), 1)
+	
+	--try adding the same radar again, make sure its not added:
+	self.samSite:addParentRadar(parentRad1)
+	lu.assertEquals(#self.samSite:getParentRadars(), 1)
+	
+	local parentRad2 = {}
+	self.samSite:addParentRadar(parentRad2)
+	lu.assertEquals(#self.samSite:getParentRadars(), 2)
+	
+	lu.assertEquals(self.samSite:getParentRadars()[1], parentRad2)
+	lu.assertEquals(self.samSite:getParentRadars()[2], parentRad1)
+	
+	--reset array to prevent teardownd issues with mock objects
+	self.samSite.parentRadars = {}
+end
+
 -- TODO: write test for updateMissilesInFlight in AbstractRadarElement
 function TestSkynetIADSAbstractRadarElement:testUpdateMissilesInFlight()
 	self.samSiteName = "SAM-SA-6-2"
