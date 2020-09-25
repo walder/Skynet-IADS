@@ -29,6 +29,7 @@ end
 function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
 		
 		local ewRadar = SkynetIADSAWACSRadar:create(Unit.getByName('EW-west22-destroy'), SkynetIADS:create('test'))
+		ewRadar:setActAsEW(true)
 		ewRadar:goLive()
 		
 		local sa61 = SkynetIADSSamSite:create(Group.getByName('SAM-SA-6'), SkynetIADS:create('test'))
@@ -39,6 +40,9 @@ function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
 		sa61:addParentRadar(ewRadar)
 		ewRadar:addChildRadar(sa62)
 		sa62:addParentRadar(ewRadar)
+		
+		sa61:setToCorrectAutonomousState()
+		sa62:setToCorrectAutonomousState()
 		
 		lu.assertEquals(ewRadar:hasRemainingAmmo(), true)
 		lu.assertEquals(ewRadar:isActive(), true)
@@ -406,14 +410,4 @@ function TestSkynetIADSEWRadar:testTiconderoga()
 	lu.assertEquals(Unit.getByName(self.ewRadarName):getDesc().category, Unit.Category.SHIP)
 end
 
-function TestSkynetIADSEWRadar:testUpdateSAMSitesInCoveredArea()
-	self.ewRadarName = "EW-west23"
-	self:setUp()
-	self.iads:addSAMSitesByPrefix('SAM')
-	lu.assertEquals(#self.ewRadar:updateSAMSitesInCoveredArea(), 3)
-	local samSites = self.ewRadar:getSAMSitesInCoveredArea()
-	lu.assertEquals(samSites[2]:getDCSRepresentation():getName(), "SAM-SA-2")
-	lu.assertEquals(samSites[1]:getDCSRepresentation():getName(), "SAM-SA-19")
-	lu.assertEquals(samSites[3]:getDCSRepresentation():getName(), "SAM-SA-15")
-end
 end

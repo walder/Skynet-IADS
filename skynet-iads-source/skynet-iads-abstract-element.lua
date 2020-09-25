@@ -39,7 +39,7 @@ end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
-	self.iads:updateAutonomousStatesOfSAMSites()
+	self:setToCorrectAutonomousState()
 	return self
 end
 
@@ -127,6 +127,11 @@ end
 
 --placeholder method, can be implemented by subclasses
 function SkynetIADSAbstractElement:goAutonomous()
+
+end
+
+--placeholder method, can be implemented by subclasses
+function SkynetIADSAbstractElement:setToCorrectAutonomousState()
 
 end
 

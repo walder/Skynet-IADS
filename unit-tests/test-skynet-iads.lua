@@ -100,7 +100,7 @@ function TestSkynetIADS:testEvaluateContacts1EWAnd1SAMSiteWithContactInRange()
 	lu.assertEquals(#iads:getContacts(), 1)
 	lu.assertEquals(samSite:isActive(), true)
 	
-	-- we remove the target to test if the sam site will no go dark, was added for the performance optimised code
+	-- we remove the target to test if the sam site will now go dark, was added for the performance optimised code
 	function ewRadar:getDetectedTargets()
 		return {}
 	end
@@ -185,6 +185,7 @@ function TestSkynetIADS:testEarlyWarningRadarAndSAMSiteLooseConnectionNodeAndAut
 end
 --]]
 
+--[[
 function TestSkynetIADS:testAWACSHasMovedAndThereforeRebuildAutonomousStatesOfSAMSites()
 
 	local iads = SkynetIADS:create()
@@ -222,13 +223,14 @@ function TestSkynetIADS:testAWACSHasMovedAndThereforeRebuildAutonomousStatesOfSA
 	lu.assertEquals(updateCalls, 1)
 	
 end
+--]]
 
 
 function TestSkynetIADS:testSAMSiteLoosesPower()
 	local powerSource = StaticObject.getByName('SA-6 Power')
 	local samSite = self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):addPowerSource(powerSource)
 	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites)
-	lu.assertEquals(samSite:isActive(), false)
+	samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
 	samSite:goLive()
 	lu.assertEquals(samSite:isActive(), true)
 	trigger.action.explosion(powerSource:getPosition().p, 100)
@@ -239,13 +241,16 @@ end
 function TestSkynetIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	local sa6ConnectionNode = StaticObject.getByName('SA-6 Connection Node')
 	self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):addConnectionNode(sa6ConnectionNode)
+	
 	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
 	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites)
+	
 	trigger.action.explosion(sa6ConnectionNode:getPosition().p, 100)
 	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites-1)
 
 	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites-1)
 	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
+	
 	local samSite = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
 	lu.assertEquals(samSite:isActive(), true)
 
@@ -253,8 +258,9 @@ function TestSkynetIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	lu.assertEquals(samSite:isActive(), true)
 end
 
+--[[
 function TestSkynetIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
-	local sa6ConnectionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
+	local sa6Connec	tionNode2 = StaticObject.getByName('SA-6-2 Connection Node')
 	local samSite = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	lu.assertEquals(samSite:isActive(), false)
 	self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(sa6ConnectionNode2):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
@@ -264,6 +270,7 @@ function TestSkynetIADS:testSAMSiteSA62ConnectionNodeLostAutonomusStateDark()
 	lu.assertEquals(#samSite:getRadars(), 1)
 	lu.assertEquals(samSite:isActive(), false)
 end
+--]]
 
 function TestSkynetIADS:testOneCommandCenterIsDestroyed()
 	local powerStation1 = StaticObject.getByName("Command Center Power")
@@ -280,6 +287,7 @@ end
 function TestSkynetIADS:testSetSamSitesToAutonomous()
 	local samSiteDark = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
 	local samSiteActive = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
+	self.testIADS:buildRadarCoverage()
 	lu.assertEquals(samSiteDark:isActive(), false)
 	lu.assertEquals(samSiteActive:isActive(), false)
 	self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
@@ -563,37 +571,7 @@ function TestSkynetIADS:testAddMooseSetGroup()
 	lu.assertEquals(setGroupCalled, true)
 end
 
--- this test ensures all the required calls to update the iads coverage are called
--- its fully mocked the single functions are unit tested in other test cases
-function TestSkynetIADS:testUpdateIADSCoverage()
-
-	local coveredAreaCalled = false
-	function self.testIADS:buildSAMSitesInCoveredArea()
-		coveredAreaCalled = true
-	end
-	
-	local enforceBuildAutonomous = false
-	function self.testIADS:enforceRebuildAutonomousStateOfSAMSites()
-		enforceBuildAutonomous = true
-	end
-	
-	local mockMooseConnector = {}
-	local updateCalled = false
-	function mockMooseConnector:update()
-		updateCalled = true
-	end
-	function self.testIADS:getMooseConnector()
-		return mockMooseConnector
-	end
-	
-	self.testIADS:updateIADSCoverage()
-	
-	lu.assertEquals(coveredAreaCalled, true)
-	lu.assertEquals(enforceBuildAutonomous, true)
-	lu.assertEquals(updateCalled, true)
-end
-
-function TestSkynetIADS:testWillSAMSitesWithNoCoverageGoAutonomous()
+function TestSkynetIADS:buildRadarCoverage()
 	self:tearDown()
 
 	self.testIADS = SkynetIADS:create()
@@ -613,6 +591,7 @@ function TestSkynetIADS:testWillSAMSitesWithNoCoverageGoAutonomous()
 	lu.assertEquals(ewSAM:getAutonomousState(), false)
 end
 
+--[[
 function TestSkynetIADS:testSAMSiteLoosesConnectionThenAddANewOneAgain()
 	self:tearDown()
 	self.testIADS = SkynetIADS:create()
@@ -631,42 +610,13 @@ function TestSkynetIADS:testSAMSiteLoosesConnectionThenAddANewOneAgain()
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
 	
 end
-
-function TestSkynetIADS:testBuildSAMSitesInCoveredArea()
-	local iads = SkynetIADS:create()
-	
-	local mockSAM = {}
-	local samCalled = false
-	function mockSAM:updateSAMSitesInCoveredArea()
-		samCalled = true
-	end
-	
-	function iads:getUsableSAMSites()
-		return {mockSAM}
-	end
-	
-	local mockEW = {}
-	local ewCalled = false
-	function mockEW:updateSAMSitesInCoveredArea()
-		ewCalled = true
-	end
-	
-	function iads:getUsableEarlyWarningRadars()
-		return {mockEW}
-	end
-	
-	iads:buildSAMSitesInCoveredArea()
-	
-	lu.assertEquals(samCalled, true)
-	lu.assertEquals(ewCalled, true)
-	
-end
+--]]
 
 --TODO: add more comparisons in this test
 -- especially checks of ew radar coverage!
-function TestSkynetIADS:testBuildRadarCoverageAssociation()
+function TestSkynetIADS:testBuildRadarCoverage()
 	self:setUp()
-	self.testIADS:buildRadarCoverageAssociation()
+	self.testIADS:buildRadarCoverage()
 	local sa19 = self.testIADS:getSAMSiteByGroupName('SAM-SA-19')
 	local sa19Parent = sa19:getParentRadars()[1]
 	local sa2 = self.testIADS:getSAMSiteByGroupName('SAM-SA-2')
@@ -732,27 +682,31 @@ end
 
 function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWillTriggerAutonomousStateUpdate()
 	local iads = SkynetIADS:create()
-	local numTimesCalledUpdate = 0
+	local calledSAMUpdate = 0
+	local calledEWUpdate = 0
 	
-	function iads:updateIADSCoverage()
-		numTimesCalledUpdate = numTimesCalledUpdate + 1
+	function iads:buildRadarCoverageForRadar(samSite)
+		calledSAMUpdate = calledSAMUpdate + 1
+	end
+	
+	function iads:buildRadarCoverage()
+		calledEWUpdate = calledEWUpdate + 1
 	end
 	
 	local ewRadar = iads:addEarlyWarningRadar('EW-west')
-	lu.assertEquals(numTimesCalledUpdate, 0)
+	lu.assertEquals(calledEWUpdate, 0)
 	
 	local samSite = iads:addSAMSite('SAM-SA-6-2')
-	lu.assertEquals(numTimesCalledUpdate, 0)
+	lu.assertEquals(calledSAMUpdate, 0)
 	
-	--activate IADS, now the function must be called:
-	iads:activate()
-	lu.assertEquals(numTimesCalledUpdate, 1)
+	--simulate an active IADS:
+	iads.ewRadarScanMistTaskID = 1
 	
 	local ewRadar = iads:addEarlyWarningRadar('EW-west')
-	lu.assertEquals(numTimesCalledUpdate, 2)
+	lu.assertEquals(calledEWUpdate, 1)
 	
 	local samSite = iads:addSAMSite('SAM-SA-6-2')
-	lu.assertEquals(numTimesCalledUpdate, 3)
+	lu.assertEquals(calledSAMUpdate, 1)
 	
 end
 

@@ -5,6 +5,10 @@ TestSkynetIADSAbstractElement = {}
 function TestSkynetIADSAbstractElement:setUp()
 	self.iads =  SkynetIADS:create()
 	self.abstractElement = SkynetIADSAbstractElement:create(Group.getByName("SAM-SA-6-2"), self.iads)
+	
+	--mock this fucntion we test it once in testCheckOneGenericObjectAliveForUnitWorks
+	function self.abstractElement:setToCorrectAutonomousState()
+	end
 end
 
 function TestSkynetIADSAbstractElement:tearDown()
@@ -20,7 +24,15 @@ end
 
 function TestSkynetIADSAbstractElement:testCheckOneGenericObjectAliveForUnitWorks()
 	local unit = Unit.getByName('SAM-SA-6-2-connection-node-unit')
+	
+	local called = false
+	
+	function self.abstractElement:setToCorrectAutonomousState()
+		called = true
+	end
+	
 	self.abstractElement:addConnectionNode(unit)
+	lu.assertEquals(called, true)
 	lu.assertEquals(self.abstractElement:genericCheckOneObjectIsAlive(self.abstractElement.connectionNodes), true)
 	lu.assertEquals(self.abstractElement:hasActiveConnectionNode(), true)
 	trigger.action.explosion(unit:getPosition().p, 1000)

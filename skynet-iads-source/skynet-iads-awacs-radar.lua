@@ -19,6 +19,7 @@ function SkynetIADSAWACSRadar:setupElements()
 	table.insert(self.searchRadars, radar)
 end
 
+
 -- AWACs will not scan for HARMS
 function SkynetIADSAWACSRadar:scanForHarms()
 	

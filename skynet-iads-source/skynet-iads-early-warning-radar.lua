@@ -11,4 +11,13 @@ function SkynetIADSEWRadar:create(radarUnit, iads)
 	return instance
 end
 
+--an Early Warning Radar has simplified check to detrmine if its autonomous or not
+function SkynetIADSEWRadar:setToCorrectAutonomousState()
+	if self:hasActiveConnectionNode() then
+		self:resetAutonomousState()
+		return
+	end
+	self:goAutonomous()
+end
+
 end

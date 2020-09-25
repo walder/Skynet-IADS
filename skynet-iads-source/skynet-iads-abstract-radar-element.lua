@@ -22,7 +22,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
-	instance.samSitesInCoveredArea = {}
+	--instance.samSitesInCoveredArea = {}
 	instance.parentRadars = {}
 	instance.childRadars = {}
 	instance.missilesInFlight = {}
@@ -30,7 +30,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
-	instance.isAutonomous = false
+	instance.isAutonomous = true
 	instance.harmDetectionChance = 0
 	instance.minHarmShutdownTime = 0
 	instance.maxHarmShutDownTime = 0
@@ -87,6 +87,7 @@ end
 
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
 	self:abstractAddRadar(parentRadar, self.parentRadars)
+	self:setToCorrectAutonomousState()
 end
 
 function SkynetIADSAbstractRadarElement:getParentRadars()
@@ -114,30 +115,29 @@ function SkynetIADSAbstractRadarElement:getChildRadars()
 	return self.childRadars
 end
 
---TODO: Unit test this method
 function SkynetIADSAbstractRadarElement:informChildrenOfGoDark()
 	local children = self:getChildRadars()
 	for i = 1, #children do
 		local childRadar = children[i]
-		childRadar:checkIfParentsAreConnectedToIADS()
+		childRadar:setToCorrectAutonomousState()
 	end
 end
 
---TODO: Unit test this method
-function SkynetIADSAbstractElement:checkIfParentsAreConnectedToIADS()
+function SkynetIADSAbstractElement:setToCorrectAutonomousState()
 	local parents = self:getParentRadars()
 	for i = 1, #parents do
 		local parent = parents[i]
 		--of one parent exists that still is connected to the IADS, the SAM site does not have to go autonomous
-		--TODO: Add check if the parent is in EW mode, otherwise it does not count to prevent autonomous
 		--instead of isDestroyed() write method, hasWorkingSearchRadars()
-		if parent:hasWorkingPowerSource() and parent:hasActiveConnectionNode() and parent:isDestroyed() == false then
+		if self:hasActiveConnectionNode() and parent:hasWorkingPowerSource() and parent:hasActiveConnectionNode() and parent:getActAsEW() == true and parent:isDestroyed() == false then
+			self:resetAutonomousState()
 			return
 		end
 	end
 	self:goAutonomous()
 end
 
+--[[
 function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
 	local samSites = self.iads:getUsableSAMSites()
 	self.samSitesInCoveredArea = {}
@@ -149,10 +149,13 @@ function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
 	end
 	return self.samSitesInCoveredArea
 end
+--]]
 
+--[[
 function SkynetIADSAbstractRadarElement:getSAMSitesInCoveredArea()
 	return self.samSitesInCoveredArea
 end
+--]]
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
 	local remainingMissiles = 0
@@ -417,7 +420,6 @@ end
 
 function SkynetIADSAbstractRadarElement:goLive()
 	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil) 
-	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
 	and (self:hasRemainingAmmo() == true  )
 	then
 		if self:isDestroyed() == false then
@@ -447,7 +449,6 @@ end
 function SkynetIADSAbstractRadarElement:goDark()
 	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
-	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
 	then
 		self:informChildrenOfGoDark()
 		if self:isDestroyed() == false then
@@ -567,9 +568,11 @@ function SkynetIADSAbstractRadarElement:resetAutonomousState()
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
-	if self.isAutonomous == false then
+	if self.isAutonomous == false and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
 		self.isAutonomous = true
 		self:goDark()
+	else
+		self.isAutonomous = true
 		self:goLive()
 	end
 end
