@@ -22,7 +22,6 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
-	--instance.samSitesInCoveredArea = {}
 	instance.parentRadars = {}
 	instance.childRadars = {}
 	instance.missilesInFlight = {}
@@ -94,6 +93,10 @@ function SkynetIADSAbstractRadarElement:getParentRadars()
 	return self.parentRadars
 end
 
+function SkynetIADSAbstractRadarElement:clearParentRadars()
+	self.parentRadars = {}
+end
+
 function SkynetIADSAbstractRadarElement:abstractAddRadar(radar, tbl)
 local isAdded = false
 	for i = 1, #tbl do
@@ -115,7 +118,23 @@ function SkynetIADSAbstractRadarElement:getChildRadars()
 	return self.childRadars
 end
 
-function SkynetIADSAbstractRadarElement:informChildrenOfGoDark()
+function SkynetIADSAbstractRadarElement:clearChildRadars()
+	self.childRadars = {}
+end
+
+--TODO: unit test this method
+function SkynetIADSAbstractElement:getUsableChildRadars()
+	local usableRadars = {}
+	for i = 1, #self.childRadars do
+		local childRadar = self.childRadars[i]
+		if childRadar:hasWorkingPowerSource() and childRadar:hasActiveConnectionNode() then
+			table.insert(usableRadars, childRadar)
+		end
+	end	
+	return usableRadars
+end
+
+function SkynetIADSAbstractRadarElement:informChildrenOfStateChange()
 	local children = self:getChildRadars()
 	for i = 1, #children do
 		local childRadar = children[i]
@@ -136,26 +155,6 @@ function SkynetIADSAbstractElement:setToCorrectAutonomousState()
 	end
 	self:goAutonomous()
 end
-
---[[
-function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
-	local samSites = self.iads:getUsableSAMSites()
-	self.samSitesInCoveredArea = {}
-	for i = 1, #samSites do
-		local samSite = samSites[i]
-		if samSite:isInRadarDetectionRangeOf(self) and samSite ~= self then
-			table.insert(self.samSitesInCoveredArea, samSite)
-		end
-	end
-	return self.samSitesInCoveredArea
-end
---]]
-
---[[
-function SkynetIADSAbstractRadarElement:getSAMSitesInCoveredArea()
-	return self.samSitesInCoveredArea
-end
---]]
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
 	local remainingMissiles = 0
@@ -223,7 +222,14 @@ end
 
 function SkynetIADSAbstractRadarElement:setActAsEW(ewState)
 	if ewState == true or ewState == false then
+		local stateChange = false
+		if ewState ~= self.actAsEW then
+			stateChange = true
+		end
 		self.actAsEW = ewState
+		if stateChange then
+			self:informChildrenOfStateChange()
+		end
 	end
 	if self.actAsEW == true then
 		self:goLive()
@@ -450,7 +456,6 @@ function SkynetIADSAbstractRadarElement:goDark()
 	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	then
-		self:informChildrenOfGoDark()
 		if self:isDestroyed() == false then
 			local controller = self:getController()
 			-- if the SAM site still has ammo we turn off the controller, this prevents rearming, however this way the SAM site is frozen in a red state, on the next actication it will be up and running much faster, therefore it will instantaneously engage targets

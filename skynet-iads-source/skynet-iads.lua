@@ -133,7 +133,7 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	ewRadar:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())	
 	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
 	if self.ewRadarScanMistTaskID ~= nil then
-		self:buildRadarCoverage()
+		self:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 	end
 	ewRadar:setActAsEW(true)
 	ewRadar:setToCorrectAutonomousState()
@@ -204,12 +204,12 @@ function SkynetIADS:addSAMSite(samSiteName)
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
 	samSite:setupElements()
+	samSite:goLive()
 	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
 	if self.ewRadarScanMistTaskID ~= nil then
-		self:buildRadarCoverageForRadar(samSite)
+		self:buildRadarCoverageForSAMSite(samSite)
 	end
 	samSite:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())
-	samSite:goLive()
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutput("you have added an SAM Site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
 		samSite:cleanUp()
@@ -315,8 +315,6 @@ function SkynetIADS.evaluateContacts(self)
 
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
-
-	-- rewrote this part of the code to keep loops to a minimum
 	
 	--will add SAM Sites acting as EW Rardars to the ewRadars array:
 	for i = 1, #samSites do
@@ -344,15 +342,11 @@ function SkynetIADS.evaluateContacts(self)
 		ewRadar:goLive()
 		-- if an awacs has traveled more than a predeterminded distance we update the autonomous state of the SAMs
 		if getmetatable(ewRadar) == SkynetIADSAWACSRadar and ewRadar:isUpdateOfAutonomousStateOfSAMSitesRequired() then
-			--TODO: make update in this part more efficient, only the ewRadar of AWACS needs updating
-			--load the SAMS it is protecting, do autonomus check
-			-- then update to create new protected SAM Sites
-			--ewRadar:updateSAMSitesInCoveredArea()
-			--self:updateAutonomousStatesOfSAMSites()
+			self:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 		end
 		local ewContacts = ewRadar:getDetectedTargets()
 		if #ewContacts > 0 then
-			local samSitesUnderCoverage = ewRadar:getChildRadars()
+			local samSitesUnderCoverage = ewRadar:getUsableChildRadars()
 			for j = 1, #samSitesUnderCoverage do
 				local samSiteUnterCoverage = samSitesUnderCoverage[j]
 				-- only if a SAM site is not active we add it to the hash of SAM sites to be iterated later on
@@ -402,32 +396,33 @@ function SkynetIADS:cleanAgedTargets()
 	self.contacts = contactsToKeep
 end
 
---[[
-function SkynetIADS:buildSAMSitesInCoveredArea()
-	local samSites = self:getUsableSAMSites()
+-- this method rebuilds the radar coverage of the IADS, a complete rebuild is only required the first time the IADS is activated
+-- during runtime it is sufficient to call a differnt method that just updates the IADS for one unit, this saves script execution time
+function SkynetIADS:buildRadarCoverage()
+	--to build the basic radar coverage we use all SAM sites. Checks if SAM site has power or a connection node is done when using the SAM site later on
+	local samSites = self:getSAMSites()
+	
+	--first we clear all child and parent radars that may have been added previously
 	for i = 1, #samSites do
 		local samSite = samSites[i]
-		samSite:updateSAMSitesInCoveredArea()
+		samSite:clearChildRadars()
+		samSite:clearParentRadars()
 	end
 	
-	local ewRadars = self:getUsableEarlyWarningRadars()
+	local ewRadars = self:getEarlyWarningRadars()
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
-		ewRadar:updateSAMSitesInCoveredArea()
-	end
-end
---]]
-
-function SkynetIADS:buildRadarCoverage()
-	--to build the basic coverage association we use all SAM sites. Checks if SAM site has power or is reachable are done when turning a SAM site on or off.
-	local samSites = self:getSAMSites()
+		ewRadar:clearChildRadars()
+	end	
+	
+	--then we rebuild the radar coverage
 	for i = 1, #samSites do
 		local samSite = samSites[i]
-		self:buildRadarCoverageForRadar(samSite)
+		self:buildRadarCoverageForSAMSite(samSite)
 	end
 end
 
-function SkynetIADS:buildRadarCoverageForRadar(samSite)
+function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
 		local samSitesToCompare = self:getSAMSites()
 		for j = 1, #samSitesToCompare do	
 			local samSiteToCompare = samSitesToCompare[j]
@@ -448,54 +443,20 @@ function SkynetIADS:buildRadarCoverageForRadar(samSite)
 		
 end
 
-
---[[
-function SkynetIADS:updateIADSCoverage()
-	self:buildSAMSitesInCoveredArea()
-	self:enforceRebuildAutonomousStateOfSAMSites()
-	--update moose connector with radar group names Skynet is able to use
-	self:getMooseConnector():update()
-end
---]]
-
---[[
-function SkynetIADS:updateAutonomousStatesOfSAMSites(deadUnit)
-	--deat unit is to prevent multiple calls via the event handling of SkynetIADSAbstractElement when a units power source or connection node is destroyed
-	if deadUnit == nil or self.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite ~= deadUnit then
-		self:updateIADSCoverage()
-		self.destroyedUnitResponsibleForUpdateAutonomousStateOfSAMSite = deadUnit
-	end
-end
---]]
-
---[[
-function SkynetIADS:enforceRebuildAutonomousStateOfSAMSites()
-	local ewRadars = self:getUsableEarlyWarningRadars()
-	local samSites = self:getUsableSAMSites()
+function SkynetIADS:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 	
+	--clear all existing child radars, EW radars don't have parent radars
+	ewRadar:clearChildRadars()
+	
+	local samSites = self:getSAMSites()
 	for i = 1, #samSites do
 		local samSite = samSites[i]
-		if samSite:getActAsEW() then
-			table.insert(ewRadars, samSite)
-		end
-	end
-
-	for i = 1, #samSites do
-		local samSite = samSites[i]
-		local inRange = false
-		for j = 1, #ewRadars do
-			if samSite:isInRadarDetectionRangeOf(ewRadars[j]) then
-				inRange = true
-			end
-		end
-		if inRange == false then
-			samSite:goAutonomous()
-		else
-			samSite:resetAutonomousState()
+		if samSite:isInRadarDetectionRangeOf(ewRadar) then
+			ewRadar:addChildRadar(samSite)
+			samSite:addParentRadar(ewRadar)
 		end
 	end
 end
---]]
 
 function SkynetIADS:mergeContact(contact)
 	local existingContact = false
@@ -675,7 +636,7 @@ function SkynetIADS:printDetailedEarlyWarningRadarStatus()
 		local intactPowerSources = numPowerSources - numDamagedPowerSources 
 		
 		local detectedTargets = ewRadar:getDetectedTargets()
-		local samSitesInCoveredArea = ewRadar:getSAMSitesInCoveredArea()
+		local samSitesInCoveredArea = ewRadar:getChildRadars()
 		
 		local unitName = "DESTROYED"
 		
@@ -750,7 +711,7 @@ function SkynetIADS:printDetailedSAMSiteStatus()
 		
 		local detectedTargets = samSite:getDetectedTargets()
 		
-		local samSitesInCoveredArea = samSite:getSAMSitesInCoveredArea()
+		local samSitesInCoveredArea = samSite:getChildRadars()
 		
 		env.info("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
 		env.info("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT:"..tostring(samSite:getNumberOfMissilesInFlight()))

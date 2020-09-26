@@ -30,6 +30,7 @@ end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
+	self:informChildrenOfStateChange()
 	return self
 end
 
@@ -40,6 +41,7 @@ end
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
 	self:setToCorrectAutonomousState()
+	self:informChildrenOfStateChange()
 	return self
 end
 
@@ -105,9 +107,11 @@ function SkynetIADSAbstractElement:onEvent(event)
 	if event.id == world.event.S_EVENT_DEAD then
 		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
 			self:goDark()
+			self:informChildrenOfStateChange()
 		end
 		if self:hasActiveConnectionNode() == false then
-			self:goAutonomous()
+			self:setToCorrectAutonomousState()
+			self:informChildrenOfStateChange()
 		end
 	end
 	if event.id == world.event.S_EVENT_SHOT then
@@ -133,6 +137,11 @@ end
 --placeholder method, can be implemented by subclasses
 function SkynetIADSAbstractElement:setToCorrectAutonomousState()
 
+end
+
+--placeholder method, can be implemented by subclasses
+function SkynetIADSAbstractElement:informChildrenOfStateChange()
+	
 end
 
 -- helper code for class inheritance
