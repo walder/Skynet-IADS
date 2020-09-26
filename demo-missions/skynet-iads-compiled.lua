@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.2-develop | BUILD TIME: 26.09.2020 1557Z ---")
+env.info("--- SKYNET VERSION: 1.1.2-develop | BUILD TIME: 26.09.2020 1739Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1741,6 +1741,7 @@ function SkynetIADSAbstractRadarElement:informChildrenOfStateChange()
 		local childRadar = children[i]
 		childRadar:setToCorrectAutonomousState()
 	end
+	self.iads:getMooseConnector():update()
 end
 
 function SkynetIADSAbstractElement:setToCorrectAutonomousState()

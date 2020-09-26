@@ -139,6 +139,16 @@ function TestSkynetIADSAbstractRadarElement:testInformChildrenOfStateChange()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
 	
+	--we ensure the moose connector is updated if a state of an IADS radar changes
+	local updateCalled = false
+	local mockMoose = {}
+	function mockMoose:update()
+		updateCalled = true
+	end
+	function self.samSite.iads:getMooseConnector()
+		return mockMoose
+	end
+	
 	local calls = 0
 	local childRad1 = {}
 	function childRad1:setToCorrectAutonomousState()
@@ -153,7 +163,8 @@ function TestSkynetIADSAbstractRadarElement:testInformChildrenOfStateChange()
 	self.samSite:addChildRadar(childRad2)
 	
 	self.samSite:informChildrenOfStateChange()
-	
+
+	lu.assertEquals(updateCalled, true)
 	lu.assertEquals(calls, 2)
 end
 

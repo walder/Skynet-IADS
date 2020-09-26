@@ -140,6 +140,7 @@ function SkynetIADSAbstractRadarElement:informChildrenOfStateChange()
 		local childRadar = children[i]
 		childRadar:setToCorrectAutonomousState()
 	end
+	self.iads:getMooseConnector():update()
 end
 
 function SkynetIADSAbstractElement:setToCorrectAutonomousState()
