@@ -386,7 +386,7 @@ SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 ```
 
 This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. 
-During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300. You can also set the range above 100 this will have the effect that the SAM site goes live earlier:
+During this time a target might have already left the engagement zone of SAM site. This option is intended for long range systems like the S-300. You can also set the range above 100 this will have the effect that the SAM site goes live earlier:
 
 ```lua
 samSite:setGoLiveRangeInPercent(90)
