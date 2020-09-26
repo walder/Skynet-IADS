@@ -204,12 +204,12 @@ Place the IADS elements you wish to add on the map.
 ![Mission Editor IADS Setup](/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be only be one SAM site type per group. If different SAM sites are mixed in one group distance calculation for the IADS will be messed up.
+There may be only be **one SAM site per group**. More than one SAM site per group will result in Skynet no being able to control a single SAM site. Also please refrain from from adding units to the SAM group that are not required for the SAM like trucks, tanks and soldiers.
 The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
 ![Mission Editor add SAM site](/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'.  
+You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'. Make sure you have only **one EW radar in a group** otherwise Skynet will not be able to control single EW radars. 
 ![Mission Editor EW radar](/images/ew-setup.png)  
 
 ## Adding the Skynet code
@@ -574,7 +574,7 @@ This is an example of how you can set up your IADS used in the [demo mission](/d
 do
 
 --create an instance of the IADS
-redIADS = SkynetIADS:create('IRAN')
+redIADS = SkynetIADS:create('RED')
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
