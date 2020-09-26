@@ -184,29 +184,14 @@ function TestSkynetIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 end
 
 function TestSkynetIADS:testOneCommandCenterIsDestroyed()
-	local powerStation1 = StaticObject.getByName("Command Center Power")
 	local commandCenter1 = StaticObject.getByName("Command Center")	
 	lu.assertEquals(#self.testIADS:getCommandCenters(), 0)
-	self.testIADS:addCommandCenter(commandCenter1):addPowerSource(powerStation1)
+	self.testIADS:addCommandCenter(commandCenter1)
 	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
 	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
 	trigger.action.explosion(commandCenter1:getPosition().p, 10000)
 	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
 	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
-end
-
-function TestSkynetIADS:testSetSamSitesToAutonomous()
-	local samSiteDark = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
-	local samSiteActive = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
-	self.testIADS:buildRadarCoverage()
-	lu.assertEquals(samSiteDark:isActive(), false)
-	lu.assertEquals(samSiteActive:isActive(), false)
-	self.testIADS:getSAMSiteByGroupName('SAM-SA-6'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
-	self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2'):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
-	self.testIADS:setSAMSitesToAutonomousMode()
-	lu.assertEquals(samSiteDark:isActive(), false)
-	lu.assertEquals(samSiteActive:isActive(), true)
-	samSiteActive:goDark()
 end
 
 function TestSkynetIADS:testSetOptionsForSAMSiteType()

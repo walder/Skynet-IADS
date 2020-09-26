@@ -297,19 +297,12 @@ function SkynetIADS:getCommandCenters()
 	return self.commandCenters
 end
 
-function SkynetIADS:setSAMSitesToAutonomousMode()
-	for i= 1, #self.samSites do
-		samSite = self.samSites[i]
-		samSite:goAutonomous()
-	end
-end
 
 function SkynetIADS.evaluateContacts(self)
 	if self:isCommandCenterUsable() == false then
 		if self:getDebugSettings().noWorkingCommmandCenter then
 			self:printOutput("No Working Command Center")
 		end
-		self:setSAMSitesToAutonomousMode()
 		return
 	end
 
@@ -423,7 +416,9 @@ function SkynetIADS:buildRadarCoverage()
 end
 
 function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
-		local samSitesToCompare = self:getSAMSites()
+	local samSitesToCompare = self:getSAMSites()
+	local commandCenters = self:getCommandCenters()
+	
 		for j = 1, #samSitesToCompare do	
 			local samSiteToCompare = samSitesToCompare[j]
 			if samSite:isInRadarDetectionRangeOf(samSiteToCompare) and samSite ~= samSiteToCompare then
@@ -435,12 +430,17 @@ function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
 		local ewRadars = self:getEarlyWarningRadars()
 		for k = 1, #ewRadars do
 			local ewRadar = ewRadars[k]
-				if samSite:isInRadarDetectionRangeOf(ewRadar) then
-						samSite:addParentRadar(ewRadar)
-						ewRadar:addChildRadar(samSite)
-				end
+			if samSite:isInRadarDetectionRangeOf(ewRadar) then
+					samSite:addParentRadar(ewRadar)
+					ewRadar:addChildRadar(samSite)
+			end
+			for l = 1, #commandCenters do
+				local comCenter = commandCenters[l]
+				comCenter:addChildRadar(samSite)
+				--method checks to make sure ewRadar is only added once
+				comCenter:addChildRadar(ewRadar)
+			end	
 		end
-		
 end
 
 function SkynetIADS:buildRadarCoverageForEarlyWarningRadar(ewRadar)

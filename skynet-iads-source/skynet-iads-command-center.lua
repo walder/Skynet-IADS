@@ -1,6 +1,6 @@
 do
 SkynetIADSCommandCenter = {}
-SkynetIADSCommandCenter = inheritsFrom(SkynetIADSAbstractElement)
+SkynetIADSCommandCenter = inheritsFrom(SkynetIADSAbstractRadarElement)
 
 function SkynetIADSCommandCenter:create(commandCenter, iads)
 	local instance = self:superClass():create(commandCenter, iads)
@@ -8,6 +8,14 @@ function SkynetIADSCommandCenter:create(commandCenter, iads)
 	self.__index = self
 	instance.natoName = "Command Center"
 	return instance
+end
+
+function SkynetIADSCommandCenter:goDark()
+
+end
+
+function SkynetIADSCommandCenter:goLive()
+
 end
 
 end

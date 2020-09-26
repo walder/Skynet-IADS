@@ -204,7 +204,39 @@ function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectio
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
 	
 	ewRadar:addPowerSource(StaticObject.getByName('ew-power-source-2'))
+	lu.assertEquals(ewRadar:isActive(), true)
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
+	--test if a SAM site will stay active if it's in EW mode and it's parent EW radar becomes inoperable as long as SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK is set this will work
+	nonAutonomousSAM:setActAsEW(true)
+	trigger.action.explosion(StaticObject.getByName('ew-power-source-2'):getPosition().p, 500)
+	lu.assertEquals(ewRadar:isActive(), false)
+	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
+	lu.assertEquals(nonAutonomousSAM:isActive(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+
+	--test if command center is destroyed all SAM sites and EW radars should go autonomous:
+	ewRadar.powerSources = {}
+	nonAutonomousSAM.powerSources = {}
+	nonAutonomousSAM:setActAsEW(false)
+	ewRadar:setToCorrectAutonomousState()
+	ewRadar:informChildrenOfStateChange()
+	
+	lu.assertEquals(ewRadar:isActive(), true)
+	lu.assertEquals(nonAutonomousSAM:isActive(), false)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
+	local commandCenter = StaticObject.getByName('command-center-unit-test')
+	local comCenter = self.testIADS:addCommandCenter(commandCenter)
+	
+	self.testIADS:buildRadarCoverage()
+	lu.assertEquals(#comCenter:getChildRadars(), 2)
+	trigger.action.explosion(commandCenter:getPosition().p, 5000)
+	
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
+	lu.assertEquals(ewRadar:getAutonomousState(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	
 	self.testIADS:deactivate()
 end
 
@@ -1139,6 +1171,7 @@ function TestSkynetIADSAbstractRadarElement:testActAsEarlyWarningRadar()
 	lu.assertEquals(self.samSite:isActive(), false)
 	lu.assertEquals(samSA62:getAutonomousState(), true)
 	lu.assertEquals(samSA62:isActive(), false)
+
 end
 
 function TestSkynetIADSAbstractRadarElement:testInformOfContactInRangeWhenEarlyWaringRadar()
@@ -2038,44 +2071,6 @@ function TestSkynetIADSAbstractRadarElement:testCallMethodOnTableElements()
 	lu.assertIs(testContainer:theOtherMethod("100"), testContainer)
 end
 --]]
-
-function TestSkynetIADSAbstractRadarElement:testAutonomousIfNoEWRadarInRange()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	self.skynetIADS:addEarlyWarningRadarsByPrefix('EW')
-	local ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName('EW-west2')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewRadar), true)
-	
-	
-	local ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName('EW-west23')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewRadar), false)
-	
-end
-
-function TestSkynetIADSAbstractRadarElement:testAutonomousIfNowEWSAMIsInRange()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	self.skynetIADS:addSAMSitesByPrefix('SAM')
-
-	local ewSAM2 = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-6')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewSAM2), true)
-	
---[[	local radars = ewSAM2:getRadars()
-	local samRadars = self.samSite:getRadars()
-	for i = 1, #samRadars do
-		local samRadar = samRadars[i]
-		for j = 1, #radars do
-			local radar = radars[j]
-			env.info(radar:getMaxRangeFindingTarget())
-			env.info(self.samSite:getDistanceToUnit(samRadar:getDCSRepresentation(), radar:getDCSRepresentation()))
-		end
-	end
---]]
-	local ewSAM = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewSAM), false)
-	
-
-end
 
 --[[
 this test ensures that targets are cached in the sam site, calls to the getDetectedTargets function of the controller are cpu intensive

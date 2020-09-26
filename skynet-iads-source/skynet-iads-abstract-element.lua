@@ -30,6 +30,7 @@ end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
+	self:setToCorrectAutonomousState()
 	self:informChildrenOfStateChange()
 	return self
 end

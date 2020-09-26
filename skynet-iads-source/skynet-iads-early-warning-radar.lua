@@ -13,11 +13,13 @@ end
 
 --an Early Warning Radar has simplified check to detrmine if its autonomous or not
 function SkynetIADSEWRadar:setToCorrectAutonomousState()
-	if self:hasActiveConnectionNode() then
+	if self:hasActiveConnectionNode() and self:hasWorkingPowerSource() and self.iads:isCommandCenterUsable() then
 		self:resetAutonomousState()
-		return
+		self:goLive()
 	end
-	self:goAutonomous()
+	if self:hasActiveConnectionNode() == false or self.iads:isCommandCenterUsable() == false then
+		self:goAutonomous()
+	end
 end
 
 end

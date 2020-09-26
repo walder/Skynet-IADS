@@ -123,7 +123,7 @@ function SkynetIADSAbstractRadarElement:clearChildRadars()
 end
 
 --TODO: unit test this method
-function SkynetIADSAbstractElement:getUsableChildRadars()
+function SkynetIADSAbstractRadarElement:getUsableChildRadars()
 	local usableRadars = {}
 	for i = 1, #self.childRadars do
 		local childRadar = self.childRadars[i]
@@ -143,13 +143,13 @@ function SkynetIADSAbstractRadarElement:informChildrenOfStateChange()
 	self.iads:getMooseConnector():update()
 end
 
-function SkynetIADSAbstractElement:setToCorrectAutonomousState()
+function SkynetIADSAbstractRadarElement:setToCorrectAutonomousState()
 	local parents = self:getParentRadars()
 	for i = 1, #parents do
 		local parent = parents[i]
 		--of one parent exists that still is connected to the IADS, the SAM site does not have to go autonomous
 		--instead of isDestroyed() write method, hasWorkingSearchRadars()
-		if self:hasActiveConnectionNode() and parent:hasWorkingPowerSource() and parent:hasActiveConnectionNode() and parent:getActAsEW() == true and parent:isDestroyed() == false then
+		if self:hasActiveConnectionNode() and self.iads:isCommandCenterUsable() and parent:hasWorkingPowerSource() and parent:hasActiveConnectionNode() and parent:getActAsEW() == true and parent:isDestroyed() == false then
 			self:resetAutonomousState()
 			return
 		end
@@ -170,7 +170,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumber
 	return returnValue
 end
 
-function SkynetIADSAbstractElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
+function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
 	local numOfLaunchers = 0
 	for i = 1, #self.pointDefences do
 		local pointDefence = self.pointDefences[i]
@@ -183,7 +183,7 @@ function SkynetIADSAbstractElement:pointDefencesHaveEnoughLaunchers(minNumberOfL
 	return returnValue
 end
 
-function SkynetIADSAbstractElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
+function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
 	if state == true or state == false then
 		self.ingnoreHARMSWhilePointDefencesHaveAmmo = state
 	end
@@ -567,18 +567,15 @@ function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
 end
 
 function SkynetIADSAbstractRadarElement:resetAutonomousState()
-	if self.isAutonomous == true then
-		self.isAutonomous = false
-		self:goDark()
-	end
+	self.isAutonomous = false
+	self:goDark()
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
-	if self.isAutonomous == false and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
-		self.isAutonomous = true
+	self.isAutonomous = true
+	if self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 	else
-		self.isAutonomous = true
 		self:goLive()
 	end
 end
@@ -625,11 +622,11 @@ function SkynetIADSAbstractRadarElement:scanForHarms()
 	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
 end
 
-function SkynetIADSAbstractElement:isScanningForHARMs()
+function SkynetIADSAbstractRadarElement:isScanningForHARMs()
 	return self.harmScanID ~= nil
 end
 
-function SkynetIADSAbstractElement:isDefendingHARM()
+function SkynetIADSAbstractRadarElement:isDefendingHARM()
 	return self.harmSilenceID ~= nil
 end
 
