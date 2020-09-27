@@ -22,7 +22,7 @@ iranIADS:addEarlyWarningRadarsByPrefix('EW')
 iranIADS:addSAMSitesByPrefix('SAM')
 
 ewConnectionNode = Unit.getByName('connection-node-ew')
-iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
+iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(0):addConnectionNode(ewConnectionNode)
 local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
 iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)

@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.1 | BUILD TIME: 31.07.2020 2043Z ---")
+env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 27.09.2020 1353Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1378,6 +1378,10 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsObject)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsObject = dcsObject
+	if dcsObject and dcsObject:isExist() and getmetatable(dcsObject) == Unit then
+		--we store inital life here, because getLife0() returs a value that is lower that getLife() when no damage has happened...
+		instance.initialLife = dcsObject:getLife()
+	end
 	return instance
 end
 
@@ -1401,12 +1405,20 @@ function SkynetIADSAbstractDCSObjectWrapper:isExist()
 	end
 end
 
+function SkynetIADSAbstractDCSObjectWrapper:getLifePercentage()
+	if self.dcsObject and self.dcsObject:isExist() then
+		return self.dcsObject:getLife() / self.initialLife * 100
+	else
+		return 0
+	end
+	
+end
+
 function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
 	return self.dcsObject
 end
 
 end
-
 do
 
 SkynetIADSAbstractElement = {}
@@ -1958,7 +1970,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
 	and (self:hasRemainingAmmo() == true  )
 	then
-		if self:isDestroyed() == false then
+		if self:isDestroyed() == false and self:noDamageToRadars() then
 			local  cont = self:getController()
 			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
@@ -1979,6 +1991,18 @@ function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
 		local pointDefence = self.pointDefences[i]
 		pointDefence:setActAsEW(false)
 	end
+end
+
+
+function SkynetIADSAbstractRadarElement:noDamageToRadars()
+	local radars = self:getRadars()
+	for i = 1, #radars do
+		local radar = radars[i]
+		if radar:getLifePercentage() < 100 then
+			return false
+		end
+	end	
+	return true
 end
 
 function SkynetIADSAbstractRadarElement:goDark()
