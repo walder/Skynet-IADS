@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.2 | BUILD TIME: 27.09.2020 1353Z ---")
+env.info("--- SKYNET VERSION: 1.1.3 | BUILD TIME: 30.09.2020 1735Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1970,7 +1970,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
 	and (self:hasRemainingAmmo() == true  )
 	then
-		if self:isDestroyed() == false and self:noDamageToRadars() then
+		if self:isDestroyed() == false then
 			local  cont = self:getController()
 			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	

@@ -366,7 +366,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
 	and (self:hasRemainingAmmo() == true  )
 	then
-		if self:isDestroyed() == false and self:noDamageToRadars() then
+		if self:isDestroyed() == false then
 			local  cont = self:getController()
 			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
