@@ -16,13 +16,9 @@ Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) 
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
-A few 100 hours of work went in to the development of Skynet. If you like using it, please consider a donation:
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_s-xclick" />
-<input type="hidden" name="hosted_button_id" value="7GSVFH448BWFQ" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_CH/i/scr/pixel.gif" width="1" height="1" />
-</form>
+**A few 100 hours of work went in to the development of Skynet. If you like using it, please consider a donation:**
+
+[![Skynet IADS donation](/images/btn_donateCC_LG.gif.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7GSVFH448BWFQ&source=url)
 
 {TOC_PLACEHOLDER}
 
