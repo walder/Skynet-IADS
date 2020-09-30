@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.3 | BUILD TIME: 30.09.2020 1813Z ---")
+env.info("--- SKYNET VERSION: 1.1.3 | BUILD TIME: 30.09.2020 1814Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
