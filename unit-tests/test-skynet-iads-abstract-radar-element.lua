@@ -1158,7 +1158,7 @@ function TestSkynetIADSAbstractRadarElement:testActAsEarlyWarningRadar()
 	lu.assertEquals(self.samSite:isActive(), true)
 	
 	-- test when stopping EW mode the child SAM site should go dark
-	local samSA62 = SkynetIADSAbstractRadarElement:create(Group.getByName('SAM-SA-6-2'), self.skynetIADS)
+	local samSA62 = SkynetIADSSamSite:create(Group.getByName('SAM-SA-6-2'), self.skynetIADS)
 	samSA62:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
 	samSA62:setupElements()
 	samSA62:goLive()

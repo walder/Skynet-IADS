@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.2-develop | BUILD TIME: 26.09.2020 2123Z ---")
+env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 02.10.2020 1726Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1436,7 +1436,6 @@ end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
-	self:setToCorrectAutonomousState()
 	self:informChildrenOfStateChange()
 	return self
 end
@@ -1447,7 +1446,6 @@ end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
-	self:setToCorrectAutonomousState()
 	self:informChildrenOfStateChange()
 	return self
 end
@@ -1517,7 +1515,6 @@ function SkynetIADSAbstractElement:onEvent(event)
 			self:informChildrenOfStateChange()
 		end
 		if self:hasActiveConnectionNode() == false then
-			self:setToCorrectAutonomousState()
 			self:informChildrenOfStateChange()
 		end
 	end
@@ -1737,6 +1734,7 @@ function SkynetIADSAbstractRadarElement:getUsableChildRadars()
 end
 
 function SkynetIADSAbstractRadarElement:informChildrenOfStateChange()
+	self:setToCorrectAutonomousState()
 	local children = self:getChildRadars()
 	for i = 1, #children do
 		local childRadar = children[i]
@@ -1758,6 +1756,38 @@ function SkynetIADSAbstractRadarElement:setToCorrectAutonomousState()
 	end
 	self:goAutonomous()
 end
+
+
+function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
+	if mode ~= nil then
+		self.autonomousBehaviour = mode
+	end
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
+	return self.autonomousBehaviour
+end
+
+function SkynetIADSAbstractRadarElement:resetAutonomousState()
+	self.isAutonomous = false
+	self:goDark()
+end
+
+function SkynetIADSAbstractRadarElement:goAutonomous()
+	self.isAutonomous = true
+	if self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
+		self:goDark()
+	else
+		self:goLive()
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getAutonomousState()
+	return self.isAutonomous
+end
+
+
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
 	local remainingMissiles = 0
@@ -2037,8 +2067,8 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 			self.goLiveTime = timer.getTime()
+			self.aiState = true
 		end
-		self.aiState = true
 		self:pointDefencesStopActingAsEW()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
@@ -2155,35 +2185,6 @@ end
 
 function SkynetIADSAbstractRadarElement:getDistanceToUnit(unitPosA, unitPosB)
 	return mist.utils.round(mist.utils.get2DDist(unitPosA, unitPosB, 0))
-end
-
-function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
-	if mode ~= nil then
-		self.autonomousBehaviour = mode
-	end
-	return self
-end
-
-function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
-	return self.autonomousBehaviour
-end
-
-function SkynetIADSAbstractRadarElement:resetAutonomousState()
-	self.isAutonomous = false
-	self:goDark()
-end
-
-function SkynetIADSAbstractRadarElement:goAutonomous()
-	self.isAutonomous = true
-	if self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
-		self:goDark()
-	else
-		self:goLive()
-	end
-end
-
-function SkynetIADSAbstractRadarElement:getAutonomousState()
-	return self.isAutonomous
 end
 
 function SkynetIADSAbstractRadarElement:hasWorkingRadar()

@@ -27,7 +27,7 @@ function TestSkynetIADSAbstractElement:testCheckOneGenericObjectAliveForUnitWork
 	
 	local called = false
 	
-	function self.abstractElement:setToCorrectAutonomousState()
+	function self.abstractElement:informChildrenOfStateChange()
 		called = true
 	end
 	

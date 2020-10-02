@@ -29,6 +29,7 @@ end
 function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
 		
 		local ewRadar = SkynetIADSAWACSRadar:create(Unit.getByName('EW-west22-destroy'), SkynetIADS:create('test'))
+		ewRadar:setupElements()
 		ewRadar:setActAsEW(true)
 		ewRadar:goLive()
 		

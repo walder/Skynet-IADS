@@ -30,7 +30,6 @@ end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
 	table.insert(self.powerSources, powerSource)
-	self:setToCorrectAutonomousState()
 	self:informChildrenOfStateChange()
 	return self
 end
@@ -41,7 +40,6 @@ end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
 	table.insert(self.connectionNodes, connectionNode)
-	self:setToCorrectAutonomousState()
 	self:informChildrenOfStateChange()
 	return self
 end
@@ -111,7 +109,6 @@ function SkynetIADSAbstractElement:onEvent(event)
 			self:informChildrenOfStateChange()
 		end
 		if self:hasActiveConnectionNode() == false then
-			self:setToCorrectAutonomousState()
 			self:informChildrenOfStateChange()
 		end
 	end

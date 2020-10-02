@@ -16,6 +16,16 @@ Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) 
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
+
+
+**So far over 200 hours of work went in to the development of Skynet.  
+If you like using it, please consider a donation:**
+
+[![Skynet IADS donation](/images/btn_donateCC_LG.gif.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7GSVFH448BWFQ&source=url)
+
+
+
+
 {TOC_PLACEHOLDER}
 
 # Quick start
