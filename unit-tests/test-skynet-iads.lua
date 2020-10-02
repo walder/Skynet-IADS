@@ -466,7 +466,6 @@ function TestSkynetIADS:testAddMooseSetGroup()
 	lu.assertEquals(setGroupCalled, true)
 end
 
-
 --TODO: add more comparisons in this test, this test also tests buildRadarCoverageForSAMSite
 function TestSkynetIADS:testBuildRadarCoverage()
 	self:setUp()
@@ -481,8 +480,12 @@ function TestSkynetIADS:testBuildRadarCoverage()
 		return true
 	end
 	
+	function childRadMock:setToCorrectAutonomousState()
+		
+	end
+	
 	local sa19 = self.testIADS:getSAMSiteByGroupName('SAM-SA-19')
-	sa19:addChildRadar(childRadMock)
+	--sa19:addChildRadar(childRadMock)
 	
 	local parentRadMock = {}
 	function parentRadMock:hasWorkingPowerSource()
@@ -500,24 +503,34 @@ function TestSkynetIADS:testBuildRadarCoverage()
 	function parentRadMock:isDestroyed()
 		return false
 	end
+	
+	function parentRadMock:setToCorrectAutonomousState()
+		
+	end
 
 	sa19:addParentRadar(parentRadMock)
 	
-	local mockComCenterChild = {}
-	self.testIADS:addCommandCenter(StaticObject.getByName('command-center-unit-test')):addChildRadar(mockComCenterChild)
+	--local mockComCenterChild = {}
+	--self.testIADS:addCommandCenter(StaticObject.getByName('command-center-unit-test'))
+	--:addChildRadar(mockComCenterChild)
 	
 	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
-	ewRadar:addChildRadar(childRadMock)
+	--ewRadar:addChildRadar(childRadMock)
 	
 	self.testIADS:buildRadarCoverage()
 
-	lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), self.numSAMSites + self.numEWSites)
+	--lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), self.numSAMSites + self.numEWSites)
 
 	local sa19 = self.testIADS:getSAMSiteByGroupName('SAM-SA-19')
 	local sa19Parent = sa19:getParentRadars()[1]
 	local sa2 = self.testIADS:getSAMSiteByGroupName('SAM-SA-2')
-	lu.assertEquals(sa2, sa19Parent)
 	
+	env.info(tostring(sa19Parent:getDCSName()))
+
+	lu.assertEquals((sa19Parent == self.testIADS:getEarlyWarningRadarByUnitName('EW-west23')), true)
+
+	--[[
+	lu.assertEquals(sa2, sa19Parent)
 	lu.assertEquals(#sa2:getChildRadars(), 2)
 	
 	sa2Child = sa2:getChildRadars()[1]
@@ -548,7 +561,7 @@ function TestSkynetIADS:testBuildRadarCoverage()
 	
 	local samSA62 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
 	lu.assertEquals(ewRadarChildren[2], samSA62)
-	
+	--]]
 end
 
 function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
@@ -565,7 +578,7 @@ function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
 	end
 		
 	ewRadar:clearChildRadars()
-	ewRadar:addChildRadar(childRadMock)
+	--ewRadar:addChildRadar(childRadMock)
 	
 	local sam1 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	sam1:clearParentRadars()
@@ -579,6 +592,7 @@ function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
 	
 	lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), 1)
 	
+
 	lu.assertEquals(#ewRadar:getChildRadars(), 2)
 	
 	lu.assertEquals(sam1:getParentRadars()[1], ewRadar)
@@ -610,7 +624,7 @@ function TestSkynetIADS:testSetMaxAgeOfCachedTargets()
 	
 end
 
-function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWhenIADSIsActiveWillTriggerCorrentRadarCoverageUpdates()
+function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWhenIADSIsActiveWillTriggerCorrectRadarCoverageUpdates()
 	local iads = SkynetIADS:create()
 	local calledSAMUpdate = 0
 	local calledEWUpdate = 0

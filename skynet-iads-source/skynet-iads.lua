@@ -389,14 +389,32 @@ function SkynetIADS:cleanAgedTargets()
 	self.contacts = contactsToKeep
 end
 
+--TODO unit test this method:
+function SkynetIADS:getAbstracRadarElements()
+	local abstractRadarElements = {}
+	local ewRadars = self:getEarlyWarningRadars()
+	local samSites = self:getSAMSites()
+	
+	for i = 1, #ewRadars do
+		local ewRadar = ewRadars[i]
+		table.insert(abstractRadarElements, ewRadar)
+	end
+	
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		table.insert(abstractRadarElements, samSite)
+	end
+	return abstractRadarElements
+end
+
 -- this method rebuilds the radar coverage of the IADS, a complete rebuild is only required the first time the IADS is activated
 -- during runtime it is sufficient to call buildRadarCoverageForSAMSite or buildRadarCoverageForEarlyWarningRadar method that just updates the IADS for one unit, this saves script execution time
-function SkynetIADS:buildRadarCoverage()
+function SkynetIADS:buildRadarCoverage()	
 
-	--first we clear all child and parent radars that may have been added previously
+	--first we clear all child radars that may have been added previously
 	local comCenters = self:getCommandCenters()
 	for i = 1, #comCenters do
-		local comCenter = comCenters[1]
+		local comCenter = comCenters[i]
 		comCenter:clearChildRadars()
 	end
 	
@@ -411,66 +429,57 @@ function SkynetIADS:buildRadarCoverage()
 	end
 	
 	local ewRadars = self:getEarlyWarningRadars()
+	
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
 		ewRadar:clearChildRadars()
 	end	
 	
 	--then we rebuild the radar coverage
-	for i = 1, #samSites do
-		local samSite = samSites[i]
-		self:buildRadarCoverageForSAMSite(samSite)
+	local abstractRadarElements = self:getAbstracRadarElements()
+	for i = 1, #abstractRadarElements do
+		local abstract = abstractRadarElements[i]
+		self:buildRadarCoverageForAbstractRadarElement(abstract)
 	end
+end
+
+function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarElement)
+	local abstractRadarElements = self:getAbstracRadarElements()
+	for i = 1, #abstractRadarElements do
+		local aElementToCompare = abstractRadarElements[i]
+		if aElementToCompare ~= abstractRadarElement then
+		
+			if aElementToCompare:isInRadarDetectionRangeOf(abstractRadarElement) then
+				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSSamSite then
+					abstractRadarElement:addChildRadar(aElementToCompare)
+				end
+				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar then
+					abstractRadarElement:addChildRadar(aElementToCompare)
+				end
+			
+				--EW Radars should not have parent Radars
+				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar then
+					aElementToCompare:addParentRadar(abstractRadarElement)
+				end
+			end
+			
+		end
+	end
+
+	local comCenters = self:getCommandCenters()
+	for i = 1, #comCenters do
+		local comCenter = comCenters[i]
+		comCenter:addChildRadar(abstractRadarElement)
+	end
+
 end
 
 function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
-	local samSitesToCompare = self:getSAMSites()
-	local commandCenters = self:getCommandCenters()
-	local ewRadars = self:getEarlyWarningRadars()
-	
-		for j = 1, #samSitesToCompare do	
-			local samSiteToCompare = samSitesToCompare[j]
-			if samSite:isInRadarDetectionRangeOf(samSiteToCompare) and samSite ~= samSiteToCompare then
-				samSite:addParentRadar(samSiteToCompare)
-				samSiteToCompare:addChildRadar(samSite)
-			end
-		end
-		
-		for k = 1, #ewRadars do
-			local ewRadar = ewRadars[k]
-			if samSite:isInRadarDetectionRangeOf(ewRadar) then
-					samSite:addParentRadar(ewRadar)
-					ewRadar:addChildRadar(samSite)
-			end
-			for l = 1, #commandCenters do
-				local comCenter = commandCenters[l]
-				--method checks to make sure ewRadar is only added once, so its ok to add samSite here
-				comCenter:addChildRadar(samSite)
-				comCenter:addChildRadar(ewRadar)
-			end	
-		end
+	self:buildRadarCoverageForAbstractRadarElement(samSite)
 end
 
 function SkynetIADS:buildRadarCoverageForEarlyWarningRadar(ewRadar)
-	
-	--clear all existing child radars, EW radars don't have parent radars
-	ewRadar:clearChildRadars()
-	
-	local samSites = self:getSAMSites()
-	for i = 1, #samSites do
-		local samSite = samSites[i]
-		if samSite:isInRadarDetectionRangeOf(ewRadar) then
-			ewRadar:addChildRadar(samSite)
-			samSite:addParentRadar(ewRadar)
-		end
-	end
-	
-	local commandCenters = self:getCommandCenters()
-	for l = 1, #commandCenters do
-		local comCenter = commandCenters[l]
-		comCenter:addChildRadar(ewRadar)
-	end
-
+	self:buildRadarCoverageForAbstractRadarElement(ewRadar)
 end
 
 function SkynetIADS:mergeContact(contact)

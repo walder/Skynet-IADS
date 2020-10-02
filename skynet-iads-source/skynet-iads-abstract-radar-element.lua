@@ -86,7 +86,7 @@ end
 
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
 	self:abstractAddRadar(parentRadar, self.parentRadars)
-	self:setToCorrectAutonomousState()
+	self:informChildrenOfStateChange()
 end
 
 function SkynetIADSAbstractRadarElement:getParentRadars()
@@ -187,8 +187,6 @@ end
 function SkynetIADSAbstractRadarElement:getAutonomousState()
 	return self.isAutonomous
 end
-
-
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
 	local remainingMissiles = 0
