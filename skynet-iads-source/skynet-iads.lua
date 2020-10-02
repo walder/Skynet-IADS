@@ -390,8 +390,16 @@ function SkynetIADS:cleanAgedTargets()
 end
 
 -- this method rebuilds the radar coverage of the IADS, a complete rebuild is only required the first time the IADS is activated
--- during runtime it is sufficient to call a differnt method that just updates the IADS for one unit, this saves script execution time
+-- during runtime it is sufficient to call buildRadarCoverageForSAMSite or buildRadarCoverageForEarlyWarningRadar method that just updates the IADS for one unit, this saves script execution time
 function SkynetIADS:buildRadarCoverage()
+
+	--first we clear all child and parent radars that may have been added previously
+	local comCenters = self:getCommandCenters()
+	for i = 1, #comCenters do
+		local comCenter = comCenters[1]
+		comCenter:clearChildRadars()
+	end
+	
 	--to build the basic radar coverage we use all SAM sites. Checks if SAM site has power or a connection node is done when using the SAM site later on
 	local samSites = self:getSAMSites()
 	
@@ -418,6 +426,7 @@ end
 function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
 	local samSitesToCompare = self:getSAMSites()
 	local commandCenters = self:getCommandCenters()
+	local ewRadars = self:getEarlyWarningRadars()
 	
 		for j = 1, #samSitesToCompare do	
 			local samSiteToCompare = samSitesToCompare[j]
@@ -427,7 +436,6 @@ function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
 			end
 		end
 		
-		local ewRadars = self:getEarlyWarningRadars()
 		for k = 1, #ewRadars do
 			local ewRadar = ewRadars[k]
 			if samSite:isInRadarDetectionRangeOf(ewRadar) then
@@ -436,8 +444,8 @@ function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
 			end
 			for l = 1, #commandCenters do
 				local comCenter = commandCenters[l]
+				--method checks to make sure ewRadar is only added once, so its ok to add samSite here
 				comCenter:addChildRadar(samSite)
-				--method checks to make sure ewRadar is only added once
 				comCenter:addChildRadar(ewRadar)
 			end	
 		end
@@ -456,6 +464,13 @@ function SkynetIADS:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 			samSite:addParentRadar(ewRadar)
 		end
 	end
+	
+	local commandCenters = self:getCommandCenters()
+	for l = 1, #commandCenters do
+		local comCenter = commandCenters[l]
+		comCenter:addChildRadar(ewRadar)
+	end
+
 end
 
 function SkynetIADS:mergeContact(contact)
