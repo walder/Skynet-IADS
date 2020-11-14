@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 02.10.2020 2216Z ---")
+env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 14.11.2020 1659Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -697,6 +697,10 @@ function SkynetIADS:addCommandCenter(commandCenter)
 	self:setCoalition(commandCenter)
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
 	table.insert(self.commandCenters, comCenter)
+	-- when IADS is active the radars will be added to the new command center. If it not active this will happen when radar coverage is built
+	if self.ewRadarScanMistTaskID ~= nil then
+		self:addRadarsToCommandCenters()
+	end
 	return comCenter
 end
 
@@ -828,16 +832,27 @@ function SkynetIADS:getAbstracRadarElements()
 	return abstractRadarElements
 end
 
--- this method rebuilds the radar coverage of the IADS, a complete rebuild is only required the first time the IADS is activated
--- during runtime it is sufficient to call buildRadarCoverageForSAMSite or buildRadarCoverageForEarlyWarningRadar method that just updates the IADS for one unit, this saves script execution time
-function SkynetIADS:buildRadarCoverage()	
 
+function SkynetIADS:addRadarsToCommandCenters()
 	--first we clear all child radars that may have been added previously
+	local abstractRadarElements = self:getAbstracRadarElements()
+		for i = 1, #abstractRadarElements do
+			local abstractRadar = abstractRadarElements[i]
+			self:addSingleRadarToCommandCenters(abstractRadar)
+		end
+end
+
+function SkynetIADS:addSingleRadarToCommandCenters(abstractRadarElement)
 	local comCenters = self:getCommandCenters()
 	for i = 1, #comCenters do
 		local comCenter = comCenters[i]
-		comCenter:clearChildRadars()
-	end
+		comCenter:addChildRadar(abstractRadarElement)
+	end	
+end
+
+-- this method rebuilds the radar coverage of the IADS, a complete rebuild is only required the first time the IADS is activated
+-- during runtime it is sufficient to call buildRadarCoverageForSAMSite or buildRadarCoverageForEarlyWarningRadar method that just updates the IADS for one unit, this saves script execution time
+function SkynetIADS:buildRadarCoverage()	
 	
 	--to build the basic radar coverage we use all SAM sites. Checks if SAM site has power or a connection node is done when using the SAM site later on
 	local samSites = self:getSAMSites()
@@ -862,6 +877,8 @@ function SkynetIADS:buildRadarCoverage()
 		local abstract = abstractRadarElements[i]
 		self:buildRadarCoverageForAbstractRadarElement(abstract)
 	end
+	
+	self:addRadarsToCommandCenters()
 end
 
 function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarElement)
@@ -886,21 +903,16 @@ function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarEleme
 			
 		end
 	end
-
-	local comCenters = self:getCommandCenters()
-	for i = 1, #comCenters do
-		local comCenter = comCenters[i]
-		comCenter:addChildRadar(abstractRadarElement)
-	end
-
 end
 
 function SkynetIADS:buildRadarCoverageForSAMSite(samSite)
 	self:buildRadarCoverageForAbstractRadarElement(samSite)
+	self:addSingleRadarToCommandCenters(samSite)
 end
 
 function SkynetIADS:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 	self:buildRadarCoverageForAbstractRadarElement(ewRadar)
+	self:addSingleRadarToCommandCenters(ewRadar)
 end
 
 function SkynetIADS:mergeContact(contact)

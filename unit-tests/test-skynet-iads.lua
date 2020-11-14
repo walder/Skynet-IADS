@@ -183,6 +183,45 @@ function TestSkynetIADS:testSAMSiteSA6LostConnectionNodeAutonomusStateDCSAI()
 	lu.assertEquals(samSite:isActive(), true)
 end
 
+function TestSkynetIADS:testAddRadarsToCommandCenter()
+	local comCenter = StaticObject.getByName('command-center-3')
+	--as long as IADS is not active it will not trigger addRadarsToCommandCenters when called:
+	self.testIADS:addCommandCenter(comCenter)
+	self.testIADS:addRadarsToCommandCenters()
+	local comC = self.testIADS:getCommandCenters()[1]
+	lu.assertEquals(#comC:getChildRadars(), (self.numEWSites + self.numSAMSites))
+end
+
+function TestSkynetIADS:testAddCommandCenter()
+	local called = false
+	function self.testIADS:addRadarsToCommandCenters()
+		called = true
+	end
+	
+	local comCenter = StaticObject.getByName('command-center-3')
+	self.testIADS:addCommandCenter(comCenter)
+	lu.assertEquals(called, false)
+	
+	self.testIADS:activate()
+	self.testIADS:addCommandCenter(comCenter)
+	lu.assertEquals(called, true)
+	self.testIADS:deactivate()
+end
+
+function TestSkynetIADS:testOneCommandCenterLoosesPower()
+	local commandCenter2Power = StaticObject.getByName("Command Center2 Power")
+	local commandCenter2 = StaticObject.getByName("Command Center2")
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 0)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
+	local comCenter = self.testIADS:addCommandCenter(commandCenter2):addPowerSource(commandCenter2Power)
+	lu.assertEquals(#comCenter:getPowerSources(), 1)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
+	trigger.action.explosion(commandCenter2Power:getPosition().p, 10000)
+	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
+end
+
 function TestSkynetIADS:testOneCommandCenterIsDestroyed()
 	local commandCenter1 = StaticObject.getByName("Command Center")	
 	lu.assertEquals(#self.testIADS:getCommandCenters(), 0)
@@ -263,21 +302,6 @@ function TestSkynetIADS:testSetOptionsForAllAddedEWSites()
 		lu.assertIs(ewSite:getConnectionNodes()[1], connectionNode)
 		lu.assertIs(ewSite:getPowerSources()[1], powerSource)
 	end
-end
-
-
-function TestSkynetIADS:testOneCommandCenterLoosesPower()
-	local commandCenter2Power = StaticObject.getByName("Command Center2 Power")
-	local commandCenter2 = StaticObject.getByName("Command Center2")
-	lu.assertEquals(#self.testIADS:getCommandCenters(), 0)
-	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
-	local comCenter = self.testIADS:addCommandCenter(commandCenter2):addPowerSource(commandCenter2Power)
-	lu.assertEquals(#comCenter:getPowerSources(), 1)
-	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
-	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
-	trigger.action.explosion(commandCenter2Power:getPosition().p, 10000)
-	lu.assertEquals(#self.testIADS:getCommandCenters(), 1)
-	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
 end
 
 function TestSkynetIADS:testMergeContacts()
@@ -466,7 +490,7 @@ function TestSkynetIADS:testAddMooseSetGroup()
 	lu.assertEquals(setGroupCalled, true)
 end
 
---TODO: add more comparisons in this test, this test also tests buildRadarCoverageForSAMSite
+--TODO: add more comparisons in this test, this test also tests buildRadarCoverageForAbstractRadarElement
 function TestSkynetIADS:testBuildRadarCoverage()
 	self:setUp()
 	
@@ -527,6 +551,7 @@ function TestSkynetIADS:testBuildRadarCoverage()
 	
 	env.info(tostring(sa19Parent:getDCSName()))
 
+	--assertions need to be like this otherwise dcs will crash.
 	lu.assertEquals((sa19Parent == self.testIADS:getEarlyWarningRadarByUnitName('EW-west23')), true)
 
 	--[[
@@ -681,7 +706,7 @@ function TestSkynetIADS:testSetupSAMSiteWithPointDefence()
 	iads:setupSAMSitesAndThenActivate()
 	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-10'):isActive(), true)
 	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-15-1'):isActive(), true)
-	
+	iads:deactivate()
 end
 
 end
