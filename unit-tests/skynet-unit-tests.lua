@@ -1,26 +1,10 @@
 do
 
---[[
-SAM Sites that engage HARMs:
-SA-15
-SA-10 (bug when engaging at 25k, no harms are intercepted)
-
-SAM Sites that ignore HARMS:
-SA-11
-SA-6
-SA-2
-SA-3
-Patriot
-]]--
-
---[[
-Call build script with version number: .\build-compiled-script.ps1 1.1.0  
---]]
-
 ---IADS Unit Tests
 SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 17
 SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 15
 
+--factory method used in multiple unit tests
 function IADSContactFactory(unitName)
 	local contact = Unit.getByName(unitName)
 	local radarContact = {}

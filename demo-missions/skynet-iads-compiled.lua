@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 21.11.2020 0925Z ---")
+env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 21.11.2020 1104Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -972,6 +972,7 @@ end
 
 function SkynetIADS:deactivate()
 	mist.removeFunction(self.ewRadarScanMistTaskID)
+	mist.removeFunction(self.samSetupMistTaskID)
 	self:deativateSAMSites()
 	self:deactivateEarlyWarningRadars()
 	self:deactivateCommandCenters()

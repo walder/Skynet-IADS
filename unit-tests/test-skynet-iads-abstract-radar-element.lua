@@ -1171,6 +1171,7 @@ function TestSkynetIADSAbstractRadarElement:testActAsEarlyWarningRadar()
 	lu.assertEquals(self.samSite:isActive(), false)
 	lu.assertEquals(samSA62:getAutonomousState(), true)
 	lu.assertEquals(samSA62:isActive(), false)
+	samSA62:cleanUp()
 
 end
 

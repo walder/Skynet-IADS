@@ -161,7 +161,7 @@ You can use any type of radar as an EW radar. Make sure you **name the unit** in
 
 ## Adding the Skynet code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
+Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_4_90.lua](/demo-missions/mist_4_4_90.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
 
 I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
@@ -383,7 +383,7 @@ Returns the EW radar with the specified unit name:
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
-## Options for SAM sites, EW radars
+## Options for SAM sites and EW radars
 
 ### Setting an option
 In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or SAM site or a table of EW radars and SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads) or [accessing SAM sites](#accessing-sam-sites-in-the-iads).

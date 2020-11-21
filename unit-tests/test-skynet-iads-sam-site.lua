@@ -3,8 +3,8 @@ do
 TestSkynetIADSSAMSite = {}
 
 function TestSkynetIADSSAMSite:setUp()
+	self.skynetIADS = SkynetIADS:create()
 	if self.samSiteName then
-		self.skynetIADS = SkynetIADS:create()
 		local samSite = Group.getByName(self.samSiteName)
 		self.samSite = SkynetIADSSamSite:create(samSite, self.skynetIADS)
 		
@@ -32,11 +32,11 @@ end
 
 
 function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInToIADS()
-	
-	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), SkynetIADS:create('test')):setActAsEW(true)
+
+	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), self.skynetIADS):setActAsEW(true)
 	samSite:setupElements()
 
-	local samSite2 = SkynetIADSSamSite:create(Group.getByName('prefixtest-sam'), SkynetIADS:create('test'))
+	local samSite2 = SkynetIADSSamSite:create(Group.getByName('prefixtest-sam'), self.skynetIADS)
 	samSite2:setupElements()
 	
 	samSite:addChildRadar(samSite2)
@@ -45,7 +45,7 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	lu.assertEquals(samSite2:getAutonomousState(), false)
 	lu.assertEquals(samSite:isDestroyed(), false)
 	lu.assertEquals(samSite:hasWorkingRadar(), true)
-	
+
 	local radars = samSite:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
@@ -68,7 +68,8 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	lu.assertEquals(samSite2:getAutonomousState(), true)
 	
 	--test build SAM with destroyed elements
-	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), SkynetIADS:create())
+	samSite:cleanUp()
+	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), self.skynetIADS)
 	samSite:setupElements()
 	lu.assertEquals(samSite:getNatoName(), "SA-6")
 	lu.assertEquals(#samSite:getRadars(), 3)

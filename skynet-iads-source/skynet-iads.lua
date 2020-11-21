@@ -551,6 +551,7 @@ end
 
 function SkynetIADS:deactivate()
 	mist.removeFunction(self.ewRadarScanMistTaskID)
+	mist.removeFunction(self.samSetupMistTaskID)
 	self:deativateSAMSites()
 	self:deactivateEarlyWarningRadars()
 	self:deactivateCommandCenters()
