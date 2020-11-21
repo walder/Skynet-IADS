@@ -29,6 +29,277 @@ function TestSkynetIADSAbstractRadarElement:tearDown()
 	self.samSiteName = nil
 end
 
+function TestSkynetIADSAbstractRadarElement:testAddChildRadar()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getChildRadars(), 0)
+	local childRad1 = {}
+	self.samSite:addChildRadar(childRad1)
+	lu.assertEquals(#self.samSite:getChildRadars(), 1)
+	
+	--try adding the same radar again, make sure its not added:
+	self.samSite:addChildRadar(childRad1)
+	lu.assertEquals(#self.samSite:getChildRadars(), 1)
+	
+	local childRad2 = {}
+	self.samSite:addChildRadar(childRad2)
+	lu.assertEquals(#self.samSite:getChildRadars(), 2)
+	
+	lu.assertEquals(self.samSite:getChildRadars()[1], childRad1)
+	lu.assertEquals(self.samSite:getChildRadars()[2], childRad2)
+	
+	--reset array to prevent teardown issues with mock objects
+	self.samSite:clearChildRadars()
+	lu.assertEquals(#self.samSite:getChildRadars(), 0)
+end
+
+function TestSkynetIADSAbstractRadarElement:testGetUsableChildRadars()
+	
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	function self.samSite:setToCorrectAutonomousState()
+	
+	end
+	
+	local childRad1 = {}
+	function childRad1:hasWorkingPowerSource()
+		return false
+	end
+	
+	function childRad1:hasActiveConnectionNode()
+		return true
+	end
+	
+	self.samSite:addChildRadar(childRad1)
+	
+	lu.assertEquals(#self.samSite:getUsableChildRadars(), 0)
+	
+	
+	function childRad1:hasWorkingPowerSource()
+		return true
+	end
+		
+	function childRad1:hasActiveConnectionNode()
+		return false
+	end
+	
+	lu.assertEquals(#self.samSite:getUsableChildRadars(), 0)
+	
+	
+	function childRad1:hasWorkingPowerSource()
+		return true
+	end
+	
+	function childRad1:hasActiveConnectionNode()
+		return true
+	end
+	
+	lu.assertEquals(#self.samSite:getUsableChildRadars(), 1)
+
+	--reset array to prevent teardown issues with mock objects
+	self.samSite.childRadars = {}
+	
+end
+
+function TestSkynetIADSAbstractRadarElement:testAddParentRadar()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local called = false
+	function self.samSite:setToCorrectAutonomousState()
+		called = true
+	end
+	
+	lu.assertEquals(#self.samSite:getParentRadars(), 0)
+	local parentRad1 = {}
+	self.samSite:addParentRadar(parentRad1)
+	lu.assertEquals(#self.samSite:getParentRadars(), 1)
+	
+	--try adding the same radar again, make sure its not added:
+	self.samSite:addParentRadar(parentRad1)
+	lu.assertEquals(#self.samSite:getParentRadars(), 1)
+	
+	local parentRad2 = {}
+	self.samSite:addParentRadar(parentRad2)
+	lu.assertEquals(#self.samSite:getParentRadars(), 2)
+	
+	lu.assertEquals(self.samSite:getParentRadars()[1], parentRad2)
+	lu.assertEquals(self.samSite:getParentRadars()[2], parentRad1)
+	
+	lu.assertEquals(called, true)
+	
+	--reset array to prevent teardown issues with mock objects
+	self.samSite:clearParentRadars()
+	lu.assertEquals(#self.samSite:getParentRadars(), 0)
+end
+
+function TestSkynetIADSAbstractRadarElement:testInformChildrenOfStateChange()
+	
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	--we ensure the moose connector is updated if a state of an IADS radar changes
+	local updateCalled = false
+	local mockMoose = {}
+	function mockMoose:update()
+		updateCalled = true
+	end
+	function self.samSite.iads:getMooseConnector()
+		return mockMoose
+	end
+	
+	local calls = 0
+	local childRad1 = {}
+	function childRad1:setToCorrectAutonomousState()
+		calls = calls + 1
+	end
+	self.samSite:addChildRadar(childRad1)
+	
+	local childRad2 = {}
+	function childRad2:setToCorrectAutonomousState()
+		calls = calls + 1
+	end
+	self.samSite:addChildRadar(childRad2)
+	
+	self.samSite:informChildrenOfStateChange()
+
+	lu.assertEquals(updateCalled, true)
+	lu.assertEquals(calls, 2)
+end
+
+--this test is related to testInformChildrenOfStateChange it tests, if SAM site go to their correct state depending on destruction of connection nodes and power sources 
+-- TODO: remove SkynetIADS variable to reduce test cupling its not needed for this test, sam and ew site could just be instantiated by ther own.
+function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectionAndPowerSourceThenAddANewOneAgain()
+	self:tearDown()
+	self.testIADS = SkynetIADS:create()
+	local connectionNode = StaticObject.getByName('SA-6 Connection Node-autonomous-test')
+	local nonAutonomousSAM = self.testIADS:addSAMSite('SAM-SA-6'):addConnectionNode(connectionNode)
+	self.testIADS:addEarlyWarningRadar('EW-west2')
+	
+	self.testIADS:buildRadarCoverage()
+	
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	trigger.action.explosion(connectionNode:getPosition().p, 500)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	
+	local connectionNodeReAdd = StaticObject.getByName('SA-6 Connection Node-autonomous-readd')
+	nonAutonomousSAM:addConnectionNode(connectionNodeReAdd)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
+	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
+	ewRadar:addConnectionNode(StaticObject.getByName('ew-west-connection-node-test'))
+	
+	trigger.action.explosion(StaticObject.getByName('ew-west-connection-node-test'):getPosition().p, 500)
+	lu.assertEquals(ewRadar:hasActiveConnectionNode(), false)
+	lu.assertEquals(ewRadar:getAutonomousState(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	
+	ewRadar:addConnectionNode(Unit.getByName('connection-node-ew'))
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
+	ewRadar:addPowerSource(StaticObject.getByName('ew-power-source'))
+	trigger.action.explosion(StaticObject.getByName('ew-power-source'):getPosition().p, 500)
+	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	
+	ewRadar:addPowerSource(StaticObject.getByName('ew-power-source-2'))
+	lu.assertEquals(ewRadar:isActive(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
+	--test if a SAM site will stay active if it's in EW mode and it's parent EW radar becomes inoperable as long as SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK is set this will work
+	nonAutonomousSAM:setActAsEW(true)
+	trigger.action.explosion(StaticObject.getByName('ew-power-source-2'):getPosition().p, 500)
+	lu.assertEquals(ewRadar:isActive(), false)
+	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
+	lu.assertEquals(nonAutonomousSAM:isActive(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+
+	--test if command center is destroyed all SAM sites and EW radars should go autonomous:
+	ewRadar.powerSources = {}
+	nonAutonomousSAM.powerSources = {}
+	nonAutonomousSAM:setActAsEW(false)
+	ewRadar:setToCorrectAutonomousState()
+	ewRadar:informChildrenOfStateChange()
+	
+	lu.assertEquals(ewRadar:isActive(), true)
+	lu.assertEquals(nonAutonomousSAM:isActive(), false)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
+	
+	local commandCenter = StaticObject.getByName('command-center-unit-test')
+	local comCenter = self.testIADS:addCommandCenter(commandCenter)
+	
+	self.testIADS:buildRadarCoverage()
+	lu.assertEquals(#comCenter:getChildRadars(), 2)
+	trigger.action.explosion(commandCenter:getPosition().p, 5000)
+	
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
+	lu.assertEquals(ewRadar:getAutonomousState(), true)
+	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
+	
+	self.testIADS:deactivate()
+end
+
+
+--TODO: add tests for more check true / false combiations connectionnode power source etc.
+function TestSkynetIADSAbstractRadarElement:testSetToCorrectAutonomousState()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	self.samSite:goAutonomous()
+	lu.assertEquals(self.samSite:getAutonomousState(), true)
+	
+	function self.samSite:hasActiveConnectionNode()
+		return true
+	end
+	
+	local parentRad = {}
+	function parentRad:hasWorkingPowerSource()
+		return true
+	end
+	function parentRad:hasActiveConnectionNode()
+		return true
+	end
+	function parentRad:getActAsEW()
+		return true
+	end
+	function parentRad:isDestroyed()
+		return false
+	end
+	
+	self.samSite:addParentRadar(parentRad)
+	self.samSite:setToCorrectAutonomousState()
+	lu.assertEquals(self.samSite:getAutonomousState(), false) 
+	
+	--check when SAM site does not have active connection node
+	self.samSite:goAutonomous()
+	lu.assertEquals(self.samSite:getAutonomousState(), true)
+	
+	function self.samSite:hasActiveConnectionNode()
+		return false
+	end
+	
+	local parentRad = {}
+	function parentRad:hasWorkingPowerSource()
+		return true
+	end
+	function parentRad:hasActiveConnectionNode()
+		return true
+	end
+	function parentRad:getActAsEW()
+		return true
+	end
+	function parentRad:isDestroyed()
+		return false
+	end
+	
+	self.samSite:addParentRadar(parentRad)
+	self.samSite:setToCorrectAutonomousState()
+	lu.assertEquals(self.samSite:getAutonomousState(), true) 
+	
+	
+end
+
 -- TODO: write test for updateMissilesInFlight in AbstractRadarElement
 function TestSkynetIADSAbstractRadarElement:testUpdateMissilesInFlight()
 	self.samSiteName = "SAM-SA-6-2"
@@ -885,8 +1156,23 @@ function TestSkynetIADSAbstractRadarElement:testActAsEarlyWarningRadar()
 	lu.assertEquals(self.samSite:isActive(), true)
 	
 	lu.assertEquals(self.samSite:isActive(), true)
+	
+	-- test when stopping EW mode the child SAM site should go dark
+	local samSA62 = SkynetIADSSamSite:create(Group.getByName('SAM-SA-6-2'), self.skynetIADS)
+	samSA62:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
+	samSA62:setupElements()
+	samSA62:goLive()
+	self.samSite:addChildRadar(samSA62)
+	samSA62:addParentRadar(self.samSite)
+	self.samSite:informChildrenOfStateChange()
+	lu.assertEquals(samSA62:getAutonomousState(), false)
+	
 	self.samSite:setActAsEW(false)
 	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(samSA62:getAutonomousState(), true)
+	lu.assertEquals(samSA62:isActive(), false)
+	samSA62:cleanUp()
+
 end
 
 function TestSkynetIADSAbstractRadarElement:testInformOfContactInRangeWhenEarlyWaringRadar()
@@ -1128,7 +1414,7 @@ function TestSkynetIADSAbstractRadarElement:testControllerDisabledWhenGoingDarkA
 	function self.samSite:hasRemainingAmmo()
 		return true
 	end
-	
+
 	self.samSite:goDark()
 	lu.assertEquals(stateCalled, true)
 	lu.assertEquals(optionCalled, false)
@@ -1205,11 +1491,33 @@ function TestSkynetIADSAbstractRadarElement:testDaisychainSAMOptions()
 	lu.assertIs(self.samSite:getPowerSources()[1], powerSource)
 end
 
-function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenSAMGoesDarkDueToHARMDefence()
+function TestSkynetIADSAbstractRadarElement:testWillSAMShutDownWhenItLoosesPowerAndAMissileIsInFlight()
+	self.samSiteName = "SAM-SA-11"
+	self:setUp()
+	local powerSource = StaticObject.getByName('SA-11-power-source')
+	self.samSite:addPowerSource(powerSource)
+	self.samSite:goLive()
+	
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), true)
+	lu.assertEquals(self.samSite:isActive(), true)
+	
+	-- simulate that the SAM site has a missile in flight
+	function self.samSite:hasMissilesInFlight()
+		return true
+	end
+
+	--trigger the explosion of the power source, this should shut down the SAM site
+	trigger.action.explosion(powerSource:getPosition().p, 100)
+	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+function TestSkynetIADSAbstractRadarElement:testPointDefenceActiveWhenSAMGoesDarkDueToHARMDefence()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
 	self.samSite:setActAsEW(true)
 	
+	--in this group there are two SA-15 units:
 	local sa15 = Group.getByName("SAM-SA-15-1")
 	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
 	pointDefence:setupElements()
@@ -1318,16 +1626,22 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	
 	local calledShutdown = false
 	
+	-- we start with one contact the sam detects
 	function self.samSite:getDetectedTargets()
 		return {iadsContact}
 	end
+	
+	-- in this test we simulate an impact point that is close enough for the contact to be identified as a HARM
 	function self.samSite:getDistanceInMetersToContact(a, b)
 		return 50
 	end
+	
+	--we simulate the impact point to be a radar of the SAM site
 	function self.samSite:calculateImpactPoint(a, b)
 		return self:getRadars()[1]:getPosition().p
 	end
 	
+	--we ensure it will react to HARM (no probability in this test)
 	function self.samSite:shallReactToHARM()
 		return true
 	end
@@ -1346,11 +1660,10 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	calledShutdown = false
 	
 	
-	--this test should not provoke a HARM inbound response due to the point defence still having ammo
-	
 	-- set the state for HARM Ignore to true and check if the method returns a sam site for daisy chaining
 	lu.assertEquals(self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true), self.samSite)
 	
+	--this test should not provoke a HARM inbound response due to the point defence still having ammo and the number of HARMS is not greater than the point defences
 	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
 	
@@ -1371,6 +1684,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	
 	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
 	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
 	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 3)	
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
@@ -1381,7 +1695,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	pointDefence:setActAsEW(false)
 	pointDefence:goDark()
 	
-	--this test if for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
+	--this test is for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
 	function self.samSite:getDetectedTargets()
 		return {iadsContact, iadsContact2}
 	end
@@ -1389,6 +1703,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)	
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
 	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
 	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
 	lu.assertEquals(calledShutdown, false)
@@ -1401,7 +1716,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	pointDefence:goDark()
 	
 	
-	--this tests if there are a greater number of point defence launchers than HARMs inbound, radar emitter will not shut down:
+	--this tests if there are lower number of point defence launchers than HARMs inbound, radar emitter will not shut down:
 	function self.samSite:getDetectedTargets()
 		return {iadsContact}
 	end
@@ -1431,6 +1746,20 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIs
 	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
 	lu.assertEquals(calledShutdown, true)
 	
+end
+
+function TestSkynetIADSAbstractRadarElement:testPointDefencesAreNotActivatedWhenNoHARMSRemoved()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()	
+	local sa15 = Group.getByName("SAM-SA-15-1")
+	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
+	self.samSite:addPointDefence(pointDefence)
+	local calledStopPointDefence = false
+	function self.samSite:pointDefencesStopActingAsEW()
+		calledStopPointDefence = true
+	end
+	 self.samSite:evaluateIfTargetsContainHARMs()
+	lu.assertEquals(calledStopPointDefence, false)
 end
 
 function TestSkynetIADSAbstractRadarElement:testPointDefenceWillGoDarkWhenSAMItIsProtectingGoesDark()
@@ -1743,59 +2072,6 @@ function TestSkynetIADSAbstractRadarElement:testCallMethodOnTableElements()
 	lu.assertIs(testContainer:theOtherMethod("100"), testContainer)
 end
 --]]
-
-function TestSkynetIADSAbstractRadarElement:testAutonomousIfNoEWRadarInRange()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	self.skynetIADS:addEarlyWarningRadarsByPrefix('EW')
-	local ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName('EW-west2')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewRadar), true)
-	
-	
-	local ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName('EW-west23')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewRadar), false)
-	
-end
-
-function TestSkynetIADSAbstractRadarElement:testAutonomousIfNowEWSAMIsInRange()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	self.skynetIADS:addSAMSitesByPrefix('SAM')
-
-	local ewSAM2 = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-6')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewSAM2), true)
-	
---[[	local radars = ewSAM2:getRadars()
-	local samRadars = self.samSite:getRadars()
-	for i = 1, #samRadars do
-		local samRadar = samRadars[i]
-		for j = 1, #radars do
-			local radar = radars[j]
-			env.info(radar:getMaxRangeFindingTarget())
-			env.info(self.samSite:getDistanceToUnit(samRadar:getDCSRepresentation(), radar:getDCSRepresentation()))
-		end
-	end
---]]
-	local ewSAM = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
-	lu.assertEquals(self.samSite:isInRadarDetectionRangeOf(ewSAM), false)
-	
-
-end
-
-function TestSkynetIADSAbstractRadarElement:testUpdateSAMSitesInCoveredArea()
-	self.skynetIADS:addSAMSitesByPrefix('SAM')
-	self.samSite = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
-	lu.assertEquals(#self.samSite:updateSAMSitesInCoveredArea(), 1)
-	local samSites = self.samSite:getSAMSitesInCoveredArea()
-	lu.assertEquals(samSites[1]:getDCSRepresentation():getName(), "SAM-SA-15-1")
-
-	local samSite = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-15-1')
-	function samSite:hasActiveConnectionNode()
-		return false
-	end
-	lu.assertEquals(#self.samSite:updateSAMSitesInCoveredArea(), 0)	
-end
-
 
 --[[
 this test ensures that targets are cached in the sam site, calls to the getDetectedTargets function of the controller are cpu intensive

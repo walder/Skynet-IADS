@@ -7,19 +7,17 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsObject)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsObject = dcsObject
-	if dcsObject and dcsObject:isExist() and getmetatable(dcsObject) == Unit then
-		--we store inital life here, because getLife0() returs a value that is lower that getLife() when no damage has happened...
-		instance.initialLife = dcsObject:getLife()
-	end
+	instance.name = dcsObject:getName()
+	instance.typeName = dcsObject:getTypeName()
 	return instance
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getName()
-	return self.dcsObject:getName()
+	return self.name
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getTypeName()
-	return self.dcsObject:getTypeName()
+	return self.typeName
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getPosition()
@@ -34,17 +32,9 @@ function SkynetIADSAbstractDCSObjectWrapper:isExist()
 	end
 end
 
-function SkynetIADSAbstractDCSObjectWrapper:getLifePercentage()
-	if self.dcsObject and self.dcsObject:isExist() then
-		return self.dcsObject:getLife() / self.initialLife * 100
-	else
-		return 0
-	end
-	
-end
-
 function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
 	return self.dcsObject
 end
 
 end
+

@@ -50,13 +50,14 @@ If you like using it, please consider a donation:**
    * [Placing units](#placing-units)
    * [Preparing a SAM site](#preparing-a-sam-site)
    * [Preparing an EW radar](#preparing-an-ew-radar)
-   * [Adding the Skynet Code](#adding-the-skynet-code)
+   * [Adding the Skynet code](#adding-the-skynet-code)
    * [Adding the Skynet IADS](#adding-the-skynet-iads)
  * [Advanced setup](#advanced-setup)
    * [IADS configuration](#iads-configuration)
-     * [Warm up the SAM sites of an IADS](#warm-up-the-sam-sites-of-an-iads)
-     * [Adding a command center](#adding-a-command-center)
-     * [Connecting Skynet to the MOOSE AI\_A2A\_DISPATCHER](#connecting-skynet-to-the-moose-ai_a2a_dispatcher)
+   * [Adding a command center](#adding-a-command-center)
+   * [Power sources and connection nodes](#power-sources-and-connection-nodes)
+   * [Warm up the SAM sites of an IADS](#warm-up-the-sam-sites-of-an-iads)
+   * [Connecting Skynet to the MOOSE AI\_A2A\_DISPATCHER](#connecting-skynet-to-the-moose-ai_a2a_dispatcher)
    * [SAM site configuration](#sam-site-configuration)
      * [Adding SAM sites](#adding-sam-sites)
        * [Add multiple SAM sites](#add-multiple-sam-sites)
@@ -73,7 +74,6 @@ If you like using it, please consider a donation:**
    * [Options for SAM sites and EW radars](#options-for-sam-sites-and-ew-radars)
      * [Setting an option](#setting-an-option)
      * [Daisy chaining options](#daisy-chaining-options)
-     * [Power sources and connection nodes](#power-sources-and-connection-nodes)
      * [HARM Defence](#harm-defence-1)
      * [Point defence](#point-defence-1)
      * [Autonomous mode behaviour](#autonomous-mode-behaviour)
@@ -83,6 +83,7 @@ If you like using it, please consider a donation:**
    * [Setting debug information](#setting-debug-information)
  * [Example Setup](#example-setup)
  * [FAQ](#faq)
+   * [Does Skynet IADS have an impact on game performance?](#does-skynet-iads-have-an-impact-on-game-performance)
    * [What air defence units shall I add to the Skynet IADS?](#what-air-defence-units-shall-i-add-to-the-skynet-iads)
    * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
    * [Are there known bugs?](#are-there-known-bugs)
@@ -104,10 +105,10 @@ A Skynet IADS is a complete operational network. You can have multiple Skynet IA
 Skynet keeps a global track file of all detected targets. It queries all its units with radars and deduplicates contacts. By default lost contacts are stored up to 32 seconds in memory. 
 
 ## Comand Centers
-You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
+You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Sites
-Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. 
+Skynet can handle multiple SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. 
 Every single launcher and radar unit's distance of a SAM site is analysed individually. 
 If at least one launcher and radar is within range, the SAM Site will become active. 
 This allows for a scattered placement of radar and launcher units as in real life.
@@ -129,16 +130,17 @@ Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add 0-n power sources to SAM units, EW radars and command centers.
+By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
 Taking out the power source of a command center is a real life tactic used in SEAD (Suppression of Enemy Air Defence).
 
 ## Connection Nodes
-By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM units and EW radars.
+By default Skynet IADS will run without having to add connection nodes. You can add multiple connection nodes to SAM sites, EW radars and command centers.
 
-When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
+When all the unit's connection nodes are fully damaged an EW radar or SAM site will go in to autonomous mode. For a SAM site this means it will behave in its autonomous mode setting. 
+If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. Command centers do not have an autonomous mode.
 
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
@@ -213,17 +215,17 @@ Place the IADS elements you wish to add on the map.
 ![Mission Editor IADS Setup](/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There should be only be one SAM site type per group. If different SAM sites are mixed in one group distance calculation for the IADS will be messed up.
+There may be only be **one SAM site per group**. More than one SAM site per group will result in Skynet no being able to control a single SAM site. Also please refrain from from adding units to the SAM group that are not required for the SAM like trucks, tanks and soldiers.
 The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
 ![Mission Editor add SAM site](/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'.  
+You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'. Make sure you have only **one EW radar in a group** otherwise Skynet will not be able to control single EW radars. 
 ![Mission Editor EW radar](/images/ew-setup.png)  
 
-## Adding the Skynet Code
+## Adding the Skynet code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_3_74.lua](/demo-missions/mist_4_3_74.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
+Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_4_90.lua](/demo-missions/mist_4_4_90.lua) files are located in the [/demo-missions/](/master/demo-missions) folder. 
 
 I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
@@ -279,7 +281,37 @@ Set the update interval in seconds of the IADS. This determines in what interval
 redIADS:setUpdateInterval(5)
 ```
 
-### Warm up the SAM sites of an IADS
+## Adding a command center
+The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
+
+Add a command center like this:
+```lua
+local commandCenter = StaticObject.getByName("Command Center")
+redIADS:addCommandCenter(commandCenter)
+```
+
+## Power sources and connection nodes
+You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
+
+```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
+```lua
+local powerSource = StaticObject.getByName("EW Power Source")  
+unit:addPowerSource(powerSource
+```
+
+```lua
+local connectionNode = Unit.getByName("EW connection node") 
+unit:addConnectionNode(connectionNode)
+```
+
+For command centers use:
+```lua
+local commandCenter = StaticObject.getByName("Command Center2")
+local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
+redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
+```
+
+## Warm up the SAM sites of an IADS
 Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire.
 This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
 
@@ -304,23 +336,7 @@ redIADS:setupSAMSitesAndThenActivate(30)
 No separate call to ```redIADS:activate()``` must be made.
 
 
-### Adding a command center
-The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
-
-Add a command center like this:
-```lua
-local commandCenter = StaticObject.getByName("Command Center")
-redIADS:addCommandCenter(commandCenter)
-```
-
-You can also add a command center with a power source:
-```lua
-local commandCenter = StaticObject.getByName("Command Center2")
-local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
-redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
-```
-
-### Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
+## Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
 You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to direct SAM sites but also to scramble fighters.
 Skynet will set the radars it can use on the SET_GROUP object of a dispatcher. Meaning that if a radar is lost in Skynet it will no longer be availabe to detect and scramble interceptors.
 
@@ -395,7 +411,7 @@ SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE
 ```
 
 This option sets the range in relation to the zone you set in ``setEngagementZone`` for a SAM site to go live. Be careful not to set the value too low. Some SAM sites need up to 30 seconds until they can fire. 
-During this time a target might have already left the engageement zone of SAM site. This option is intended for long range systems like the S-300. You can also set the range above 100 this will have the effect that the SAM site goes live earlier:
+During this time a target might have already left the engagement zone of SAM site. This option is intended for long range systems like the S-300. You can also set the range above 100 this will have the effect that the SAM site goes live earlier:
 
 ```lua
 samSite:setGoLiveRangeInPercent(90)
@@ -442,18 +458,6 @@ In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or
  redIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
  ```  
 
-### Power sources and connection nodes
-You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
-```lua
-local powerSource = StaticObject.getByName("EW Power Source")  
-ewRadarOrSamSite:addPowerSource(powerSource)
-```
-
-```lua
-local connectionNode = Unit.getByName("EW connection node") 
-ewRadarOrSamSite:addConnectionNode(connectionNode)
-```
-
 ### HARM Defence
 You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
 ```lua
@@ -493,7 +497,7 @@ SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK
 
 ## Adding a jammer
 The jammer is quite easy to set up. You need a unit that acts as a jammer source, preferably it will be an aircraft in the strike package.
-Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#debug-information) to see what the jammer is doing.
+Once the jammer detects an emitter it starts jamming the radar. Set the [coresponding debug variable jammerProbability](#setting-debug-information) to see what the jammer is doing.
 Check [skynet-iads-jammer.lua](/skynet-iads-source/skynet-iads-jammer.lua) to see which SAM sites are supported.
 
 Remember to set the AI aircraft acting as jammer in the Mission editor to ```Reaction to Threat = EVADE FIRE``` otherwise the AI will try and actively attack the SAM site.
@@ -517,7 +521,7 @@ jammer:disableFor('SA-2')
 
 Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code, otherwise a background task will keep on jamming:
 ```lua
-jammer:masterArmOff()
+jammer:masterArmSafe()
 ```
 
 Will add jammer on / off to the radio menu:
@@ -556,7 +560,7 @@ jammer:setMaximumEffectiveDistance(100)
 ```
 
 ## Setting debug information
-When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to turn these of in a live environment:
+When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to turn it off in a live environment:
 
 ```lua
 local iadsDebug = redIADS:getDebugSettings()  
@@ -583,7 +587,7 @@ This is an example of how you can set up your IADS used in the [demo mission](/d
 do
 
 --create an instance of the IADS
-redIADS = SkynetIADS:create('IRAN')
+redIADS = SkynetIADS:create('RED')
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
@@ -668,6 +672,9 @@ end
 
 # FAQ
 
+## Does Skynet IADS have an impact on game performance?
+Skynet may actually improve game performance when using a lot of SAM AI units. This is because Skynet will turn off the AI of all SAM groups currently not in range of a target. By default these SAM groups would otherwise have their AI on. Skynet caches target information for a few seconds to reduce expensive calls on DCS radar detection.
+
 ## What air defence units shall I add to the Skynet IADS?
 In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](skynet-iads-source/skynet-iads-supported-types.lua) file. 
 Very short range units (like the Shilka AAA, Rapier) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
@@ -675,8 +682,7 @@ This is due to the short range of their radars. By the time the IADS wakes them 
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
 ## What exactly does Skynet do with the SAMS?
-Basically one can toggle a radar unit's controller (on and off), alarm state and its rules of engagement via the scripting enginge. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. 
-Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
+Via the scripting engine one can toggle a radar emitter's group controller on and off. Further options are the alarm state and the rules of engagement. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
 
 No god like intervention is used (like magically exploding HARMS via the scripting engine).
 If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.

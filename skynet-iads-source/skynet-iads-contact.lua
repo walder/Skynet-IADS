@@ -10,21 +10,12 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.name = instance.dcsObject:getName()
-	instance.typeName = instance.dcsObject:getTypeName()
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
 	return instance
 end
 
-function SkynetIADSContact:getName()
-	return self.name
-end
-
-function SkynetIADSContact:getTypeName()
-	return self.typeName
-end
 
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type

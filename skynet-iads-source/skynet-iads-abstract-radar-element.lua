@@ -22,13 +22,14 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.launchers = {}
 	instance.trackingRadars = {}
 	instance.searchRadars = {}
-	instance.samSitesInCoveredArea = {}
+	instance.parentRadars = {}
+	instance.childRadars = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
 	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
-	instance.isAutonomous = false
+	instance.isAutonomous = true
 	instance.harmDetectionChance = 0
 	instance.minHarmShutdownTime = 0
 	instance.maxHarmShutDownTime = 0
@@ -83,21 +84,108 @@ function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
 end
 
-
-function SkynetIADSAbstractRadarElement:updateSAMSitesInCoveredArea()
-	local samSites = self.iads:getUsableSAMSites()
-	self.samSitesInCoveredArea = {}
-	for i = 1, #samSites do
-		local samSite = samSites[i]
-		if samSite:isInRadarDetectionRangeOf(self) and samSite ~= self then
-			table.insert(self.samSitesInCoveredArea, samSite)
-		end
-	end
-	return self.samSitesInCoveredArea
+function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
+	self:abstractAddRadar(parentRadar, self.parentRadars)
+	self:informChildrenOfStateChange()
 end
 
-function SkynetIADSAbstractRadarElement:getSAMSitesInCoveredArea()
-	return self.samSitesInCoveredArea
+function SkynetIADSAbstractRadarElement:getParentRadars()
+	return self.parentRadars
+end
+
+function SkynetIADSAbstractRadarElement:clearParentRadars()
+	self.parentRadars = {}
+end
+
+function SkynetIADSAbstractRadarElement:abstractAddRadar(radar, tbl)
+local isAdded = false
+	for i = 1, #tbl do
+		local child = tbl[i]
+		if child == radar then
+			isAdded = true
+		end
+	end
+	if isAdded == false then
+		table.insert(tbl, radar)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
+	self:abstractAddRadar(childRadar, self.childRadars)
+end
+
+function SkynetIADSAbstractRadarElement:getChildRadars()
+	return self.childRadars
+end
+
+function SkynetIADSAbstractRadarElement:clearChildRadars()
+	self.childRadars = {}
+end
+
+--TODO: unit test this method
+function SkynetIADSAbstractRadarElement:getUsableChildRadars()
+	local usableRadars = {}
+	for i = 1, #self.childRadars do
+		local childRadar = self.childRadars[i]
+		if childRadar:hasWorkingPowerSource() and childRadar:hasActiveConnectionNode() then
+			table.insert(usableRadars, childRadar)
+		end
+	end	
+	return usableRadars
+end
+
+function SkynetIADSAbstractRadarElement:informChildrenOfStateChange()
+	self:setToCorrectAutonomousState()
+	local children = self:getChildRadars()
+	for i = 1, #children do
+		local childRadar = children[i]
+		childRadar:setToCorrectAutonomousState()
+	end
+	self.iads:getMooseConnector():update()
+end
+
+function SkynetIADSAbstractRadarElement:setToCorrectAutonomousState()
+	local parents = self:getParentRadars()
+	for i = 1, #parents do
+		local parent = parents[i]
+		--of one parent exists that still is connected to the IADS, the SAM site does not have to go autonomous
+		--instead of isDestroyed() write method, hasWorkingSearchRadars()
+		if self:hasActiveConnectionNode() and self.iads:isCommandCenterUsable() and parent:hasWorkingPowerSource() and parent:hasActiveConnectionNode() and parent:getActAsEW() == true and parent:isDestroyed() == false then
+			self:resetAutonomousState()
+			return
+		end
+	end
+	self:goAutonomous()
+end
+
+
+function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
+	if mode ~= nil then
+		self.autonomousBehaviour = mode
+	end
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
+	return self.autonomousBehaviour
+end
+
+function SkynetIADSAbstractRadarElement:resetAutonomousState()
+	self.isAutonomous = false
+	self:goDark()
+end
+
+function SkynetIADSAbstractRadarElement:goAutonomous()
+	self.isAutonomous = true
+	if self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
+		self:goDark()
+	else
+		self:goLive()
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getAutonomousState()
+	return self.isAutonomous
 end
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumberOfMissiles)
@@ -113,7 +201,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumber
 	return returnValue
 end
 
-function SkynetIADSAbstractElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
+function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
 	local numOfLaunchers = 0
 	for i = 1, #self.pointDefences do
 		local pointDefence = self.pointDefences[i]
@@ -126,7 +214,7 @@ function SkynetIADSAbstractElement:pointDefencesHaveEnoughLaunchers(minNumberOfL
 	return returnValue
 end
 
-function SkynetIADSAbstractElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
+function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
 	if state == true or state == false then
 		self.ingnoreHARMSWhilePointDefencesHaveAmmo = state
 	end
@@ -166,7 +254,14 @@ end
 
 function SkynetIADSAbstractRadarElement:setActAsEW(ewState)
 	if ewState == true or ewState == false then
+		local stateChange = false
+		if ewState ~= self.actAsEW then
+			stateChange = true
+		end
 		self.actAsEW = ewState
+		if stateChange then
+			self:informChildrenOfStateChange()
+		end
 	end
 	if self.actAsEW == true then
 		self:goLive()
@@ -363,7 +458,6 @@ end
 
 function SkynetIADSAbstractRadarElement:goLive()
 	if ( self.aiState == false and self:hasWorkingPowerSource() and self.harmSilenceID == nil) 
-	and ( (self.isAutonomous == false) or (self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI ) )
 	and (self:hasRemainingAmmo() == true  )
 	then
 		if self:isDestroyed() == false then
@@ -372,8 +466,8 @@ function SkynetIADSAbstractRadarElement:goLive()
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 			self.goLiveTime = timer.getTime()
+			self.aiState = true
 		end
-		self.aiState = true
 		self:pointDefencesStopActingAsEW()
 		if  self.iads:getDebugSettings().radarWentLive then
 			self.iads:printOutput(self:getDescription().." going live")
@@ -390,21 +484,9 @@ function SkynetIADSAbstractRadarElement:pointDefencesStopActingAsEW()
 end
 
 
-function SkynetIADSAbstractRadarElement:noDamageToRadars()
-	local radars = self:getRadars()
-	for i = 1, #radars do
-		local radar = radars[i]
-		if radar:getLifePercentage() < 100 then
-			return false
-		end
-	end	
-	return true
-end
-
 function SkynetIADSAbstractRadarElement:goDark()
-	if ( self.aiState == true ) 
+	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
-	and ( self.isAutonomous == false or ( self.isAutonomous == true and self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK )  )
 	then
 		if self:isDestroyed() == false then
 			local controller = self:getController()
@@ -504,36 +586,6 @@ function SkynetIADSAbstractRadarElement:getDistanceToUnit(unitPosA, unitPosB)
 	return mist.utils.round(mist.utils.get2DDist(unitPosA, unitPosB, 0))
 end
 
-function SkynetIADSAbstractRadarElement:setAutonomousBehaviour(mode)
-	if mode ~= nil then
-		self.autonomousBehaviour = mode
-	end
-	return self
-end
-
-function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
-	return self.autonomousBehaviour
-end
-
-function SkynetIADSAbstractRadarElement:resetAutonomousState()
-	if self.isAutonomous == true then
-		self.isAutonomous = false
-		self:goDark()
-	end
-end
-
-function SkynetIADSAbstractRadarElement:goAutonomous()
-	if self.isAutonomous == false then
-		self.isAutonomous = true
-		self:goDark()
-		self:goLive()
-	end
-end
-
-function SkynetIADSAbstractRadarElement:getAutonomousState()
-	return self.isAutonomous
-end
-
 function SkynetIADSAbstractRadarElement:hasWorkingRadar()
 	local radars = self:getRadars()
 	for i = 1, #radars do
@@ -572,11 +624,11 @@ function SkynetIADSAbstractRadarElement:scanForHarms()
 	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
 end
 
-function SkynetIADSAbstractElement:isScanningForHARMs()
+function SkynetIADSAbstractRadarElement:isScanningForHARMs()
 	return self.harmScanID ~= nil
 end
 
-function SkynetIADSAbstractElement:isDefendingHARM()
+function SkynetIADSAbstractRadarElement:isDefendingHARM()
 	return self.harmSilenceID ~= nil
 end
 
@@ -587,7 +639,7 @@ end
 
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
-	self.objectsIdentifiedAsHarms = {}
+	--self.objectsIdentifiedAsHarms = {}
 	local harmTime = self:getHarmShutDownTime()
 	if self.iads:getDebugSettings().harmDefence then
 		self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
@@ -677,20 +729,23 @@ end
 
 function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
 	local validObjects = {}
+	local validCount = 0
 	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
 		local harm = unit['target']
 		if harm:getAge() <= self.objectsIdentifiedAsHarmsMaxTargetAge then
 			validObjects[harm:getName()] = {}
 			validObjects[harm:getName()]['target'] = harm
 			validObjects[harm:getName()]['count'] = unit['count']
+			validCount = validCount + 1
 		end
-	end
-	self.objectsIdentifiedAsHarms = validObjects
-	
-	--stop point defences acting as ew (always on), will occur of activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
-	if self:getNumberOfObjectsItentifiedAsHARMS() == 0 then
+	end	
+	--stop point defences acting as ew (always on), will occur if activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
+	--if in this iteration all harms where cleared we turn of the point defence. But in any other cases we dont turn of point defences, that interferes with other parts of the iads
+	-- when setting up the iads (letting pds go to read state)
+	if validCount == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
 		self:pointDefencesStopActingAsEW()
 	end
+	self.objectsIdentifiedAsHarms = validObjects
 end
 
 
@@ -702,7 +757,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 		self.lastJammerUpdate = 0
 	end
 	
-	--we use the regular interval of this method to update to other states:
+	--we use the regular interval of this method to update to other states: 
 	self:updateMissilesInFlight()	
 	self:cleanUpOldObjectsIdentifiedAsHARMS()
 	

@@ -27,27 +27,40 @@ function TestSkynetIADSEWRadar:tearDown()
 end
 
 function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
-		self:tearDown()
 		
-		local iads = SkynetIADS:create()
-		local ewRadar = iads:addEarlyWarningRadar('EW-west22-destroy')
-		local sa61 = iads:addSAMSite('SAM-SA-6')
-		local sa62 = iads:addSAMSite('SAM-SA-6-2')
+		local ewRadar = SkynetIADSAWACSRadar:create(Unit.getByName('EW-west22-destroy'), SkynetIADS:create('test'))
+		ewRadar:setupElements()
+		ewRadar:setActAsEW(true)
+		ewRadar:goLive()
+		
+		local sa61 = SkynetIADSSamSite:create(Group.getByName('SAM-SA-6'), SkynetIADS:create('test'))
+		local sa62 = SkynetIADSSamSite:create(Group.getByName('SAM-SA-6-2'), SkynetIADS:create('test'))
+	
+		--build radar association
+		ewRadar:addChildRadar(sa61)
+		sa61:addParentRadar(ewRadar)
+		ewRadar:addChildRadar(sa62)
+		sa62:addParentRadar(ewRadar)
+		
+		sa61:setToCorrectAutonomousState()
+		sa62:setToCorrectAutonomousState()
 		
 		lu.assertEquals(ewRadar:hasRemainingAmmo(), true)
 		lu.assertEquals(ewRadar:isActive(), true)
 		lu.assertEquals(ewRadar:getDCSRepresentation():isExist(), true)
-		lu.assertEquals(#iads:getUsableEarlyWarningRadars(), 1)
 		lu.assertEquals(sa61:getAutonomousState(), false)
 		lu.assertEquals(sa62:getAutonomousState(), false)
 		trigger.action.explosion(ewRadar:getDCSRepresentation():getPosition().p, 500)
 		lu.assertEquals(ewRadar:getDCSRepresentation():isExist(), false)
 	
 		lu.assertEquals(ewRadar:isActive(), false)
-		lu.assertEquals(#iads:getUsableEarlyWarningRadars(), 0)
 
 		lu.assertEquals(sa61:getAutonomousState(), true)
 		lu.assertEquals(sa62:getAutonomousState(), true)
+		
+		sa61:cleanUp()
+		sa62:cleanUp()
+		ewRadar:cleanUp()
 end
 
 function TestSkynetIADSEWRadar:testGetNatoName()
@@ -398,14 +411,4 @@ function TestSkynetIADSEWRadar:testTiconderoga()
 	lu.assertEquals(Unit.getByName(self.ewRadarName):getDesc().category, Unit.Category.SHIP)
 end
 
-function TestSkynetIADSEWRadar:testUpdateSAMSitesInCoveredArea()
-	self.ewRadarName = "EW-west23"
-	self:setUp()
-	self.iads:addSAMSitesByPrefix('SAM')
-	lu.assertEquals(#self.ewRadar:updateSAMSitesInCoveredArea(), 3)
-	local samSites = self.ewRadar:getSAMSitesInCoveredArea()
-	lu.assertEquals(samSites[2]:getDCSRepresentation():getName(), "SAM-SA-2")
-	lu.assertEquals(samSites[1]:getDCSRepresentation():getName(), "SAM-SA-19")
-	lu.assertEquals(samSites[3]:getDCSRepresentation():getName(), "SAM-SA-15")
-end
 end

@@ -3,8 +3,8 @@ do
 TestSkynetIADSSAMSite = {}
 
 function TestSkynetIADSSAMSite:setUp()
+	self.skynetIADS = SkynetIADS:create()
 	if self.samSiteName then
-		self.skynetIADS = SkynetIADS:create()
 		local samSite = Group.getByName(self.samSiteName)
 		self.samSite = SkynetIADSSamSite:create(samSite, self.skynetIADS)
 		
@@ -30,14 +30,22 @@ function TestSkynetIADSSAMSite:tearDown()
 	self.samSiteName = nil
 end
 
+
 function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedSAMSiteInToIADS()
-	local iads = SkynetIADS:create()
-	local samSite = iads:addSAMSite("Destruction-test-sam"):setActAsEW(true)
-	local samSite2 = iads:addSAMSite('prefixtest-sam')
+
+	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), self.skynetIADS):setActAsEW(true)
+	samSite:setupElements()
+
+	local samSite2 = SkynetIADSSamSite:create(Group.getByName('prefixtest-sam'), self.skynetIADS)
+	samSite2:setupElements()
+	
+	samSite:addChildRadar(samSite2)
+	samSite2:addParentRadar(samSite)
+	
 	lu.assertEquals(samSite2:getAutonomousState(), false)
 	lu.assertEquals(samSite:isDestroyed(), false)
 	lu.assertEquals(samSite:hasWorkingRadar(), true)
-	lu.assertEquals(#iads:getUsableSAMSites(), 2)
+
 	local radars = samSite:getRadars()
 	for i = 1, #radars do
 		local radar = radars[i]
@@ -51,8 +59,7 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	lu.assertEquals(samSite:isActive(), false)
 	lu.assertEquals(samSite:isDestroyed(), true)
 	lu.assertEquals(samSite:hasWorkingRadar(), false)
-	lu.assertEquals(#iads:getDestroyedSAMSites(), 1)
-	lu.assertEquals(#iads:getUsableSAMSites(), 1)
+
 	lu.assertEquals(samSite:getRemainingNumberOfMissiles(), 0)
 	lu.assertEquals(samSite:getInitialNumberOfMissiles(), 6)
 	lu.assertEquals(samSite:hasRemainingAmmo(), false)
@@ -61,13 +68,17 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	lu.assertEquals(samSite2:getAutonomousState(), true)
 	
 	--test build SAM with destroyed elements
-	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), SkynetIADS:create())
+	samSite:cleanUp()
+	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), self.skynetIADS)
 	samSite:setupElements()
 	lu.assertEquals(samSite:getNatoName(), "SA-6")
 	lu.assertEquals(#samSite:getRadars(), 3)
 	lu.assertEquals(#samSite:getLaunchers(), 2)
-	iads:deactivate()
+	
+	samSite:cleanUp()
+	samSite2:cleanUp()
 end	
+
 
 function TestSkynetIADSSAMSite:testInformOfContactNotInRange()
 	self.samSiteName = "SAM-SA-6"

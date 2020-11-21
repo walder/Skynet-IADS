@@ -1,8 +1,8 @@
 do
 --- create an iads so the mission can be played, the ones in the unit tests, are cleaned once the tests are finished
 
-iranIADS = SkynetIADS:create("Iran")
-local iadsDebug = iranIADS:getDebugSettings()
+redIADS = SkynetIADS:create("Red IADS")
+local iadsDebug = redIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
@@ -18,24 +18,27 @@ iadsDebug.harmDefence = true
 --iadsDebug.samSiteStatusEnvOutput = true
 --iadsDebug.earlyWarningRadarStatusEnvOutput = true
 
-iranIADS:addEarlyWarningRadarsByPrefix('EW')
-iranIADS:addSAMSitesByPrefix('SAM')
+
+local comCenter = Unit.getByName('connection-node-ew')
+redIADS:addCommandCenter(comCenter)
+
+redIADS:addEarlyWarningRadarsByPrefix('EW')
+redIADS:addSAMSitesByPrefix('SAM')
 
 ewConnectionNode = Unit.getByName('connection-node-ew')
-iranIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(0):addConnectionNode(ewConnectionNode)
-local sa15 = iranIADS:getSAMSiteByGroupName('SAM-SA-15-1')
-iranIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-iranIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
+redIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
+local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15-1')
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+redIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
-iranIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(0)
+redIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(0)
 
-local conNode = SkynetIADSAbstractDCSObjectWrapper:create(nil)
-iranIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(iranIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true):addConnectionNode(conNode)
-
+redIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(redIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 
 
-iranIADS:addRadioMenu()
-iranIADS:activate()
+
+redIADS:addRadioMenu()
+redIADS:activate()
 
 blueIADS = SkynetIADS:create("UAE")
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
@@ -54,23 +57,8 @@ iadsDebug.radarWentLive = true
 --]]
 
 
-local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), iranIADS)
---jammer:masterArmOn()
+local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-source'), redIADS)
 jammer:addRadioMenu()
-
---local blueIadsDebug = blueIADS:getDebugSettings()
---blueIadsDebug.IADSStatus = true
---blueIadsDebug.harmDefence = true
---blueIadsDebug.contacts = true
-
---[[
-local launchers = sam:getLaunchers()
-for i=1, #launchers do
-	local launcher = launchers[i]:getDCSRepresentation()
---	trigger.action.explosion(launcher:getPosition().p, 9000)
-end
---]]
---test to check in game ammo changes, to build unit tests on
 
 posCounter = 0
 initialPosition = nil
@@ -128,33 +116,4 @@ end
 
 --mist.scheduleFunction(Vec3CalculationSpike, {}, 1, 1)
 
---trigger.action.effectSmokeBig(Unit.getByName('EW-west2'):getPosition().p, 8, 10)
-
-function checkSams(iranIADS)
-
-	--[[
-	local sam = iranIADS:getSAMSiteByGroupName('SAM-SA-6-2')
-	env.info("current num of missile: "..sam:getRemainingNumberOfMissiles())
-	env.info("Initial num missiles: "..sam:getInitialNumberOfMissiles())
-	env.info("Has Missiles in Flight: "..tostring(sam:hasMissilesInFlight()))
-	env.info("Number of Missiles in Fligth: "..#sam.missilesInFlight)
-	env.info("Has remaining Ammo: "..tostring(sam:hasRemainingAmmo()))
-	--]]
-	--[[
-	local sam = iranIADS:getSAMSiteByGroupName('SAM-Shilka')
-	env.info("current num of missile: "..sam:getRemainingNumberOfShells())
-	env.info("Initial num missiles: "..sam:getInitialNumberOfShells())
-	--env.info("Has Missiles in Flight: "..tostring(sam:hasMissilesInFlight()))
-	--env.info("Number of Missiles in Fligth: "..#sam.missilesInFlight)
-	env.info("Has remaining Ammo: "..tostring(sam:hasRemainingAmmo()))
-	--]]
-end
---[[
-local group = Group.getByName('SAM-SA-6-2')	
-local cont = group:getController()	
-cont:setOnOff(true)
-cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
---]]	
---mist.scheduleFunction(checkSams, {iranIADS}, 1, 1)
 end

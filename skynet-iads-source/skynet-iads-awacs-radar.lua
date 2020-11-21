@@ -8,6 +8,7 @@ function SkynetIADSAWACSRadar:create(radarUnit, iads)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.lastUpdatePosition = nil
+	instance.natoName = radarUnit:getTypeName()
 	return instance
 end
 
@@ -18,9 +19,6 @@ function SkynetIADSAWACSRadar:setupElements()
 	table.insert(self.searchRadars, radar)
 end
 
-function SkynetIADSAWACSRadar:getNatoName()
-	return self:getDCSRepresentation():getTypeName()
-end
 
 -- AWACs will not scan for HARMS
 function SkynetIADSAWACSRadar:scanForHarms()
@@ -28,12 +26,18 @@ function SkynetIADSAWACSRadar:scanForHarms()
 end
 
 function SkynetIADSAWACSRadar:getMaxAllowedMovementForAutonomousUpdateInNM()
-	local radarRange = mist.utils.metersToNM(self.searchRadars[1]:getMaxRangeFindingTarget())
-	return mist.utils.round(radarRange / 10)
+	--local radarRange = mist.utils.metersToNM(self.searchRadars[1]:getMaxRangeFindingTarget())
+	--return mist.utils.round(radarRange / 10)
+	--fixed to 10 nm miles to better fit small SAM sites
+	return 10
 end
 
 function SkynetIADSAWACSRadar:isUpdateOfAutonomousStateOfSAMSitesRequired()
-	return self:getDistanceTraveledSinceLastUpdate() > self:getMaxAllowedMovementForAutonomousUpdateInNM()
+	local isUpdateRequired = self:getDistanceTraveledSinceLastUpdate() > self:getMaxAllowedMovementForAutonomousUpdateInNM()
+	if isUpdateRequired then
+		self.lastUpdatePosition = nil
+	end
+	return isUpdateRequired
 end
 
 function SkynetIADSAWACSRadar:getDistanceTraveledSinceLastUpdate()
