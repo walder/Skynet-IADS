@@ -185,10 +185,15 @@ end
 
 function TestSkynetIADS:testAddRadarsToCommandCenter()
 	local comCenter = StaticObject.getByName('command-center-3')
-	--as long as IADS is not active it will not trigger addRadarsToCommandCenters when called:
 	self.testIADS:addCommandCenter(comCenter)
-	self.testIADS:addRadarsToCommandCenters()
 	local comC = self.testIADS:getCommandCenters()[1]
+	local called = false
+	function comC:clearChildRadars()
+		called = true
+	end
+	--as long as IADS is not active addCommandCenter will not trigger addRadarsToCommandCenters when called:
+	self.testIADS:addRadarsToCommandCenters()
+	lu.assertEquals(called, true)
 	lu.assertEquals(#comC:getChildRadars(), (self.numEWSites + self.numSAMSites))
 end
 
@@ -206,6 +211,17 @@ function TestSkynetIADS:testAddCommandCenter()
 	self.testIADS:addCommandCenter(comCenter)
 	lu.assertEquals(called, true)
 	self.testIADS:deactivate()
+end
+
+function TestSkynetIADS:testOneCommandCenterHasNoConnectionNode()
+	local commandCenter2 = StaticObject.getByName("Command Center2")
+	local commandCenter2ConnectionNode = StaticObject.getByName("command-center-2-connection-node")
+	local comCenter = self.testIADS:addCommandCenter(commandCenter2):addConnectionNode(commandCenter2ConnectionNode)
+	lu.assertEquals(#comCenter:getConnectionNodes(), 1)
+	lu.assertEquals(self.testIADS:isCommandCenterUsable(), true)
+	trigger.action.explosion(commandCenter2ConnectionNode:getPosition().p, 500)
+	lu.assertEquals(comCenter:hasActiveConnectionNode(), false)
+	--lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
 end
 
 function TestSkynetIADS:testOneCommandCenterLoosesPower()

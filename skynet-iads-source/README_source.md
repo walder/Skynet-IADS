@@ -41,10 +41,10 @@ A Skynet IADS is a complete operational network. You can have multiple Skynet IA
 Skynet keeps a global track file of all detected targets. It queries all its units with radars and deduplicates contacts. By default lost contacts are stored up to 32 seconds in memory. 
 
 ## Comand Centers
-You can add 0-n command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
+You can add multiple command centers to a Skynet IADS. Once all command centers are destroyed the IADS will go in to autonomous mode.
 
 ## SAM Sites
-Skynet can handle 0-n SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. 
+Skynet can handle multiple SAM sites, it will try and keep emissions to a minimum, therefore by default SAM sites will be turned on only if a target is in range. 
 Every single launcher and radar unit's distance of a SAM site is analysed individually. 
 If at least one launcher and radar is within range, the SAM Site will become active. 
 This allows for a scattered placement of radar and launcher units as in real life.
@@ -66,16 +66,17 @@ Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add 0-n power sources to SAM units, EW radars and command centers.
+By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
 Taking out the power source of a command center is a real life tactic used in SEAD (Suppression of Enemy Air Defence).
 
 ## Connection Nodes
-By default Skynet IADS will run without having to add connection nodes. You can add 0-n connection nodes to SAM units and EW radars.
+By default Skynet IADS will run without having to add connection nodes. You can add multiple connection nodes to SAM sites, EW radars and command centers.
 
-When all the unit's connection nodes are fully damaged the unit will go in to autonomous mode. For a SAM unit this means it will behave in its autonomous mode setting. If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. 
+When all the unit's connection nodes are fully damaged an EW radar or SAM site will go in to autonomous mode. For a SAM site this means it will behave in its autonomous mode setting. 
+If an EW Radar looses its node it will no longer contribute information to the IADS but otherwise the IADS will still work. Command centers do not have an autonomous mode.
 
 Nice to know:
 A single node can be used to connect an arbitrary number of Skynet IADS units. This way you can add a single point of failure in to an IADS.
@@ -216,6 +217,27 @@ Set the update interval in seconds of the IADS. This determines in what interval
 redIADS:setUpdateInterval(5)
 ```
 
+## Power sources and connection nodes
+You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
+
+unit refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](### Setting an option)
+```lua
+local powerSource = StaticObject.getByName("EW Power Source")  
+unit:addPowerSource(powerSource)
+```
+
+```lua
+local connectionNode = Unit.getByName("EW connection node") 
+unit:addConnectionNode(connectionNode)
+```
+
+For command centers use:
+```lua
+local commandCenter = StaticObject.getByName("Command Center2")
+local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
+redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
+```
+
 ### Warm up the SAM sites of an IADS
 Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire.
 This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
@@ -248,13 +270,6 @@ Add a command center like this:
 ```lua
 local commandCenter = StaticObject.getByName("Command Center")
 redIADS:addCommandCenter(commandCenter)
-```
-
-You can also add a command center with a power source:
-```lua
-local commandCenter = StaticObject.getByName("Command Center2")
-local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
-redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
 ### Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
@@ -368,7 +383,7 @@ Returns the EW radar with the specified unit name:
 redIADS:getEarlyWarningRadarByUnitName('EW-west')
 ```
 
-## Options for SAM sites and EW radars
+## Options for SAM sites, EW radars
 
 ### Setting an option
 In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or SAM site or a table of EW radars and SAM sites you got from the Skynet IADS, by calling one of the functions named in [accessing EW radars](#accessing-ew-radars-in-the-iads) or [accessing SAM sites](#accessing-sam-sites-in-the-iads).
@@ -378,18 +393,6 @@ In the following examples ```ewRadarOrSamSite``` refers to an single EW radar or
  ```lua
  redIADS:getSAMSites():setActAsEW(true):addPowerSource(powerSource):addConnectionNode(connectionNode):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE):setGoLiveRangeInPercent(90):setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK)
  ```  
-
-### Power sources and connection nodes
-You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
-```lua
-local powerSource = StaticObject.getByName("EW Power Source")  
-ewRadarOrSamSite:addPowerSource(powerSource)
-```
-
-```lua
-local connectionNode = Unit.getByName("EW connection node") 
-ewRadarOrSamSite:addConnectionNode(connectionNode)
-```
 
 ### HARM Defence
 You can set the reaction probability (between 0 and 100 percent). See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for default detection probabilities:
@@ -454,7 +457,7 @@ jammer:disableFor('SA-2')
 
 Will turn off the jammer. Make sure you call this function before you dereference a jammer in the code, otherwise a background task will keep on jamming:
 ```lua
-jammer:masterArmOff()
+jammer:masterArmSafe()
 ```
 
 Will add jammer on / off to the radio menu:

@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 14.11.2020 1659Z ---")
+env.info("--- SKYNET VERSION: 1.1.4-develop | BUILD TIME: 21.11.2020 0916Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -705,17 +705,11 @@ function SkynetIADS:addCommandCenter(commandCenter)
 end
 
 function SkynetIADS:isCommandCenterUsable()
-	local hasWorkingCommandCenter = (#self.commandCenters == 0)
-	for i = 1, #self.commandCenters do
-		local comCenter = self.commandCenters[i]
-		if comCenter:isDestroyed() == false and comCenter:hasWorkingPowerSource() then
-			hasWorkingCommandCenter = true
-			break
-		else
-			hasWorkingCommandCenter = false
-		end
+	if #self:getCommandCenters() == 0 then
+		return true
 	end
-	return hasWorkingCommandCenter
+	local usableComCenters = self:getUsableAbstractRadarElemtentsOfTable(self:getCommandCenters())
+	return (#usableComCenters > 0)
 end
 
 function SkynetIADS:getCommandCenters()
@@ -724,12 +718,6 @@ end
 
 
 function SkynetIADS.evaluateContacts(self)
-	if self:isCommandCenterUsable() == false then
-		if self:getDebugSettings().noWorkingCommmandCenter then
-			self:printOutput("No Working Command Center")
-		end
-		return
-	end
 
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
@@ -834,7 +822,15 @@ end
 
 
 function SkynetIADS:addRadarsToCommandCenters()
-	--first we clear all child radars that may have been added previously
+
+	--we clear any existing radars that may have been added earlier
+	local comCenters = self:getCommandCenters()
+	for i = 1, #comCenters do
+		local comCenter = comCenters[i]
+		comCenter:clearChildRadars()
+	end	
+	
+	-- then we add child radars to the command centers
 	local abstractRadarElements = self:getAbstracRadarElements()
 		for i = 1, #abstractRadarElements do
 			local abstractRadar = abstractRadarElements[i]
@@ -1211,29 +1207,29 @@ function SkynetIADS:printSystemStatus()
 	
 	if self:getDebugSettings().IADSStatus then
 
-		local numComCenters = #self.commandCenters
-		local numIntactComCenters = 0
+		local numComCenters = #self:getCommandCenters()
 		local numDestroyedComCenters = 0
 		local numComCentersNoPower = 0
-		local numComCentersServingIADS = 0
+		local numComCentersNoConnectionNode = 0
+		local numIntactComCenters = 0
 		for i = 1, #self.commandCenters do
 			local commandCenter = self.commandCenters[i]
 			if commandCenter:hasWorkingPowerSource() == false then
 				numComCentersNoPower = numComCentersNoPower + 1
 			end
+			if commandCenter:hasActiveConnectionNode() == false then
+				numComCentersNoConnectionNode = numComCentersNoConnectionNode + 1
+			end
 			if commandCenter:isDestroyed() == false then
 				numIntactComCenters = numIntactComCenters + 1
-			end
-			if commandCenter:isDestroyed() == false and commandCenter:hasWorkingPowerSource() then
-				numComCentersServingIADS = numComCentersServingIADS + 1
 			end
 		end
 		
 		numDestroyedComCenters = numComCenters - numIntactComCenters
 		
 		
-		self:printOutput("COMMAND CENTERS: Serving IADS: "..numComCentersServingIADS.." | Total: "..numComCenters.." | Intact: "..numIntactComCenters.." | Destroyed: "..numDestroyedComCenters.." | NoPower: "..numComCentersNoPower)
-		
+		self:printOutput("COMMAND CENTERS: "..numComCenters.." | Destroyed: "..numDestroyedComCenters.." | NoPowr: "..numComCentersNoPower.." | NoCon: "..numComCentersNoConnectionNode)
+	
 		local ewNoPower = 0
 		local ewTotal = #self:getEarlyWarningRadars()
 		local ewNoConnectionNode = 0
@@ -1255,7 +1251,7 @@ function SkynetIADS:printSystemStatus()
 		
 		ewRadarsInactive = ewTotal - ewActive	
 		local numEWRadarsDestroyed = #self:getDestroyedEarlyWarningRadars()
-		self:printOutput("EW: "..ewTotal.." | Act: "..ewActive.." | Inact: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | NoPowr: "..ewNoPower.." | NoCon: "..ewNoConnectionNode)
+		self:printOutput("EW: "..ewTotal.." | On: "..ewActive.." | Off: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | NoPowr: "..ewNoPower.." | NoCon: "..ewNoConnectionNode)
 		
 		local samSitesInactive = 0
 		local samSitesActive = 0
@@ -1288,7 +1284,7 @@ function SkynetIADS:printSystemStatus()
 		end
 		
 		samSitesInactive = samSitesTotal - samSitesActive
-		self:printOutput("SAM: "..samSitesTotal.." | Act: "..samSitesActive.." | Inact: "..samSitesInactive.." | Autonm: "..samSiteAutonomous.." | Raddest: "..samSiteRadarDestroyed.." | NoPowr: "..samSitesNoPower.." | NoCon: "..samSitesNoConnectionNode.." | NoAmmo: "..samSitesOutOfAmmo)
+		self:printOutput("SAM: "..samSitesTotal.." | On: "..samSitesActive.." | Off: "..samSitesInactive.." | Autonm: "..samSiteAutonomous.." | Raddest: "..samSiteRadarDestroyed.." | NoPowr: "..samSitesNoPower.." | NoCon: "..samSitesNoConnectionNode.." | NoAmmo: "..samSitesOutOfAmmo)
 	end
 	if self:getDebugSettings().contacts then
 		for i = 1, #self.contacts do
