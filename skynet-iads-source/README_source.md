@@ -217,13 +217,22 @@ Set the update interval in seconds of the IADS. This determines in what interval
 redIADS:setUpdateInterval(5)
 ```
 
+## Adding a command center
+The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
+
+Add a command center like this:
+```lua
+local commandCenter = StaticObject.getByName("Command Center")
+redIADS:addCommandCenter(commandCenter)
+```
+
 ## Power sources and connection nodes
 You can use units or static objects. Call the function multiple times to add more than one power source or connection node:
 
-```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option)
+```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-unit:addPowerSource(powerSource)
+unit:addPowerSource(powerSource
 ```
 
 ```lua
@@ -238,7 +247,7 @@ local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
-### Warm up the SAM sites of an IADS
+## Warm up the SAM sites of an IADS
 Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire.
 This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
 
@@ -263,16 +272,7 @@ redIADS:setupSAMSitesAndThenActivate(30)
 No separate call to ```redIADS:activate()``` must be made.
 
 
-### Adding a command center
-The command center represents the place where information is collected and analysed. It if is destroyed the IADS disintegrates.
-
-Add a command center like this:
-```lua
-local commandCenter = StaticObject.getByName("Command Center")
-redIADS:addCommandCenter(commandCenter)
-```
-
-### Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
+## Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
 You can connect Skynet with MOOSE's [AI_A2A_DISPATCHER](https://flightcontrol-master.github.io/MOOSE_DOCS/Documentation/AI.AI_A2A_Dispatcher.html). This allows the IADS not only to direct SAM sites but also to scramble fighters.
 Skynet will set the radars it can use on the SET_GROUP object of a dispatcher. Meaning that if a radar is lost in Skynet it will no longer be availabe to detect and scramble interceptors.
 
