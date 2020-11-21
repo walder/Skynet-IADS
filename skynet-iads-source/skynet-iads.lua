@@ -29,11 +29,8 @@ function SkynetIADS:create(name)
 	iads.debugOutput.samWentDark = false
 	iads.debugOutput.contacts = false
 	iads.debugOutput.radarWentLive = false
-	iads.debugOutput.ewRadarNoConnection = false
-	iads.debugOutput.samNoConnection = false
 	iads.debugOutput.jammerProbability = false
 	iads.debugOutput.addedEWRadar = false
-	iads.debugOutput.hasNoPower = false
 	iads.debugOutput.addedSAMSite = false
 	iads.debugOutput.warnings = true
 	iads.debugOutput.harmDefence = false
