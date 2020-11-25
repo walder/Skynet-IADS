@@ -232,7 +232,7 @@ You can use units or static objects. Call the function multiple times to add mor
 ```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-unit:addPowerSource(powerSource
+unit:addPowerSource(powerSource)
 ```
 
 ```lua
@@ -240,11 +240,18 @@ local connectionNode = Unit.getByName("EW connection node")
 unit:addConnectionNode(connectionNode)
 ```
 
-For command centers use:
+To add a power source to a command center use:
 ```lua
-local commandCenter = StaticObject.getByName("Command Center2")
+local commandCenter = StaticObject.getByName("Command Center 2")
 local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
+```
+
+To add a connection node to a command center use:
+```lua
+local commandCenter = StaticObject.getByName("Command Center 2")
+local conNode = StaticObject.getByName("Command Center 2 Connection Node")
+redIADS:addCommandCenter(commandCenter):addConnectionNode(conNode)
 ```
 
 ## Warm up the SAM sites of an IADS
