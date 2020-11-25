@@ -13,11 +13,8 @@ iadsDebug.contacts = true
 iadsDebug.samWentDark = true
 
 iadsDebug.radarWentLive = true
-iadsDebug.ewRadarNoConnection = true
-iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
-iadsDebug.hasNoPower = true
 iadsDebug.addedSAMSite = true
 iadsDebug.warnings = true
 iadsDebug.harmDefence = true

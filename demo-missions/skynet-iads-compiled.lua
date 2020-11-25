@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 1.2.0 | BUILD TIME: 21.11.2020 1159Z ---")
+env.info("--- SKYNET VERSION: 1.2.0 | BUILD TIME: 25.11.2020 1711Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -450,11 +450,8 @@ function SkynetIADS:create(name)
 	iads.debugOutput.samWentDark = false
 	iads.debugOutput.contacts = false
 	iads.debugOutput.radarWentLive = false
-	iads.debugOutput.ewRadarNoConnection = false
-	iads.debugOutput.samNoConnection = false
 	iads.debugOutput.jammerProbability = false
 	iads.debugOutput.addedEWRadar = false
-	iads.debugOutput.hasNoPower = false
 	iads.debugOutput.addedSAMSite = false
 	iads.debugOutput.warnings = true
 	iads.debugOutput.harmDefence = false
@@ -1489,17 +1486,11 @@ end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
-	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
-		self.iads:printOutput(self:getDescription().." no connection to Command Center")
-	end
 	return connectionNode
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
 	local power = self:genericCheckOneObjectIsAlive(self.powerSources)
-	if power == false and self.iads:getDebugSettings().hasNoPower then
-		self.iads:printOutput(self:getDescription().." has no power")
-	end
 	return power
 end
 
