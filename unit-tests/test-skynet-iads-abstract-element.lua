@@ -73,7 +73,7 @@ function TestSkynetIADSAbstractElement:testGetNatoName()
 end
 
 function TestSkynetIADSAbstractElement:testGetDescription()
-	lu.assertEquals(self.abstractElement:getDescription(), "IADS ELEMENT: SAM-SA-6-2 | Type : UNKNOWN")
+	lu.assertEquals(self.abstractElement:getDescription(), "IADS ELEMENT: SAM-SA-6-2 | Type: UNKNOWN")
 end
 
 function TestSkynetIADSAbstractElement:testGetDCSRepresentation()

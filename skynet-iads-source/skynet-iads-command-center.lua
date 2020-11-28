@@ -6,7 +6,7 @@ function SkynetIADSCommandCenter:create(commandCenter, iads)
 	local instance = self:superClass():create(commandCenter, iads)
 	setmetatable(instance, self)
 	self.__index = self
-	instance.natoName = "Command Center"
+	instance.natoName = "COMMAND CENTER"
 	return instance
 end
 

@@ -7,23 +7,25 @@ iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
-iadsDebug.noWorkingCommmandCenter = false
-iadsDebug.ewRadarNoConnection = false
-iadsDebug.samNoConnection = false
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
 iadsDebug.addedSAMSite = true
-iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
---iadsDebug.samSiteStatusEnvOutput = true
+iadsDebug.commandCenterStatusEnvOutput = true
+iadsDebug.samSiteStatusEnvOutput = true
 --iadsDebug.earlyWarningRadarStatusEnvOutput = true
 
 
 local comCenter = Unit.getByName('connection-node-ew')
-redIADS:addCommandCenter(comCenter)
+local power = StaticObject.getByName('Command Center Power')
+local connection = Unit.getByName('connection-node-ew')
+redIADS:addCommandCenter(comCenter):addPowerSource(power):addConnectionNode(connection)
+
+local comCenter2 = StaticObject.getByName('Command Center')
+redIADS:addCommandCenter(comCenter2)
 
 redIADS:addEarlyWarningRadarsByPrefix('EW')
-redIADS:addSAMSitesByPrefix('SAM')
+redIADS:addSAMSitesByPrefix('SAM'):setHARMDetectionChance(100)
 
 ewConnectionNode = Unit.getByName('connection-node-ew')
 redIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
@@ -31,7 +33,7 @@ local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15-1')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 redIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
-redIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(0)
+redIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(100)
 
 redIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(redIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 
