@@ -317,7 +317,7 @@ samTypesDB = {
 			},
 		},
 		['name'] = {
-			['NATO'] = '1L13 EWR',
+			['NATO'] = 'Box Spring',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -328,7 +328,7 @@ samTypesDB = {
 			},
 		},
 		['name'] = {
-			['NATO'] = '55G6 EWR',
+			['NATO'] = 'Tall Rack',
 		},
 		['harm_detection_chance'] = 60
 	},
