@@ -29,11 +29,13 @@ function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
 	lu.assertEquals(launcher1:getTypeName(), "S-300PMU1 5P85CE ln")
 	lu.assertEquals(launcher1:getRange(), 150000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 27000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)
 	
 	local launcher2 = launchers[2]
 	lu.assertEquals(launcher2:getTypeName(), "S-300PMU1 5P85DE ln")
 	lu.assertEquals(launcher2:getRange(), 150000)
 	lu.assertEquals(launcher2:getMaximumFiringAltitude(), 27000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)
 	
 	local searchRadars = self.samSite:getSearchRadars()
 	lu.assertEquals(#searchRadars, 2)
@@ -76,11 +78,13 @@ function TestSyknetIADSHighDigitSAMSites:testSA23()
 	lu.assertEquals(launcher1:getTypeName(), "S-300VM 9A83ME ln")
 	lu.assertEquals(launcher1:getRange(), 100000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)
 
 	local launcher1 = launchers[1]
 	lu.assertEquals(launcher1:getTypeName(), "S-300VM 9A83ME ln")
 	lu.assertEquals(launcher1:getRange(), 100000)
-	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)	
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
 	
 end
 
