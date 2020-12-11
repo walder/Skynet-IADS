@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: -2.0.0-develop | BUILD TIME: 10.12.2020 1857Z ---")
+env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 11.12.2020 1053Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -318,7 +318,7 @@ samTypesDB = {
 			},
 		},
 		['name'] = {
-			['NATO'] = '1L13 EWR',
+			['NATO'] = 'Box Spring',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -329,7 +329,7 @@ samTypesDB = {
 			},
 		},
 		['name'] = {
-			['NATO'] = '55G6 EWR',
+			['NATO'] = 'Tall Rack',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -462,9 +462,8 @@ s3000pmu1 = {
 	['harm_detection_chance'] = 90
 }	
 samTypesDB['S-300PMU1'] = s3000pmu1
-
-
 end
+
 do
 
 SkynetIADSLogger = {}

@@ -41,6 +41,5 @@ s3000pmu1 = {
 	['harm_detection_chance'] = 90
 }	
 samTypesDB['S-300PMU1'] = s3000pmu1
-
-
 end
+
