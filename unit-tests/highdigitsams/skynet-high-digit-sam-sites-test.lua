@@ -28,10 +28,12 @@ function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
 	local launcher1 = launchers[1]
 	lu.assertEquals(launcher1:getTypeName(), "S-300PMU1 5P85CE ln")
 	lu.assertEquals(launcher1:getRange(), 150000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 27000)
 	
 	local launcher2 = launchers[2]
 	lu.assertEquals(launcher2:getTypeName(), "S-300PMU1 5P85DE ln")
 	lu.assertEquals(launcher2:getRange(), 150000)
+	lu.assertEquals(launcher2:getMaximumFiringAltitude(), 27000)
 	
 	local searchRadars = self.samSite:getSearchRadars()
 	lu.assertEquals(#searchRadars, 2)
@@ -55,8 +57,31 @@ function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
 	lu.assertEquals(trackingRadar2:getTypeName(), "S-300PMU1 30N6E tr")
 	lu.assertEquals(trackingRadar2:getMaxRangeFindingTarget(), 106998.453125)
 	
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	
 	--output sensor data to dcs.log:
 	--lu.assertEquals(launcher1:getDCSRepresentation():getSensors(), "00")
 
 end
+
+function TestSyknetIADSHighDigitSAMSites:testSA23()
+	self.samSiteName = "SAM-SA-23"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-23")
+	
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 2)
+
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "S-300VM 9A83ME ln")
+	lu.assertEquals(launcher1:getRange(), 100000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
+
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "S-300VM 9A83ME ln")
+	lu.assertEquals(launcher1:getRange(), 100000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)	
+	
+end
+
 end

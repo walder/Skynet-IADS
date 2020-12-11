@@ -1,7 +1,7 @@
 do
 
 --[[
-local units = Group.getByName('SA-20A'):getUnits()
+local units = Group.getByName('SAM-SA-23'):getUnits()
 for i = 1, #units do
 	local unit = units[i]
 	env.info(unit:getTypeName())
