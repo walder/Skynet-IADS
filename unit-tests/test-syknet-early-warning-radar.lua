@@ -66,7 +66,7 @@ end
 function TestSkynetIADSEWRadar:testGetNatoName()
 	self.ewRadarName = "EW-west22-destroy"
 	self:setUp()
-	lu.assertEquals(self.ewRadar:getNatoName(), "1L13 EWR")
+	lu.assertEquals(self.ewRadar:getNatoName(), "Box Spring")
 end
 
 function TestSkynetIADSEWRadar:testEvaluateIfTargetsContainHARMsShallReactTrue()

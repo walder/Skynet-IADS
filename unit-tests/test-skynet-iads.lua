@@ -717,4 +717,12 @@ function TestSkynetIADS:testSetupSAMSiteWithPointDefence()
 	iads:deactivate()
 end
 
+function TestSkynetIADS:testBuildIADSWithAutonomousSAMS()
+	local iads = SkynetIADS:create()
+	local samSite = iads:addSAMSite('SAM-SA-10')
+	iads:activate()
+	lu.assertEquals(samSite:isActive(), true) 
+	iads:deactivate()
+end
+
 end

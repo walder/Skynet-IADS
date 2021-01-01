@@ -66,7 +66,7 @@ function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
 
 end
 
-function TestSyknetIADSHighDigitSAMSites:testSA23()
+function TestSyknetIADSHighDigitSAMSites:testSA23GladiatorOrGiant()
 	self.samSiteName = "SAM-SA-23"
 	self:setUp()
 	lu.assertEquals(self.samSite:getNatoName(), "SA-23")
@@ -85,6 +85,25 @@ function TestSyknetIADSHighDigitSAMSites:testSA23()
 	lu.assertEquals(launcher1:getRange(), 100000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
 	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+	
+	local searchRadars = self.samSite:getSearchRadars()
+	lu.assertEquals(#searchRadars, 2)
+	
+	local searchRadars1 = searchRadars[1]
+	lu.assertEquals(searchRadars1:getTypeName(), "S-300VM 9S15M2 sr")
+	lu.assertEquals(searchRadars1:getMaxRangeFindingTarget(), 213996.90625)
+	
+	local searchRadars1 = searchRadars[2]
+	lu.assertEquals(searchRadars1:getTypeName(), "S-300VM 9S19M2 sr")
+	lu.assertEquals(searchRadars1:getMaxRangeFindingTarget(), 213996.90625)
+	
+	local trackingRadars = self.samSite:getTrackingRadars()
+	lu.assertEquals(#trackingRadars, 1)
+	
+	local trackingRadar1 = trackingRadars[1]
+	lu.assertEquals(trackingRadar1:getTypeName(), "S-300VM 9S32ME tr")
+	lu.assertEquals(trackingRadar1:getMaxRangeFindingTarget(), 213996.90625)
+
 	
 end
 

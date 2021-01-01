@@ -25,6 +25,6 @@ iadsDebug.harmDefence = true
 iadsDebug.commandCenterStatusEnvOutput = true
 iadsDebug.samSiteStatusEnvOutput = true
 
-redIADS:addSAMSitesByPrefix('SAM'):setActAsEW(true)
+redIADS:addSAMSitesByPrefix('SAM')
 redIADS:activate()
 end

@@ -439,6 +439,13 @@ function SkynetIADS:buildRadarCoverage()
 	end
 	
 	self:addRadarsToCommandCenters()
+	
+	--we call this once on all sam sites, to make sure autonomous sites go live when IADS activates
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		samSite:informChildrenOfStateChange()
+	end
+
 end
 
 function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarElement)

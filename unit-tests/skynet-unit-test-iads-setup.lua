@@ -3,6 +3,7 @@ do
 
 redIADS = SkynetIADS:create("Red IADS")
 local iadsDebug = redIADS:getDebugSettings()
+--[[
 iadsDebug.IADSStatus = true
 iadsDebug.samWentDark = true
 iadsDebug.contacts = true
@@ -13,6 +14,7 @@ iadsDebug.addedSAMSite = true
 iadsDebug.harmDefence = true
 iadsDebug.commandCenterStatusEnvOutput = true
 iadsDebug.samSiteStatusEnvOutput = true
+--]]
 --iadsDebug.earlyWarningRadarStatusEnvOutput = true
 
 

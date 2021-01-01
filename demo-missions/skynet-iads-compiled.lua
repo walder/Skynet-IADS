@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 11.12.2020 1704Z ---")
+env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 01.01.2021 1227Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1293,6 +1293,13 @@ function SkynetIADS:buildRadarCoverage()
 	end
 	
 	self:addRadarsToCommandCenters()
+	
+	--we call this once on all sam sites, to make sure autonomous sites go live when IADS activates
+	for i = 1, #samSites do
+		local samSite = samSites[i]
+		samSite:informChildrenOfStateChange()
+	end
+
 end
 
 function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarElement)
@@ -3053,7 +3060,7 @@ function SkynetIADSSamSite:targetCycleUpdateStart()
 end
 
 function SkynetIADSSamSite:targetCycleUpdateEnd()
-	if self.targetsInRange == false and self.actAsEW == false then
+	if self.targetsInRange == false and self.actAsEW == false and self:getAutonomousState() == false and self:getAutonomousBehaviour() == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI then
 		self:goDark()
 	end
 end
