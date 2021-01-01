@@ -1,12 +1,12 @@
 do
 
---[[
-local units = Group.getByName('SAM-SA-23'):getUnits()
+
+local units = Group.getByName('SAM-SA-10C-5V55RUD'):getUnits()
 for i = 1, #units do
 	local unit = units[i]
 	env.info(unit:getTypeName())
 end
---]]
+
 
 lu.LuaUnit.run()
 

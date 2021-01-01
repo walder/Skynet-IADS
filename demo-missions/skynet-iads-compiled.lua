@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 01.01.2021 1227Z ---")
+env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 01.01.2021 2150Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -505,7 +505,69 @@ s300vm = {
 	['harm_detection_chance'] = 90
 }	
 samTypesDB['S-300VM'] = s300vm
+
+--[[ Units in the SA-10B Group:
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS SA-10B 40B6MD MAST sr
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS SA-10B 54K6 cp
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS 5P85SE_mod ln
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS 5P85SU_mod ln
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS 64H6E TRAILER sr
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS 30N6 TRAILER tr
+2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS SA-10B 40B6M MAST tr
+--]]
+s300ps = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-300PS SA-10B 40B6MD MAST sr'] = {
+		},
+		['S-300PS 64H6E TRAILER sr'] = {
+		},
+	},
+	['trackingRadar'] = {
+		['S-300PS 30N6 TRAILER tr'] = {
+		},
+		['S-300PS SA-10B 40B6M MAST tr'] = {
+		},
+	},
+	['misc'] = {
+		['S-300PS SA-10B 54K6 cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-300PS 5P85SE_mod ln'] = {
+		},
+		['S-300PS 5P85SU_mod ln'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-10B Grumble'
+	},
+	['harm_detection_chance'] = 90
+}
+samTypesDB['S-300PS'] = s300ps
+
+--[[ Extra launchers for the in game SA-10C and HighDigitSAMs SA-10B, SA-20B
+2021-01-01 21:04:19.908 INFO    SCRIPTING: S-300PS 5P85DE ln
+2021-01-01 21:04:19.908 INFO    SCRIPTING: S-300PS 5P85CE ln
+--]]
+
+local s300launchers = samTypesDB['S-300']['launchers']
+s300launchers['S-300PS 5P85DE ln'] = {}
+s300launchers['S-300PS 5P85CE ln'] = {}
+
+local s300launchers = samTypesDB['S-300PS']['launchers']
+s300launchers['S-300PS 5P85DE ln'] = {}
+s300launchers['S-300PS 5P85CE ln'] = {}
+
+local s300launchers = samTypesDB['S-300PMU1']['launchers']
+s300launchers['S-300PS 5P85DE ln'] = {}
+s300launchers['S-300PS 5P85CE ln'] = {}
+
 end
+
+
+
 do
 
 SkynetIADSLogger = {}
