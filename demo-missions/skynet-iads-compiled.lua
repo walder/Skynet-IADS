@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 01.01.2021 2150Z ---")
+env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 02.01.2021 2353Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -6,8 +6,14 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
+				['name'] = {
+					['NATO'] = 'Big Bird',
+				},
 			},
 			['S-300PS 64H6E sr'] = {
+				['name'] = {
+					['NATO'] = 'Big Bird',
+				},
 			},
 		},
 		['trackingRadar'] = {
@@ -34,6 +40,9 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['SA-11 Buk SR 9S18M1'] = {
+				['name'] = {
+					['NATO'] = 'Snow Drift',
+				},
 			},
 		},
 		['launchers'] = {
@@ -50,11 +59,14 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 70
 	},
-	['s-125'] = {
+	['S-125'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
-			},
+				['name'] = {
+					['NATO'] = 'Flat Face',
+				},
+			},	
 		},
 		['trackingRadar'] = {
 			['snr s-125 tr'] = {
@@ -69,10 +81,13 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 40
 	},
-    ['s-75'] = {
+    ['S-75'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
+				['name'] = {
+					['NATO'] = 'Flat Face',
+				},
 			},
 		},
 		['trackingRadar'] = {
@@ -92,6 +107,9 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Kub 1S91 str'] = {
+				['name'] = {
+					['NATO'] = 'Straight Flush',
+				},
 			},
 		},
 		['launchers'] = {
@@ -107,9 +125,11 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Patriot str'] = {
+				['name'] = {
+					['NATO'] = 'Patriot str',
+				},
 			},
 		},
-
 		['launchers'] = {
 			['Patriot ln'] = {
 			},
@@ -139,6 +159,9 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Hawk sr'] = {
+				['name'] = {
+					['NATO'] = 'Hawk str',
+				},
 			},
 		},
 		['trackingRadar'] = {
@@ -299,6 +322,9 @@ samTypesDB = {
 	['HQ-7'] = {
 		['searchRadar'] = {
 			['HQ-7_STR_SP'] = {
+				['name'] = {
+					['NATO'] = 'CSA-4',
+				},
 			},
 		},
 		['launchers'] = {
@@ -315,10 +341,10 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['1L13 EWR'] = {
+				['name'] = {
+					['NATO'] = 'Box Spring',
+				},
 			},
-		},
-		['name'] = {
-			['NATO'] = 'Box Spring',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -326,10 +352,10 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['55G6 EWR'] = {
+				['name'] = {
+					['NATO'] = 'Tall Rack',
+				},
 			},
-		},
-		['name'] = {
-			['NATO'] = 'Tall Rack',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -337,10 +363,10 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['Dog Ear radar'] = {
+				['name'] = {
+					['NATO'] = 'Dog Ear',
+				},
 			},
-		},
-		['name'] = {
-			['NATO'] = 'Dog Ear',
 		},
 		['harm_detection_chance'] = 20
 	},
@@ -348,74 +374,13 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['Roland Radar'] = {
+				['name'] = {
+					['NATO'] = 'Roland EWR',
+				},
 			},
 		},
-		['name'] = {
-			['NATO'] = 'Roland EWR',
-		},
+
 		['harm_detection_chance'] = 60
-	},
-	['p-19 s-125 sr'] = {
-		['searchRadar'] = {
-			['p-19 s-125 sr'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Flat Face',
-		},
-		['harm_detection_chance'] = 40
-	},
-	['Patriot str'] = {
-		['searchRadar'] = {
-			['Patriot str'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Patriot str',
-		},
-		['harm_detection_chance'] = 80
-	},
-	['EW S-300'] = {
-		['searchRadar'] = {
-			['S-300PS 40B6MD sr'] = {
-			},
-			['S-300PS 64H6E sr'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Big Bird',
-		},
-		['harm_detection_chance'] = 90
-	},
-	['SA-11 Buk SR 9S18M1'] = {
-		['searchRadar'] = {
-			['SA-11 Buk SR 9S18M1'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Snow Drift',
-		},
-		['harm_detection_chance'] = 70
-	},
-	['Kub 1S91 str'] = {
-		['searchRadar'] = {
-			['Kub 1S91 str'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Straight Flush',
-		},
-		['harm_detection_chance'] = 40
-	},
-	['Hawk str'] = {
-		['searchRadar'] = {
-			['Hawk sr'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Hawk str',
-		},
-		['harm_detection_chance'] = 40
 	},	
 }
 end
@@ -431,12 +396,15 @@ do
 2020-12-10 18:27:27.050 INFO    SCRIPTING: S-300PMU1 40B6M tr
 2020-12-10 18:27:27.050 INFO    SCRIPTING: S-300PMU1 30N6E tr
 --]]
-s3000pmu1 = {
+samTypesDB['S-300PMU1'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['S-300PMU1 40B6MD sr'] = {
 		},
 		['S-300PMU1 64N6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Big Bird',
+			},
 		},
 	},
 	['trackingRadar'] = {
@@ -461,7 +429,6 @@ s3000pmu1 = {
 	},
 	['harm_detection_chance'] = 90
 }	
-samTypesDB['S-300PMU1'] = s3000pmu1
 
 --[[ Units in the SA-23 Group:
 2020-12-11 16:40:52.072 INFO    SCRIPTING: S-300VM 9A82ME ln
@@ -476,12 +443,18 @@ dem 9A83-Startfahrzeug die Bezeichnung SA-12A Gladiator zu geben; das größere 
 9A83ME -> SA-23A Gladiator
 9A82ME -> SA-23B Giant
 ]]--
-s300vm = {
+samTypesDB['S-300VM'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['S-300VM 9S15M2 sr'] = {
+			['name'] = {
+				['NATO'] = 'Bill Board-C',
+			},
 		},
 		['S-300VM 9S19M2 sr'] = {
+			['name'] = {
+				['NATO'] = 'High Screen-B',
+			},
 		},
 	},
 	['trackingRadar'] = {
@@ -504,7 +477,6 @@ s300vm = {
 	},
 	['harm_detection_chance'] = 90
 }	
-samTypesDB['S-300VM'] = s300vm
 
 --[[ Units in the SA-10B Group:
 2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS SA-10B 40B6MD MAST sr
@@ -515,7 +487,7 @@ samTypesDB['S-300VM'] = s300vm
 2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS 30N6 TRAILER tr
 2021-01-01 20:39:14.413 INFO    SCRIPTING: S-300PS SA-10B 40B6M MAST tr
 --]]
-s300ps = {
+samTypesDB['S-300PS'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['S-300PS SA-10B 40B6MD MAST sr'] = {
@@ -545,7 +517,6 @@ s300ps = {
 	},
 	['harm_detection_chance'] = 90
 }
-samTypesDB['S-300PS'] = s300ps
 
 --[[ Extra launchers for the in game SA-10C and HighDigitSAMs SA-10B, SA-20B
 2021-01-01 21:04:19.908 INFO    SCRIPTING: S-300PS 5P85DE ln
@@ -563,6 +534,49 @@ s300launchers['S-300PS 5P85CE ln'] = {}
 local s300launchers = samTypesDB['S-300PMU1']['launchers']
 s300launchers['S-300PS 5P85DE ln'] = {}
 s300launchers['S-300PS 5P85CE ln'] = {}
+
+--[[
+New launcher for the SA-11 complex, will identify as SA-17
+SA-17 Buk M1-2 LN 9A310M1-2
+ --]]
+samTypesDB['Buk-M2'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['SA-11 Buk SR 9S18M1'] = {
+		},
+	},
+	['launchers'] = {
+		['SA-17 Buk M1-2 LN 9A310M1-2'] = {
+		},
+	},
+	['misc'] = {
+		['SA-11 Buk CC 9S470M1'] = {
+			['required'] = true,
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-17 Grizzly',
+	},
+	['harm_detection_chance'] = 90
+}
+
+--[[
+New launcher for the SA-2 complex: S_75M_Volhov_V759
+--]]
+local s75launchers = samTypesDB['S-75']['launchers']
+s75launchers['S_75M_Volhov_V759'] = {}
+
+--[[
+New launcher for the SA-3 complex:
+--]]
+local s125launchers = samTypesDB['S-125']['launchers']
+s125launchers['5p73 V-601P ln'] = {}
+
+--[[
+New launcher for the SA-2 complex: HQ_2_Guideline_LN
+--]]
+local s125launchers = samTypesDB['S-75']['launchers']
+s125launchers['HQ_2_Guideline_LN'] = {}
 
 end
 
@@ -1374,12 +1388,12 @@ function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarEleme
 				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSSamSite then
 					abstractRadarElement:addChildRadar(aElementToCompare)
 				end
-				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar then
+				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar or getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSAWACSRadar then
 					abstractRadarElement:addChildRadar(aElementToCompare)
 				end
 			
 				--EW Radars should not have parent Radars
-				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar then
+				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar and getmetatable(aElementToCompare) ~= SkynetIADSAWACSRadar  then
 					aElementToCompare:addParentRadar(abstractRadarElement)
 				end
 			end
@@ -2211,7 +2225,6 @@ function SkynetIADSAbstractRadarElement:setupElements()
 			end
 		end
 		
-		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
@@ -2221,16 +2234,20 @@ function SkynetIADSAbstractRadarElement:setupElements()
 				self.harmDetectionChance = harmDetection
 			end
 			local natoName = dataType['name']['NATO']
-			--we shorten the SA-XX names and don't return their code names eg goa, gainful..
-			local pos = natoName:find(" ")
-			local prefix = natoName:sub(1, 2)
-			if string.lower(prefix) == 'sa' and pos ~= nil then
-				self.natoName = natoName:sub(1, (pos-1))
-			else
-				self.natoName = natoName
-			end
+			self:buildNatoName(natoName)
 			break
 		end	
+	end
+end
+
+function SkynetIADSAbstractRadarElement:buildNatoName(natoName)
+	--we shorten the SA-XX names and don't return their code names eg goa, gainful..
+	local pos = natoName:find(" ")
+	local prefix = natoName:sub(1, 2)
+	if string.lower(prefix) == 'sa' and pos ~= nil then
+		self.natoName = natoName:sub(1, (pos-1))
+	else
+		self.natoName = natoName
 	end
 end
 
@@ -2238,13 +2255,17 @@ function SkynetIADSAbstractRadarElement:analyseAndAddUnit(class, tableToAdd, uni
 	local units = self:getUnitsToAnalyse()
 	for i = 1, #units do
 		local unit = units[i]
-		local unitTypeName = unit:getTypeName()
-		for unitName, unitPerformanceData in pairs(unitData) do
-			if unitName == unitTypeName then
-				samElement = class:create(unit)
-				samElement:setupRangeData()
-				table.insert(tableToAdd, samElement)
-			end
+		self:buildSingleUnit(unit, class, tableToAdd, unitData)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:buildSingleUnit(unit, class, tableToAdd, unitData)
+	local unitTypeName = unit:getTypeName()
+	for unitName, unitPerformanceData in pairs(unitData) do
+		if unitName == unitTypeName then
+			samElement = class:create(unit)
+			samElement:setupRangeData()
+			table.insert(tableToAdd, samElement)
 		end
 	end
 end
@@ -2363,7 +2384,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 		end
 		self.aiState = false
 		self:stopScanningForHARMs()
-		if self.iads:getDebugSettings().samWentDark then
+		if self.iads:getDebugSettings().radarWentDark then
 			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
 		end
 	end
@@ -2831,7 +2852,26 @@ function SkynetIADSEWRadar:create(radarUnit, iads)
 	return instance
 end
 
---an Early Warning Radar has simplified check to detrmine if its autonomous or not
+function SkynetIADSEWRadar:setupElements()
+	local unit = self:getDCSRepresentation()
+	local unitType = unit:getTypeName()
+	for typeName, dataType in pairs(SkynetIADS.database) do
+		for entry, unitData in pairs(dataType) do
+			if entry == 'searchRadar' then
+				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
+				if #self.searchRadars > 0 then
+					if unitData[unitType]['name'] then
+						local natoName = unitData[unitType]['name']['NATO']
+						self:buildNatoName(natoName)
+					end
+					return
+				end
+			end
+		end
+	end
+end
+
+--an Early Warning Radar has simplified check to determine if its autonomous or not
 function SkynetIADSEWRadar:setToCorrectAutonomousState()
 	if self:hasActiveConnectionNode() and self:hasWorkingPowerSource() and self.iads:isCommandCenterUsable() then
 		self:resetAutonomousState()

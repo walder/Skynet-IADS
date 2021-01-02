@@ -629,6 +629,15 @@ function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
 	
 	lu.assertEquals(sam1:getParentRadars()[1], ewRadar)
 	lu.assertEquals(sam2:getParentRadars()[1], ewRadar)
+	
+	--we test to make sure AWACS aircraft are added corectly as parent radars:
+	self.testIADS:activate()
+	local hq7 = self.testIADS:getSAMSiteByGroupName('SAM-HQ-7')
+	local kj2000 = hq7:getParentRadars()[1]
+	lu.assertEquals(kj2000:getDCSName(), "EW-AWACS-KJ-2000")
+	
+	local hq7 = kj2000:getChildRadars()[1]
+	lu.assertEquals(hq7:getDCSName(), "SAM-HQ-7")
 end
 	
 function TestSkynetIADS:testGetSAMSitesByPrefix()

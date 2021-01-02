@@ -1,12 +1,12 @@
 do
 
-
-local units = Group.getByName('SAM-SA-10C-5V55RUD'):getUnits()
+--[[
+local units = Group.getByName('SAM-SA-3-V-601P-1'):getUnits()
 for i = 1, #units do
 	local unit = units[i]
 	env.info(unit:getTypeName())
 end
-
+--]]
 
 lu.LuaUnit.run()
 
@@ -15,7 +15,7 @@ lu.LuaUnit.run()
 redIADS = SkynetIADS:create("Red IADS")
 local iadsDebug = redIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
+iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
 iadsDebug.jammerProbability = true

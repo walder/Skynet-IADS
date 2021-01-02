@@ -5,7 +5,7 @@ redIADS = SkynetIADS:create('IRAN')
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
+iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
 iadsDebug.jammerProbability = true

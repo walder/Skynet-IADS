@@ -354,7 +354,6 @@ function SkynetIADSAbstractRadarElement:setupElements()
 			end
 		end
 		
-		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
@@ -364,16 +363,20 @@ function SkynetIADSAbstractRadarElement:setupElements()
 				self.harmDetectionChance = harmDetection
 			end
 			local natoName = dataType['name']['NATO']
-			--we shorten the SA-XX names and don't return their code names eg goa, gainful..
-			local pos = natoName:find(" ")
-			local prefix = natoName:sub(1, 2)
-			if string.lower(prefix) == 'sa' and pos ~= nil then
-				self.natoName = natoName:sub(1, (pos-1))
-			else
-				self.natoName = natoName
-			end
+			self:buildNatoName(natoName)
 			break
 		end	
+	end
+end
+
+function SkynetIADSAbstractRadarElement:buildNatoName(natoName)
+	--we shorten the SA-XX names and don't return their code names eg goa, gainful..
+	local pos = natoName:find(" ")
+	local prefix = natoName:sub(1, 2)
+	if string.lower(prefix) == 'sa' and pos ~= nil then
+		self.natoName = natoName:sub(1, (pos-1))
+	else
+		self.natoName = natoName
 	end
 end
 
@@ -381,13 +384,17 @@ function SkynetIADSAbstractRadarElement:analyseAndAddUnit(class, tableToAdd, uni
 	local units = self:getUnitsToAnalyse()
 	for i = 1, #units do
 		local unit = units[i]
-		local unitTypeName = unit:getTypeName()
-		for unitName, unitPerformanceData in pairs(unitData) do
-			if unitName == unitTypeName then
-				samElement = class:create(unit)
-				samElement:setupRangeData()
-				table.insert(tableToAdd, samElement)
-			end
+		self:buildSingleUnit(unit, class, tableToAdd, unitData)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:buildSingleUnit(unit, class, tableToAdd, unitData)
+	local unitTypeName = unit:getTypeName()
+	for unitName, unitPerformanceData in pairs(unitData) do
+		if unitName == unitTypeName then
+			samElement = class:create(unit)
+			samElement:setupRangeData()
+			table.insert(tableToAdd, samElement)
 		end
 	end
 end
@@ -506,7 +513,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 		end
 		self.aiState = false
 		self:stopScanningForHARMs()
-		if self.iads:getDebugSettings().samWentDark then
+		if self.iads:getDebugSettings().radarWentDark then
 			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
 		end
 	end

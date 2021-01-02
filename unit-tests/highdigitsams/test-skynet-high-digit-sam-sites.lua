@@ -9,11 +9,21 @@ function TestSyknetIADSHighDigitSAMSites:setUp()
 		self.samSite = SkynetIADSSamSite:create(samSite, self.skynetIADS)
 		self.samSite:setupElements()
 	end
+	if self.ewName then
+		self.skynetIADS = SkynetIADS:create()
+		local ewRadar = Unit.getByName(self.ewName)
+		self.ewRadar = SkynetIADSEWRadar:create(ewRadar, self.skynetIADS)
+		self.ewRadar:setupElements()
+	end
 end
 
 function TestSyknetIADSHighDigitSAMSites:tearDown()
 	if self.samSite then	
 		self.samSite:cleanUp()
+	end
+	
+	if self.ewRadar then
+		self.ewRadar:cleanUp()
 	end
 end
 
@@ -64,6 +74,12 @@ function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
 	--output sensor data to dcs.log:
 	--lu.assertEquals(launcher1:getDCSRepresentation():getSensors(), "00")
 
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSA10BigBird()
+	self.ewName = "Big-Bird"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
 end
 
 function TestSyknetIADSHighDigitSAMSites:testSA23GladiatorOrGiant()
@@ -181,6 +197,70 @@ function TestSyknetIADSHighDigitSAMSites:testSA20AGargoyleWith55VRUD()
 	
 	local launchers = self.samSite:getLaunchers()
 	lu.assertEquals(#launchers, 2)
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSA17Grizzly()
+	self.samSiteName = "SAM-SA-17"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-17")
+	
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 1)
+	
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "SA-17 Buk M1-2 LN 9A310M1-2")
+	lu.assertEquals(launcher1:getRange(), 50000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 50000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSA2GuidelineWithV7595V23()
+	self.samSiteName = "SAM-SA-2-V-759-5V23"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-2")
+
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 1)
+	
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "S_75M_Volhov_V759")
+	lu.assertEquals(launcher1:getRange(), 56000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
+	--should read as 1, bugreport filed: https://github.com/Auranis/HighDigitSAMs/issues/11
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+end	
+
+function TestSyknetIADSHighDigitSAMSites:testSA3GoaWithV601P5V27()
+	self.samSiteName = "SAM-SA-3-V-601P-5V27"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-3")
+	
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 1)
+	
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "5p73 V-601P ln")
+	lu.assertEquals(launcher1:getRange(), 25000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 18000)
+	--should read as 1, bugreport filed: https://github.com/Auranis/HighDigitSAMs/issues/11
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSA2GuidelineWithHQ2()
+	self.samSiteName = "SAM-SA-2HQ-2"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-2")
+	
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 1)
+	
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "HQ_2_Guideline_LN")
+	lu.assertEquals(launcher1:getRange(), 50000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
+	--should read as 1, bugreport filed: https://github.com/Auranis/HighDigitSAMs/issues/11
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+	
 end
 
 end

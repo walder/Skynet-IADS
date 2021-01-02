@@ -458,12 +458,12 @@ function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarEleme
 				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSSamSite then
 					abstractRadarElement:addChildRadar(aElementToCompare)
 				end
-				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar then
+				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar or getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSAWACSRadar then
 					abstractRadarElement:addChildRadar(aElementToCompare)
 				end
 			
 				--EW Radars should not have parent Radars
-				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar then
+				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar and getmetatable(aElementToCompare) ~= SkynetIADSAWACSRadar  then
 					aElementToCompare:addParentRadar(abstractRadarElement)
 				end
 			end
