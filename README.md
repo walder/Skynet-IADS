@@ -8,15 +8,15 @@ This script simulates an IADS within the scripting possibilities of DCS. Early W
 
 A modern IADS also depends on command centers and datalinks to the SAM sites. The IADS can be set up with this infrastructure. Destroying it will degrade the capability of the IADS.
 
-You can also connect [Skynet with the AI_A2A_DISPATCHER](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that) by MOOSE to add interceptors to the IADS.
-
 This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=9J9kntzkSQY).
 
 Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
+Skynet supports the [HighDigitSAMs Mod](https://github.com/Auranis/HighDigitSAMs).
 
+You can also connect [Skynet with the AI_A2A_DISPATCHER](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that) by MOOSE to add interceptors to the IADS.
 
 **So far over 200 hours of work went in to the development of Skynet.  
 If you like using it, please consider a donation:**
@@ -569,16 +569,25 @@ jammer:setMaximumEffectiveDistance(100)
 ## Setting debug information
 When developing a mission I suggest you add debug output to check how the IADS reacts to threats. Debug output may slow down DCS, so it's recommended to turn it off in a live environment:
 
+Access the debug settings:
 ```lua
 local iadsDebug = redIADS:getDebugSettings()  
+```
+
+Output in game:
+```lua
 iadsDebug.IADSStatus = true
-iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
-iadsDebug.radarWentLive = true
 iadsDebug.jammerProbability = true
+```
+
+Output to dcs.log:
+```lua
 iadsDebug.addedEWRadar = true
 iadsDebug.addedSAMSite = true
 iadsDebug.warnings = true
+iadsDebug.radarWentLive = true
+iadsDebug.radarWentDark = true
 iadsDebug.harmDefence = true
 ```
 
