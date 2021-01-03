@@ -6,7 +6,7 @@ samTypesDB = {
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
 				['name'] = {
-					['NATO'] = 'Big Bird',
+					['NATO'] = 'Clam Shell',
 				},
 			},
 			['S-300PS 64H6E sr'] = {
