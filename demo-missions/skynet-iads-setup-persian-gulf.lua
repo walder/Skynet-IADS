@@ -13,6 +13,7 @@ iadsDebug.addedEWRadar = false
 iadsDebug.harmDefence = true
 iadsDebug.samSiteStatusEnvOutput = true
 iadsDebug.earlyWarningRadarStatusEnvOutput = true
+iadsDebug.commandCenterStatusEnvOutput = true
 ---end remove debug ---
 
 --add all units with unit name beginning with 'EW' to the IADS:

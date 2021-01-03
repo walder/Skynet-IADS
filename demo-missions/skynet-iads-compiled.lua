@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.0-develop | BUILD TIME: 02.01.2021 2353Z ---")
+env.info("--- SKYNET VERSION: 2.0.0 | BUILD TIME: 03.01.2021 1718Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -7,7 +7,7 @@ samTypesDB = {
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
 				['name'] = {
-					['NATO'] = 'Big Bird',
+					['NATO'] = 'Clam Shell',
 				},
 			},
 			['S-300PS 64H6E sr'] = {
@@ -79,7 +79,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-3 Goa',
 		},
-		['harm_detection_chance'] = 40
+		['harm_detection_chance'] = 30
 	},
     ['S-75'] = {
 		['type'] = 'complex',
@@ -400,6 +400,9 @@ samTypesDB['S-300PMU1'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['S-300PMU1 40B6MD sr'] = {
+			['name'] = {
+				['NATO'] = 'Clam Shell',
+			},
 		},
 		['S-300PMU1 64N6E sr'] = {
 			['name'] = {
@@ -602,6 +605,7 @@ function SkynetIADSLogger:create(iads)
 	logger.debugOutput.harmDefence = false
 	logger.debugOutput.samSiteStatusEnvOutput = false
 	logger.debugOutput.earlyWarningRadarStatusEnvOutput = false
+	logger.debugOutput.commandCenterStatusEnvOutput = false
 	logger.iads = iads
 	return logger
 end
@@ -623,7 +627,7 @@ function SkynetIADSLogger:printOutputToLog(output)
 	env.info("SKYNET: "..output, 4)
 end
 
-function SkynetIADSLogger:printDetailedEarlyWarningRadarStatus()
+function SkynetIADSLogger:printEarlyWarningRadarStatus()
 	local ewRadars = self.iads:getEarlyWarningRadars()
 	self:printOutputToLog("------------------------------------------ EW RADAR STATUS: "..self.iads:getCoalitionString().." -------------------------------")
 	for i = 1, #ewRadars do
@@ -721,7 +725,7 @@ function SkynetIADSLogger:getMetaInfo(abstractElementSupport)
 	return info
 end
 
-function SkynetIADSLogger:printDetailedSAMSiteStatus()
+function SkynetIADSLogger:printSAMSiteStatus()
 	local samSites = self.iads:getSAMSites()
 	
 	self:printOutputToLog("------------------------------------------ SAM STATUS: "..self.iads:getCoalitionString().." -------------------------------")
@@ -789,7 +793,7 @@ function SkynetIADSLogger:printDetailedSAMSiteStatus()
 	end
 end
 
-function SkynetIADSLogger:printDetailedCommandCenterStatus()
+function SkynetIADSLogger:printCommandCenterStatus()
 	local commandCenters = self.iads:getCommandCenters()
 	self:printOutputToLog("------------------------------------------ COMMAND CENTER STATUS: "..self.iads:getCoalitionString().." -------------------------------")
 	
@@ -914,15 +918,15 @@ function SkynetIADSLogger:printSystemStatus()
 	end
 	
 	if self:getDebugSettings().commandCenterStatusEnvOutput then
-		self:printDetailedCommandCenterStatus()
+		self:printCommandCenterStatus()
 	end
 
 	if self:getDebugSettings().earlyWarningRadarStatusEnvOutput then
-		self:printDetailedEarlyWarningRadarStatus()
+		self:printEarlyWarningRadarStatus()
 	end
 	
 	if self:getDebugSettings().samSiteStatusEnvOutput then
-		self:printDetailedSAMSiteStatus()
+		self:printSAMSiteStatus()
 	end
 
 end
@@ -2197,7 +2201,9 @@ function SkynetIADSAbstractRadarElement:getHARMDetectionChance()
 end
 
 function SkynetIADSAbstractRadarElement:setHARMDetectionChance(chance)
-	self.harmDetectionChance = chance
+	if chance and chance >= 0 and chance <= 100 then
+		self.harmDetectionChance = chance
+	end
 	return self
 end
 
@@ -2227,12 +2233,9 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
-			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
-				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0 and numUnits == 1) then
+			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
 			local harmDetection = dataType['harm_detection_chance']
-			if harmDetection then
-				self.harmDetectionChance = harmDetection
-			end
+			self:setHARMDetectionChance(harmDetection)
 			local natoName = dataType['name']['NATO']
 			self:buildNatoName(natoName)
 			break
@@ -2860,6 +2863,8 @@ function SkynetIADSEWRadar:setupElements()
 			if entry == 'searchRadar' then
 				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
 				if #self.searchRadars > 0 then
+					local harmDetection = dataType['harm_detection_chance']
+					self:setHARMDetectionChance(harmDetection)
 					if unitData[unitType]['name'] then
 						local natoName = unitData[unitType]['name']['NATO']
 						self:buildNatoName(natoName)

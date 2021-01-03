@@ -176,6 +176,7 @@ function TestSkynetIADSEWRadar:testEWP19FlatFace()
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Flat Face")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+	lu.assertEquals(self.ewRadar:getHARMDetectionChance(), 30)
 end
 
 function TestSkynetIADSEWRadar:testPatriotSTR()
@@ -193,10 +194,10 @@ function TestSkynetIADSEWRadar:testSA10BigBird()
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
-function TestSkynetIADSEWRadar:testSA10BigBird2()
+function TestSkynetIADSEWRadar:testSA10ClamShell()
 	self.ewRadarName = "EW-SA-10-2"
 	self:setUp()
-	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
+	lu.assertEquals(self.ewRadar:getNatoName(), "Clam Shell")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 

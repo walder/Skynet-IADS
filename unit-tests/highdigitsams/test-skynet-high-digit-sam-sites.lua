@@ -76,10 +76,36 @@ function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
 
 end
 
-function TestSyknetIADSHighDigitSAMSites:testSA10BigBird()
+function TestSyknetIADSHighDigitSAMSites:testBigBird()
 	self.ewName = "Big-Bird"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
+end
+
+function TestSyknetIADSHighDigitSAMSites:testClamShell()
+	self.ewName = "Clam-Shell"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Clam Shell")
+end
+
+function TestSyknetIADSHighDigitSAMSites:testBillBoardC()
+	self.ewName = "Bill-Board-C"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Bill Board-C")
+end
+
+function TestSyknetIADSHighDigitSAMSites:testHighScreenB()
+	self.ewName = "High-Screen-B"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "High Screen-B")
+end
+
+
+function TestSyknetIADSHighDigitSAMSites:testUnnamedRadar()
+	self.ewName = "unnamed-radar"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "UNKNOWN")
+	lu.assertEquals(self.ewRadar:getHARMDetectionChance(), 90)
 end
 
 function TestSyknetIADSHighDigitSAMSites:testSA23GladiatorOrGiant()

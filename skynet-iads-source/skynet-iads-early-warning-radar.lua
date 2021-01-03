@@ -19,6 +19,8 @@ function SkynetIADSEWRadar:setupElements()
 			if entry == 'searchRadar' then
 				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
 				if #self.searchRadars > 0 then
+					local harmDetection = dataType['harm_detection_chance']
+					self:setHARMDetectionChance(harmDetection)
 					if unitData[unitType]['name'] then
 						local natoName = unitData[unitType]['name']['NATO']
 						self:buildNatoName(natoName)

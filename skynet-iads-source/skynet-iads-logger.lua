@@ -18,6 +18,7 @@ function SkynetIADSLogger:create(iads)
 	logger.debugOutput.harmDefence = false
 	logger.debugOutput.samSiteStatusEnvOutput = false
 	logger.debugOutput.earlyWarningRadarStatusEnvOutput = false
+	logger.debugOutput.commandCenterStatusEnvOutput = false
 	logger.iads = iads
 	return logger
 end
@@ -39,7 +40,7 @@ function SkynetIADSLogger:printOutputToLog(output)
 	env.info("SKYNET: "..output, 4)
 end
 
-function SkynetIADSLogger:printDetailedEarlyWarningRadarStatus()
+function SkynetIADSLogger:printEarlyWarningRadarStatus()
 	local ewRadars = self.iads:getEarlyWarningRadars()
 	self:printOutputToLog("------------------------------------------ EW RADAR STATUS: "..self.iads:getCoalitionString().." -------------------------------")
 	for i = 1, #ewRadars do
@@ -137,7 +138,7 @@ function SkynetIADSLogger:getMetaInfo(abstractElementSupport)
 	return info
 end
 
-function SkynetIADSLogger:printDetailedSAMSiteStatus()
+function SkynetIADSLogger:printSAMSiteStatus()
 	local samSites = self.iads:getSAMSites()
 	
 	self:printOutputToLog("------------------------------------------ SAM STATUS: "..self.iads:getCoalitionString().." -------------------------------")
@@ -205,7 +206,7 @@ function SkynetIADSLogger:printDetailedSAMSiteStatus()
 	end
 end
 
-function SkynetIADSLogger:printDetailedCommandCenterStatus()
+function SkynetIADSLogger:printCommandCenterStatus()
 	local commandCenters = self.iads:getCommandCenters()
 	self:printOutputToLog("------------------------------------------ COMMAND CENTER STATUS: "..self.iads:getCoalitionString().." -------------------------------")
 	
@@ -330,15 +331,15 @@ function SkynetIADSLogger:printSystemStatus()
 	end
 	
 	if self:getDebugSettings().commandCenterStatusEnvOutput then
-		self:printDetailedCommandCenterStatus()
+		self:printCommandCenterStatus()
 	end
 
 	if self:getDebugSettings().earlyWarningRadarStatusEnvOutput then
-		self:printDetailedEarlyWarningRadarStatus()
+		self:printEarlyWarningRadarStatus()
 	end
 	
 	if self:getDebugSettings().samSiteStatusEnvOutput then
-		self:printDetailedSAMSiteStatus()
+		self:printSAMSiteStatus()
 	end
 
 end

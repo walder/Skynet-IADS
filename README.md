@@ -572,19 +572,21 @@ When developing a mission I suggest you add debug output to check how the IADS r
 ```lua
 local iadsDebug = redIADS:getDebugSettings()  
 iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
+iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
-iadsDebug.ewRadarNoConnection = true
-iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
-iadsDebug.hasNoPower = true
 iadsDebug.addedSAMSite = true
 iadsDebug.warnings = true
 iadsDebug.harmDefence = true
+```
+
+These three options will output detailed information on every radar in the IADS to the dcs.log file. Enabling these may have an impact on performance:
+```lua
 iadsDebug.samSiteStatusEnvOutput = true
 iadsDebug.earlyWarningRadarStatusEnvOutput = true
+iadsDebug.commandCenterStatusEnvOutput = true
 ```
 ![Mission Editor IADS Setup](/images/skynet-debug.png)  
 
@@ -599,7 +601,7 @@ redIADS = SkynetIADS:create('RED')
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
+iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
 iadsDebug.jammerProbability = true

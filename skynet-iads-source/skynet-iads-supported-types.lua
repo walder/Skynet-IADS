@@ -78,7 +78,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-3 Goa',
 		},
-		['harm_detection_chance'] = 40
+		['harm_detection_chance'] = 30
 	},
     ['S-75'] = {
 		['type'] = 'complex',
