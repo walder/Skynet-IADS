@@ -14,6 +14,9 @@ samTypesDB['S-300PMU1'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['S-300PMU1 40B6MD sr'] = {
+			['name'] = {
+				['NATO'] = 'Clam Shell',
+			},
 		},
 		['S-300PMU1 64N6E sr'] = {
 			['name'] = {
