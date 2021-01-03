@@ -112,14 +112,21 @@ function TestSkynetIADSSAMSite:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWh
 	self:setUp()
 	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
-	--lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE)
-	--self.samSite.goLiveRange = nil
 	self.samSite:setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 	lu.assertIs(self.samSite:getEngagementZone(), SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 	local target = IADSContactFactory('test-not-in-firing-range-of-sa-2')
 	self.samSite:informOfContact(target)
 	lu.assertEquals(self.samSite:isActive(), true)
 	lu.assertEquals(self.samSite:isTargetInRange(target), true)
+end
+
+function TestSkynetIADSSAMSite:testSAMStaysActiveWhenInAutonomousMode()
+	self.samSiteName = "test-SAM-SA-2-test"
+	self:setUp()
+	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(self.samSite:getAutonomousState(), true)
+	self.samSite:targetCycleUpdateEnd()
+	lu.assertEquals(self.samSite:isActive(), true)
 end
 
 end

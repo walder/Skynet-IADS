@@ -1,7 +1,7 @@
 do
 
 ---IADS Unit Tests
-SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 17
+SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 18
 SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 15
 
 --factory method used in multiple unit tests

@@ -629,6 +629,15 @@ function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
 	
 	lu.assertEquals(sam1:getParentRadars()[1], ewRadar)
 	lu.assertEquals(sam2:getParentRadars()[1], ewRadar)
+	
+	--we test to make sure AWACS aircraft are added corectly as parent radars:
+	self.testIADS:activate()
+	local hq7 = self.testIADS:getSAMSiteByGroupName('SAM-HQ-7')
+	local kj2000 = hq7:getParentRadars()[1]
+	lu.assertEquals(kj2000:getDCSName(), "EW-AWACS-KJ-2000")
+	
+	local hq7 = kj2000:getChildRadars()[1]
+	lu.assertEquals(hq7:getDCSName(), "SAM-HQ-7")
 end
 	
 function TestSkynetIADS:testGetSAMSitesByPrefix()
@@ -714,6 +723,14 @@ function TestSkynetIADS:testSetupSAMSiteWithPointDefence()
 	iads:setupSAMSitesAndThenActivate()
 	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-10'):isActive(), true)
 	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-15-1'):isActive(), true)
+	iads:deactivate()
+end
+
+function TestSkynetIADS:testBuildIADSWithAutonomousSAMS()
+	local iads = SkynetIADS:create()
+	local samSite = iads:addSAMSite('SAM-SA-10')
+	iads:activate()
+	lu.assertEquals(samSite:isActive(), true) 
 	iads:deactivate()
 end
 

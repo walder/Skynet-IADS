@@ -5,7 +5,7 @@ redIADS = SkynetIADS:create('IRAN')
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
-iadsDebug.samWentDark = true
+iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
 iadsDebug.noWorkingCommmandCenter = false
@@ -17,6 +17,7 @@ iadsDebug.hasNoPower = false
 iadsDebug.harmDefence = true
 iadsDebug.samSiteStatusEnvOutput = true
 iadsDebug.earlyWarningRadarStatusEnvOutput = true
+iadsDebug.commandCenterStatusEnvOutput = true
 ---end remove debug ---
 
 --add all units with unit name beginning with 'EW' to the IADS:

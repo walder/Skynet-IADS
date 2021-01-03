@@ -10,8 +10,7 @@ iadsDebug.IADSStatus = true
 iadsDebug.contacts = true
 
 --[[
-iadsDebug.samWentDark = true
-
+iadsDebug.radarWentDark = true
 iadsDebug.radarWentLive = true
 iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true

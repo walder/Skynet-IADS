@@ -326,7 +326,9 @@ function SkynetIADSAbstractRadarElement:getHARMDetectionChance()
 end
 
 function SkynetIADSAbstractRadarElement:setHARMDetectionChance(chance)
-	self.harmDetectionChance = chance
+	if chance and chance >= 0 and chance <= 100 then
+		self.harmDetectionChance = chance
+	end
 	return self
 end
 
@@ -354,26 +356,26 @@ function SkynetIADSAbstractRadarElement:setupElements()
 			end
 		end
 		
-		local numElementsCreated = #self.searchRadars + #self.trackingRadars + #self.launchers
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
-			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) 
-				or (hasSearchRadar and hasLauncher == false and hasTrackingRadar == false and #self.searchRadars > 0 and numUnits == 1) then
+			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
 			local harmDetection = dataType['harm_detection_chance']
-			if harmDetection then
-				self.harmDetectionChance = harmDetection
-			end
+			self:setHARMDetectionChance(harmDetection)
 			local natoName = dataType['name']['NATO']
-			--we shorten the SA-XX names and don't return their code names eg goa, gainful..
-			local pos = natoName:find(" ")
-			local prefix = natoName:sub(1, 2)
-			if string.lower(prefix) == 'sa' and pos ~= nil then
-				self.natoName = natoName:sub(1, (pos-1))
-			else
-				self.natoName = natoName
-			end
+			self:buildNatoName(natoName)
 			break
 		end	
+	end
+end
+
+function SkynetIADSAbstractRadarElement:buildNatoName(natoName)
+	--we shorten the SA-XX names and don't return their code names eg goa, gainful..
+	local pos = natoName:find(" ")
+	local prefix = natoName:sub(1, 2)
+	if string.lower(prefix) == 'sa' and pos ~= nil then
+		self.natoName = natoName:sub(1, (pos-1))
+	else
+		self.natoName = natoName
 	end
 end
 
@@ -381,13 +383,17 @@ function SkynetIADSAbstractRadarElement:analyseAndAddUnit(class, tableToAdd, uni
 	local units = self:getUnitsToAnalyse()
 	for i = 1, #units do
 		local unit = units[i]
-		local unitTypeName = unit:getTypeName()
-		for unitName, unitPerformanceData in pairs(unitData) do
-			if unitName == unitTypeName then
-				samElement = class:create(unit)
-				samElement:setupRangeData()
-				table.insert(tableToAdd, samElement)
-			end
+		self:buildSingleUnit(unit, class, tableToAdd, unitData)
+	end
+end
+
+function SkynetIADSAbstractRadarElement:buildSingleUnit(unit, class, tableToAdd, unitData)
+	local unitTypeName = unit:getTypeName()
+	for unitName, unitPerformanceData in pairs(unitData) do
+		if unitName == unitTypeName then
+			samElement = class:create(unit)
+			samElement:setupRangeData()
+			table.insert(tableToAdd, samElement)
 		end
 	end
 end
@@ -470,7 +476,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 		end
 		self:pointDefencesStopActingAsEW()
 		if  self.iads:getDebugSettings().radarWentLive then
-			self.iads:printOutput(self:getDescription().." going live")
+			self.iads:printOutputToLog("GOING LIVE: "..self:getDescription())
 		end
 		self:scanForHarms()
 	end
@@ -506,8 +512,8 @@ function SkynetIADSAbstractRadarElement:goDark()
 		end
 		self.aiState = false
 		self:stopScanningForHARMs()
-		if self.iads:getDebugSettings().samWentDark then
-			self.iads:printOutput(self:getDescription().." going dark")
+		if self.iads:getDebugSettings().radarWentDark then
+			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
 		end
 	end
 end
@@ -602,17 +608,17 @@ function SkynetIADSAbstractRadarElement:jam(successProbability)
 			local controller = self:getController()
 			local probability = math.random(1, 100)
 			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutput("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
+				self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
 			end
 			if successProbability > probability then
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
 				if self.iads:getDebugSettings().jammerProbability then
-					self.iads:printOutput("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
+					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
 				end
 			else
 				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 				if self.iads:getDebugSettings().jammerProbability then
-					self.iads:printOutput("Jammer: "..self:getDescription()..": jammed, setting to weapon free")
+					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon free")
 				end
 			end
 			self.lastJammerUpdate = timer:getTime()
@@ -642,7 +648,7 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	--self.objectsIdentifiedAsHarms = {}
 	local harmTime = self:getHarmShutDownTime()
 	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." shutting down | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
+		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
 	end
 	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
 	self:goDark()
@@ -804,7 +810,7 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 						end
 						if numDetections == 2 and shallReactToHarm == false then
 							if self.iads:getDebugSettings().harmDefence then
-								self.iads:printOutput("HARM DEFENCE: "..self:getDCSName().." will not react")
+								self.iads:printOutputToLog("HARM DEFENCE NO REACTION: "..self:getDCSName())
 							end
 						end
 					end

@@ -63,12 +63,6 @@ function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
 		ewRadar:cleanUp()
 end
 
-function TestSkynetIADSEWRadar:testGetNatoName()
-	self.ewRadarName = "EW-west22-destroy"
-	self:setUp()
-	lu.assertEquals(self.ewRadar:getNatoName(), "1L13 EWR")
-end
-
 function TestSkynetIADSEWRadar:testEvaluateIfTargetsContainHARMsShallReactTrue()
 	self.ewRadarName = "EW-west2"
 	self:setUp()
@@ -148,14 +142,44 @@ function TestSkynetIADSEWRadar:testGoDarkWhenAutonomousByDefault()
 	lu.assertEquals(self.ewRadar:isActive(), false)
 end
 
-function TestSkynetIADSEWRadar:testEWP19()
+function TestSkynetIADSEWRadar:test1L13EWRBoxSpring()
+	self.ewRadarName = "EW-west22-destroy"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Box Spring")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSEWRadar:testCP9S80M1SborkaDogEar()
+	self.ewRadarName = "EW-Dog Ear"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Dog Ear")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSEWRadar:test55G6EWRTalRack()
+	self.ewRadarName = "EW-west8"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Tall Rack")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSEWRadar:testRolandEWR()
+	self.ewRadarName = "BLUE-EW-Roland"
+	self.blue = "BLUE-"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Roland EWR")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSEWRadar:testEWP19FlatFace()
 	self.ewRadarName = "EW-SR-P19"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Flat Face")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+	lu.assertEquals(self.ewRadar:getHARMDetectionChance(), 30)
 end
 
-function TestSkynetIADSEWRadar:testPatriotSTRStandalone()
+function TestSkynetIADSEWRadar:testPatriotSTR()
 	self.ewRadarName = "BLUE-EW"
 	self.blue = "BLUE-"
 	self:setUp()
@@ -163,35 +187,42 @@ function TestSkynetIADSEWRadar:testPatriotSTRStandalone()
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
-function TestSkynetIADSEWRadar:testSA10Standalone()
+function TestSkynetIADSEWRadar:testSA10BigBird()
 	self.ewRadarName = "EW-SA-10"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
-function TestSkynetIADSEWRadar:testSA10Standalone()
+function TestSkynetIADSEWRadar:testSA10ClamShell()
 	self.ewRadarName = "EW-SA-10-2"
 	self:setUp()
-	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
+	lu.assertEquals(self.ewRadar:getNatoName(), "Clam Shell")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
-function TestSkynetIADSEWRadar:testSA11Standalone()
+function TestSkynetIADSEWRadar:testSA11SnowDrift()
 	self.ewRadarName = "EW-SA-11"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Snow Drift")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
-function TestSkynetIADSEWRadar:testSA6Standalone()
+function TestSkynetIADSEWRadar:testSA6StraightFlush()
 	self.ewRadarName = "EW-SA-6"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Straight Flush")
 	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
 end
 
-function TestSkynetIADSEWRadar:testHawkStandalone()
+function TestSkynetIADSEWRadar:testHawk()
+	self.ewRadarName = "EW-HQ7-STR"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "CSA-4")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSEWRadar:testHQ7SearchRadar()
 	self.ewRadarName = "EW-Hawk"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "Hawk str")

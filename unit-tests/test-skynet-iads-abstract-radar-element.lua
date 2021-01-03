@@ -556,7 +556,7 @@ function TestSkynetIADSAbstractRadarElement:testCheckSA3GroupNumberOfLaunchersAn
 	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
 	lu.assertEquals(#self.samSite:getRadars(), 2)
-	lu.assertEquals(self.samSite:getHARMDetectionChance(), 40)
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 30)
 	lu.assertEquals(self.samSite:setHARMDetectionChance(100), self.samSite)
 	
 	lu.assertEquals(self.samSite:getNatoName(), "SA-3")

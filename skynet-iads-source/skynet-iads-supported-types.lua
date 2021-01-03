@@ -5,8 +5,14 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['S-300PS 40B6MD sr'] = {
+				['name'] = {
+					['NATO'] = 'Clam Shell',
+				},
 			},
 			['S-300PS 64H6E sr'] = {
+				['name'] = {
+					['NATO'] = 'Big Bird',
+				},
 			},
 		},
 		['trackingRadar'] = {
@@ -33,6 +39,9 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['SA-11 Buk SR 9S18M1'] = {
+				['name'] = {
+					['NATO'] = 'Snow Drift',
+				},
 			},
 		},
 		['launchers'] = {
@@ -49,11 +58,14 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 70
 	},
-	['s-125'] = {
+	['S-125'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
-			},
+				['name'] = {
+					['NATO'] = 'Flat Face',
+				},
+			},	
 		},
 		['trackingRadar'] = {
 			['snr s-125 tr'] = {
@@ -66,12 +78,15 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-3 Goa',
 		},
-		['harm_detection_chance'] = 40
+		['harm_detection_chance'] = 30
 	},
-    ['s-75'] = {
+    ['S-75'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['p-19 s-125 sr'] = {
+				['name'] = {
+					['NATO'] = 'Flat Face',
+				},
 			},
 		},
 		['trackingRadar'] = {
@@ -91,6 +106,9 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Kub 1S91 str'] = {
+				['name'] = {
+					['NATO'] = 'Straight Flush',
+				},
 			},
 		},
 		['launchers'] = {
@@ -106,9 +124,11 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Patriot str'] = {
+				['name'] = {
+					['NATO'] = 'Patriot str',
+				},
 			},
 		},
-
 		['launchers'] = {
 			['Patriot ln'] = {
 			},
@@ -138,6 +158,9 @@ samTypesDB = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['Hawk sr'] = {
+				['name'] = {
+					['NATO'] = 'Hawk str',
+				},
 			},
 		},
 		['trackingRadar'] = {
@@ -298,6 +321,9 @@ samTypesDB = {
 	['HQ-7'] = {
 		['searchRadar'] = {
 			['HQ-7_STR_SP'] = {
+				['name'] = {
+					['NATO'] = 'CSA-4',
+				},
 			},
 		},
 		['launchers'] = {
@@ -314,10 +340,10 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['1L13 EWR'] = {
+				['name'] = {
+					['NATO'] = 'Box Spring',
+				},
 			},
-		},
-		['name'] = {
-			['NATO'] = '1L13 EWR',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -325,10 +351,10 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['55G6 EWR'] = {
+				['name'] = {
+					['NATO'] = 'Tall Rack',
+				},
 			},
-		},
-		['name'] = {
-			['NATO'] = '55G6 EWR',
 		},
 		['harm_detection_chance'] = 60
 	},
@@ -336,10 +362,10 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['Dog Ear radar'] = {
+				['name'] = {
+					['NATO'] = 'Dog Ear',
+				},
 			},
-		},
-		['name'] = {
-			['NATO'] = 'Dog Ear',
 		},
 		['harm_detection_chance'] = 20
 	},
@@ -347,74 +373,13 @@ samTypesDB = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
 			['Roland Radar'] = {
+				['name'] = {
+					['NATO'] = 'Roland EWR',
+				},
 			},
 		},
-		['name'] = {
-			['NATO'] = 'Roland EWR',
-		},
+
 		['harm_detection_chance'] = 60
-	},
-	['p-19 s-125 sr'] = {
-		['searchRadar'] = {
-			['p-19 s-125 sr'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Flat Face',
-		},
-		['harm_detection_chance'] = 40
-	},
-	['Patriot str'] = {
-		['searchRadar'] = {
-			['Patriot str'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Patriot str',
-		},
-		['harm_detection_chance'] = 80
-	},
-	['EW S-300'] = {
-		['searchRadar'] = {
-			['S-300PS 40B6MD sr'] = {
-			},
-			['S-300PS 64H6E sr'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Big Bird',
-		},
-		['harm_detection_chance'] = 90
-	},
-	['SA-11 Buk SR 9S18M1'] = {
-		['searchRadar'] = {
-			['SA-11 Buk SR 9S18M1'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Snow Drift',
-		},
-		['harm_detection_chance'] = 70
-	},
-	['Kub 1S91 str'] = {
-		['searchRadar'] = {
-			['Kub 1S91 str'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Straight Flush',
-		},
-		['harm_detection_chance'] = 40
-	},
-	['Hawk str'] = {
-		['searchRadar'] = {
-			['Hawk sr'] = {
-			},
-		},
-		['name'] = {
-			['NATO'] = 'Hawk str',
-		},
-		['harm_detection_chance'] = 40
 	},	
 }
 end

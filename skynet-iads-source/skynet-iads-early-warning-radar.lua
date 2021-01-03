@@ -11,7 +11,28 @@ function SkynetIADSEWRadar:create(radarUnit, iads)
 	return instance
 end
 
---an Early Warning Radar has simplified check to detrmine if its autonomous or not
+function SkynetIADSEWRadar:setupElements()
+	local unit = self:getDCSRepresentation()
+	local unitType = unit:getTypeName()
+	for typeName, dataType in pairs(SkynetIADS.database) do
+		for entry, unitData in pairs(dataType) do
+			if entry == 'searchRadar' then
+				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
+				if #self.searchRadars > 0 then
+					local harmDetection = dataType['harm_detection_chance']
+					self:setHARMDetectionChance(harmDetection)
+					if unitData[unitType]['name'] then
+						local natoName = unitData[unitType]['name']['NATO']
+						self:buildNatoName(natoName)
+					end
+					return
+				end
+			end
+		end
+	end
+end
+
+--an Early Warning Radar has simplified check to determine if its autonomous or not
 function SkynetIADSEWRadar:setToCorrectAutonomousState()
 	if self:hasActiveConnectionNode() and self:hasWorkingPowerSource() and self.iads:isCommandCenterUsable() then
 		self:resetAutonomousState()
