@@ -296,7 +296,7 @@ You can use units or static objects. Call the function multiple times to add mor
 ```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-unit:addPowerSource(powerSource)
+unit:addPowerSource(powerSource
 ```
 
 ```lua
@@ -304,18 +304,11 @@ local connectionNode = Unit.getByName("EW connection node")
 unit:addConnectionNode(connectionNode)
 ```
 
-To add a power source to a command center use:
+For command centers use:
 ```lua
-local commandCenter = StaticObject.getByName("Command Center 2")
+local commandCenter = StaticObject.getByName("Command Center2")
 local comPowerSource = StaticObject.getByName("Command Center2 Power Source")
 redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
-```
-
-To add a connection node to a command center use:
-```lua
-local commandCenter = StaticObject.getByName("Command Center 2")
-local conNode = StaticObject.getByName("Command Center 2 Connection Node")
-redIADS:addCommandCenter(commandCenter):addConnectionNode(conNode)
 ```
 
 ## Warm up the SAM sites of an IADS
@@ -613,8 +606,12 @@ iadsDebug.IADSStatus = true
 iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
+iadsDebug.noWorkingCommmandCenter = true
+iadsDebug.ewRadarNoConnection = true
+iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
+iadsDebug.hasNoPower = true
 iadsDebug.harmDefence = true
 ---end remove debug ---
 

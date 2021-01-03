@@ -1738,11 +1738,17 @@ end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
+	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
+		self.iads:printOutput(self:getDescription().." no connection to Command Center")
+	end
 	return connectionNode
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
 	local power = self:genericCheckOneObjectIsAlive(self.powerSources)
+	if power == false and self.iads:getDebugSettings().hasNoPower then
+		self.iads:printOutput(self:getDescription().." has no power")
+	end
 	return power
 end
 
