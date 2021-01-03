@@ -543,11 +543,9 @@ iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
 iadsDebug.noWorkingCommmandCenter = true
-iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
-iadsDebug.hasNoPower = true
 iadsDebug.harmDefence = true
 ---end remove debug ---
 
