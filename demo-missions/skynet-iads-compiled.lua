@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.0 | BUILD TIME: 03.01.2021 1743Z ---")
+env.info("--- SKYNET VERSION: 2.0.0 | BUILD TIME: 04.01.2021 0652Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -909,11 +909,13 @@ function SkynetIADSLogger:printSystemStatus()
 		self:printOutput("SAM: "..samSitesTotal.." | On: "..samSitesActive.." | Off: "..samSitesInactive.." | Autonm: "..samSiteAutonomous.." | Raddest: "..samSiteRadarDestroyed.." | NoPowr: "..samSitesNoPower.." | NoCon: "..samSitesNoConnectionNode.." | NoAmmo: "..samSitesOutOfAmmo)
 	end
 	
-	local contacts = self.iads:getContacts()
-	if contacts then
-		for i = 1, #contacts do
-			local contact = contacts[i]
-				self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
+	if self:getDebugSettings().contacts then
+		local contacts = self.iads:getContacts()
+		if contacts then
+			for i = 1, #contacts do
+				local contact = contacts[i]
+					self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
+			end
 		end
 	end
 	
