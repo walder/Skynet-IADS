@@ -56,7 +56,7 @@ SAM sites will go autonomous in such a case meaning they will use their organic 
 Once a SAM site is within EW radar coverage again it will be updated by the IADS.
 
 ## Early Warning Radars
-Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar listed after the comment ```--- Start of EW radars:``` in [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) in an EW role in Skynet. 
+Skynet can handle 0-n EW radars. For detection of a target the DCS radar detection logic is used. You can use any type of radar listed in [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) in an EW role in Skynet. 
 Some modern SAM radars have a greater detection range than older EW radars, e.g. the S-300PS 64H6E (160 km) vs EWR 55G6 (120 km).
 
 You can also designate SAM sites to act as EW radars, in this case a SAM site will constantly have their radar on. Long range systems like the S-300 are used as EW radars in real life.
@@ -543,11 +543,9 @@ iadsDebug.radarWentDark = true
 iadsDebug.contacts = true
 iadsDebug.radarWentLive = true
 iadsDebug.noWorkingCommmandCenter = true
-iadsDebug.ewRadarNoConnection = true
 iadsDebug.samNoConnection = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
-iadsDebug.hasNoPower = true
 iadsDebug.harmDefence = true
 ---end remove debug ---
 
