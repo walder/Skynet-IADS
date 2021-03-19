@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.1 | BUILD TIME: 04.01.2021 0706Z ---")
+env.info("--- SKYNET VERSION: 2.0.2 | BUILD TIME: 19.03.2021 1837Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2545,6 +2545,10 @@ end
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 	mist.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
+	
+	if ( self:getAutonomousState() == true ) then
+		self:goAutonomous()
+	end	
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
