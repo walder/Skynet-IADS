@@ -662,6 +662,10 @@ end
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 	mist.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
+	
+	if ( self:getAutonomousState() == true ) then
+		self:goAutonomous()
+	end	
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()

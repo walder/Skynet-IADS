@@ -300,6 +300,15 @@ function TestSkynetIADSAbstractRadarElement:testSetToCorrectAutonomousState()
 	
 end
 
+function TestSkynetIADSAbstractRadarElement:testWillGoLiveWhenAutonomousAndHARMDefenceFinished()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	self.samSite:setAutonomousBehaviour(SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI)
+	self.samSite:goSilentToEvadeHARM(1)
+	self.samSite:finishHarmDefence()
+	lu.assertEquals(self.samSite:isActive(), true)
+end
+
 -- TODO: write test for updateMissilesInFlight in AbstractRadarElement
 function TestSkynetIADSAbstractRadarElement:testUpdateMissilesInFlight()
 	self.samSiteName = "SAM-SA-6-2"
