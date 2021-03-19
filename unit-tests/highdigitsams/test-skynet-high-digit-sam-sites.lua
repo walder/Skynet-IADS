@@ -27,7 +27,7 @@ function TestSyknetIADSHighDigitSAMSites:tearDown()
 	end
 end
 
-function TestSyknetIADSHighDigitSAMSites:testSA10AGargoyle()
+function TestSyknetIADSHighDigitSAMSites:testSA20AGargoyle()
 	self.samSiteName = "SAM-SA-20A"
 	self:setUp()
 	lu.assertEquals(self.samSite:getNatoName(), "SA-20A")
@@ -100,6 +100,17 @@ function TestSyknetIADSHighDigitSAMSites:testHighScreenB()
 	lu.assertEquals(self.ewRadar:getNatoName(), "High Screen-B")
 end
 
+function TestSyknetIADSHighDigitSAMSites:testClamShell2()
+	self.ewName = "Clam-Shell-2"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Clam Shell")
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSnowDrift()
+	self.ewName = "Snow-Drift"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Snow Drift")
+end
 
 function TestSyknetIADSHighDigitSAMSites:testUnnamedRadar()
 	self.ewName = "unnamed-radar"
@@ -284,6 +295,15 @@ function TestSyknetIADSHighDigitSAMSites:testSA2GuidelineWithHQ2()
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
 	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 1)	
 	
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSA12GladiatorGiant()
+	self.samSiteName = "SAM-SA-12-S300V"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-12")
+	
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 2)
 end
 
 end

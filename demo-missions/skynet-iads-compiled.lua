@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.0.2 | BUILD TIME: 19.03.2021 1837Z ---")
+env.info("--- SKYNET VERSION: 2.1.0 | BUILD TIME: 19.03.2021 2206Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -412,8 +412,15 @@ samTypesDB['S-300PMU1'] = {
 	},
 	['trackingRadar'] = {
 		['S-300PMU1 40B6M tr'] = {
+			['name'] = {
+				['NATO'] = 'Grave Stone',
+			},
 		},
 		['S-300PMU1 30N6E tr'] = {
+			['name'] = {
+				['NATO'] = 'Flap Lid',
+			},
+
 		},
 	},
 	['misc'] = {
@@ -494,6 +501,9 @@ samTypesDB['S-300PS'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['S-300PS SA-10B 40B6MD MAST sr'] = {
+			['name'] = {
+				['NATO'] = 'Clam Shell',
+			},
 		},
 		['S-300PS 64H6E TRAILER sr'] = {
 		},
@@ -546,6 +556,9 @@ samTypesDB['Buk-M2'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
 		['SA-11 Buk SR 9S18M1'] = {
+			['name'] = {
+				['NATO'] = 'Snow Drif',
+			},
 		},
 	},
 	['launchers'] = {
@@ -581,6 +594,50 @@ New launcher for the SA-2 complex: HQ_2_Guideline_LN
 local s125launchers = samTypesDB['S-75']['launchers']
 s125launchers['HQ_2_Guideline_LN'] = {}
 
+--[[
+SA-12 Gladiator / Giant:
+2021-03-19 21:24:22.620 INFO    SCRIPTING: S-300V 9S15 sr
+2021-03-19 21:24:22.620 INFO    SCRIPTING: S-300V 9S19 sr
+2021-03-19 21:24:22.620 INFO    SCRIPTING: S-300V 9S32 tr
+2021-03-19 21:24:22.620 INFO    SCRIPTING: S-300V 9S457 cp
+2021-03-19 21:24:22.620 INFO    SCRIPTING: S-300V 9A83 ln
+2021-03-19 21:24:22.620 INFO    SCRIPTING: S-300V 9A82 ln
+--]]
+samTypesDB['S-300V'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-300V 9S15 sr'] = {
+			['name'] = {
+				['NATO'] = 'Bill Board',
+			},
+		},
+		['S-300V 9S19 sr'] = {
+			['name'] = {
+				['NATO'] = 'High Screen',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-300V 9S32 tr'] = {
+			['NATO'] = 'Grill Pan',
+			},
+	},
+	['misc'] = {
+		['S-300V 9S457 cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-300V 9A83 ln'] = {
+		},
+		['S-300V 9A82 ln'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-12 Gladiator/Giant'
+	},
+	['harm_detection_chance'] = 90
+}
 end
 
 
