@@ -125,7 +125,7 @@ function TestSyknetIADSHighDigitSAMSites:testSA23GladiatorOrGiant()
 	local launcher1 = launchers[2]
 	lu.assertEquals(launcher1:getTypeName(), "S-300VM 9A82ME ln")
 	lu.assertEquals(launcher1:getRange(), 200000)
-	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 40000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 37000)
 	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 2)	
 	
 	local searchRadars = self.samSite:getSearchRadars()
@@ -252,8 +252,7 @@ function TestSyknetIADSHighDigitSAMSites:testSA2GuidelineWithV7595V23()
 	lu.assertEquals(launcher1:getTypeName(), "S_75M_Volhov_V759")
 	lu.assertEquals(launcher1:getRange(), 56000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
-	--should read as 1, bugreport filed: https://github.com/Auranis/HighDigitSAMs/issues/11
-	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 1)	
 end	
 
 function TestSyknetIADSHighDigitSAMSites:testSA3GoaWithV601P5V27()
@@ -268,7 +267,6 @@ function TestSyknetIADSHighDigitSAMSites:testSA3GoaWithV601P5V27()
 	lu.assertEquals(launcher1:getTypeName(), "5p73 V-601P ln")
 	lu.assertEquals(launcher1:getRange(), 25000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 18000)
-	--should read as 1, bugreport filed: https://github.com/Auranis/HighDigitSAMs/issues/11
 	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
 end
 
@@ -284,8 +282,7 @@ function TestSyknetIADSHighDigitSAMSites:testSA2GuidelineWithHQ2()
 	lu.assertEquals(launcher1:getTypeName(), "HQ_2_Guideline_LN")
 	lu.assertEquals(launcher1:getRange(), 50000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 30000)
-	--should read as 1, bugreport filed: https://github.com/Auranis/HighDigitSAMs/issues/11
-	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 1)	
 	
 end
 
