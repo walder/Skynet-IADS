@@ -1,7 +1,7 @@
 do
 
 
-local units = Group.getByName('SAM-SA-12-S300V'):getUnits()
+local units = Group.getByName('SAM-SA-20B'):getUnits()
 for i = 1, #units do
 	local unit = units[i]
 	env.info(unit:getTypeName())

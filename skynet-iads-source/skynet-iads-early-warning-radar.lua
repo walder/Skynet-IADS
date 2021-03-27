@@ -17,6 +17,7 @@ function SkynetIADSEWRadar:setupElements()
 	for typeName, dataType in pairs(SkynetIADS.database) do
 		for entry, unitData in pairs(dataType) do
 			if entry == 'searchRadar' then
+				--buildSingleUnit checks to make sure the EW radar is defined in the Skynet database. If it is not, self.searchRadars will be 0 so no ew radar will be added
 				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
 				if #self.searchRadars > 0 then
 					local harmDetection = dataType['harm_detection_chance']

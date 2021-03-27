@@ -304,6 +304,67 @@ function TestSyknetIADSHighDigitSAMSites:testSA12GladiatorGiant()
 	
 	local launchers = self.samSite:getLaunchers()
 	lu.assertEquals(#launchers, 2)
+	
+	
+	local searchRadars = self.samSite:getSearchRadars()
+	lu.assertEquals(#searchRadars, 2)
+	
+	local searchRadar1 = searchRadars[1]
+	lu.assertEquals(searchRadar1:getTypeName(), "S-300V 9S15 sr")
+	lu.assertEquals(searchRadar1:getMaxRangeFindingTarget(), 160497.6875)
+
+	local searchRadar2 = searchRadars[2]
+	lu.assertEquals(searchRadar2:getTypeName(), "S-300V 9S19 sr")
+	lu.assertEquals(searchRadar2:getMaxRangeFindingTarget(), 160497.6875)
+	
+	local trackingRadars = self.samSite:getTrackingRadars()
+	lu.assertEquals(#trackingRadars, 1)
+	
+	local trackingRadar1 = trackingRadars[1]
+	lu.assertEquals(trackingRadar1:getTypeName(), "S-300V 9S32 tr")
+	lu.assertEquals(trackingRadar1:getMaxRangeFindingTarget(), 160497.6875)
+		
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "S-300V 9A83 ln")
+	lu.assertEquals(launcher1:getRange(), 75000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 25000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)	
+	
+	local launcher2 = launchers[2]
+	lu.assertEquals(launcher2:getTypeName(), "S-300V 9A82 ln")
+	lu.assertEquals(launcher2:getRange(), 100000)
+	lu.assertEquals(launcher2:getMaximumFiringAltitude(), 30000)
+	lu.assertEquals(launcher2:getInitialNumberOfMissiles(), 2)	
+	
+end
+
+function TestSyknetIADSHighDigitSAMSites:testSA20BGargoyle()
+	self.samSiteName = "SAM-SA-20B"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-20B")
+	
+	local searchRadars = self.samSite:getSearchRadars()
+	lu.assertEquals(#searchRadars, 1)
+	
+	local searchRadar1 = searchRadars[1]
+	lu.assertEquals(searchRadar1:getTypeName(), "S-300PMU2 64H6E2 sr")
+	lu.assertEquals(searchRadar1:getMaxRangeFindingTarget(), 220684.3125)
+	
+	local trackingRadars = self.samSite:getTrackingRadars()
+	lu.assertEquals(#trackingRadars, 1)
+	
+	local trackingRadar1 = trackingRadars[1]
+	lu.assertEquals(trackingRadar1:getTypeName(), "S-300PMU2 92H6E tr")
+	lu.assertEquals(trackingRadar1:getMaxRangeFindingTarget(), 220684.3125)
+	
+	local launchers = self.samSite:getLaunchers()
+	lu.assertEquals(#launchers, 1)
+	
+	local launcher1 = launchers[1]
+	lu.assertEquals(launcher1:getTypeName(), "S-300PMU2 5P85SE2 ln")
+	lu.assertEquals(launcher1:getRange(), 200000)
+	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 27000)
+	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)
 end
 
 end

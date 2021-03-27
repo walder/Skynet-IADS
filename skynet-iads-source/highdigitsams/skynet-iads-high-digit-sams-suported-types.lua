@@ -1,6 +1,20 @@
 do
 -- this file contains the definitions for the HightDigitSAMSs: https://github.com/Auranis/HighDigitSAMs
 
+--EW radars used in multiple SAM systems:
+
+s300PMU164N6Esr = {
+	['name'] = {
+		['NATO'] = 'Big Bird',
+	},
+}
+
+s300PMU140B6MDsr = {
+	['name'] = {
+		['NATO'] = 'Clam Shell',
+	},
+}
+
 --[[ units in SA-10 group Gargoyle:
 2020-12-10 18:27:27.050 INFO    SCRIPTING: S-300PMU1 54K6 cp
 2020-12-10 18:27:27.050 INFO    SCRIPTING: S-300PMU1 5P85CE ln
@@ -13,14 +27,17 @@ do
 samTypesDB['S-300PMU1'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
-		['S-300PMU1 40B6MD sr'] = {
+		['S-300PMU1 40B6MD sr'] = s300PMU140B6MDsr,
+		['S-300PMU1 64N6E sr'] = s300PMU164N6Esr,
+		
+		['S-300PS 40B6MD sr'] = {
 			['name'] = {
-				['NATO'] = 'Clam Shell',
+				['NATO'] = '',
 			},
 		},
-		['S-300PMU1 64N6E sr'] = {
+		['S-300PS 64H6E sr'] = {
 			['name'] = {
-				['NATO'] = 'Big Bird',
+				['NATO'] = '',
 			},
 		},
 	},
@@ -35,6 +52,11 @@ samTypesDB['S-300PMU1'] = {
 				['NATO'] = 'Flap Lid',
 			},
 
+		},
+		['S-300PS 40B6M tr'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
 		},
 	},
 	['misc'] = {
@@ -62,10 +84,6 @@ samTypesDB['S-300PMU1'] = {
 2020-12-11 16:40:52.072 INFO    SCRIPTING: S-300VM 9S32ME tr
 2020-12-11 16:40:52.072 INFO    SCRIPTING: S-300VM 9S457ME cp
 
-According to wikipedia:
-dem 9A83-Startfahrzeug die Bezeichnung SA-12A Gladiator zu geben; das größere 9A82-Startfahrzeug erhielt die Bezeichnung SA-12B Giant.
-9A83ME -> SA-23A Gladiator
-9A82ME -> SA-23B Giant
 ]]--
 samTypesDB['S-300VM'] = {
 	['type'] = 'complex',
@@ -97,7 +115,7 @@ samTypesDB['S-300VM'] = {
 		},
 	},
 	['name']  = {
-		['NATO'] = 'SA-23 Gladiator/Giant'
+		['NATO'] = 'SA-23 Antey-2500'
 	},
 	['harm_detection_chance'] = 90
 }	
@@ -127,6 +145,12 @@ samTypesDB['S-300PS'] = {
 		},
 		['S-300PS SA-10B 40B6M MAST tr'] = {
 		},
+		['S-300PS 40B6M tr'] = {
+		},
+		['S-300PMU1 40B6M tr'] = {
+		},	
+		['S-300PMU1 30N6E tr'] = {
+		},		
 	},
 	['misc'] = {
 		['S-300PS SA-10B 54K6 cp'] = {
@@ -249,6 +273,62 @@ samTypesDB['S-300V'] = {
 	},
 	['name']  = {
 		['NATO'] = 'SA-12 Gladiator/Giant'
+	},
+	['harm_detection_chance'] = 90
+}
+
+--[[
+SA-20B Gargoyle B:
+
+2021-03-25 19:15:02.135 INFO    SCRIPTING: S-300PMU2 64H6E2 sr
+2021-03-25 19:15:02.135 INFO    SCRIPTING: S-300PMU2 92H6E tr
+2021-03-25 19:15:02.135 INFO    SCRIPTING: S-300PMU2 5P85SE2 ln
+2021-03-25 19:15:02.135 INFO    SCRIPTING: S-300PMU2 54K6E2 cp
+--]]
+
+samTypesDB['S-300PMU2'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-300PMU2 64H6E2 sr'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
+		},
+		['S-300PMU1 40B6MD sr'] = s300PMU140B6MDsr,
+		['S-300PMU1 64N6E sr'] = s300PMU164N6Esr,
+		
+		['S-300PS 40B6MD sr'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
+		},		
+		['S-300PS 64H6E sr'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-300PMU2 92H6E tr'] = {
+		},
+		['S-300PS 40B6M tr'] = {
+		},
+		['S-300PMU1 40B6M tr'] = {
+		},
+		['S-300PMU1 30N6E tr'] = {
+		},
+	},
+	['misc'] = {
+		['S-300PMU2 54K6E2 cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-300PMU2 5P85SE2 ln'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-20B Gargoyle B'
 	},
 	['harm_detection_chance'] = 90
 }
