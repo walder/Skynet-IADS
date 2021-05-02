@@ -6,10 +6,12 @@ SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 SkynetIADSContact.CLIMB = "CLIMB"
 SkynetIADSContact.DESCEND = "DESCEND"
 
-function SkynetIADSContact:create(dcsRadarTarget)
+function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
 	self.__index = self
+	instance.abstractRadarElementsDetected = {}
+	table.insert(instance.abstractRadarElementsDetected, abstractRadarElementDetected)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
@@ -20,6 +22,10 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	return instance
 end
 
+
+function SkynetIADSContact:getAbstractRadarElementsDetected()
+	return self.abstractRadarElementsDetected
+end
 
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type
@@ -97,7 +103,7 @@ end
 
 function SkynetIADSContact:getAge()
 	return mist.utils.round(timer.getAbsTime() - self.lastTimeSeen)
-endk
+end
 
 end
 

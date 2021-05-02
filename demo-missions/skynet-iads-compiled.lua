@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 02.05.2021 1659Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 02.05.2021 1850Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2711,7 +2711,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 				local target = targets[i]
 				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
 				if target.object then
-					local iadsTarget = SkynetIADSContact:create(target)
+					local iadsTarget = SkynetIADSContact:create(target, self)
 					iadsTarget:refresh()
 					if self:isTargetInRange(iadsTarget) then
 						table.insert(self.cachedTargets, iadsTarget)
@@ -2942,10 +2942,12 @@ SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 SkynetIADSContact.CLIMB = "CLIMB"
 SkynetIADSContact.DESCEND = "DESCEND"
 
-function SkynetIADSContact:create(dcsRadarTarget)
+function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
 	self.__index = self
+	instance.abstractRadarElementsDetected = {}
+	table.insert(instance.abstractRadarElementsDetected, abstractRadarElementDetected)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
@@ -2956,6 +2958,10 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	return instance
 end
 
+
+function SkynetIADSContact:getAbstractRadarElementsDetected()
+	return self.abstractRadarElementsDetected
+end
 
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type
@@ -3554,9 +3560,28 @@ function SkynetIADSHARMDetection:evaluateContacts()
 				profileStr = profileStr.." "..altProfile[i]
 			end
 			env.info(profileStr)
+			
+			
+			
 		end
 	end
+end
 
+function SkynetIADSHARMDetection:getDetectionProbability(contact)
+	local radars = contact:getAbstractRadarElementsDetected()
+	local detectionChance = 0
+	local missChance = 100
+	local detection = 0
+	for i = 1, #radars do
+		detection = radars[i]:getHARMDetectionChance()
+		if ( detectionChance == 0 ) then
+			detectionChance = detection
+		else
+			detectionChance = detectionChance + (detection * (missChance / 100))
+		end	
+		missChance = 100 - detection
+	end
+	return detectionChance
 end
 
 end

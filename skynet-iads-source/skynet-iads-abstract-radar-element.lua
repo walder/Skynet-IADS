@@ -683,7 +683,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 				local target = targets[i]
 				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
 				if target.object then
-					local iadsTarget = SkynetIADSContact:create(target)
+					local iadsTarget = SkynetIADSContact:create(target, self)
 					iadsTarget:refresh()
 					if self:isTargetInRange(iadsTarget) then
 						table.insert(self.cachedTargets, iadsTarget)
