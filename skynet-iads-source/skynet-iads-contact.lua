@@ -3,6 +3,9 @@ do
 SkynetIADSContact = {}
 SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 
+SkynetIADSContact.CLIMB = "CLIMB"
+SkynetIADSContact.DESCEND = "DESCEND"
+
 function SkynetIADSContact:create(dcsRadarTarget)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
@@ -13,6 +16,7 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
+	instance.simpleAltitudeProfile = {}
 	return instance
 end
 
@@ -34,6 +38,14 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 		decimals = 2
 	end
 	return mist.utils.round(self.speed, decimals)
+end
+
+function SkynetIADSContact:getHeightInFeetMSL()
+	if self.dcsObject:isExist() then
+		return mist.utils.round(mist.utils.metersToFeet(self.dcsObject:getPosition().p.y), 0)
+	else
+		return 0
+	end
 end
 
 function SkynetIADSContact:getDesc()
@@ -60,6 +72,20 @@ function SkynetIADSContact:refresh()
 		self.position = self.dcsObject:getPosition()
 	end
 	self.lastTimeSeen = timer.getAbsTime()
+end
+
+function SkynetIADSContact:updateSimpleAltitudeProfile()
+	local currentAltitude = self.dcsObject:getPosition().y
+	local currentProfile = self.simpleAltitudeProfile
+	if self.position.y > currentAltitude then
+		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.DESCEND)
+	elseif self.position.y < currentAltitude then
+		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.CLIMB)
+	end
+end
+
+function SkynetIADSContact:getSimpleAltitudeProfile()
+	return self.simpleAltitudeProfile
 end
 
 function SkynetIADSContact:getAge()

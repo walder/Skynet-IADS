@@ -117,7 +117,7 @@ function TestSkynetIADSSAMSite:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWh
 	local target = IADSContactFactory('test-not-in-firing-range-of-sa-2')
 	self.samSite:informOfContact(target)
 	lu.assertEquals(self.samSite:isActive(), true)
-	lu.assertEquals(self.samSite:isTargetInRange(target), true)
+
 end
 
 function TestSkynetIADSSAMSite:testSAMStaysActiveWhenInAutonomousMode()

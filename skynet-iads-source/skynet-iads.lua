@@ -18,6 +18,7 @@ function SkynetIADS:create(name)
 	iads.contacts = {}
 	iads.maxTargetAge = 32
 	iads.name = name
+	iads.harmDetection = SkynetIADSHARMDetection:create()
 	iads.logger = SkynetIADSLogger:create(iads)
 	if iads.name == nil then
 		iads.name = ""
@@ -351,6 +352,9 @@ function SkynetIADS.evaluateContacts(self)
 		local samSite = samSites[i]
 		samSite:targetCycleUpdateEnd()
 	end
+	
+	self.harmDetection:setContacts(self:getContacts())
+	self.harmDetection:evaluateContacts()
 	
 	self.logger:printSystemStatus()
 end

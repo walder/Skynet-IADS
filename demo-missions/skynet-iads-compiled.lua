@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.1.0 | BUILD TIME: 27.03.2021 2125Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 02.05.2021 1450Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -718,6 +718,10 @@ samTypesDB['S-300PMU2'] = {
 	},
 	['harm_detection_chance'] = 90
 }
+
+--[[
+
+--]]
 end
 
 
@@ -1091,6 +1095,7 @@ function SkynetIADS:create(name)
 	iads.contacts = {}
 	iads.maxTargetAge = 32
 	iads.name = name
+	iads.harmDetection = SkynetIADSHARMDetection:create()
 	iads.logger = SkynetIADSLogger:create(iads)
 	if iads.name == nil then
 		iads.name = ""
@@ -1424,6 +1429,9 @@ function SkynetIADS.evaluateContacts(self)
 		local samSite = samSites[i]
 		samSite:targetCycleUpdateEnd()
 	end
+	
+	self.harmDetection:setContacts(self:getContacts())
+	self.harmDetection:evaluateContacts()
 	
 	self.logger:printSystemStatus()
 end
@@ -2046,6 +2054,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.childRadars = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
+	instance.harmDecoys = {}
 	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
@@ -2102,6 +2111,10 @@ end
 
 function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
+end
+
+function SkynetIADSAbstractRadarElement:addHARMDecoy(harmDecoy)
+	table.insert(self.harmDecoys, harmDecoy)
 end
 
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
@@ -2926,6 +2939,9 @@ do
 SkynetIADSContact = {}
 SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 
+SkynetIADSContact.CLIMB = "CLIMB"
+SkynetIADSContact.DESCEND = "DESCEND"
+
 function SkynetIADSContact:create(dcsRadarTarget)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
@@ -2936,6 +2952,7 @@ function SkynetIADSContact:create(dcsRadarTarget)
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
+	instance.simpleAltitudeProfile = {}
 	return instance
 end
 
@@ -2957,6 +2974,14 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 		decimals = 2
 	end
 	return mist.utils.round(self.speed, decimals)
+end
+
+function SkynetIADSContact:getHeightInFeetMSL()
+	if self.dcsObject:isExist() then
+		return mist.utils.round(mist.utils.metersToFeet(self.dcsObject:getPosition().p.y), 0)
+	else
+		return 0
+	end
 end
 
 function SkynetIADSContact:getDesc()
@@ -2983,6 +3008,20 @@ function SkynetIADSContact:refresh()
 		self.position = self.dcsObject:getPosition()
 	end
 	self.lastTimeSeen = timer.getAbsTime()
+end
+
+function SkynetIADSContact:updateSimpleAltitudeProfile()
+	local currentAltitude = self.dcsObject:getPosition().y
+	local currentProfile = self.simpleAltitudeProfile
+	if self.position.y > currentAltitude then
+		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.DESCEND)
+	elseif self.position.y < currentAltitude then
+		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.CLIMB)
+	end
+end
+
+function SkynetIADSContact:getSimpleAltitudeProfile()
+	return self.simpleAltitudeProfile
 end
 
 function SkynetIADSContact:getAge()
@@ -3478,3 +3517,31 @@ SA-2 Launcher:
     }
 }
 --]]
+do
+
+SkynetIADSHARMDetection = {}
+SkynetIADSHARMDetection.__index = SkynetIADSHARMDetection
+
+function SkynetIADSHARMDetection:create()
+	local harmDetection = {}
+	setmetatable(harmDetection, SkynetIADSHARMDetection)
+	harmDetection.contacts = {}
+	return harmDetection
+end
+
+function SkynetIADSHARMDetection:setContacts(contacts)
+	self.contacts = contacts
+end
+
+function SkynetIADSHARMDetection:evaluateContacts()
+
+	for i = 1, #self.contacts do
+		local contact = self.contacts[i]
+		--env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
+		env.info("Altitude: "..contact:getHeightInFeetMSL())
+	end
+
+end
+
+end
+
