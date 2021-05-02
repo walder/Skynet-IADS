@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 02.05.2021 1450Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 02.05.2021 1659Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3005,17 +3005,24 @@ function SkynetIADSContact:refresh()
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 		end 
+		self:updateSimpleAltitudeProfile()
 		self.position = self.dcsObject:getPosition()
 	end
 	self.lastTimeSeen = timer.getAbsTime()
 end
 
 function SkynetIADSContact:updateSimpleAltitudeProfile()
-	local currentAltitude = self.dcsObject:getPosition().y
+	local currentAltitude = self.dcsObject:getPosition().p.y
 	local currentProfile = self.simpleAltitudeProfile
-	if self.position.y > currentAltitude then
+	
+	local previousPath = ""
+	if #self.simpleAltitudeProfile > 0 then
+		previousPath = self.simpleAltitudeProfile[#self.simpleAltitudeProfile]
+	end
+	
+	if self.position.p.y > currentAltitude and previousPath ~= SkynetIADSContact.DESCEND then
 		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.DESCEND)
-	elseif self.position.y < currentAltitude then
+	elseif self.position.p.y < currentAltitude and previousPath ~= SkynetIADSContact.CLIMB then
 		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.CLIMB)
 	end
 end
@@ -3522,6 +3529,8 @@ do
 SkynetIADSHARMDetection = {}
 SkynetIADSHARMDetection.__index = SkynetIADSHARMDetection
 
+SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 1000
+
 function SkynetIADSHARMDetection:create()
 	local harmDetection = {}
 	setmetatable(harmDetection, SkynetIADSHARMDetection)
@@ -3537,11 +3546,19 @@ function SkynetIADSHARMDetection:evaluateContacts()
 
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
-		--env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
-		env.info("Altitude: "..contact:getHeightInFeetMSL())
+		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS ) then
+			env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
+			local altProfile = contact:getSimpleAltitudeProfile()
+			local profileStr = ""
+			for i = 1, #altProfile do
+				profileStr = profileStr.." "..altProfile[i]
+			end
+			env.info(profileStr)
+		end
 	end
 
 end
 
 end
+
 

@@ -69,17 +69,24 @@ function SkynetIADSContact:refresh()
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 		end 
+		self:updateSimpleAltitudeProfile()
 		self.position = self.dcsObject:getPosition()
 	end
 	self.lastTimeSeen = timer.getAbsTime()
 end
 
 function SkynetIADSContact:updateSimpleAltitudeProfile()
-	local currentAltitude = self.dcsObject:getPosition().y
+	local currentAltitude = self.dcsObject:getPosition().p.y
 	local currentProfile = self.simpleAltitudeProfile
-	if self.position.y > currentAltitude then
+	
+	local previousPath = ""
+	if #self.simpleAltitudeProfile > 0 then
+		previousPath = self.simpleAltitudeProfile[#self.simpleAltitudeProfile]
+	end
+	
+	if self.position.p.y > currentAltitude and previousPath ~= SkynetIADSContact.DESCEND then
 		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.DESCEND)
-	elseif self.position.y < currentAltitude then
+	elseif self.position.p.y < currentAltitude and previousPath ~= SkynetIADSContact.CLIMB then
 		table.insert(self.simpleAltitudeProfile, SkynetIADSContact.CLIMB)
 	end
 end
@@ -90,7 +97,7 @@ end
 
 function SkynetIADSContact:getAge()
 	return mist.utils.round(timer.getAbsTime() - self.lastTimeSeen)
-end
+endk
 
 end
 
