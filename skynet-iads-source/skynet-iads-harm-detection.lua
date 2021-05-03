@@ -4,11 +4,13 @@ SkynetIADSHARMDetection = {}
 SkynetIADSHARMDetection.__index = SkynetIADSHARMDetection
 
 SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 1000
+SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM = 10000
 
-function SkynetIADSHARMDetection:create()
+function SkynetIADSHARMDetection:create(iads)
 	local harmDetection = {}
 	setmetatable(harmDetection, SkynetIADSHARMDetection)
 	harmDetection.contacts = {}
+	harmDetection.iads = iads
 	return harmDetection
 end
 
@@ -32,15 +34,32 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
 			--TODO: code case when new radar detects HARM chance has to be calculated again
 			local detectionProbability = self:getDetectionProbability(contact)
-			if self:shallReactToHARM(detectionProbability)
+			--if self:shallReactToHARM(detectionProbability) then
 				--start shutting down SAMS here:
-			end
-			
+				local samSites = self.iads:getUsableSAMSites()
+				local harmHeading = mist.utils.toDegree(mist.getHeading(contact:getDCSRepresentation()))
+				for i = 1, #samSites do
+					local samSite = samSites[i]
+					local radars = samSite:getRadars()
+					for j = 1, #radars do
+						local radar = radars[j]
+						local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getDCSRepresentation():getPosition().p, radar:getPosition().p))
+						env.info("HARM TO SAM HEADING: "..harmToSAMHeading)
+						
+						local distance =  mist.utils.metersToNM(samSite:getDistanceInMetersToContact(radar, contact:getPosition().p))
+						
+						--env.info("HARM Distance to SAM: "..distance)
+						--if ( distance < SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM ) then
+					
+						--end
+					end
+				end
+			--end
 		end
 	end
 end
 
-function SkynetIADSAbstractRadarElement:shallReactToHARM(chance)
+function SkynetIADSHARMDetection:shallReactToHARM(chance)
 	return chance >=  math.random(1, 100)
 end
 

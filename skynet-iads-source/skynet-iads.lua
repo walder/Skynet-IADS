@@ -18,7 +18,7 @@ function SkynetIADS:create(name)
 	iads.contacts = {}
 	iads.maxTargetAge = 32
 	iads.name = name
-	iads.harmDetection = SkynetIADSHARMDetection:create()
+	iads.harmDetection = SkynetIADSHARMDetection:create(iads)
 	iads.logger = SkynetIADSLogger:create(iads)
 	if iads.name == nil then
 		iads.name = ""
