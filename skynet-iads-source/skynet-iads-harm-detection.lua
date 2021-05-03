@@ -44,9 +44,10 @@ function SkynetIADSHARMDetection:evaluateContacts()
 					for j = 1, #radars do
 						local radar = radars[j]
 						local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getDCSRepresentation():getPosition().p, radar:getPosition().p))
-						env.info("HARM TO SAM HEADING: "..harmToSAMHeading)
-						
 						local distance =  mist.utils.metersToNM(samSite:getDistanceInMetersToContact(radar, contact:getPosition().p))
+						env.info("HARM TO SAM HEADING: "..harmToSAMHeading.." DISTANCE:"..distance)
+						
+						
 						
 						--env.info("HARM Distance to SAM: "..distance)
 						--if ( distance < SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM ) then

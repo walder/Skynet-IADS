@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 03.05.2021 2024Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 03.05.2021 2042Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3576,9 +3576,10 @@ function SkynetIADSHARMDetection:evaluateContacts()
 					for j = 1, #radars do
 						local radar = radars[j]
 						local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getDCSRepresentation():getPosition().p, radar:getPosition().p))
-						env.info("HARM TO SAM HEADING: "..harmToSAMHeading)
-						
 						local distance =  mist.utils.metersToNM(samSite:getDistanceInMetersToContact(radar, contact:getPosition().p))
+						env.info("HARM TO SAM HEADING: "..harmToSAMHeading.." DISTANCE:"..distance)
+						
+						
 						
 						--env.info("HARM Distance to SAM: "..distance)
 						--if ( distance < SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM ) then
