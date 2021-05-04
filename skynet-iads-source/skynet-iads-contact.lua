@@ -80,22 +80,21 @@ end
 
 function SkynetIADSContact:refresh()
 	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-	if self.dcsObject and self:isExist() then
+	if self:isExist() then
 		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
+			self:updateSimpleAltitudeProfile()
+			self.position = self.dcsObject:getPosition()
 		end 
-		self:updateSimpleAltitudeProfile()
-		self.position = self.dcsObject:getPosition()
 	end
 	self.lastTimeSeen = timer.getAbsTime()
 end
 
 function SkynetIADSContact:updateSimpleAltitudeProfile()
 	local currentAltitude = self.dcsObject:getPosition().p.y
-	local currentProfile = self.simpleAltitudeProfile
 	
 	local previousPath = ""
 	if #self.simpleAltitudeProfile > 0 then

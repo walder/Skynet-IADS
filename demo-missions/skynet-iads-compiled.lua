@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 04.05.2021 2003Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 04.05.2021 2035Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3016,22 +3016,21 @@ end
 
 function SkynetIADSContact:refresh()
 	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-	if self.dcsObject and self:isExist() then
+	if self:isExist() then
 		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
+			self:updateSimpleAltitudeProfile()
+			self.position = self.dcsObject:getPosition()
 		end 
-		self:updateSimpleAltitudeProfile()
-		self.position = self.dcsObject:getPosition()
 	end
 	self.lastTimeSeen = timer.getAbsTime()
 end
 
 function SkynetIADSContact:updateSimpleAltitudeProfile()
 	local currentAltitude = self.dcsObject:getPosition().p.y
-	local currentProfile = self.simpleAltitudeProfile
 	
 	local previousPath = ""
 	if #self.simpleAltitudeProfile > 0 then
@@ -3566,24 +3565,24 @@ function SkynetIADSHARMDetection:evaluateContacts()
 
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
+		
+		env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
+		local altProfile = contact:getSimpleAltitudeProfile()
+		local profileStr = ""
+		for i = 1, #altProfile do
+			profileStr = profileStr.." "..altProfile[i]
+		end
+		env.info(profileStr)
+		
+		
 		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and self:shallReactToHARM(self:getDetectionProbability(contact))  ) then
 			contact:setIsHARM(true)
 		end
 		
-	--[[
-		env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
-			local altProfile = contact:getSimpleAltitudeProfile()
-			local profileStr = ""
-			for i = 1, #altProfile do
-				profileStr = profileStr.." "..altProfile[i]
-			end
-			env.info(profileStr)
-	--]]
 			
-			--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
-			--TODO: code case when new radar detects HARM chance has to be calculated again
-			--if self:shallReactToHARM(detectionProbability) then
-				--start shutting down SAMS here:
+		--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
+		--TODO: code case when new radar detects HARM chance has to be calculated again
+		--TODO: Add EW radars
 		local samSites = self.iads:getUsableSAMSites()
 		for i = 1, #samSites do
 			local samSite = samSites[i]
@@ -3594,7 +3593,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 				local distance =  mist.utils.metersToNM(samSite:getDistanceInMetersToContact(radar, contact:getPosition().p))
 				local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getPosition().p, radar:getPosition().p))
 				local harmToSAMAspect = self:calculateAspectInDegrees(contact:getMagneticHeading(), harmToSAMHeading)
-				env.info("HARM TO SAM ASPECT: "..harmToSAMAspect.." DISTANCE:"..distance)
+				--env.info("HARM TO SAM ASPECT: "..harmToSAMAspect.." DISTANCE:"..distance)
 				
 				--		local harmHeading = mist.utils.toDegree(mist.getHeading(harm))
 				--
