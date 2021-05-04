@@ -1,12 +1,12 @@
 do
 
-TestSynetIADSHARMDetection = {}
+TestSkynetIADSHARMDetection = {}
 
-function TestSynetIADSHARMDetection:setUp()
+function TestSkynetIADSHARMDetection:setUp()
 	self.harmDetection = SkynetIADSHARMDetection:create()
 end
 
-function TestSynetIADSHARMDetection:testGetDetectionProbability()
+function TestSkynetIADSHARMDetection:testGetDetectionProbability()
 	
 	local mockContact = {}
 	
@@ -36,6 +36,15 @@ function TestSynetIADSHARMDetection:testGetDetectionProbability()
 	
 	lu.assertEquals(self.harmDetection:getDetectionProbability(mockContact), 92)
 	
+end
+
+function TestSkynetIADSHARMDetection:testCalculateAspectInDegrees()
+	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(0, 90), 90)
+	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(300, 90), 150)
+	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(010, 280), 90)
+	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(190, 350), 160)
+	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(090, 270), 180)
+	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(010, 170), 160)
 end
 
 end

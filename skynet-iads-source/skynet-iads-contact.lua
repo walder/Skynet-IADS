@@ -18,10 +18,22 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
+	instance.isHARM = false
 	instance.simpleAltitudeProfile = {}
 	return instance
 end
 
+function SkynetIADSContact:setIsHARM(state)
+	self.isHARM = state
+end
+
+function SkynetIADSContact:getMagneticHeading()
+	if ( self:isExist() ) then
+		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self.dcsObject)))
+	else
+		return -1
+	end
+end
 
 function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected
@@ -47,7 +59,7 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 end
 
 function SkynetIADSContact:getHeightInFeetMSL()
-	if self.dcsObject:isExist() then
+	if self:isExist() then
 		return mist.utils.round(mist.utils.metersToFeet(self.dcsObject:getPosition().p.y), 0)
 	else
 		return 0
@@ -55,7 +67,7 @@ function SkynetIADSContact:getHeightInFeetMSL()
 end
 
 function SkynetIADSContact:getDesc()
-	if self.dcsObject:isExist() then
+	if self:isExist() then
 		return self.dcsObject:getDesc()
 	else
 		return {}
@@ -68,7 +80,7 @@ end
 
 function SkynetIADSContact:refresh()
 	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-	if self.dcsObject and self.dcsObject:isExist() then
+	if self.dcsObject and self:isExist() then
 		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then

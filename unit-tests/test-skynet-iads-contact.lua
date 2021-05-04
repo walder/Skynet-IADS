@@ -30,7 +30,7 @@ function TestSyknetIADSContact:testRefresh()
 end
 
 function TestSyknetIADSContact:testGetHeightInFeetMSL()
-	lu.assertEquals(self.contact:getHeightInFeetMSL(), 4992)
+	lu.assertEquals(self.contact:getHeightInFeetMSL(), 4974)
 end
 
 function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
@@ -70,7 +70,6 @@ function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
 
 
 
-	
 	function mockDCSObject:getPosition()
 		local p = {}
 		p.y = 200
@@ -99,7 +98,22 @@ function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
 	local altProfile = self.contact:getSimpleAltitudeProfile()
 	lu.assertEquals(altProfile[2], SkynetIADSContact.CLIMB)
 	lu.assertEquals(#altProfile, 2)
+end
+
+function TestSyknetIADSContact:testSetIsHARM()
+	lu.assertEquals(self.contact.isHARM, false)
+	self.contact:setIsHARM(true)
+	lu.assertEquals(self.contact.isHARM, true)
+end
+
+function TestSyknetIADSContact:testGetMagneticHeading()
+	lu.assertEquals(self.contact:getMagneticHeading(), 351)
 	
+	function self.contact:isExist()
+		return false
+	end
+	
+	lu.assertEquals(self.contact:getMagneticHeading(), -1)
 end
 
 end
