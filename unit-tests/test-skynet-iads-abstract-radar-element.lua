@@ -1052,9 +1052,10 @@ end
 function TestSkynetIADSAbstractRadarElement:testFinishHARMDefence()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
-	self.samSite:goSilentToEvadeHARM()
+	self.samSite:goSilentToEvadeHARM(10)
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:finishHarmDefence()
+	lu.assertEquals(self.samSite.harmShutdownTime, 0)
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:isActive(), true)
 end

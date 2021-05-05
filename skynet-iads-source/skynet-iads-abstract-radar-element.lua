@@ -36,6 +36,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmShutDownTime = 0
 	instance.minHarmPresetShutdownTime = 30
 	instance.maxHarmPresetShutdownTime = 180
+	instance.harmShutdownTime = 0
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
 	instance.cachedTargets = {}
@@ -650,16 +651,28 @@ end
 
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
-	--self.objectsIdentifiedAsHarms = {}
-	local harmTime = self:getHarmShutDownTime()
-	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
+	if ( timeToImpact == nil ) then
+		timeToImpact = 0
 	end
-	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
+	
+	--self.objectsIdentifiedAsHarms = {}
+	
+	self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+	self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
+	
+	self.harmShutdownTime = self:calculateHARMShutdownTime()
+	if self.iads:getDebugSettings().harmDefence then
+		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
+	end
+	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
 
-function SkynetIADSAbstractRadarElement:getHarmShutDownTime()
+function SkynetIADSAbstractRadarElement:getHARMShutdownTime()
+	return self.harmShutdownTime
+end
+
+function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
 	return shutDownTime
 end
@@ -667,6 +680,7 @@ end
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 	mist.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
+	self.harmShutdownTime = 0
 	
 	if ( self:getAutonomousState() == true ) then
 		self:goAutonomous()

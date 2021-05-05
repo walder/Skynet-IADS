@@ -6,6 +6,10 @@ SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 SkynetIADSContact.CLIMB = "CLIMB"
 SkynetIADSContact.DESCEND = "DESCEND"
 
+SkynetIADSContact.HARM = "HARM"
+SkynetIADSContact.NOT_HARM = "NOT_HARM"
+SkynetIADSContact.HARM_UNKNOWN = "HARM_UNKNOWN"
+
 function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
@@ -18,13 +22,21 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
-	instance.isHARM = false
+	instance.harmState = SkynetIADSContact.HARM_UNKNOWN
 	instance.simpleAltitudeProfile = {}
 	return instance
 end
 
-function SkynetIADSContact:setIsHARM(state)
-	self.isHARM = state
+function SkynetIADSContact:setHARMState(state)
+	self.harmState = state
+end
+
+function SkynetIADSContact:isIdentifiedAsHARM()
+	return self.harmState == SkynetIADSContact.HARM
+end
+
+function SkynetIADSContact:isHARMStateUnknown()
+	return self.harmState == SkynetIADSContact.HARM_UNKNOWN
 end
 
 function SkynetIADSContact:getMagneticHeading()
@@ -79,11 +91,11 @@ function SkynetIADSContact:getNumberOfTimesHitByRadar()
 end
 
 function SkynetIADSContact:refresh()
-	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
 	if self:isExist() then
-		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
+			self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
+			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 			self:updateSimpleAltitudeProfile()

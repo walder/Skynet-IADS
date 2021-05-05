@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 04.05.2021 2035Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 05.05.2021 2044Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2064,6 +2064,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmShutDownTime = 0
 	instance.minHarmPresetShutdownTime = 30
 	instance.maxHarmPresetShutdownTime = 180
+	instance.harmShutdownTime = 0
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
 	instance.cachedTargets = {}
@@ -2678,16 +2679,28 @@ end
 
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
-	--self.objectsIdentifiedAsHarms = {}
-	local harmTime = self:getHarmShutDownTime()
-	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
+	if ( timeToImpact == nil ) then
+		timeToImpact = 0
 	end
-	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
+	
+	--self.objectsIdentifiedAsHarms = {}
+	
+	self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+	self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
+	
+	self.harmShutdownTime = self:calculateHARMShutdownTime()
+	if self.iads:getDebugSettings().harmDefence then
+		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
+	end
+	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
 
-function SkynetIADSAbstractRadarElement:getHarmShutDownTime()
+function SkynetIADSAbstractRadarElement:getHARMShutdownTime()
+	return self.harmShutdownTime
+end
+
+function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
 	return shutDownTime
 end
@@ -2695,6 +2708,7 @@ end
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 	mist.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
+	self.harmShutdownTime = 0
 	
 	if ( self:getAutonomousState() == true ) then
 		self:goAutonomous()
@@ -2942,6 +2956,10 @@ SkynetIADSContact = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 SkynetIADSContact.CLIMB = "CLIMB"
 SkynetIADSContact.DESCEND = "DESCEND"
 
+SkynetIADSContact.HARM = "HARM"
+SkynetIADSContact.NOT_HARM = "NOT_HARM"
+SkynetIADSContact.HARM_UNKNOWN = "HARM_UNKNOWN"
+
 function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	local instance = self:superClass():create(dcsRadarTarget.object)
 	setmetatable(instance, self)
@@ -2954,13 +2972,21 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.position = instance.dcsObject:getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
-	instance.isHARM = false
+	instance.harmState = SkynetIADSContact.HARM_UNKNOWN
 	instance.simpleAltitudeProfile = {}
 	return instance
 end
 
-function SkynetIADSContact:setIsHARM(state)
-	self.isHARM = state
+function SkynetIADSContact:setHARMState(state)
+	self.harmState = state
+end
+
+function SkynetIADSContact:isIdentifiedAsHARM()
+	return self.harmState == SkynetIADSContact.HARM
+end
+
+function SkynetIADSContact:isHARMStateUnknown()
+	return self.harmState == SkynetIADSContact.HARM_UNKNOWN
 end
 
 function SkynetIADSContact:getMagneticHeading()
@@ -3015,11 +3041,11 @@ function SkynetIADSContact:getNumberOfTimesHitByRadar()
 end
 
 function SkynetIADSContact:refresh()
-	self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
 	if self:isExist() then
-		local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
+			self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
+			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 			self:updateSimpleAltitudeProfile()
@@ -3554,6 +3580,7 @@ function SkynetIADSHARMDetection:create(iads)
 	setmetatable(harmDetection, SkynetIADSHARMDetection)
 	harmDetection.contacts = {}
 	harmDetection.iads = iads
+	harmDetection.contactsIdentifiedAsHARMS = {}
 	return harmDetection
 end
 
@@ -3566,6 +3593,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
 		
+		--[[
 		env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
 		local altProfile = contact:getSimpleAltitudeProfile()
 		local profileStr = ""
@@ -3573,42 +3601,73 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			profileStr = profileStr.." "..altProfile[i]
 		end
 		env.info(profileStr)
-		
-		
-		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and self:shallReactToHARM(self:getDetectionProbability(contact))  ) then
-			contact:setIsHARM(true)
+		--]]
+			
+		--TODO: add simple flight path history to harm detection code
+		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() ) then
+			if ( self:shallReactToHARM(self:getDetectionProbability(contact)) ) then
+				contact:setHARMState(SkynetIADSContact.HARM)
+			else
+				contact:setHARMState(SkynetIADSContact.NOT_HARM)
+			end
 		end
 		
-			
+		
+		if contact:isIdentifiedAsHARM() then
+			self:informRadarsOfHARM(contact)
+		end
+		
 		--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
 		--TODO: code case when new radar detects HARM chance has to be calculated again
 		--TODO: Add EW radars
-		local samSites = self.iads:getUsableSAMSites()
-		for i = 1, #samSites do
-			local samSite = samSites[i]
-			local radars = samSite:getRadars()
-			for j = 1, #radars do
-				local radar = radars[j]
-				
-				local distance =  mist.utils.metersToNM(samSite:getDistanceInMetersToContact(radar, contact:getPosition().p))
-				local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getPosition().p, radar:getPosition().p))
-				local harmToSAMAspect = self:calculateAspectInDegrees(contact:getMagneticHeading(), harmToSAMHeading)
-				--env.info("HARM TO SAM ASPECT: "..harmToSAMAspect.." DISTANCE:"..distance)
-				
-				--		local harmHeading = mist.utils.toDegree(mist.getHeading(harm))
-				--
-				--env.info("HARM Distance to SAM: "..distance)
-				--if ( distance < SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM ) then
-			
-				--end
+		--TODO: TEST what happens when firing at radar that is detecting HARM
+		--TODO: only shut down radars that have no PD see shallIgnoreHARMShutdown of AbstractRadarElement
+		--TODO: SAM shall not go live if contact passed is positively identified as HARM and it can not engage HARMS
+		--TODO: contacts that no longer exist trigger error when getPosition() is called
+	end
+end
+
+function SkynetIADSHARMDetection:informRadarsOfHARM(contact)
+	local samSites = self.iads:getUsableSAMSites()
+	self:updateRadarsOfSites(samSites, contact)
+end
+
+function SkynetIADSHARMDetection:updateRadarsOfSites(sites, contact)
+	for i = 1, #sites do
+		local site = sites[i]
+		local radars = site:getRadars()
+		for j = 1, #radars do
+			local radar = radars[j]
+			local distanceNM =  mist.utils.metersToNM(self:getDistanceInMetersToContact(radar, contact:getPosition().p))
+			local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getPosition().p, radar:getPosition().p))
+			local harmToSAMAspect = self:calculateAspectInDegrees(contact:getMagneticHeading(), harmToSAMHeading)
+			local speedKT = contact:getGroundSpeedInKnots(0)
+			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
+			--TODO: Make variable out of aspect and distance
+			if ( harmToSAMAspect < 30 and distanceNM < 10 ) then
+				--code method informOfHARM(contact) -> checks below shall be done in AbstractRadarElement
+				if ( site:isDefendingHARM() == false or ( site:getHARMShutdownTime() < secondsToImpact ) ) then
+					site:goSilentToEvadeHARM(secondsToImpact)
+					break
+				end
 			end
 		end
 	end
 end
 
-function SkynetIADSHARMDetection:calculateHARMAspect(contact)
-	
+function SkynetIADSHARMDetection:getDistanceInMetersToContact(radarUnit, point)
+	return mist.utils.round(mist.utils.get3DDist(radarUnit:getPosition().p, point), 0)
+end
 
+function SkynetIADSHARMDetection:getSecondsToImpact(distanceNM, speedKT)
+	local tti = 0
+	if speedKT > 0 then
+		tti = mist.utils.round((distanceNM / speedKT) * 3600, 0)
+		if tti < 0 then
+			tti = 0
+		end
+	end
+	return tti
 end
 
 function SkynetIADSHARMDetection:calculateAspectInDegrees(harmHeading, harmToSAMHeading)

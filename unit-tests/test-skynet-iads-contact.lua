@@ -101,9 +101,9 @@ function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
 end
 
 function TestSyknetIADSContact:testSetIsHARM()
-	lu.assertEquals(self.contact.isHARM, false)
-	self.contact:setIsHARM(true)
-	lu.assertEquals(self.contact.isHARM, true)
+	lu.assertEquals(self.contact.harmState, SkynetIADSContact.HARM_UNKNOWN)
+	self.contact:setHARMState(SkynetIADSContact.HARM)
+	lu.assertEquals(self.contact.harmState, SkynetIADSContact.HARM)
 end
 
 function TestSyknetIADSContact:testGetMagneticHeading()
@@ -114,6 +114,18 @@ function TestSyknetIADSContact:testGetMagneticHeading()
 	end
 	
 	lu.assertEquals(self.contact:getMagneticHeading(), -1)
+end
+
+function TestSyknetIADSContact:testIsIdentifiedAsHARM()
+	lu.assertEquals(self.contact:isIdentifiedAsHARM(), false)
+	self.contact:setHARMState(SkynetIADSContact.HARM)
+	lu.assertEquals(self.contact:isIdentifiedAsHARM(), true)
+end
+
+function TestSyknetIADSContact:testIsHARMStateUnknown()
+	lu.assertEquals(self.contact:isHARMStateUnknown(), true)
+	self.contact:setHARMState(SkynetIADSContact.NOT_HARM)
+	lu.assertEquals(self.contact:isHARMStateUnknown(), false)
 end
 
 end
