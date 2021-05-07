@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 05.05.2021 2044Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 07.05.2021 2230Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -268,6 +268,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-15 Gauntlet',
 		},
+		['can_engage_harm'] = true
 	},
 	['Gepard'] = {
 		['type'] = 'single',
@@ -2071,6 +2072,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
 	instance.goLiveTime = 0
+	instance.canEngageHARM = false
 	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
 	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
@@ -2393,13 +2395,26 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
-			local harmDetection = dataType['harm_detection_chance']
+			self:setHARMDetectionChance(dataType['harm_detection_chance'])
+			self:setIsAbleToEngageHARM(dataType['can_engage_harm']) 
 			self:setHARMDetectionChance(harmDetection)
 			local natoName = dataType['name']['NATO']
 			self:buildNatoName(natoName)
 			break
 		end	
 	end
+end
+
+function SkynetIADSAbstractRadarElement:setIsAbleToEngageHARM(canEngageHARM)
+	if ( canEngageHARM == true ) then
+		self.canEngageHARM = true
+	else
+		self.canEngageHARM = false
+	end
+end
+
+function SkynetIADSAbstractRadarElement:isAbleToEngageHARM()
+	return self.canEngageHARM
 end
 
 function SkynetIADSAbstractRadarElement:buildNatoName(natoName)
@@ -2683,8 +2698,6 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 		timeToImpact = 0
 	end
 	
-	--self.objectsIdentifiedAsHarms = {}
-	
 	self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
 	self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
 	
@@ -2775,34 +2788,61 @@ function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
 	return ( self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms) and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true)
 end
 
+function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
+	local radars = self:getRadars()
+		for j = 1, #radars do
+			local radar = radars[j]
+			local distanceNM =  mist.utils.metersToNM(self:getDistanceInMetersToContact(radar, harmContact:getPosition().p))
+			local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(harmContact:getPosition().p, radar:getPosition().p))
+			local harmToSAMAspect = self:calculateAspectInDegrees(harmContact:getMagneticHeading(), harmToSAMHeading)
+			local speedKT = harmContact:getGroundSpeedInKnots(0)
+			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
+			--TODO: Make constant out of aspect and distance
+			if ( harmToSAMAspect < 30 and distanceNM < 20 ) then
+				self:addObjectIdentifiedAsHARM(harmContact)
+				self:pointDefencesGoLive()
+				if ( ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false and self:isAbleToEngageHARM() == false ) then
+					self:goSilentToEvadeHARM(secondsToImpact)
+					break
+				end
+			end
+		end
+end
+
+function SkynetIADSAbstractElement:addObjectIdentifiedAsHARM(harmContact)
+	self:abstractAddRadar(harmContact, self.objectsIdentifiedAsHarms)
+end
+
+function SkynetIADSAbstractRadarElement:calculateAspectInDegrees(harmHeading, harmToSAMHeading)
+		local aspect = harmHeading - harmToSAMHeading
+		if ( aspect < 0 ) then
+			aspect = -1 * aspect
+		end
+		if aspect > 180 then
+			aspect = 360 - aspect
+		end
+		return mist.utils.round(aspect)
+end
 
 function SkynetIADSAbstractRadarElement:getNumberOfObjectsItentifiedAsHARMS()
-	local numFound = 0
-	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
-		numFound = numFound + 1
-	end
-	return numFound
+	return #self.objectsIdentifiedAsHarms
 end
 
 function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
-	local validObjects = {}
-	local validCount = 0
-	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
-		local harm = unit['target']
-		if harm:getAge() <= self.objectsIdentifiedAsHarmsMaxTargetAge then
-			validObjects[harm:getName()] = {}
-			validObjects[harm:getName()]['target'] = harm
-			validObjects[harm:getName()]['count'] = unit['count']
-			validCount = validCount + 1
+	local newHARMS = {}
+	for i = 1, #self.objectsIdentifiedAsHarms do
+		local harmContact = self.objectsIdentifiedAsHarms[i]
+		if harmContact:getAge() < self.objectsIdentifiedAsHarmsMaxTargetAge then
+			table.insert(newHARMS, harmContact)
 		end
-	end	
-	--stop point defences acting as ew (always on), will occur if activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
+	end
+	--stop point defences acting as ew (always on), will occur if activated via evaluateIfTargetsContainHARMs()
 	--if in this iteration all harms where cleared we turn of the point defence. But in any other cases we dont turn of point defences, that interferes with other parts of the iads
 	-- when setting up the iads (letting pds go to read state)
-	if validCount == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
+	if (#newHARMS == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 ) then
 		self:pointDefencesStopActingAsEW()
 	end
-	self.objectsIdentifiedAsHarms = validObjects
+	self.objectsIdentifiedAsHarms = newHARMS
 end
 
 
@@ -2817,58 +2857,6 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	--we use the regular interval of this method to update to other states: 
 	self:updateMissilesInFlight()	
 	self:cleanUpOldObjectsIdentifiedAsHARMS()
-	
-	
-	local targets = self:getDetectedTargets() 
-	for i = 1, #targets do
-		local target = targets[i]
-		local radars = self:getRadars()
-		for j = 1, #radars do	
-			local radar = radars[j]
-			if radar:isExist() == true then
-				local distance = self:getDistanceInMetersToContact(radar, target:getPosition().p)
-				local impactPoint = self:calculateImpactPoint(target, distance)
-				if impactPoint then
-					local harmImpactPointDistanceToSAM = self:getDistanceInMetersToContact(radar, impactPoint)
-					if harmImpactPointDistanceToSAM <= 100 then
-						if self.objectsIdentifiedAsHarms[target:getName()] then
-							self.objectsIdentifiedAsHarms[target:getName()]['count'] = self.objectsIdentifiedAsHarms[target:getName()]['count'] + 1
-						else
-							self.objectsIdentifiedAsHarms[target:getName()] =  {}
-							self.objectsIdentifiedAsHarms[target:getName()]['target'] = target
-							self.objectsIdentifiedAsHarms[target:getName()]['count'] = 1
-						end
-						local savedTarget = self.objectsIdentifiedAsHarms[target:getName()]['target']
-						savedTarget:refresh()
-						local numDetections = self.objectsIdentifiedAsHarms[target:getName()]['count']
-						local speed = savedTarget:getGroundSpeedInKnots()
-						local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
-						local shallReactToHarm = self:shallReactToHARM()
-						
-					--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
-					--		env.info("detect as HARM: "..self:getDCSName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
-					--	end
-						
-						-- we use 2 detection cycles so a random object in the air pointing at the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
-						if numDetections == 2 and shallReactToHarm then
-							if self:shallIgnoreHARMShutdown() == false then
-								self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
-								self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
-								self:goSilentToEvadeHARM(timeToImpact)
-							else
-								self:pointDefencesGoLive()
-							end
-						end
-						if numDetections == 2 and shallReactToHarm == false then
-							if self.iads:getDebugSettings().harmDefence then
-								self.iads:printOutputToLog("HARM DEFENCE NO REACTION: "..self:getDCSName())
-							end
-						end
-					end
-				end
-			end
-		end
-	end
 end
 
 end
@@ -3413,7 +3401,7 @@ end
 
 function SkynetIADSSamSite:informOfContact(contact)
 	-- we make sure isTargetInRange (expensive call) is only triggered if no previous calls to this method resulted in targets in range
-	if self.targetsInRange == false and self:isTargetInRange(contact) then
+	if ( self.targetsInRange == false and self:isTargetInRange(contact) and ( contact:isIdentifiedAsHARM() == false or ( contact:isIdentifiedAsHARM() == true and self:isAbleToEngageHARM() == true ) ) ) then
 		self:goLive()
 		self.targetsInRange = true
 	end
@@ -3603,7 +3591,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		env.info(profileStr)
 		--]]
 			
-		--TODO: add simple flight path history to harm detection code
+
 		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() ) then
 			if ( self:shallReactToHARM(self:getDetectionProbability(contact)) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
@@ -3621,64 +3609,26 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		--TODO: code case when new radar detects HARM chance has to be calculated again
 		--TODO: Add EW radars
 		--TODO: TEST what happens when firing at radar that is detecting HARM
-		--TODO: only shut down radars that have no PD see shallIgnoreHARMShutdown of AbstractRadarElement
-		--TODO: SAM shall not go live if contact passed is positively identified as HARM and it can not engage HARMS
 		--TODO: contacts that no longer exist trigger error when getPosition() is called
+		--TODO: add HARM DEFENCE for Autonomus SAMS
+		--TODO: add simple altitude profile history to harm detection code -> shall prevent fast flying aircraft to be identified as HARMs -> max 2 altitude changes
+		--TODO: Finish Unit Tests
 	end
 end
 
 function SkynetIADSHARMDetection:informRadarsOfHARM(contact)
 	local samSites = self.iads:getUsableSAMSites()
 	self:updateRadarsOfSites(samSites, contact)
+	
+	local ewRadars = self.iads:getUsableEarlyWarningRadars()
+	self:updateRadarsOfSites(ewRadars, contact)
 end
 
 function SkynetIADSHARMDetection:updateRadarsOfSites(sites, contact)
 	for i = 1, #sites do
 		local site = sites[i]
-		local radars = site:getRadars()
-		for j = 1, #radars do
-			local radar = radars[j]
-			local distanceNM =  mist.utils.metersToNM(self:getDistanceInMetersToContact(radar, contact:getPosition().p))
-			local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(contact:getPosition().p, radar:getPosition().p))
-			local harmToSAMAspect = self:calculateAspectInDegrees(contact:getMagneticHeading(), harmToSAMHeading)
-			local speedKT = contact:getGroundSpeedInKnots(0)
-			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
-			--TODO: Make variable out of aspect and distance
-			if ( harmToSAMAspect < 30 and distanceNM < 10 ) then
-				--code method informOfHARM(contact) -> checks below shall be done in AbstractRadarElement
-				if ( site:isDefendingHARM() == false or ( site:getHARMShutdownTime() < secondsToImpact ) ) then
-					site:goSilentToEvadeHARM(secondsToImpact)
-					break
-				end
-			end
-		end
+		site:informOfHARM(contact)
 	end
-end
-
-function SkynetIADSHARMDetection:getDistanceInMetersToContact(radarUnit, point)
-	return mist.utils.round(mist.utils.get3DDist(radarUnit:getPosition().p, point), 0)
-end
-
-function SkynetIADSHARMDetection:getSecondsToImpact(distanceNM, speedKT)
-	local tti = 0
-	if speedKT > 0 then
-		tti = mist.utils.round((distanceNM / speedKT) * 3600, 0)
-		if tti < 0 then
-			tti = 0
-		end
-	end
-	return tti
-end
-
-function SkynetIADSHARMDetection:calculateAspectInDegrees(harmHeading, harmToSAMHeading)
-		local aspect = harmHeading - harmToSAMHeading
-		if ( aspect < 0 ) then
-			aspect = -1 * aspect
-		end
-		if aspect > 180 then
-			aspect = 360 - aspect
-		end
-		return mist.utils.round(aspect)
 end
 
 function SkynetIADSHARMDetection:shallReactToHARM(chance)

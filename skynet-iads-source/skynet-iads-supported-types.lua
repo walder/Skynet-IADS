@@ -267,6 +267,7 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-15 Gauntlet',
 		},
+		['can_engage_harm'] = true
 	},
 	['Gepard'] = {
 		['type'] = 'single',

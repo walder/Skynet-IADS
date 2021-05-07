@@ -79,6 +79,25 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	samSite2:cleanUp()
 end	
 
+function TestSkynetIADSSAMSite:testInformOfContactInRange()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	local mockContact = {}
+	function mockContact:isIdentifiedAsHARM()
+		return false
+	end
+	function self.samSite:isTargetInRange(target)
+		lu.assertIs(target, mockContact)
+		return true
+	end
+	self.samSite:goDark()
+	self.samSite:targetCycleUpdateStart()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:informOfContact(mockContact)
+	lu.assertEquals(self.samSite:isActive(), true)
+	self.samSite:targetCycleUpdateEnd()
+	lu.assertEquals(self.samSite:isActive(), true)
+end
 
 function TestSkynetIADSSAMSite:testInformOfContactNotInRange()
 	self.samSiteName = "SAM-SA-6"
@@ -95,6 +114,22 @@ function TestSkynetIADSSAMSite:testInformOfContactNotInRange()
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:targetCycleUpdateEnd()
 	lu.assertEquals(self.samSite:isActive(), false)
+end
+
+function TestSkynetIADSSAMSite:testInformOfHARMContactSAMCanEngageHARM()
+	self.samSiteName = "test-SAM-SA-2-test"
+	self:setUp()
+	function self.samSite:isTargetInRange(contact)
+		return true
+	end
+	local mockTarget = {}
+	function mockTarget:isIdentifiedAsHARM()
+		return true
+	end
+	self.samSite:setIsAbleToEngageHARM(true)
+	self.samSite:informOfContact(mockTarget)
+	lu.assertEquals(self.samSite:isActive(), true)
+	
 end
 
 function TestSkynetIADSSAMSite:testSA2InformOfContactTargetNotInRange()
@@ -118,6 +153,27 @@ function TestSkynetIADSSAMSite:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWh
 	self.samSite:informOfContact(target)
 	lu.assertEquals(self.samSite:isActive(), true)
 
+end
+
+function TestSkynetIADSSAMSite:testInformOfContactMultipleTimesOnlyOneIsTargetInRangeCall()
+	self.samSiteName = "SAM-SA-6"
+	self:setUp()
+	
+	local mockContact = {}
+	function mockContact:isIdentifiedAsHARM()
+		return false
+	end
+	local numTimesCalledTargetInRange = 0
+	
+	function self.samSite:isTargetInRange(target)
+		numTimesCalledTargetInRange = numTimesCalledTargetInRange + 1
+		lu.assertIs(target, mockContact)
+		return true
+	end
+	self.samSite:targetCycleUpdateStart()
+	self.samSite:informOfContact(mockContact)
+	self.samSite:informOfContact(mockContact)
+	lu.assertEquals(numTimesCalledTargetInRange, 1)
 end
 
 function TestSkynetIADSSAMSite:testSAMStaysActiveWhenInAutonomousMode()

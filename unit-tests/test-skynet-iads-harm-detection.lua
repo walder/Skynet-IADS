@@ -38,13 +38,4 @@ function TestSkynetIADSHARMDetection:testGetDetectionProbability()
 	
 end
 
-function TestSkynetIADSHARMDetection:testCalculateAspectInDegrees()
-	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(0, 90), 90)
-	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(300, 90), 150)
-	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(010, 280), 90)
-	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(190, 350), 160)
-	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(090, 270), 180)
-	lu.assertEquals(self.harmDetection:calculateAspectInDegrees(010, 170), 160)
-end
-
 end
