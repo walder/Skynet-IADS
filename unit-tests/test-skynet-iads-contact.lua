@@ -21,7 +21,9 @@ function TestSyknetIADSContact:testRefresh()
 	end
 	self.contact:refresh()
 	lu.assertEquals(called, 1)
-	self.contact.dcsObject = Unit.getByName('test-not-in-firing-range-of-sa-2')
+	function self.contact:getDCSRepresentation()
+		return Unit.getByName('test-not-in-firing-range-of-sa-2')
+	end
 	--we set time in the past, to simulate distance traveled
 	self.contact.lastTimeSeen = timer.getAbsTime() - 1000
 	lu.assertEquals(self.contact:getAge(), 1000)
@@ -45,7 +47,9 @@ function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
 		return ret
 	end
 	self.contact.position.p.y = 200
-	self.contact.dcsObject = mockDCSObject
+	function self.contact:getDCSRepresentation()
+	 return mockDCSObject
+	end
 	
 	self.contact:updateSimpleAltitudeProfile()
 	local altProfile = self.contact:getSimpleAltitudeProfile()
@@ -61,7 +65,9 @@ function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
 		return ret
 	end
 	self.contact.position.p.y = 200
-	self.contact.dcsObject = mockDCSObject
+	function self.contact:getDCSRepresentation()
+	 return mockDCSObject
+	end
 	
 	self.contact:updateSimpleAltitudeProfile()
 	local altProfile = self.contact:getSimpleAltitudeProfile()

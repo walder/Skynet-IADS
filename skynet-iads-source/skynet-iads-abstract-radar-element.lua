@@ -92,7 +92,7 @@ function SkynetIADSAbstractRadarElement:addHARMDecoy(harmDecoy)
 end
 
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
-	self:abstractAddRadar(parentRadar, self.parentRadars)
+	self:insertToTableIfNotAlreadyAdded(self.parentRadars, parentRadar)
 	self:informChildrenOfStateChange()
 end
 
@@ -104,21 +104,8 @@ function SkynetIADSAbstractRadarElement:clearParentRadars()
 	self.parentRadars = {}
 end
 
-function SkynetIADSAbstractRadarElement:abstractAddRadar(radar, tbl)
-local isAdded = false
-	for i = 1, #tbl do
-		local child = tbl[i]
-		if child == radar then
-			isAdded = true
-		end
-	end
-	if isAdded == false then
-		table.insert(tbl, radar)
-	end
-end
-
 function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
-	self:abstractAddRadar(childRadar, self.childRadars)
+	self:insertToTableIfNotAlreadyAdded(self.childRadars, childRadar)
 end
 
 function SkynetIADSAbstractRadarElement:getChildRadars()

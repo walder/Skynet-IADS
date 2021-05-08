@@ -19,7 +19,7 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.position = instance.dcsObject:getPosition()
+	instance.position = instance:getDCSRepresentation():getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
 	instance.harmState = SkynetIADSContact.HARM_UNKNOWN
@@ -39,9 +39,21 @@ function SkynetIADSContact:isHARMStateUnknown()
 	return self.harmState == SkynetIADSContact.HARM_UNKNOWN
 end
 
+function SkynetIADSContact:mergeDetectedRadars(radars)
+	for i = 1, #radars do
+		radar = radars[i]
+		insert = true
+		for j = 1, #self.abstractRadarElementsDetected do
+			if radar == self.abstractRadarElementsDetected[j] then
+				insert = false
+			end
+		end
+	end
+end
+
 function SkynetIADSContact:getMagneticHeading()
 	if ( self:isExist() ) then
-		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self.dcsObject)))
+		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self:getDCSRepresentation())))
 	else
 		return -1
 	end
@@ -72,7 +84,7 @@ end
 
 function SkynetIADSContact:getHeightInFeetMSL()
 	if self:isExist() then
-		return mist.utils.round(mist.utils.metersToFeet(self.dcsObject:getPosition().p.y), 0)
+		return mist.utils.round(mist.utils.metersToFeet(self:getDCSRepresentation():getPosition().p.y), 0)
 	else
 		return 0
 	end
@@ -80,7 +92,7 @@ end
 
 function SkynetIADSContact:getDesc()
 	if self:isExist() then
-		return self.dcsObject:getDesc()
+		return self:getDCSRepresentation():getDesc()
 	else
 		return {}
 	end
@@ -95,18 +107,18 @@ function SkynetIADSContact:refresh()
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
+			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self:getDCSRepresentation():getPosition().p))
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 			self:updateSimpleAltitudeProfile()
-			self.position = self.dcsObject:getPosition()
+			self.position = self:getDCSRepresentation():getPosition()
 		end 
 	end
 	self.lastTimeSeen = timer.getAbsTime()
 end
 
 function SkynetIADSContact:updateSimpleAltitudeProfile()
-	local currentAltitude = self.dcsObject:getPosition().p.y
+	local currentAltitude = self:getDCSRepresentation():getPosition().p.y
 	
 	local previousPath = ""
 	if #self.simpleAltitudeProfile > 0 then

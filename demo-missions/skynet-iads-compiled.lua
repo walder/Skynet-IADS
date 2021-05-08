@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 07.05.2021 2230Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 08.05.2021 0815Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1798,18 +1798,31 @@ do
 
 SkynetIADSAbstractDCSObjectWrapper = {}
 
-function SkynetIADSAbstractDCSObjectWrapper:create(dcsObject)
+function SkynetIADSAbstractDCSObjectWrapper:create(dcsRepresentation)
 	local instance = {}
 	setmetatable(instance, self)
 	self.__index = self
-	instance.dcsObject = dcsObject
-	instance.name = dcsObject:getName()
-	instance.typeName = dcsObject:getTypeName()
+	instance.dcsName = ""
+	instance:setDCSRepresentation(dcsRepresentation)
+	if getmetatable(dcsRepresentation) == Unit then
+		instance.typeName = dcsRepresentation:getTypeName()
+	end
 	return instance
 end
 
+function SkynetIADSAbstractDCSObjectWrapper:setDCSRepresentation(representation)
+	self.dcsRepresentation = representation
+	if self.dcsRepresentation then
+		self.dcsName = self:getDCSRepresentation():getName()
+	end
+end
+
+function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
+	return self.dcsRepresentation
+end
+
 function SkynetIADSAbstractDCSObjectWrapper:getName()
-	return self.name
+	return self.dcsName
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getTypeName()
@@ -1817,37 +1830,94 @@ function SkynetIADSAbstractDCSObjectWrapper:getTypeName()
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getPosition()
-	return self.dcsObject:getPosition()
+	return self.dcsRepresentation:getPosition()
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:isExist()
-	if self.dcsObject then
-		return self.dcsObject:isExist()
+	if self.dcsRepresentation then
+		return self.dcsRepresentation:isExist()
 	else
 		return false
 	end
 end
 
-function SkynetIADSAbstractDCSObjectWrapper:getDCSRepresentation()
-	return self.dcsObject
+function SkynetIADSAbstractDCSObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, object)
+local isAdded = false
+	for i = 1, #tbl do
+		local child = tbl[i]
+		if child == object then
+			isAdded = true
+		end
+	end
+	if isAdded == false then
+		table.insert(tbl, object)
+	end
 end
+
+-- helper code for class inheritance
+function inheritsFrom( baseClass )
+
+    local new_class = {}
+    local class_mt = { __index = new_class }
+
+    function new_class:create()
+        local newinst = {}
+        setmetatable( newinst, class_mt )
+        return newinst
+    end
+
+    if nil ~= baseClass then
+        setmetatable( new_class, { __index = baseClass } )
+    end
+
+    -- Implementation of additional OO properties starts here --
+
+    -- Return the class object of the instance
+    function new_class:class()
+        return new_class
+    end
+
+    -- Return the super class object of the instance
+    function new_class:superClass()
+        return baseClass
+    end
+
+    -- Return true if the caller is an instance of theClass
+    function new_class:isa( theClass )
+        local b_isa = false
+
+        local cur_class = new_class
+
+        while ( nil ~= cur_class ) and ( false == b_isa ) do
+            if cur_class == theClass then
+                b_isa = true
+            else
+                cur_class = cur_class:superClass()
+            end
+        end
+
+        return b_isa
+    end
+
+    return new_class
+end
+
 
 end
 
 do
 
 SkynetIADSAbstractElement = {}
+SkynetIADSAbstractElement = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 
 function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
-	local instance = {}
+	local instance = self:superClass():create(dcsRepresentation)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.connectionNodes = {}
 	instance.powerSources = {}
 	instance.iads = iads
 	instance.natoName = "UNKNOWN"
-	instance.dcsName = ""
-	instance:setDCSRepresentation(dcsRepresentation)
 	world.addEventHandler(instance)
 	return instance
 end
@@ -1918,17 +1988,6 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	return isAlive
 end
 
-function SkynetIADSAbstractElement:setDCSRepresentation(representation)
-	self.dcsRepresentation = representation
-	if self.dcsRepresentation then
-		self.dcsName = self:getDCSRepresentation():getName()
-	end
-end
-
-function SkynetIADSAbstractElement:getDCSRepresentation()
-	return self.dcsRepresentation
-end
-
 function SkynetIADSAbstractElement:getNatoName()
 	return self.natoName
 end
@@ -1976,54 +2035,6 @@ end
 --placeholder method, can be implemented by subclasses
 function SkynetIADSAbstractElement:informChildrenOfStateChange()
 	
-end
-
--- helper code for class inheritance
-function inheritsFrom( baseClass )
-
-    local new_class = {}
-    local class_mt = { __index = new_class }
-
-    function new_class:create()
-        local newinst = {}
-        setmetatable( newinst, class_mt )
-        return newinst
-    end
-
-    if nil ~= baseClass then
-        setmetatable( new_class, { __index = baseClass } )
-    end
-
-    -- Implementation of additional OO properties starts here --
-
-    -- Return the class object of the instance
-    function new_class:class()
-        return new_class
-    end
-
-    -- Return the super class object of the instance
-    function new_class:superClass()
-        return baseClass
-    end
-
-    -- Return true if the caller is an instance of theClass
-    function new_class:isa( theClass )
-        local b_isa = false
-
-        local cur_class = new_class
-
-        while ( nil ~= cur_class ) and ( false == b_isa ) do
-            if cur_class == theClass then
-                b_isa = true
-            else
-                cur_class = cur_class:superClass()
-            end
-        end
-
-        return b_isa
-    end
-
-    return new_class
 end
 
 end
@@ -2121,7 +2132,7 @@ function SkynetIADSAbstractRadarElement:addHARMDecoy(harmDecoy)
 end
 
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
-	self:abstractAddRadar(parentRadar, self.parentRadars)
+	self:insertToTableIfNotAlreadyAdded(self.parentRadars, parentRadar)
 	self:informChildrenOfStateChange()
 end
 
@@ -2133,21 +2144,8 @@ function SkynetIADSAbstractRadarElement:clearParentRadars()
 	self.parentRadars = {}
 end
 
-function SkynetIADSAbstractRadarElement:abstractAddRadar(radar, tbl)
-local isAdded = false
-	for i = 1, #tbl do
-		local child = tbl[i]
-		if child == radar then
-			isAdded = true
-		end
-	end
-	if isAdded == false then
-		table.insert(tbl, radar)
-	end
-end
-
 function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
-	self:abstractAddRadar(childRadar, self.childRadars)
+	self:insertToTableIfNotAlreadyAdded(self.childRadars, childRadar)
 end
 
 function SkynetIADSAbstractRadarElement:getChildRadars()
@@ -2797,7 +2795,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 			local harmToSAMAspect = self:calculateAspectInDegrees(harmContact:getMagneticHeading(), harmToSAMHeading)
 			local speedKT = harmContact:getGroundSpeedInKnots(0)
 			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
-			--TODO: Make constant out of aspect and distance
+			--TODO: Make constant out of aspect and distance --> use tti instead of distanceNM?
 			if ( harmToSAMAspect < 30 and distanceNM < 20 ) then
 				self:addObjectIdentifiedAsHARM(harmContact)
 				self:pointDefencesGoLive()
@@ -2957,7 +2955,7 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.position = instance.dcsObject:getPosition()
+	instance.position = instance:getDCSRepresentation():getPosition()
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
 	instance.harmState = SkynetIADSContact.HARM_UNKNOWN
@@ -2977,9 +2975,21 @@ function SkynetIADSContact:isHARMStateUnknown()
 	return self.harmState == SkynetIADSContact.HARM_UNKNOWN
 end
 
+function SkynetIADSContact:mergeDetectedRadars(radars)
+	for i = 1, #radars do
+		radar = radars[i]
+		insert = true
+		for j = 1, #self.abstractRadarElementsDetected do
+			if radar == self.abstractRadarElementsDetected[j] then
+				insert = false
+			end
+		end
+	end
+end
+
 function SkynetIADSContact:getMagneticHeading()
 	if ( self:isExist() ) then
-		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self.dcsObject)))
+		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self:getDCSRepresentation())))
 	else
 		return -1
 	end
@@ -3010,7 +3020,7 @@ end
 
 function SkynetIADSContact:getHeightInFeetMSL()
 	if self:isExist() then
-		return mist.utils.round(mist.utils.metersToFeet(self.dcsObject:getPosition().p.y), 0)
+		return mist.utils.round(mist.utils.metersToFeet(self:getDCSRepresentation():getPosition().p.y), 0)
 	else
 		return 0
 	end
@@ -3018,7 +3028,7 @@ end
 
 function SkynetIADSContact:getDesc()
 	if self:isExist() then
-		return self.dcsObject:getDesc()
+		return self:getDCSRepresentation():getDesc()
 	else
 		return {}
 	end
@@ -3033,18 +3043,18 @@ function SkynetIADSContact:refresh()
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self.dcsObject:getPosition().p))
+			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self:getDCSRepresentation():getPosition().p))
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 			self:updateSimpleAltitudeProfile()
-			self.position = self.dcsObject:getPosition()
+			self.position = self:getDCSRepresentation():getPosition()
 		end 
 	end
 	self.lastTimeSeen = timer.getAbsTime()
 end
 
 function SkynetIADSContact:updateSimpleAltitudeProfile()
-	local currentAltitude = self.dcsObject:getPosition().p.y
+	local currentAltitude = self:getDCSRepresentation():getPosition().p.y
 	
 	local previousPath = ""
 	if #self.simpleAltitudeProfile > 0 then
@@ -3336,7 +3346,7 @@ function SkynetIADSSAMSearchRadar:setFiringRangePercent(percent)
 end
 
 function SkynetIADSSAMSearchRadar:getDistance(target)
-	return mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
+	return mist.utils.get2DDist(target:getPosition().p, self:getDCSRepresentation():getPosition().p)
 end
 
 function SkynetIADSSAMSearchRadar:getHeight(target)
@@ -3565,7 +3575,7 @@ SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM = 10000
 
 function SkynetIADSHARMDetection:create(iads)
 	local harmDetection = {}
-	setmetatable(harmDetection, SkynetIADSHARMDetection)
+	setmetatable(harmDetection, self)
 	harmDetection.contacts = {}
 	harmDetection.iads = iads
 	harmDetection.contactsIdentifiedAsHARMS = {}
@@ -3607,12 +3617,12 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		
 		--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
 		--TODO: code case when new radar detects HARM chance has to be calculated again
-		--TODO: Add EW radars
 		--TODO: TEST what happens when firing at radar that is detecting HARM
 		--TODO: contacts that no longer exist trigger error when getPosition() is called
-		--TODO: add HARM DEFENCE for Autonomus SAMS
 		--TODO: add simple altitude profile history to harm detection code -> shall prevent fast flying aircraft to be identified as HARMs -> max 2 altitude changes
-		--TODO: Finish Unit Tests
+		--TODO: Finish Unit Tests of informOfHARM in AbstractRadarElement
+		--TODO: add Unit Test for evaluateContacts() in this class
+		--TODO: add HARM DEFENCE for Autonomus SAMS
 	end
 end
 

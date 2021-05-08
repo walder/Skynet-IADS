@@ -8,7 +8,7 @@ SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM = 10000
 
 function SkynetIADSHARMDetection:create(iads)
 	local harmDetection = {}
-	setmetatable(harmDetection, SkynetIADSHARMDetection)
+	setmetatable(harmDetection, self)
 	harmDetection.contacts = {}
 	harmDetection.iads = iads
 	harmDetection.contactsIdentifiedAsHARMS = {}
@@ -50,11 +50,11 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		
 		--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
 		--TODO: code case when new radar detects HARM chance has to be calculated again
-		--TODO: Add EW radars
 		--TODO: TEST what happens when firing at radar that is detecting HARM
 		--TODO: contacts that no longer exist trigger error when getPosition() is called
 		--TODO: add simple altitude profile history to harm detection code -> shall prevent fast flying aircraft to be identified as HARMs -> max 2 altitude changes
 		--TODO: Finish Unit Tests of informOfHARM in AbstractRadarElement
+		--TODO: add Unit Test for evaluateContacts() in this class
 		--TODO: add HARM DEFENCE for Autonomus SAMS
 	end
 end
