@@ -134,4 +134,18 @@ function TestSyknetIADSContact:testIsHARMStateUnknown()
 	lu.assertEquals(self.contact:isHARMStateUnknown(), false)
 end
 
+function TestSyknetIADSContact:testAddAbstractRadarElementDetected()
+	local radar = {}
+	self.contact:addAbstractRadarElementDetected(radar)
+	lu.assertEquals(#self.contact:getAbstractRadarElementsDetected(), 1)
+	
+	--adding the same radar again, shall not result in it being added:
+	self.contact:addAbstractRadarElementDetected(radar)
+	lu.assertEquals(#self.contact:getAbstractRadarElementsDetected(), 1)
+	
+	local radar2 = {}
+	self.contact:addAbstractRadarElementDetected(radar2)
+	lu.assertEquals(#self.contact:getAbstractRadarElementsDetected(), 2)
+end	
+
 end

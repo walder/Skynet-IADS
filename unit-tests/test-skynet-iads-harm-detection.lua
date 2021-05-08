@@ -6,6 +6,65 @@ function TestSkynetIADSHARMDetection:setUp()
 	self.harmDetection = SkynetIADSHARMDetection:create()
 end
 
+function TestSkynetIADSHARMDetection:testEvaluateContactsContactIsHARMInClimb()
+	
+	--test with a contact that shall be identified as a HARM
+	local mockContactHARM = {}
+	
+	function mockContactHARM:getGroundSpeedInKnots(round)
+		return 1500
+	end
+	
+	function mockContactHARM:isHARMStateUnknown()
+		return true
+	end
+	
+	function mockContactHARM:getSimpleAltitudeProfile()
+		return {SkynetIADSContact.CLIMB}
+	end
+	
+	local harmStateCalled = false
+	function mockContactHARM:setHARMState(state)
+		harmStateCalled = true
+		lu.assertEquals(state, SkynetIADSContact.HARM)
+	end
+
+	function mockContactHARM:isIdentifiedAsHARM()
+		return true
+	end
+	
+	local mockRadar = {}
+	function mockRadar:getHARMDetectionChance()
+		return 50
+	end
+	
+	function mockContactHARM:getAbstractRadarElementsDetected()
+		return {mockRadar}
+	end
+	
+	local probCalled = false
+	function self.harmDetection:shallReactToHARM(prob)
+		lu.assertEquals(prob, 50)
+		probCalled = true
+		return true
+	end
+
+	
+	local contactInform = false
+	function self.harmDetection:informRadarsOfHARM(contact)
+		lu.assertEquals(mockContactHARM, contact)
+		contactInform = true
+	end
+
+	
+	self.harmDetection:setContacts({mockContactHARM})
+	self.harmDetection:evaluateContacts()
+	
+	lu.assertEquals(harmStateCalled, true)
+	lu.assertEquals(probCalled, true)
+	lu.assertEquals(contactInform, true)
+end
+
 function TestSkynetIADSHARMDetection:testGetDetectionProbability()
 	
 	local mockContact = {}

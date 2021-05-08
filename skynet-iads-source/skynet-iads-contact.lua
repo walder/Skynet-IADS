@@ -64,6 +64,10 @@ function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected
 end
 
+function SkynetIADSContact:addAbstractRadarElementDetected(radar)
+	self:insertToTableIfNotAlreadyAdded(self.abstractRadarElementsDetected, radar)
+end
+
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type
 end

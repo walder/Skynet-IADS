@@ -349,8 +349,15 @@ function TestSkynetIADS:testMergeContacts()
 	self.testIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
 	lu.assertEquals(#self.testIADS:getContacts(), 1)
 	
-	self.testIADS:mergeContact(IADSContactFactory('Harrier Pilot'))
+	local contact = IADSContactFactory('Harrier Pilot')
+	local mockRadar = {}
+	function contact:getAbstractRadarElementsDetected()
+		return {mockRadar}
+	end
+	self.testIADS:mergeContact(contact)
 	lu.assertEquals(#self.testIADS:getContacts(), 1)
+	local iadsContact = self.testIADS:getContacts()[1]
+	lu.assertEquals(#iadsContact:getAbstractRadarElementsDetected(), 1)
 	
 	self.testIADS:mergeContact(IADSContactFactory('test-in-firing-range-of-sa-2'))
 	lu.assertEquals(#self.testIADS:getContacts(), 2)

@@ -94,16 +94,23 @@ Ships will contribute to the IADS the same way AWACS units do. Add them as a reg
 # Tactics
 
 ## HARM defence
-SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with its radar. 
-The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
+SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the IADS will evaluate contacts and determine if they are likely to be HARMs.
+Each SAM site or EW radar has HARM detection chance set. If a HARM is detected by more than one radar, the chance of it being identified as a HARM is increased.
+See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per Radar system.
 
-SAM sites and EW radars will react to air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. They currently don't react to bombs, since they are not detected by DCS radars. 
-The site will calculate time to impact and shut down a random value between a few seconds after time to impact and 180 seconds after time to impact. 
+### Example:
+lets say SAM site A has a 60% HARM detection chance and EW Radar B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.
 
-This implementation is closer to real life. SAM sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+Further the contact needs to be traveling faster than 1000 kt and it may not have changed its pitch more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).
+This is to minimise false positives, for example a figher flying very fast.
 
-Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
-See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
+This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+
+If identified as a HARM by the IADS it will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 10 nautical miles in front of the HARM.
+The IADS will calculate time to impact and shut down radar emitters a random value between a few seconds after time to impact and 180 seconds after time to impact. 
+
+With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact.
+These systems will not have a very good HARM defence with Skynet. 
 
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.

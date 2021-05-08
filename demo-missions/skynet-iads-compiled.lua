@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 08.05.2021 0901Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 08.05.2021 2008Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1570,6 +1570,11 @@ function SkynetIADS:mergeContact(contact)
 		local iadsContact = self.contacts[i]
 		if iadsContact:getName() == contact:getName() then
 			iadsContact:refresh()
+			local radars = contact:getAbstractRadarElementsDetected()
+			for j = 1, #radars do
+				local radar = radars[j]
+				iadsContact:addAbstractRadarElementDetected(radar)
+			end
 			existingContact = true
 		end
 	end
@@ -2410,6 +2415,7 @@ function SkynetIADSAbstractRadarElement:setIsAbleToEngageHARM(canEngageHARM)
 	else
 		self.canEngageHARM = false
 	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:isAbleToEngageHARM()
@@ -3001,6 +3007,10 @@ function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected
 end
 
+function SkynetIADSContact:addAbstractRadarElementDetected(radar)
+	self:insertToTableIfNotAlreadyAdded(self.abstractRadarElementsDetected, radar)
+end
+
 function SkynetIADSContact:isTypeKnown()
 	return self.dcsRadarTarget.type
 end
@@ -3573,14 +3583,12 @@ SkynetIADSHARMDetection = {}
 SkynetIADSHARMDetection.__index = SkynetIADSHARMDetection
 
 SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 1000
-SkynetIADSHARMDetection.RADAR_SHUTDOWN_DISTANCE_NM = 10000
 
 function SkynetIADSHARMDetection:create(iads)
 	local harmDetection = {}
 	setmetatable(harmDetection, self)
 	harmDetection.contacts = {}
 	harmDetection.iads = iads
-	harmDetection.contactsIdentifiedAsHARMS = {}
 	return harmDetection
 end
 
@@ -3603,8 +3611,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		env.info(profileStr)
 		--]]
 			
-
-		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() ) then
+		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() and #contact:getSimpleAltitudeProfile() <= 2 ) then
 			if ( self:shallReactToHARM(self:getDetectionProbability(contact)) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
 			else
@@ -3617,11 +3624,10 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			self:informRadarsOfHARM(contact)
 		end
 		
-		--TODO: mergeContacts in SkynetIADS class needs to add radars that have detected contacts, for correct pobability calculation
 		--TODO: code case when new radar detects HARM chance has to be calculated again
 		--TODO: TEST what happens when firing at radar that is detecting HARM
 		--TODO: contacts that no longer exist trigger error when getPosition() is called
-		--TODO: add simple altitude profile history to harm detection code -> shall prevent fast flying aircraft to be identified as HARMs -> max 2 altitude changes
+		--TODO: code terminal HARM detection, HARM is below 1000 kts and descending
 		--TODO: Finish Unit Tests of informOfHARM in AbstractRadarElement
 		--TODO: add Unit Test for evaluateContacts() in this class
 		--TODO: add HARM DEFENCE for Autonomus SAMS

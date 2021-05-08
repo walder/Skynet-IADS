@@ -369,6 +369,7 @@ function SkynetIADSAbstractRadarElement:setIsAbleToEngageHARM(canEngageHARM)
 	else
 		self.canEngageHARM = false
 	end
+	return self
 end
 
 function SkynetIADSAbstractRadarElement:isAbleToEngageHARM()
