@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 08.05.2021 0815Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 08.05.2021 0901Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1803,6 +1803,7 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsRepresentation)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsName = ""
+	instance.typeName = ""
 	instance:setDCSRepresentation(dcsRepresentation)
 	if getmetatable(dcsRepresentation) == Unit then
 		instance.typeName = dcsRepresentation:getTypeName()
@@ -1842,7 +1843,7 @@ function SkynetIADSAbstractDCSObjectWrapper:isExist()
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, object)
-local isAdded = false
+	local isAdded = false
 	for i = 1, #tbl do
 		local child = tbl[i]
 		if child == object then
@@ -2808,7 +2809,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 end
 
 function SkynetIADSAbstractElement:addObjectIdentifiedAsHARM(harmContact)
-	self:abstractAddRadar(harmContact, self.objectsIdentifiedAsHarms)
+	self:insertToTableIfNotAlreadyAdded(self.objectsIdentifiedAsHarms, harmContact)
 end
 
 function SkynetIADSAbstractRadarElement:calculateAspectInDegrees(harmHeading, harmToSAMHeading)
@@ -2994,6 +2995,7 @@ function SkynetIADSContact:getMagneticHeading()
 		return -1
 	end
 end
+
 
 function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected

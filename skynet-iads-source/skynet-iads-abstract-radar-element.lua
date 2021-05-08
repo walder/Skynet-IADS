@@ -768,7 +768,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 end
 
 function SkynetIADSAbstractElement:addObjectIdentifiedAsHARM(harmContact)
-	self:abstractAddRadar(harmContact, self.objectsIdentifiedAsHarms)
+	self:insertToTableIfNotAlreadyAdded(self.objectsIdentifiedAsHarms, harmContact)
 end
 
 function SkynetIADSAbstractRadarElement:calculateAspectInDegrees(harmHeading, harmToSAMHeading)

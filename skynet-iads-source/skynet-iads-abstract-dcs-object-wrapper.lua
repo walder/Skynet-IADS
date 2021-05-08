@@ -7,6 +7,7 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsRepresentation)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.dcsName = ""
+	instance.typeName = ""
 	instance:setDCSRepresentation(dcsRepresentation)
 	if getmetatable(dcsRepresentation) == Unit then
 		instance.typeName = dcsRepresentation:getTypeName()

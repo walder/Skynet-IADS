@@ -59,6 +59,7 @@ function SkynetIADSContact:getMagneticHeading()
 	end
 end
 
+
 function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected
 end
