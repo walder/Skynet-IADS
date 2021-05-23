@@ -44,7 +44,7 @@ If you like using it, please consider a donation:**
    * [Ships](#ships)
  * [Tactics](#tactics)
    * [HARM defence](#harm-defence)
-     * [Example:](#example)
+     * [Example](#example)
    * [Point defence](#point-defence)
    * [Electronic Warfare](#electronic-warfare)
  * [Using Skynet in the mission editor](#using-skynet-in-the-mission-editor)
@@ -163,16 +163,16 @@ SAM sites and EW radars will shut down their radars if they believe a HARM (High
 Each SAM site or EW radar has HARM detection chance set. If a HARM is detected by more than one radar, the chance of it being identified as a HARM is increased.
 See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per Radar system.
 
-### Example:
-lets say SAM site A has a 60% HARM detection chance and EW Radar B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.
+### Example
+let's say SAM site A has a 60% HARM detection chance and EW Radar B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.
 
 Further the contact needs to be traveling faster than 1000 kt and it may not have changed its pitch more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).
 This is to minimise false positives, for example a figher flying very fast.
 
 This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
-If identified as a HARM by the IADS it will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 10 nautical miles in front of the HARM.
-The IADS will calculate time to impact and shut down radar emitters a random value between a few seconds after time to impact and 180 seconds after time to impact. 
+If identified as a HARM the IADS will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 10 nautical miles in front of the HARM.
+The IADS will calculate time to impact and shut down radar emitters by a random value between a few seconds after time to impact and 180 seconds after time to impact. 
 
 With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact.
 These systems will not have a very good HARM defence with Skynet. 
@@ -180,6 +180,7 @@ These systems will not have a very good HARM defence with Skynet.
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
 This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
+
 
 You can tell a radar emitter it has a point denfence to rely on. If the radar emitter goes dark due to an inbound HARM it will activate its point defences to fire at the HARM.
 

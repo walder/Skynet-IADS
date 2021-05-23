@@ -126,7 +126,7 @@ function TestSkynetIADSSAMSite:testInformOfHARMContactSAMCanEngageHARM()
 	function mockTarget:isIdentifiedAsHARM()
 		return true
 	end
-	lu.assertEquals(self.samSite:setIsAbleToEngageHARM(true), self.samSite)
+	lu.assertEquals(self.samSite:setShallEngageAirWeapons(true), self.samSite)
 	self.samSite:informOfContact(mockTarget)
 	lu.assertEquals(self.samSite:isActive(), true)
 	

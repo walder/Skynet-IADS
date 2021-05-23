@@ -3,7 +3,8 @@ do
 TestSkynetIADSHARMDetection = {}
 
 function TestSkynetIADSHARMDetection:setUp()
-	self.harmDetection = SkynetIADSHARMDetection:create()
+	local iads = SkynetIADS:create()
+	self.harmDetection = SkynetIADSHARMDetection:create(iads)
 end
 
 function TestSkynetIADSHARMDetection:testEvaluateContactsContactIsHARMInClimb()

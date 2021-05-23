@@ -33,7 +33,11 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		--]]
 			
 		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() and #contact:getSimpleAltitudeProfile() <= 2 ) then
-			if ( self:shallReactToHARM(self:getDetectionProbability(contact)) ) then
+			local detectionProbability = self:getDetectionProbability(contact)
+			if ( self:shallReactToHARM(detectionProbability) ) then
+				if (self.iads:getDebugSettings().harmDefence ) then
+					self.iads:printOutputToLog("HARM IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+				end
 				contact:setHARMState(SkynetIADSContact.HARM)
 			else
 				contact:setHARMState(SkynetIADSContact.NOT_HARM)
@@ -44,14 +48,6 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		if contact:isIdentifiedAsHARM() then
 			self:informRadarsOfHARM(contact)
 		end
-		
-		--TODO: code case when new radar detects HARM chance has to be calculated again
-		--TODO: TEST what happens when firing at radar that is detecting HARM
-		--TODO: contacts that no longer exist trigger error when getPosition() is called
-		--TODO: code terminal HARM detection, HARM is below 1000 kts and descending
-		--TODO: Finish Unit Tests of informOfHARM in AbstractRadarElement
-		--TODO: add Unit Test for evaluateContacts() in this class
-		--TODO: add HARM DEFENCE for Autonomus SAMS
 	end
 end
 

@@ -43,7 +43,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
 	instance.goLiveTime = 0
-	instance.canEngageHARM = false
+	instance.shallEngageAirWeapons = false
 	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
 	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
@@ -354,7 +354,6 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
 			self:setHARMDetectionChance(dataType['harm_detection_chance'])
-			self:setIsAbleToEngageHARM(dataType['can_engage_harm']) 
 			self:setHARMDetectionChance(harmDetection)
 			local natoName = dataType['name']['NATO']
 			self:buildNatoName(natoName)
@@ -363,17 +362,22 @@ function SkynetIADSAbstractRadarElement:setupElements()
 	end
 end
 
-function SkynetIADSAbstractRadarElement:setIsAbleToEngageHARM(canEngageHARM)
-	if ( canEngageHARM == true ) then
-		self.canEngageHARM = true
-	else
-		self.canEngageHARM = false
+function SkynetIADSAbstractRadarElement:setShallEngageAirWeapons(shallEngageAirWeapons)
+	if self:isDestroyed() == false then
+		local controller = self:getDCSRepresentation():getController()
+		if ( shallEngageAirWeapons == true ) then
+			self.shallEngageAirWeapons = true
+			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, true)
+		else
+			self.shallEngageAirWeapons = false
+			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, false)
+		end
 	end
 	return self
 end
 
-function SkynetIADSAbstractRadarElement:isAbleToEngageHARM()
-	return self.canEngageHARM
+function SkynetIADSAbstractRadarElement:isSetToEngageAirWeapons()
+	return self.shallEngageAirWeapons
 end
 
 function SkynetIADSAbstractRadarElement:buildNatoName(natoName)
@@ -476,9 +480,9 @@ function SkynetIADSAbstractRadarElement:goLive()
 	then
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
-			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			self:getDCSRepresentation():enableEmission(true)
 			self.goLiveTime = timer.getTime()
 			self.aiState = true
 		end
@@ -503,16 +507,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	then
 		if self:isDestroyed() == false then
-			local controller = self:getController()
-			-- if the SAM site still has ammo we turn off the controller, this prevents rearming, however this way the SAM site is frozen in a red state, on the next actication it will be up and running much faster, therefore it will instantaneously engage targets
-			-- also  this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
-			if self:hasRemainingAmmo() then
-				controller:setOnOff(false)
-			--if the SAM is out of ammo we set the state to green, and ROE to weapon hold, this way it will shut down its radar and it can be rearmed
-			else
-				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-			end
+			self:getDCSRepresentation():enableEmission(false)
 		end
 		-- point defence will only go live if the Radar Emitting site it is protecting goes dark and this is due to a it defending against a HARM
 		if (self.harmSilenceID ~= nil) then
@@ -527,10 +522,15 @@ function SkynetIADSAbstractRadarElement:goDark()
 end
 
 function SkynetIADSAbstractRadarElement:pointDefencesGoLive()
+	local setActive = false
 	for i = 1, #self.pointDefences do
 		local pointDefence = self.pointDefences[i]
-		pointDefence:setActAsEW(true)
+		if ( pointDefence:getActAsEW() == false ) then
+			setActive = true
+			pointDefence:setActAsEW(true)
+		end
 	end
+	return setActive
 end
 
 function SkynetIADSAbstractRadarElement:isActive()
@@ -759,8 +759,10 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 			--TODO: Make constant out of aspect and distance --> use tti instead of distanceNM?
 			if ( harmToSAMAspect < 30 and distanceNM < 20 ) then
 				self:addObjectIdentifiedAsHARM(harmContact)
-				self:pointDefencesGoLive()
-				if ( ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false and self:isAbleToEngageHARM() == false ) then
+				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
+						self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
+				end
+				if ( ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false and self:isSetToEngageAirWeapons() == false ) then
 					self:goSilentToEvadeHARM(secondsToImpact)
 					break
 				end
