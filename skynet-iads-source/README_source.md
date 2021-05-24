@@ -1,5 +1,6 @@
 # Skynet-IADS
 ![logo](/images/SA3_2.jpg)
+img[alt=logo] { width: 838px; height:473; }
 
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
