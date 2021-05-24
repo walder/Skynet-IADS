@@ -1,6 +1,5 @@
 # Skynet-IADS
-<style type="text/css">img[alt=logo] { width: 838px; height:473; }</style>
-![logo](/images/SA3_2.jpg)
+<img src="/images/SA3_2.jpg" alt="Skynet Header Image" width="838" height="473"/>
 
 An IADS (Integrated Air Defence System) script for DCS (Digital Combat Simulator).
 
