@@ -409,14 +409,16 @@ ewRadarOrSamSite:setHARMDetectionChance(50)
 
 ### Point defence
 You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+
+If you want the point defences to coordinate their HARM defence then you can add multiple SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
+Let's assume you have two SA-15 units defending a radar. If the SA-15 units are in separate groups they will both fire at the same HARM inbound. However if they are in the same group and multiple HARMS are inbound they will each pick a separate HARM to engage.
+
 ```lua
 --first get the SAM site you want to use as point defence from the IADS:
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')
 --then add it to the SAM site it should protect:
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
 ```
-If you want the point defences to coordinate their HARM defence then you can add multiple SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
-Lets assume you have two SA-15 units defending a radar. If the SA-15 units are in separate groups they will both fire at the same HARM inbound. However if they are in the same group and multiple HARMS are inbound they will each pick a separate HARM to engage.
 
 Will prevent the EW radar or SAM site from going dark if a HARM is inbound. Conditions are HARM saturation level is not reached and the point defence has ammo left. Default state is false:
 ```lua
