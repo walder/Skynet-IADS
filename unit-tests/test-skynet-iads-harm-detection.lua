@@ -66,6 +66,51 @@ function TestSkynetIADSHARMDetection:testEvaluateContactsContactIsHARMInClimb()
 	lu.assertEquals(contactInform, true)
 end
 
+function TestSkynetIADSHARMDetection:testEvaluateContactsContactDetectedAsHARMHas3rdAltitudeChangeRecorded()
+	--a contact previously identified as a HARM has a 3rd altitude change recorded, this means it's an aircraft previously falsely detected as HARM
+	local mockContactHARM = {}
+	
+	function mockContactHARM:getGroundSpeedInKnots(round)
+		return 1000
+	end
+	
+	function mockContactHARM:isHARMStateUnknown()
+		return false
+	end
+	
+	function mockContactHARM:getSimpleAltitudeProfile()
+		return {SkynetIADSContact.DESCEND, SkynetIADSContact.CLIMB, SkynetIADSContact.DESCEND }
+	end
+	
+	local harmStateCalled = false
+	function mockContactHARM:setHARMState(state)
+		harmStateCalled = true
+		lu.assertEquals(state, SkynetIADSContact.HARM_UNKNOWN)
+	end
+	
+	local calls = 0
+	function mockContactHARM:isIdentifiedAsHARM()
+		calls = calls + 1
+		if ( calls == 1 ) then
+			return true
+		else
+			return false
+		end
+	end
+	
+	local contactInform = false
+	function self.harmDetection:informRadarsOfHARM(contact)
+		contactInform = true
+	end
+	
+	self.harmDetection:setContacts({mockContactHARM})
+	self.harmDetection:evaluateContacts()
+	
+	lu.assertEquals(harmStateCalled, true)
+	lu.assertEquals(contactInform, false)
+	
+end
+
 function TestSkynetIADSHARMDetection:testGetDetectionProbability()
 	
 	local mockContact = {}

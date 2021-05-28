@@ -3,7 +3,7 @@ do
 SkynetIADSHARMDetection = {}
 SkynetIADSHARMDetection.__index = SkynetIADSHARMDetection
 
-SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 1000
+SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 800
 
 function SkynetIADSHARMDetection:create(iads)
 	local harmDetection = {}
@@ -21,31 +21,32 @@ function SkynetIADSHARMDetection:evaluateContacts()
 
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
-		
-		--[[
-		env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
-		local altProfile = contact:getSimpleAltitudeProfile()
-		local profileStr = ""
-		for i = 1, #altProfile do
-			profileStr = profileStr.." "..altProfile[i]
-		end
-		env.info(profileStr)
-		--]]
 			
-		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() and #contact:getSimpleAltitudeProfile() <= 2 ) then
+		local groundSpeed  = contact:getGroundSpeedInKnots(0)
+		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
+		if ( contact:isHARMStateUnknown() and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
 			local detectionProbability = self:getDetectionProbability(contact)
 			if ( self:shallReactToHARM(detectionProbability) ) then
+				contact:setHARMState(SkynetIADSContact.HARM)
 				if (self.iads:getDebugSettings().harmDefence ) then
 					self.iads:printOutputToLog("HARM IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
 				end
-				contact:setHARMState(SkynetIADSContact.HARM)
 			else
 				contact:setHARMState(SkynetIADSContact.NOT_HARM)
+				if (self.iads:getDebugSettings().harmDefence ) then
+					self.iads:printOutputToLog("HARM NOT IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+				end
 			end
 		end
 		
+		if ( #simpleAltitudeProfile  > 2 and contact:isIdentifiedAsHARM() ) then
+			contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
+			if (self.iads:getDebugSettings().harmDefence ) then
+				self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())
+			end
+		end
 		
-		if contact:isIdentifiedAsHARM() then
+		if ( contact:isIdentifiedAsHARM() ) then
 			self:informRadarsOfHARM(contact)
 		end
 	end
