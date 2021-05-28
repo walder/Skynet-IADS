@@ -410,7 +410,7 @@ ewRadarOrSamSite:setHARMDetectionChance(50)
 ### Point defence
 You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
 
-If you want the point defences to coordinate their HARM defence then you can add multiple SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
+If you want the point defences to coordinate their HARM defence then you can add multiple point defence SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
 Let's assume you have two SA-15 units defending a radar. If the SA-15 units are in separate groups they will both fire at the same HARM inbound. However if they are in the same group and multiple HARMS are inbound they will each pick a separate HARM to engage.
 
 ```lua

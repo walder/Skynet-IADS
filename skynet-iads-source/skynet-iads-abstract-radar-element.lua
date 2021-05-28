@@ -757,6 +757,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 			local speedKT = harmContact:getGroundSpeedInKnots(0)
 			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
 			--TODO: Make constant out of aspect and distance --> use tti instead of distanceNM?
+			-- when iterating through the radars, store shortest tti and work with that value??
 			if ( harmToSAMAspect < 30 and distanceNM < 20 ) then
 				self:addObjectIdentifiedAsHARM(harmContact)
 				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
