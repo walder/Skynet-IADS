@@ -103,7 +103,7 @@ let's say SAM site A has a 60% HARM detection chance and EW Radar B has a 50% HA
 ![Skynet IADS overview](/images/skynet-harm-detection.jpg)
 
 Further the contact needs to be traveling faster than 1000 kt and it may not have changed its pitch more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a figher flying very fast.
-![Skynet IADS overview](/images/skynet-harm-detection.jpg)
+![Skynet IADS overview](/images/skynet-harm-flightpath.jpg)
 
 This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
