@@ -98,10 +98,11 @@ SAM sites and EW radars will shut down their radars if they believe a HARM (High
 Each SAM site or EW radar has HARM detection chance set. If a HARM is detected by more than one radar, the chance of it being identified as a HARM is increased.
 See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per Radar system.
 
-### Example
+### HARM Detection
 let's say SAM site A has a 60% HARM detection chance and EW Radar B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.
 ![Skynet IADS overview](/images/skynet-harm-detection.jpg)
 
+### HARM flight path analysis
 Further the contact needs to be traveling faster than 1000 kt and it may not have changed its pitch more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a figher flying very fast.
 ![Skynet IADS overview](/images/skynet-harm-flightpath.jpg)
 
