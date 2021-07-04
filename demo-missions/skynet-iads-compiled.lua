@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 23.05.2021 1446Z ---")
+env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 28.05.2021 2226Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2808,7 +2808,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
 						self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
 				end
-				if ( ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false and self:isSetToEngageAirWeapons() == false ) then
+				if ( ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
 					self:goSilentToEvadeHARM(secondsToImpact)
 					break
 				end
@@ -3584,7 +3584,7 @@ do
 SkynetIADSHARMDetection = {}
 SkynetIADSHARMDetection.__index = SkynetIADSHARMDetection
 
-SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 1000
+SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS = 800
 
 function SkynetIADSHARMDetection:create(iads)
 	local harmDetection = {}
@@ -3602,31 +3602,32 @@ function SkynetIADSHARMDetection:evaluateContacts()
 
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
-		
-		--[[
-		env.info("Contact Speed: "..contact:getGroundSpeedInKnots(0))
-		local altProfile = contact:getSimpleAltitudeProfile()
-		local profileStr = ""
-		for i = 1, #altProfile do
-			profileStr = profileStr.." "..altProfile[i]
-		end
-		env.info(profileStr)
-		--]]
 			
-		if ( contact:getGroundSpeedInKnots(0) > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and contact:isHARMStateUnknown() and #contact:getSimpleAltitudeProfile() <= 2 ) then
+		local groundSpeed  = contact:getGroundSpeedInKnots(0)
+		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
+		if ( contact:isHARMStateUnknown() and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
 			local detectionProbability = self:getDetectionProbability(contact)
 			if ( self:shallReactToHARM(detectionProbability) ) then
+				contact:setHARMState(SkynetIADSContact.HARM)
 				if (self.iads:getDebugSettings().harmDefence ) then
 					self.iads:printOutputToLog("HARM IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
 				end
-				contact:setHARMState(SkynetIADSContact.HARM)
 			else
 				contact:setHARMState(SkynetIADSContact.NOT_HARM)
+				if (self.iads:getDebugSettings().harmDefence ) then
+					self.iads:printOutputToLog("HARM NOT IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+				end
 			end
 		end
 		
+		if ( #simpleAltitudeProfile  > 2 and contact:isIdentifiedAsHARM() ) then
+			contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
+			if (self.iads:getDebugSettings().harmDefence ) then
+				self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())
+			end
+		end
 		
-		if contact:isIdentifiedAsHARM() then
+		if ( contact:isIdentifiedAsHARM() ) then
 			self:informRadarsOfHARM(contact)
 		end
 	end

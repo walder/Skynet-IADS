@@ -28,69 +28,6 @@ If you like using it, please consider a donation:**
 
  Table of Contents
  =================
-  * [Skynet\-IADS](#skynet-iads)
- * [Abstract](#abstract)
- * [Quick start](#quick-start)
- * [Skynet IADS Elements](#skynet-iads-elements)
-   * [IADS](#iads)
-   * [Track files](#track-files)
-   * [Comand Centers](#comand-centers)
-   * [SAM Sites](#sam-sites)
-   * [Early Warning Radars](#early-warning-radars)
-   * [Power Sources](#power-sources)
-   * [Connection Nodes](#connection-nodes)
-   * [AWACS (Airborne Early Warning and Control System)
-](#awacs-airborne-early-warning-and-control-system)
-   * [Ships](#ships)
- * [Tactics](#tactics)
-   * [HARM defence](#harm-defence)
-     * [Example](#example)
-   * [Point defence](#point-defence)
-   * [Electronic Warfare](#electronic-warfare)
- * [Using Skynet in the mission editor](#using-skynet-in-the-mission-editor)
-   * [Placing units](#placing-units)
-   * [Preparing a SAM site](#preparing-a-sam-site)
-   * [Preparing an EW radar](#preparing-an-ew-radar)
-   * [Adding the Skynet code](#adding-the-skynet-code)
-   * [Adding the Skynet IADS](#adding-the-skynet-iads)
- * [Advanced setup](#advanced-setup)
-   * [IADS configuration](#iads-configuration)
-   * [Adding a command center](#adding-a-command-center)
-   * [Power sources and connection nodes](#power-sources-and-connection-nodes)
-   * [Warm up the SAM sites of an IADS](#warm-up-the-sam-sites-of-an-iads)
-   * [Connecting Skynet to the MOOSE AI\_A2A\_DISPATCHER](#connecting-skynet-to-the-moose-ai_a2a_dispatcher)
-   * [SAM site configuration](#sam-site-configuration)
-     * [Adding SAM sites](#adding-sam-sites)
-       * [Add multiple SAM sites](#add-multiple-sam-sites)
-       * [Add a SAM site manually](#add-a-sam-site-manually)
-     * [Accessing SAM sites in the IADS](#accessing-sam-sites-in-the-iads)
-     * [Act as EW radar](#act-as-ew-radar)
-     * [Engagement zone](#engagement-zone)
-       * [Engagement zone options](#engagement-zone-options)
-   * [EW radar configuration](#ew-radar-configuration)
-     * [Adding EW radars](#adding-ew-radars)
-       * [Add multiple EW radars](#add-multiple-ew-radars)
-       * [Add an EW radar manually](#add-an-ew-radar-manually)
-     * [Accessing EW radars in the IADS](#accessing-ew-radars-in-the-iads)
-   * [Options for SAM sites and EW radars](#options-for-sam-sites-and-ew-radars)
-     * [Setting an option](#setting-an-option)
-     * [Daisy chaining options](#daisy-chaining-options)
-     * [HARM Defence](#harm-defence-1)
-     * [Point defence](#point-defence-1)
-     * [Autonomous mode behaviour](#autonomous-mode-behaviour)
-       * [Autonomous mode options](#autonomous-mode-options)
-   * [Adding a jammer](#adding-a-jammer)
-     * [Advanced functions](#advanced-functions)
-   * [Setting debug information](#setting-debug-information)
- * [Example Setup](#example-setup)
- * [FAQ](#faq)
-   * [Does Skynet IADS have an impact on game performance?](#does-skynet-iads-have-an-impact-on-game-performance)
-   * [What air defence units shall I add to the Skynet IADS?](#what-air-defence-units-shall-i-add-to-the-skynet-iads)
-   * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
-   * [Are there known bugs?](#are-there-known-bugs)
-   * [How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?](#how-do-i-know-if-a-sam-site-is-in-range-of-an-ew-site-or-a-sam-site-in-ew-mode)
-   * [How do I connect Skynet with the MOOSE AI\_A2A\_DISPATCHER and what are the benefits of that?](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that)
- * [Thanks](#thanks)
  
 
 # Quick start
@@ -172,7 +109,7 @@ This is to minimise false positives, for example a figher flying very fast.
 This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 If identified as a HARM the IADS will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 10 nautical miles in front of the HARM.
-The IADS will calculate time to impact and shut down radar emitters by a random value between a few seconds after time to impact and 180 seconds after time to impact. 
+The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
 
 With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact.
 These systems will not have a very good HARM defence with Skynet. 
@@ -180,7 +117,6 @@ These systems will not have a very good HARM defence with Skynet.
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
 This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
-
 
 You can tell a radar emitter it has a point denfence to rely on. If the radar emitter goes dark due to an inbound HARM it will activate its point defences to fire at the HARM.
 
@@ -475,6 +411,10 @@ ewRadarOrSamSite:setHARMDetectionChance(50)
 
 ### Point defence
 You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+
+If you want the point defences to coordinate their HARM defence then you can add multiple SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
+Let's assume you have two SA-15 units defending a radar. If the SA-15 units are in separate groups they will both fire at the same HARM inbound. However if they are in the same group and multiple HARMS are inbound they will each pick a separate HARM to engage.
+
 ```lua
 --first get the SAM site you want to use as point defence from the IADS:
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')

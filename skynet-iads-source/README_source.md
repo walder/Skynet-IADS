@@ -108,14 +108,13 @@ Further the contact needs to be traveling faster than 1000 kt and it may not hav
 This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
 If identified as a HARM the IADS will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 10 nautical miles in front of the HARM.
-The IADS will calculate time to impact and shut down radar emitters by a random value between a few seconds after time to impact and 180 seconds after time to impact. 
+The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
 
 With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact. These systems will not have a very good HARM defence with Skynet. 
 
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
 This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
-
 
 You can tell a radar emitter it has a point denfence to rely on. If the radar emitter goes dark due to an inbound HARM it will activate its point defences to fire at the HARM.
 
@@ -410,6 +409,10 @@ ewRadarOrSamSite:setHARMDetectionChance(50)
 
 ### Point defence
 You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+
+If you want the point defences to coordinate their HARM defence then you can add multiple point defence SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
+Let's assume you have two SA-15 units defending a radar. If the SA-15 units are in separate groups they will both fire at the same HARM inbound. However if they are in the same group and multiple HARMS are inbound they will each pick a separate HARM to engage.
+
 ```lua
 --first get the SAM site you want to use as point defence from the IADS:
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')
