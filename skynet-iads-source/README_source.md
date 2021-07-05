@@ -158,15 +158,18 @@ It's quite simple to setup an IADS have a look at the demo missions in the [/dem
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
 Place the IADS elements you wish to add on the map.
+
 ![Mission Editor IADS Setup](/images/iads-setup.png)  
 
 ## Preparing a SAM site
 There may be only be **one type of SAM site per group**. More than one type of SAM site per group will result in Skynet no being able to properly controll the group. Also please refrain from from adding units to the SAM group that are not required for the SAM like trucks, tanks and soldiers.
-The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
+The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.
+
 ![Mission Editor add SAM site](/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'. Make sure you have only **one EW radar in a group** otherwise Skynet will not be able to control single EW radars. 
+You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'. Make sure you have only **one EW radar in a group** otherwise Skynet will not be able to control single EW radars.
+
 ![Mission Editor EW radar](/images/ew-setup.png)  
 
 ## Adding the Skynet code
