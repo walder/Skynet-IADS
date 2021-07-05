@@ -101,11 +101,13 @@ See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-
 ### HARM detection
 let's say SAM site A has a 60% HARM detection chance and SAM site B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.  
 
-With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact. These systems will not have a very good HARM defence with Skynet. 
+With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact. These systems will not have a very good HARM defence with Skynet.
+
 ![Skynet IADS overview](/images/skynet-harm-detection.jpg)
 
 ### HARM flight path analysis
-The contact needs to be traveling faster than 800 kt and it may not have changed its flight path more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a figher flying very fast.  
+The contact needs to be traveling faster than 800 kt and it may not have changed its flight path more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a figher flying very fast.
+
 ![Skynet IADS overview](/images/skynet-harm-flightpath.jpg)
 
 This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
