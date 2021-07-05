@@ -95,23 +95,23 @@ Ships will contribute to the IADS the same way AWACS units do. Add them as a reg
 
 ## HARM defence
 SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the IADS will evaluate contacts and determine if they are likely to be HARMs.
-Each SAM site or EW radar has HARM detection chance set. If a HARM is detected by more than one radar, the chance of it being identified as a HARM is increased.
-See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per Radar system.
+Each SAM site or EW radar has HARM detection chance set. If a HARM is detected by more than one radar, the chance of it being identified as a HARM is increased.  
+See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per radar system.
 
-### HARM Detection
-let's say SAM site A has a 60% HARM detection chance and EW Radar B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.
+### HARM detection
+let's say SAM site A has a 60% HARM detection chance and SAM site B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.  
+
+With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact. These systems will not have a very good HARM defence with Skynet. 
 ![Skynet IADS overview](/images/skynet-harm-detection.jpg)
 
 ### HARM flight path analysis
-Further the contact needs to be traveling faster than 1000 kt and it may not have changed its pitch more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a figher flying very fast.
+The contact needs to be traveling faster than 800 kt and it may not have changed its flight path more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a figher flying very fast.  
 ![Skynet IADS overview](/images/skynet-harm-flightpath.jpg)
 
 This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
 
-If identified as a HARM the IADS will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 10 nautical miles in front of the HARM.
+If identified as a HARM the IADS will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 20 nautical miles in front of the HARM.
 The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
-
-With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact. These systems will not have a very good HARM defence with Skynet. 
 
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
