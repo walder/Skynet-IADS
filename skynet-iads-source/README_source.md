@@ -66,7 +66,7 @@ Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
+By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM sites, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
@@ -178,6 +178,7 @@ Make sure you load MIST and the compiled skynet code in to a mission. The [skyne
 
 I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
+
 ![Mission Editor IADS Setup](/images/load-scripts.png)  
 
 ## Adding the Skynet IADS
