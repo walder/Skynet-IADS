@@ -106,7 +106,7 @@ function TestSkynetIADSSAMSite:testSA2InformOfContactTargetNotInRange()
 	lu.assertEquals(self.samSite:isTargetInRange(target), false)
 	lu.assertEquals(self.samSite:isActive(), false)
 end
-
+--[[
 function TestSkynetIADSSAMSite:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWhenSetToSearchRange()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
@@ -119,7 +119,7 @@ function TestSkynetIADSSAMSite:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWh
 	lu.assertEquals(self.samSite:isActive(), true)
 	lu.assertEquals(self.samSite:isTargetInRange(target), true)
 end
-
+--]]
 function TestSkynetIADSSAMSite:testSAMStaysActiveWhenInAutonomousMode()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
