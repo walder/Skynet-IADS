@@ -246,7 +246,7 @@ You can use units or static objects. Call the function multiple times to add mor
 ```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-unit:addPowerSource(powerSource
+unit:addPowerSource(powerSource)
 ```
 
 ```lua
