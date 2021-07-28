@@ -10,7 +10,7 @@ A modern IADS also depends on command centers and datalinks to the SAM sites. Th
 
 This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=9J9kntzkSQY).
 
-Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
+Visit [this DCS forum thread](https://forums.eagle.ru/topic/226173-skynet-an-iads-for-mission-builders) for development updates.
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
