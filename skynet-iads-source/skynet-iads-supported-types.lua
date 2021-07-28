@@ -193,7 +193,31 @@ samTypesDB = {
 			['NATO'] = 'Roland ADS',
 		},
 		['harm_detection_chance'] = 60
-	},		
+	},	
+
+	['NASAM'] = {
+		['type'] = 'complex',
+		['searchRadar'] = {
+			['NASAMS_Radar_MPQ64F1'] = {
+			},
+		},
+		['launchers'] = {
+			['NASAMS_LN_B'] = {		
+			},
+			['NASAMS_LN_C'] = {		
+			},
+		},
+		
+		['name'] = {
+			['NATO'] = 'NASAM',
+		},
+		['misc'] = {
+			['NASAMS_Command_Post'] = {
+				['required'] = false,
+			},
+		},
+	},	
+	
 	['2S6 Tunguska'] = {
 		['type'] = 'single',
 		['searchRadar'] = {
