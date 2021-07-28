@@ -1313,6 +1313,20 @@ Launcher:
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 10)
 end
 
+function TestSkynetIADSAbstractRadarElement:testNASAM()
+
+	self.samSiteName = "BLUE-SAM-NASAM"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "NASAM")
+	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 26749.61328125)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 57000)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 6)
+	
+	lu.assertEquals(self.samSite:getLaunchers()[2]:getRange(), 61000)
+	lu.assertEquals(self.samSite:getLaunchers()[2]:getInitialNumberOfMissiles(), 6)
+	
+end
+
 --[[
 function TestSkynetIADSAbstractRadarElement:testCallMethodOnTableElements()
 	local test = {}

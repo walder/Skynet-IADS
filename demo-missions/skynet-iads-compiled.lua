@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.2.0-develop | BUILD TIME: 28.05.2021 2226Z ---")
+env.info("--- SKYNET VERSION: 2.3.0-develop | BUILD TIME: 28.07.2021 1044Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -194,7 +194,29 @@ samTypesDB = {
 			['NATO'] = 'Roland ADS',
 		},
 		['harm_detection_chance'] = 60
-	},		
+	},	
+	['NASAM'] = {
+		['type'] = 'complex',
+		['searchRadar'] = {
+			['NASAMS_Radar_MPQ64F1'] = {
+			},
+		},
+		['launchers'] = {
+			['NASAMS_LN_B'] = {		
+			},
+			['NASAMS_LN_C'] = {		
+			},
+		},
+		
+		['name'] = {
+			['NATO'] = 'NASAM',
+		},
+		['misc'] = {
+			['NASAMS_Command_Post'] = {
+				['required'] = false,
+			},
+		},
+	},	
 	['2S6 Tunguska'] = {
 		['type'] = 'single',
 		['searchRadar'] = {
@@ -2803,6 +2825,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 			local speedKT = harmContact:getGroundSpeedInKnots(0)
 			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
 			--TODO: Make constant out of aspect and distance --> use tti instead of distanceNM?
+			-- when iterating through the radars, store shortest tti and work with that value??
 			if ( harmToSAMAspect < 30 and distanceNM < 20 ) then
 				self:addObjectIdentifiedAsHARM(harmContact)
 				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
