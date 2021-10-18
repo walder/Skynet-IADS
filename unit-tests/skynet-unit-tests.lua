@@ -2,7 +2,7 @@ do
 
 ---IADS Unit Tests
 SKYNET_UNIT_TESTS_NUM_EW_SITES_RED = 18
-SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 15
+SKYNET_UNIT_TESTS_NUM_SAM_SITES_RED = 16
 
 --factory method used in multiple unit tests
 function IADSContactFactory(unitName)
