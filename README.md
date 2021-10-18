@@ -10,7 +10,7 @@ A modern IADS also depends on command centers and datalinks to the SAM sites. Th
 
 This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=9J9kntzkSQY).
 
-Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
+Visit [this DCS forum thread](https://forums.eagle.ru/topic/226173-skynet-an-iads-for-mission-builders) for development updates.
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
@@ -189,7 +189,7 @@ You can tell a radar emitter it has a point denfence to rely on. If the radar em
 
 You can set the radar emitter to keep emitting when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the radar emitter will revert back to its previously set HARM defence behaviour.
 Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The radar emitter will shut down, if it believes its point defences won't be able to handle the number of HARMs inbound. 
-As long as there is one point defence launcher per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers if will shut down. Tests in DCS have shown that this is roughly the saturation point.
+As long as there is one point defence launcher per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers the protected asset will shut down. Tests in DCS have shown that this is roughly the saturation point.
 
 As of April 2020 I have only been able to get the SA-15 and the SA-10 to engage HARMS. The SA-10 seems to have dificullty engaging HARMS when they are launched above a certain altitude (in my tests 25 k feet).
 The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
@@ -312,7 +312,7 @@ You can use units or static objects. Call the function multiple times to add mor
 ```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-unit:addPowerSource(powerSource
+unit:addPowerSource(powerSource)
 ```
 
 ```lua
