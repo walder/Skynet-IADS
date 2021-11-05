@@ -634,9 +634,18 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testSA5()
 	lu.assertEquals(trackingRadar:getMaxRangeFindingTarget(), 100311.046875)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 240000)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 1)
-	
---	lu.assertEquals(self.samSite:getLaunchers()[2]:getRange(), 61000)
-	--lu.assertEquals(self.samSite:getLaunchers()[2]:getInitialNumberOfMissiles(), 6)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testSA5P19()
+	self.samSiteName = "SAM-SA-5-p-19"
+	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "SA-5")
+	local searchRadar = self.samSite:getSearchRadars()[1]
+	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 53499.2265625)
+	local trackingRadar = self.samSite:getTrackingRadars()[1]
+	lu.assertEquals(trackingRadar:getMaxRangeFindingTarget(), 53499.2265625)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 240000)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 1)
 end
 
 end

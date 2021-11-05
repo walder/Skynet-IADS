@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.4.0 | BUILD TIME: 18.10.2021 1059Z ---")
+env.info("--- SKYNET VERSION: 2.4-develop | BUILD TIME: 05.11.2021 1735Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -9,7 +9,12 @@ samTypesDB = {
 					['name'] = {
 						['NATO'] = 'Tin Shield',
 					},
-				}, 
+				},
+				['p-19 s-125 sr'] = {
+					['name'] = {
+						['NATO'] = 'Flat Face',
+					},
+				},				
 			},
 			['EWR P-37 BAR LOCK'] = {
 				['Name'] = {
