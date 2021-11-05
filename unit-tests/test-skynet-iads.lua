@@ -589,6 +589,9 @@ function TestSkynetIADS:testBuildRadarCoverage()
 	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
 	--ewRadar:addChildRadar(childRadMock)
 	
+	--make sure iads has only one ew:
+	self.testIADS:addEarlyWarningRadarsByPrefix('EW-west23')
+	
 	self.testIADS:buildRadarCoverage()
 
 	--lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), self.numSAMSites + self.numEWSites)
@@ -617,7 +620,10 @@ function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
 	end
 		
 	ewRadar:clearChildRadars()
-	--ewRadar:addChildRadar(childRadMock)
+
+	--clear sam sites, and make sure only two are loaded:
+	self.testIADS:addSAMSitesByPrefix('SAM-SA-6')
+
 	
 	local sam1 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
 	sam1:clearParentRadars()
@@ -638,6 +644,7 @@ function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
 	lu.assertEquals(sam2:getParentRadars()[1], ewRadar)
 	
 	--we test to make sure AWACS aircraft are added corectly as parent radars:
+	self.testIADS:addSAMSitesByPrefix('SAM-HQ-7')
 	self.testIADS:activate()
 	local hq7 = self.testIADS:getSAMSiteByGroupName('SAM-HQ-7')
 	local kj2000 = hq7:getParentRadars()[1]
