@@ -10,6 +10,11 @@ samTypesDB = {
                     ['NATO'] = 'Tin Shield',
                 },
 			}, 
+			['p-19 s-125 sr'] = {
+				['name'] = {
+					['NATO'] = 'Flat Face',
+				},
+			},	
 		},
         ['EWR P-37 BAR LOCK'] = {
             ['Name'] = {
