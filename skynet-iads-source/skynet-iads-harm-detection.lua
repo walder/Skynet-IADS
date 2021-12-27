@@ -24,7 +24,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
 		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
 		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
-		if ( #newRadarsToEvaluate > 0 and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
+		if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
 			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
 			if ( self:shallReactToHARM(detectionProbability) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
@@ -39,7 +39,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			end
 		end
 		
-		if ( #simpleAltitudeProfile  > 2 and contact:isIdentifiedAsHARM() ) then
+		if ( #simpleAltitudeProfile > 2 and contact:isIdentifiedAsHARM() ) then
 			contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
 			if (self.iads:getDebugSettings().harmDefence ) then
 				self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())

@@ -30,8 +30,14 @@ function TestSkynetIADSHARMDetection:testEvaluateContactsContactIsHARMInClimb()
 		lu.assertEquals(state, SkynetIADSContact.HARM)
 	end
 
+	local calls = 0
 	function mockContactHARM:isIdentifiedAsHARM()
-		return true
+		calls = calls + 1
+		if ( calls == 2 ) then
+			return true
+		else
+			return false
+		end
 	end
 	
 	local mockRadar = {}
@@ -91,7 +97,7 @@ function TestSkynetIADSHARMDetection:testEvaluateContactsContactDetectedAsHARMHa
 	local calls = 0
 	function mockContactHARM:isIdentifiedAsHARM()
 		calls = calls + 1
-		if ( calls == 1 ) then
+		if ( calls == 2 ) then
 			return true
 		else
 			return false

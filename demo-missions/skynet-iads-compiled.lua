@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.4.0-develop | BUILD TIME: 27.12.2021 1740Z ---")
+env.info("--- SKYNET VERSION: 2.4.0-develop | BUILD TIME: 27.12.2021 1756Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3648,7 +3648,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
 		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
 		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
-		if ( #newRadarsToEvaluate > 0 and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
+		if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
 			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
 			if ( self:shallReactToHARM(detectionProbability) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
