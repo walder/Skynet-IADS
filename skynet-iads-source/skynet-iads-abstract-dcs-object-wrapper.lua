@@ -57,6 +57,7 @@ function SkynetIADSAbstractDCSObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, 
 	if isAdded == false then
 		table.insert(tbl, object)
 	end
+	return not isAdded
 end
 
 -- helper code for class inheritance

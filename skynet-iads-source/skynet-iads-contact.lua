@@ -39,18 +39,6 @@ function SkynetIADSContact:isHARMStateUnknown()
 	return self.harmState == SkynetIADSContact.HARM_UNKNOWN
 end
 
-function SkynetIADSContact:mergeDetectedRadars(radars)
-	for i = 1, #radars do
-		radar = radars[i]
-		insert = true
-		for j = 1, #self.abstractRadarElementsDetected do
-			if radar == self.abstractRadarElementsDetected[j] then
-				insert = false
-			end
-		end
-	end
-end
-
 function SkynetIADSContact:getMagneticHeading()
 	if ( self:isExist() ) then
 		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self:getDCSRepresentation())))
@@ -58,7 +46,6 @@ function SkynetIADSContact:getMagneticHeading()
 		return -1
 	end
 end
-
 
 function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected

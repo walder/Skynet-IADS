@@ -37,14 +37,15 @@ function TestSkynetIADSAbstractDCSObjectWrapper:testInsertToTableIfNotAlreadyAdd
 	local tbl = {}
 	local mock = {}
 	table.insert(tbl, mock)
-	self.abstractObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, mock)
+	local result = self.abstractObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, mock)
 	lu.assertEquals(#tbl, 1)
+	lu.assertEquals(result, false)
 	
 	
 	local mock2 = {}
-	self.abstractObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, mock2)
+	local result2 = self.abstractObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, mock2)
 	lu.assertEquals(#tbl, 2)
-	
+	lu.assertEquals(result2, true)
 end
 
 end

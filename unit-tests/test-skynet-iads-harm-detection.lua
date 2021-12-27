@@ -103,6 +103,10 @@ function TestSkynetIADSHARMDetection:testEvaluateContactsContactDetectedAsHARMHa
 		contactInform = true
 	end
 	
+	function self.harmDetection:getNewRadarsThatHaveDetectedContact(contact)
+		return {"MockRadar"}
+	end
+	
 	self.harmDetection:setContacts({mockContactHARM})
 	self.harmDetection:evaluateContacts()
 	
@@ -112,8 +116,6 @@ function TestSkynetIADSHARMDetection:testEvaluateContactsContactDetectedAsHARMHa
 end
 
 function TestSkynetIADSHARMDetection:testGetDetectionProbability()
-	
-	local mockContact = {}
 	
 	local mockSAM1 = {}
 	function mockSAM1:getHARMDetectionChance()
@@ -125,11 +127,9 @@ function TestSkynetIADSHARMDetection:testGetDetectionProbability()
 		return 30
 	end
 	
-	function mockContact:getAbstractRadarElementsDetected()
-		return {mockSAM1, mockSam2}
-	end
-	
-	lu.assertEquals(self.harmDetection:getDetectionProbability(mockContact), 72)
+	local mockNewRadarsDetected = {mockSAM1, mockSam2}
+
+	lu.assertEquals(self.harmDetection:getDetectionProbability(mockNewRadarsDetected), 72)
 	
 	function mockSAM1:getHARMDetectionChance()
 		return 20
@@ -139,8 +139,36 @@ function TestSkynetIADSHARMDetection:testGetDetectionProbability()
 		return 90
 	end
 	
-	lu.assertEquals(self.harmDetection:getDetectionProbability(mockContact), 92)
+	lu.assertEquals(self.harmDetection:getDetectionProbability(mockNewRadarsDetected), 92)
 	
+end
+
+function TestSkynetIADSHARMDetection:testGetNewRadarsThatHaveDetectedContact()
+	local mockContact = {}
+	local mockRadar1 = {"MockRadar1"}
+	local mockRadar2 = {"MockRadar2"}
+	function mockContact:getAbstractRadarElementsDetected()
+		return {mockRadar1, mockRadar2}
+	end
+	local result = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
+	lu.assertEquals(result, {mockRadar1, mockRadar2})
+
+	local result2 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
+	lu.assertEquals(result2, {})
+	
+	local mockRadar3 = {"MockRadar3"}
+	function mockContact:getAbstractRadarElementsDetected()
+		return {mockRadar1, mockRadar2, mockRadar3}
+	end
+	local result3 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
+	lu.assertEquals(result3, {mockRadar3})	
+	
+	local mockRadar4 = {"MockRadar4"}
+	function mockContact:getAbstractRadarElementsDetected()
+		return {mockRadar4, mockRadar1, mockRadar2, mockRadar3}
+	end
+	local result4 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
+	lu.assertEquals(result4, {mockRadar4})	
 end
 
 end

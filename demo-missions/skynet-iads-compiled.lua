@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.4-develop | BUILD TIME: 05.11.2021 1735Z ---")
+env.info("--- SKYNET VERSION: 2.4.0-develop | BUILD TIME: 27.12.2021 1740Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1912,6 +1912,7 @@ function SkynetIADSAbstractDCSObjectWrapper:insertToTableIfNotAlreadyAdded(tbl, 
 	if isAdded == false then
 		table.insert(tbl, object)
 	end
+	return not isAdded
 end
 
 -- helper code for class inheritance
@@ -3039,18 +3040,6 @@ function SkynetIADSContact:isHARMStateUnknown()
 	return self.harmState == SkynetIADSContact.HARM_UNKNOWN
 end
 
-function SkynetIADSContact:mergeDetectedRadars(radars)
-	for i = 1, #radars do
-		radar = radars[i]
-		insert = true
-		for j = 1, #self.abstractRadarElementsDetected do
-			if radar == self.abstractRadarElementsDetected[j] then
-				insert = false
-			end
-		end
-	end
-end
-
 function SkynetIADSContact:getMagneticHeading()
 	if ( self:isExist() ) then
 		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self:getDCSRepresentation())))
@@ -3058,7 +3047,6 @@ function SkynetIADSContact:getMagneticHeading()
 		return -1
 	end
 end
-
 
 function SkynetIADSContact:getAbstractRadarElementsDetected()
 	return self.abstractRadarElementsDetected
@@ -3646,6 +3634,7 @@ function SkynetIADSHARMDetection:create(iads)
 	setmetatable(harmDetection, self)
 	harmDetection.contacts = {}
 	harmDetection.iads = iads
+	harmDetection.contactRadarsEvaluated = {}
 	return harmDetection
 end
 
@@ -3654,14 +3643,13 @@ function SkynetIADSHARMDetection:setContacts(contacts)
 end
 
 function SkynetIADSHARMDetection:evaluateContacts()
-
 	for i = 1, #self.contacts do
-		local contact = self.contacts[i]
-			
+		local contact = self.contacts[i]	
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
 		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
-		if ( contact:isHARMStateUnknown() and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
-			local detectionProbability = self:getDetectionProbability(contact)
+		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
+		if ( #newRadarsToEvaluate > 0 and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
+			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
 			if ( self:shallReactToHARM(detectionProbability) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
 				if (self.iads:getDebugSettings().harmDefence ) then
@@ -3688,6 +3676,34 @@ function SkynetIADSHARMDetection:evaluateContacts()
 	end
 end
 
+function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)
+	local newRadars = contact:getAbstractRadarElementsDetected()
+	local radars = self.contactRadarsEvaluated[contact]
+	if radars then
+		newRadars = {}
+		local contactRadars = contact:getAbstractRadarElementsDetected()
+		for i = 1, #contactRadars do
+			local contactRadar = contactRadars[i]
+			local newRadar = self:isElementInTable(radars, contactRadar)
+			if newRadar ~= nil then
+				table.insert(newRadars, newRadar)
+			end
+		end
+	end
+	self.contactRadarsEvaluated[contact] = contact:getAbstractRadarElementsDetected()
+	return newRadars
+end
+
+function SkynetIADSHARMDetection:isElementInTable(tbl, element)
+	for i = 1, #tbl do
+		tblElement = tbl[i]
+		if tblElement == element then
+			return nil
+		end
+	end
+	return element
+end
+
 function SkynetIADSHARMDetection:informRadarsOfHARM(contact)
 	local samSites = self.iads:getUsableSAMSites()
 	self:updateRadarsOfSites(samSites, contact)
@@ -3707,8 +3723,7 @@ function SkynetIADSHARMDetection:shallReactToHARM(chance)
 	return chance >=  math.random(1, 100)
 end
 
-function SkynetIADSHARMDetection:getDetectionProbability(contact)
-	local radars = contact:getAbstractRadarElementsDetected()
+function SkynetIADSHARMDetection:getDetectionProbability(radars)
 	local detectionChance = 0
 	local missChance = 100
 	local detection = 0

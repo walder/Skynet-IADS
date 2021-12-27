@@ -10,6 +10,7 @@ function SkynetIADSHARMDetection:create(iads)
 	setmetatable(harmDetection, self)
 	harmDetection.contacts = {}
 	harmDetection.iads = iads
+	harmDetection.contactRadarsEvaluated = {}
 	return harmDetection
 end
 
@@ -18,14 +19,13 @@ function SkynetIADSHARMDetection:setContacts(contacts)
 end
 
 function SkynetIADSHARMDetection:evaluateContacts()
-
 	for i = 1, #self.contacts do
-		local contact = self.contacts[i]
-			
+		local contact = self.contacts[i]	
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
 		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
-		if ( contact:isHARMStateUnknown() and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
-			local detectionProbability = self:getDetectionProbability(contact)
+		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
+		if ( #newRadarsToEvaluate > 0 and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
+			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
 			if ( self:shallReactToHARM(detectionProbability) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
 				if (self.iads:getDebugSettings().harmDefence ) then
@@ -52,6 +52,34 @@ function SkynetIADSHARMDetection:evaluateContacts()
 	end
 end
 
+function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)
+	local newRadars = contact:getAbstractRadarElementsDetected()
+	local radars = self.contactRadarsEvaluated[contact]
+	if radars then
+		newRadars = {}
+		local contactRadars = contact:getAbstractRadarElementsDetected()
+		for i = 1, #contactRadars do
+			local contactRadar = contactRadars[i]
+			local newRadar = self:isElementInTable(radars, contactRadar)
+			if newRadar ~= nil then
+				table.insert(newRadars, newRadar)
+			end
+		end
+	end
+	self.contactRadarsEvaluated[contact] = contact:getAbstractRadarElementsDetected()
+	return newRadars
+end
+
+function SkynetIADSHARMDetection:isElementInTable(tbl, element)
+	for i = 1, #tbl do
+		tblElement = tbl[i]
+		if tblElement == element then
+			return nil
+		end
+	end
+	return element
+end
+
 function SkynetIADSHARMDetection:informRadarsOfHARM(contact)
 	local samSites = self.iads:getUsableSAMSites()
 	self:updateRadarsOfSites(samSites, contact)
@@ -71,8 +99,7 @@ function SkynetIADSHARMDetection:shallReactToHARM(chance)
 	return chance >=  math.random(1, 100)
 end
 
-function SkynetIADSHARMDetection:getDetectionProbability(contact)
-	local radars = contact:getAbstractRadarElementsDetected()
+function SkynetIADSHARMDetection:getDetectionProbability(radars)
 	local detectionChance = 0
 	local missChance = 100
 	local detection = 0
