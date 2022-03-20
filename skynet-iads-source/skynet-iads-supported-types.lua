@@ -226,7 +226,7 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 60
 	},	
-	['NASAM'] = {
+	['NASAMS'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
 			['NASAMS_Radar_MPQ64F1'] = {
@@ -240,7 +240,7 @@ samTypesDB = {
 		},
 		
 		['name'] = {
-			['NATO'] = 'NASAM',
+			['NATO'] = 'NASAMS',
 		},
 		['misc'] = {
 			['NASAMS_Command_Post'] = {

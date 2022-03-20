@@ -190,7 +190,7 @@ function SkynetIADS:addSAMSite(samSiteName)
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
 	samSite:setupElements()
-	samSite:setShallEngageAirWeapons(true)
+	--samSite:setShallEngageAirWeapons(true)
 	samSite:goLive()
 	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
 	if self.ewRadarScanMistTaskID ~= nil then

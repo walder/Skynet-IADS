@@ -233,13 +233,11 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumb
 		local pointDefence = self.pointDefences[i]
 		numOfLaunchers = numOfLaunchers + #pointDefence:getLaunchers()	
 	end
-	return SkynetIADSAbstractRadarElement:hasEnoughLaunchersToEngageMissiles(minNumberOfLaunchers, numOfLaunchers)
+	return self:hasRequiredNumberOfMissiles(minNumberOfLaunchers, numOfLaunchers)
 end
 
 function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
-	if state == true or state == false then
-		self.ingnoreHARMSWhilePointDefencesHaveAmmo = state
-	end
+	self.iads:printOutputToLog("DEPRECATED: setIgnoreHARMSWhilePointDefencesHaveAmmo SAM Site will stay live automaticall as long as itself or it's point defences can defend against a HARM")
 	return self
 end
 
@@ -772,9 +770,11 @@ end
 -- will only check for missiles, if DCS ads AAA than can engage HARMs then this code must be updated:
 function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
 	local numOfHarms = self:getNumberOfObjectsItentifiedAsHARMS()
-	return ( (self:hasEnoughLaunchersToEngageMissiles(numOfHarms) and self:hasRemainingAmmoToEngageMissiles(numOfHarms)) or 
-		(self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms)) 
-		and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true)
+	self.iads:printOutputToLog("Self enough launchers: "..tostring(self:hasEnoughLaunchersToEngageMissiles(numOfHarms)))
+	self.iads:printOutputToLog("Self enough missiles: "..tostring(self:hasRemainingAmmoToEngageMissiles(numOfHarms)))
+	self.iads:printOutputToLog("PD enough missiles: "..tostring(self:pointDefencesHaveRemainingAmmo(numOfHarms)))
+	self.iads:printOutputToLog("PD enough launchers: "..tostring(self:pointDefencesHaveEnoughLaunchers(numOfHarms)))
+	return ( ((self:hasEnoughLaunchersToEngageMissiles(numOfHarms) and self:hasRemainingAmmoToEngageMissiles(numOfHarms) and self:isSetToEngageAirWeapons()) or (self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms))))
 end
 
 function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
@@ -793,7 +793,6 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
 						self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
 				end
-				self.iads:printOutputToLog("number of HARMs identified: "..self:getNumberOfObjectsItentifiedAsHARMS())
 				self.iads:printOutputToLog("Ignore HARM shutdown: "..tostring(self:shallIgnoreHARMShutdown()))
 				if ( self:getIsAPointDefence() == false and ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
 					self:goSilentToEvadeHARM(secondsToImpact)

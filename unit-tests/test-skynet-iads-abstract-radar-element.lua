@@ -1328,11 +1328,11 @@ Launcher:
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 10)
 end
 
-function TestSkynetIADSAbstractRadarElement:testNASAM()
+function TestSkynetIADSAbstractRadarElement:testNASAMS()
 
-	self.samSiteName = "BLUE-SAM-NASAM"
+	self.samSiteName = "BLUE-SAM-NASAMS"
 	self:setUp()
-	lu.assertEquals(self.samSite:getNatoName(), "NASAM")
+	lu.assertEquals(self.samSite:getNatoName(), "NASAMS")
 	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 26749.61328125)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 57000)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 6)
@@ -1427,6 +1427,225 @@ function TestSkynetIADSAbstractRadarElement:testCalculateAspectInDegrees()
 	lu.assertEquals(self.samSite:calculateAspectInDegrees(190, 350), 160)
 	lu.assertEquals(self.samSite:calculateAspectInDegrees(090, 270), 180)
 	lu.assertEquals(self.samSite:calculateAspectInDegrees(010, 170), 160)
+end
+
+function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	
+	--older sam site that can not engage HARMs (air weapons)
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:isSetToEngageAirWeapons()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+
 end
 
 end
