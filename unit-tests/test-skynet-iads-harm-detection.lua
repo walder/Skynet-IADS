@@ -7,6 +7,22 @@ function TestSkynetIADSHARMDetection:setUp()
 	self.harmDetection = SkynetIADSHARMDetection:create(iads)
 end
 
+function TestSkynetIADSHARMDetection:testContact0GroundSpeed()
+	
+	local mockContact = {}
+	function mockContact:getGroundSpeedInKnots(round)
+		return 0
+	end
+	
+	local calledProfileInfo = false
+	function mockContact:getSimpleAltitudeProfile()
+		calledProfileInfo = true
+	end
+	self.harmDetection:setContacts({mockContact})
+	self.harmDetection:evaluateContacts()
+	lu.assertEquals(calledProfileInfo, false)
+end
+
 function TestSkynetIADSHARMDetection:testEvaluateContactsContactIsHARMInClimb()
 	
 	--test with a contact that shall be identified as a HARM
@@ -65,7 +81,14 @@ function TestSkynetIADSHARMDetection:testEvaluateContactsContactIsHARMInClimb()
 
 	
 	self.harmDetection:setContacts({mockContactHARM})
+	
+	local calledCleanedAgedTargets = false
+	function self.harmDetection:cleanAgedContacts()
+		calledCleanedAgedTargets = true
+	end
 	self.harmDetection:evaluateContacts()
+	
+	lu.assertEquals(calledCleanedAgedTargets, true)
 	
 	lu.assertEquals(harmStateCalled, true)
 	lu.assertEquals(probCalled, true)
@@ -175,6 +198,31 @@ function TestSkynetIADSHARMDetection:testGetNewRadarsThatHaveDetectedContact()
 	end
 	local result4 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
 	lu.assertEquals(result4, {mockRadar4})	
+end
+
+function TestSkynetIADSHARMDetection:testCleanAgedContacts()
+	local mockContact1 = {}
+	function mockContact1:getAge()
+		return 1
+	end
+	
+	local mockContact2 = {}
+	function mockContact2:getAge()
+		return 33
+	end
+	
+	local contactRadars = {}
+	contactRadars[mockContact1] = "keep"
+	contactRadars[mockContact2] = "delete"
+	self.harmDetection.contactRadarsEvaluated = contactRadars
+	self.harmDetection:cleanAgedContacts()
+	
+	local count = 0
+	for key, value in pairs(self.harmDetection.contactRadarsEvaluated) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 1)
+	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact1], "keep")
 end
 
 end

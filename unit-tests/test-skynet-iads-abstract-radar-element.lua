@@ -1016,12 +1016,24 @@ function TestSkynetIADSAbstractRadarElement:testWillSAMShutDownWhenItLoosesPower
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
+function TestSkynetIADSAbstractRadarElement:testSetPointDefence()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	local pd = self.skynetIADS:addSAMSite("SAM-SA-15-1")
+	lu.assertEquals(pd:getIsAPointDefence(), false)
+	self.samSite:addPointDefence(pd)
+	lu.assertEquals(pd:getIsAPointDefence(), true)
+end
+
 function TestSkynetIADSAbstractRadarElement:testPointDefencesGoLive()
 
 	local stateSet = false
 	local mockPD1 = {}
 	function mockPD1:getActAsEW()
 		return false
+	end
+	function mockPD1:setIsAPointDefence(state)
+	
 	end
 	function mockPD1:setActAsEW(state)
 		stateSet = true
@@ -1047,6 +1059,9 @@ function TestSkynetIADSAbstractRadarElement:testPointDefencesGoLive()
 	end
 	function mockPD1:setActAsEW(state)
 		stateSet = true
+	end
+	function mockPD1:setIsAPointDefence(state)
+	
 	end
 	
 	function mockPD1:cleanUp()

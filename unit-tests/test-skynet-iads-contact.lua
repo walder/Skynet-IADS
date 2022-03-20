@@ -32,7 +32,7 @@ function TestSyknetIADSContact:testRefresh()
 end
 
 function TestSyknetIADSContact:testGetHeightInFeetMSL()
-	lu.assertEquals(self.contact:getHeightInFeetMSL(), 4974)
+	lu.assertEquals(self.contact:getHeightInFeetMSL(), 5015)
 end
 
 function TestSyknetIADSContact:testUpdateSimpleAltitudeProfile()
@@ -113,7 +113,7 @@ function TestSyknetIADSContact:testSetIsHARM()
 end
 
 function TestSyknetIADSContact:testGetMagneticHeading()
-	lu.assertEquals(self.contact:getMagneticHeading(), 351)
+	lu.assertEquals(self.contact:getMagneticHeading(), 348)
 	
 	function self.contact:isExist()
 		return false

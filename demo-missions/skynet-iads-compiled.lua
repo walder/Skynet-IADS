@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 2.4.0-develop | BUILD TIME: 27.12.2021 1756Z ---")
+env.info("--- SKYNET VERSION: 2.4.0-develop | BUILD TIME: 20.03.2022 1231Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2145,6 +2145,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.cachedTargetsCurrentAge = 0
 	instance.goLiveTime = 0
 	instance.shallEngageAirWeapons = false
+	instance.isAPointDefence = false
 	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
 	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
@@ -2179,8 +2180,19 @@ function SkynetIADSAbstractRadarElement:cleanUp()
 	self:removeEventHandlers()
 end
 
+function SkynetIADSAbstractRadarElement:setIsAPointDefence(state)
+	if (state == true or state == false) then
+		self.isAPointDefence = state
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getIsAPointDefence()
+	return self.isAPointDefence
+end
+
 function SkynetIADSAbstractRadarElement:addPointDefence(pointDefence)
 	table.insert(self.pointDefences, pointDefence)
+	pointDefence:setIsAPointDefence(true)
 	return self
 end
 
@@ -2289,11 +2301,31 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumber
 		local pointDefence = self.pointDefences[i]
 		remainingMissiles = remainingMissiles + pointDefence:getRemainingNumberOfMissiles()
 	end
+	return self:hasRequiredNumberOfMissiles(minNumberOfMissiles, remainingMissiles)
+end
+
+function SkynetIADSAbstractRadarElement:hasRequiredNumberOfMissiles(minNumberOfMissiles, remainingMissiles)
 	local returnValue = false
 	if ( remainingMissiles > 0 and remainingMissiles >= minNumberOfMissiles ) then
 		returnValue = true
 	end
 	return returnValue
+end
+
+function SkynetIADSAbstractRadarElement:hasRemainingAmmoToEngageMissiles(minNumberOfMissiles)
+	local remainingMissiles = self:getRemainingNumberOfMissiles()
+	return self:hasRequiredNumberOfMissiles(minNumberOfMissiles, remainingMissiles)
+end
+
+-- this method needs to be refactored so that it works for ew radars that don't have launchers, or that it is only called by sam sites
+function SkynetIADSAbstractRadarElement:hasEnoughLaunchersToEngageMissiles(minNumberOfLaunchers)
+	local launchers = self:getLaunchers()
+	if(launchers ~= nil) then
+	 launchers = #self:getLaunchers()
+	else 
+		launchers = 0
+	end
+	return self:hasRequiredNumberOfMissiles(minNumberOfLaunchers, launchers)
 end
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
@@ -2302,11 +2334,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumb
 		local pointDefence = self.pointDefences[i]
 		numOfLaunchers = numOfLaunchers + #pointDefence:getLaunchers()	
 	end
-	local returnValue = false
-	if ( numOfLaunchers > 0 and numOfLaunchers >= minNumberOfLaunchers ) then
-		returnValue = true
-	end
-	return returnValue
+	return SkynetIADSAbstractRadarElement:hasEnoughLaunchersToEngageMissiles(minNumberOfLaunchers, numOfLaunchers)
 end
 
 function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
@@ -2845,7 +2873,9 @@ end
 -- will only check for missiles, if DCS ads AAA than can engage HARMs then this code must be updated:
 function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
 	local numOfHarms = self:getNumberOfObjectsItentifiedAsHARMS()
-	return ( self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms) and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true)
+	return ( (self:hasEnoughLaunchersToEngageMissiles(numOfHarms) and self:hasRemainingAmmoToEngageMissiles(numOfHarms)) or 
+		(self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms)) 
+		and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true)
 end
 
 function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
@@ -2864,7 +2894,9 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
 						self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
 				end
-				if ( ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
+				self.iads:printOutputToLog("number of HARMs identified: "..self:getNumberOfObjectsItentifiedAsHARMS())
+				self.iads:printOutputToLog("Ignore HARM shutdown: "..tostring(self:shallIgnoreHARMShutdown()))
+				if ( self:getIsAPointDefence() == false and ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
 					self:goSilentToEvadeHARM(secondsToImpact)
 					break
 				end
@@ -3643,13 +3675,21 @@ function SkynetIADSHARMDetection:setContacts(contacts)
 end
 
 function SkynetIADSHARMDetection:evaluateContacts()
+	self:cleanAgedContacts()
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]	
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
+		--if a contact has only been hit by a radar once it's speed is 0
+		if groundSpeed == 0 then
+			return
+		end
 		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
 		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
+		--self.iads:printOutputToLog(contact:getName().." new Radars to evaluate: "..#newRadarsToEvaluate)
+		--self.iads:printOutputToLog(contact:getName().." ground speed: "..groundSpeed)
 		if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
 			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
+			--self.iads:printOutputToLog("DETECTION PROB: "..detectionProbability)
 			if ( self:shallReactToHARM(detectionProbability) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
 				if (self.iads:getDebugSettings().harmDefence ) then
@@ -3663,7 +3703,7 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			end
 		end
 		
-		if ( #simpleAltitudeProfile  > 2 and contact:isIdentifiedAsHARM() ) then
+		if ( #simpleAltitudeProfile > 2 and contact:isIdentifiedAsHARM() ) then
 			contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
 			if (self.iads:getDebugSettings().harmDefence ) then
 				self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())
@@ -3674,6 +3714,16 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			self:informRadarsOfHARM(contact)
 		end
 	end
+end
+
+function SkynetIADSHARMDetection:cleanAgedContacts()
+	local activeContactRadars = {}
+	for contact, radars in pairs (self.contactRadarsEvaluated) do
+		if contact:getAge() < 32 then
+			activeContactRadars[contact] = radars
+		end
+	end
+	self.contactRadarsEvaluated = activeContactRadars
 end
 
 function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)

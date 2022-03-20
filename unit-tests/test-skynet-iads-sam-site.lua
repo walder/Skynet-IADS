@@ -71,9 +71,9 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	samSite:cleanUp()
 	local samSite = SkynetIADSSamSite:create(Group.getByName("Destruction-test-sam"), self.skynetIADS)
 	samSite:setupElements()
-	lu.assertEquals(samSite:getNatoName(), "SA-6")
-	lu.assertEquals(#samSite:getRadars(), 3)
-	lu.assertEquals(#samSite:getLaunchers(), 2)
+	lu.assertEquals(samSite:getNatoName(), "UNKNOWN")
+	lu.assertEquals(#samSite:getRadars(), 0)
+	lu.assertEquals(#samSite:getLaunchers(), 0)
 	
 	samSite:cleanUp()
 	samSite2:cleanUp()

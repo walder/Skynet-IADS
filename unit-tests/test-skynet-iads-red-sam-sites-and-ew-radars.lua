@@ -155,7 +155,7 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 		local launcher = launchers[i]
 		lu.assertEquals(launcher:getInitialNumberOfMissiles(), 4)
 		lu.assertEquals(launcher:getRange(), 75000)
-		lu.assertEquals(launcher:getMaximumFiringAltitude(), 30000)
+		lu.assertEquals(launcher:getMaximumFiringAltitude(), 25000)
 		numLoops = numLoops + 1
 	end
 	lu.assertEquals(numLoops, 2)

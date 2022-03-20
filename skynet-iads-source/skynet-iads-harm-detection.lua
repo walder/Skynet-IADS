@@ -19,13 +19,21 @@ function SkynetIADSHARMDetection:setContacts(contacts)
 end
 
 function SkynetIADSHARMDetection:evaluateContacts()
+	self:cleanAgedContacts()
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]	
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
+		--if a contact has only been hit by a radar once it's speed is 0
+		if groundSpeed == 0 then
+			return
+		end
 		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
 		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
+		--self.iads:printOutputToLog(contact:getName().." new Radars to evaluate: "..#newRadarsToEvaluate)
+		--self.iads:printOutputToLog(contact:getName().." ground speed: "..groundSpeed)
 		if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
 			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
+			--self.iads:printOutputToLog("DETECTION PROB: "..detectionProbability)
 			if ( self:shallReactToHARM(detectionProbability) ) then
 				contact:setHARMState(SkynetIADSContact.HARM)
 				if (self.iads:getDebugSettings().harmDefence ) then
@@ -50,6 +58,16 @@ function SkynetIADSHARMDetection:evaluateContacts()
 			self:informRadarsOfHARM(contact)
 		end
 	end
+end
+
+function SkynetIADSHARMDetection:cleanAgedContacts()
+	local activeContactRadars = {}
+	for contact, radars in pairs (self.contactRadarsEvaluated) do
+		if contact:getAge() < 32 then
+			activeContactRadars[contact] = radars
+		end
+	end
+	self.contactRadarsEvaluated = activeContactRadars
 end
 
 function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)
