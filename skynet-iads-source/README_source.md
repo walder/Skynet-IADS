@@ -116,23 +116,13 @@ If identified as a HARM the IADS will shut down radars 30 degrees left and right
 The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
 
 ## Point defence
-When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
-This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
+When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information. This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
 
-You can tell a radar emitter it has a point denfence to rely on. If the radar emitter goes dark due to an inbound HARM it will activate its point defences to fire at the HARM.
+Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The radar emitter will shut down, if it believes its point defences won't be able to handle the number of HARMs inbound. As long as there is one point defence launcher and missile per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers and missiles the protected asset will shut down. Tests in DCS have shown that this is roughly the saturation point. If the SAM site reling on point defence can engagen HARMs its launchers an missiles will also count to the saturation point.
 
-You can set the radar emitter to keep emitting when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the radar emitter will revert back to its previously set HARM defence behaviour.
-Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The radar emitter will shut down, if it believes its point defences won't be able to handle the number of HARMs inbound. 
-As long as there is one point defence launcher per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers the protected asset will shut down. Tests in DCS have shown that this is roughly the saturation point.
-
-As of April 2020 I have only been able to get the SA-15 and the SA-10 to engage HARMS. The SA-10 seems to have dificullty engaging HARMS when they are launched above a certain altitude (in my tests 25 k feet).
-The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
-
-The SA-15 does not have a HARM detection chance by default in Skynet, since this would mean it would shut down when targeted by a HARM, defeating its purpose.
+As of April 2022 I have only been able to get the SA-15 and the SA-10 to engage HARMS. The SA-10 seems to have dificullty engaging HARMS when they are launched above a certain altitude (in my tests 25 k feet). The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
 
 [Point defence setup example](#point-defence-1)
-
-There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
