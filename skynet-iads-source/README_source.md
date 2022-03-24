@@ -115,6 +115,11 @@ This implementation is closer to real life. SAM sites like the patriot and most 
 If identified as a HARM the IADS will shut down radars 30 degrees left and right of the HARM's fight path up to a distance of 20 nautical miles in front of the HARM.
 The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
 
+## HARM radar shutdown
+Once a HARM has been identified by Skynet, radars up to 20 nm in front and 15 degrees left or right of the HARM will be notified. Depending on their settins radar emitters will shut down or start defending against the HARM.
+
+![Skynet IADS overview](/images/skynet-harm-radar-shutdown.jpg)
+
 ## Point defence
 When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information. This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
 
