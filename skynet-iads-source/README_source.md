@@ -262,28 +262,11 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
 ## Warm up the SAM sites of an IADS
-Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire.
-This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
+This function is deprecated and will be removed in a future release.
 
-If you start your mission at a friendly base far away from the enemy IADS this in no big deal.
-If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
-
-This function will not shorten the time from a radar lock until a SAM site fires. It will however reduce total reaction time of a SAM site after beeing notified by Skynet to go live. 
-
-For example: the SA-15 Tor needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state.
-Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR (radar warning receiver) for 8 seconds.
-
- By default Skynet will activate the SAMs for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
 ```lua
 redIADS:setupSAMSitesAndThenActivate()
 ```
-
-You can also pass the number of seconds you would like to warm up the SAM sites if you think 60 seconds is too long:
-```lua
-redIADS:setupSAMSitesAndThenActivate(30)
-```
-
-No separate call to ```redIADS:activate()``` must be made.
 
 
 ## Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
@@ -365,6 +348,13 @@ During this time a target might have already left the engagement zone of SAM sit
 
 ```lua
 samSite:setGoLiveRangeInPercent(90)
+```
+
+### Engage air weapons
+Will set the SAM site to engage air weapons, if it is able to do so. It is a wrapper for the [ENGAGE_AIR_WEAPONS](https://wiki.hoggitworld.com/view/DCS_option_engage_air_weapons) setting.
+
+```lua
+samSite:setShallEngageAirWeapons(true)
 ```
 
 ## EW radar configuration
