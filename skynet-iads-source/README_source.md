@@ -412,7 +412,7 @@ local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
 ```
 
-Will prevent the EW radar or SAM site from going dark if a HARM is inbound. Conditions are HARM saturation level is not reached and the point defence has ammo left. Default state is false:
+This function is deprecated and will be removed in a future release.
 ```lua
 ewRadarOrSamSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 ```
@@ -537,7 +537,7 @@ This is an example of how you can set up your IADS used in the [demo mission](/d
 do
 
 --create an instance of the IADS
-redIADS = SkynetIADS:create('RED')
+redIADS = SkynetIADS:create('RED IADS')
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
@@ -581,9 +581,9 @@ redIADS:getSAMSiteByGroupName('SAM-SA-2'):setEngagementZone(SkynetIADSAbstractRa
 redIADS:getSAMSitesByNatoName('SA-10'):setActAsEW(true)
 
 --set the SA-15's as point defence for the SA-10 site. We set it to always react to a HARM so we can demonstrate the point defence mechanism in Skynet
--- the SA-10 will stay online when shot at by HARMS as long as the point defences have ammo and the SA-15 is not saturated by HARMS(setIgnoreHARMSWhilePointDefencesHaveAmmo(true))
+-- the SA-10 will stay online when shot at by HARMS as long as the point defences and SAM site have ammo and the saturation point is not reached
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15-point-defence-SA-10')
-redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100)
 
 --set this SA-11 site to go live 70% of max range of its missiles (default value: 100%), its HARM detection probability is set to 50% (default value: 70%)
 redIADS:getSAMSiteByGroupName('SAM-SA-11'):setGoLiveRangeInPercent(70):setHARMDetectionChance(50)
@@ -605,7 +605,7 @@ local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), redIADS
 jammer:masterArmOn()
 
 --setup blue IADS:
-blueIADS = SkynetIADS:create('UAE')
+blueIADS = SkynetIADS:create('BLUE IADS')
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
 blueIADS:activate()
