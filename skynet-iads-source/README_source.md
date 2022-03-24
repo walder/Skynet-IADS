@@ -116,7 +116,7 @@ If identified as a HARM the IADS will shut down radars 30 degrees left and right
 The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
 
 ## HARM radar shutdown
-Once a HARM has been identified by Skynet, radars up to 20 nm in front and 15 degrees left or right of the HARM will be notified. Depending on their settins radar emitters will shut down or start defending against the HARM.
+Once a HARM has been identified by Skynet, radars up to 20 nm ahead and 15 degrees left or right of the HARM will be notified. Depending on their settins radar emitters will shut down or start defending against the HARM.
 
 ![Skynet IADS overview](/images/skynet-harm-radar-shutdown.jpg)
 
