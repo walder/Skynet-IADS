@@ -580,8 +580,8 @@ redIADS:getSAMSiteByGroupName('SAM-SA-2'):setEngagementZone(SkynetIADSAbstractRa
 --all SA-10 sites shall act as EW sites, meaning their radars will be on all the time:
 redIADS:getSAMSitesByNatoName('SA-10'):setActAsEW(true)
 
---set the SA-15's as point defence for the SA-10 site. We set it to always react to a HARM so we can demonstrate the point defence mechanism in Skynet
--- the SA-10 will stay online when shot at by HARMS as long as the point defences and SAM site have ammo and the saturation point is not reached
+--set the SA-15's as point defence for the SA-10 site. We set the SA-10 to always identify HARMs so we can demonstrate the point defence mechanism in Skynet.
+--the SA-10 will stay online when shot at by HARMS as long as the point defences and SAM site have ammo and the saturation point is not reached.
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15-point-defence-SA-10')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100)
 
