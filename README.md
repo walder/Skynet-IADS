@@ -70,6 +70,7 @@ If you like using it, please consider a donation:**
      * [Engagement zone](#engagement-zone)
        * [Engagement zone options](#engagement-zone-options)
      * [Engage air weapons](#engage-air-weapons)
+     * [Engage HARM](#engage-harm)
    * [EW radar configuration](#ew-radar-configuration)
      * [Adding EW radars](#adding-ew-radars)
        * [Add multiple EW radars](#add-multiple-ew-radars)
@@ -414,10 +415,17 @@ samSite:setGoLiveRangeInPercent(90)
 ```
 
 ### Engage air weapons
-Will set the SAM site to engage air weapons, if it is able to do so. It is a wrapper for the [ENGAGE_AIR_WEAPONS](https://wiki.hoggitworld.com/view/DCS_option_engage_air_weapons) setting.
+Will set the SAM site to engage air weapons, if it is able to do so in DCS. It is a wrapper for the [ENGAGE_AIR_WEAPONS](https://wiki.hoggitworld.com/view/DCS_option_engage_air_weapons) setting.
 
 ```lua
-samSite:setShallEngageAirWeapons(true)
+samSite:setcanEngageAirWeapons(true)
+```
+
+### Engage HARM
+Will set the SAM site to engage HARMs, if it is able to do so in DCS. If set to false the SAM site will shut down if a HARM that has been identified by the IADS is inbound. SAM sites that can engage HARMS are set to true by default.
+
+```lua
+samSite:setCanEngageHARM(true)
 ```
 
 ## EW radar configuration
