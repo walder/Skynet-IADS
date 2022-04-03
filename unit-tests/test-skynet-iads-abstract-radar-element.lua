@@ -107,13 +107,58 @@ function TestSkynetIADSAbstractRadarElement:testGoLive()
 	lu.assertEquals(emissionState, true)
 end
 
-function TestSkynetIADSAbstractRadarElement:testIsSetToEngageAirWeapons()
+function TestSkynetIADSAbstractRadarElement:testCanEngageAirWeapons()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
+	
+	local called = false
+	local mockController = {}
+	function mockController:setOption(option, value)
+		lu.assertEquals(option, AI.Option.Ground.id.ENGAGE_AIR_WEAPONS)
+		lu.assertEquals(value, true)
+		called = true
+	end
+	
+	local mockDCSRepresenation = {}
+	function mockDCSRepresenation:getController()
+		return mockController
+	end
+	
+	function self.samSite:getDCSRepresentation()
+		return mockDCSRepresenation
+	end
+
+	
+	function self.samSite:getController()
+		return mockController
+	end
 	--by default SAM site is not set to engage air weapons in Skynet:
-	lu.assertEquals(self.samSite:isSetToEngageAirWeapons(), false)
-	self.samSite:setShallEngageAirWeapons(true)
-	lu.assertEquals(self.samSite:isSetToEngageAirWeapons(), true)
+	lu.assertEquals(self.samSite:getCanEngageAirWeapons(), false)
+	lu.assertEquals(self.samSite:setCanEngageAirWeapons(true), self.samSite)
+	lu.assertEquals(self.samSite:getCanEngageAirWeapons(), true)
+	lu.assertEquals(called, true)
+	self.samSite = nil
+end
+
+function TestSkynetIADSAbstractRadarElement:testCanEngageHARM()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local called = false
+	function self.samSite:setCanEngageAirWeapons(state)
+		lu.assertEquals(state, true)
+		called = true
+	end
+	
+	lu.assertEquals(self.samSite:setCanEngageHARM(true), self.samSite)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	lu.assertEquals(called, true)
+	
+	local called = false
+	self.samSite:setCanEngageHARM(false)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), false)
+	lu.assertEquals(called, false)
+	
 end
 
 function TestSkynetIADSAbstractRadarElement:testAddParentRadarAndClearParentRadars()
@@ -1195,6 +1240,7 @@ Search Radar:
 	self:setUp()
 	lu.assertEquals(self.samSite:getNatoName(), "Patriot")
 	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	
 	local radar = self.samSite:getSearchRadars()[1]
 	lu.assertEquals(radar:getMaxRangeFindingTarget(), 173872.484375)
@@ -1333,6 +1379,8 @@ function TestSkynetIADSAbstractRadarElement:testNASAMS()
 	self.samSiteName = "BLUE-SAM-NASAMS"
 	self:setUp()
 	lu.assertEquals(self.samSite:getNatoName(), "NASAMS")
+	lu.assertEquals(self.samSite:getHARMDetectionChance(),90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 26749.61328125)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 57000)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 6)
@@ -1442,7 +1490,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return true
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return false
 	end
 	
@@ -1466,7 +1514,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return false
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1489,7 +1537,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return true
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1512,7 +1560,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return false
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1535,7 +1583,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return true
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1559,7 +1607,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return true
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1583,7 +1631,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return false
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1607,7 +1655,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return true
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	
@@ -1631,7 +1679,7 @@ function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
 		return true
 	end
 	
-	function self.samSite:isSetToEngageAirWeapons()
+	function self.samSite:getCanEngageHARM()
 		return true
 	end
 	

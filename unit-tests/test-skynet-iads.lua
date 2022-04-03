@@ -711,35 +711,6 @@ function TestSkynetIADS:testAddSingleEWRadarAndSAMSiteWhenIADSIsActiveWillTrigge
 	
 end
 
-function TestSkynetIADS:testSetupSAMSites()
-	local numCalls = 0
-	local numHARMCalls = 0
-	local sams = self.testIADS:getSAMSites()
-	for i = 1, #sams do
-		local sam = sams[i]
-		function sam:goLive()
-			numCalls = numCalls + 1
-		end
-	end
-
-	lu.assertEquals(self.testIADS.samSetupMistTaskID, nil)
-	lu.assertEquals(self.testIADS.samSetupTime, 60)
-	self.testIADS:setupSAMSitesAndThenActivate(10)
-	lu.assertEquals(numCalls, #self.testIADS:getSAMSites())
-	lu.assertNotEquals(self.testIADS.samSetupMistTaskID, nil)
-	lu.assertEquals(self.testIADS.samSetupTime, 10)
-end
-
-function TestSkynetIADS:testSetupSAMSiteWithPointDefence()
-	local iads = SkynetIADS:create()
-	local sa15 = iads:addSAMSite('SAM-SA-15-1')
-	iads:addSAMSite('SAM-SA-10'):addPointDefence(sa15)
-	iads:setupSAMSitesAndThenActivate()
-	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-10'):isActive(), true)
-	lu.assertEquals(iads:getSAMSiteByGroupName('SAM-SA-15-1'):isActive(), true)
-	iads:deactivate()
-end
-
 function TestSkynetIADS:testBuildIADSWithAutonomousSAMS()
 	local iads = SkynetIADS:create()
 	local samSite = iads:addSAMSite('SAM-SA-10')

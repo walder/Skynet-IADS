@@ -147,6 +147,7 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
 	lu.assertEquals(#self.samSite:getRadars(), 3)
 	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	
 	local launchers = self.samSite:getLaunchers()
 	local numLoops = 0
@@ -460,8 +461,10 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testSA15LaunchersSearchRadarRangeA
 	self.samSiteName = "SAM-SA-15"
 	self:setUp()
 
-	lu.assertEquals(self.samSite:getHARMDetectionChance(), 0)
+	lu.assertEquals(self.samSite:getNatoName(),'SA-15')
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
 	lu.assertEquals(#self.samSite:getRadars(),1)	
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	
 	local target = IADSContactFactory("Harrier Pilot")
 	
@@ -541,6 +544,7 @@ DCS SA-13 Properties (Strela-10M3 / Gopher):
 	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
 	lu.assertEquals(#self.samSite:getLaunchers(), 1)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), false)
 	
 	local searchRadar = self.samSite:getSearchRadars()[1]
 	

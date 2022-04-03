@@ -13,7 +13,6 @@ function SkynetIADS:create(name)
 	iads.samSites = {}
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
-	iads.samSetupMistTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
@@ -24,7 +23,6 @@ function SkynetIADS:create(name)
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
-	iads.samSetupTime = 60
 	return iads
 end
 
@@ -190,7 +188,7 @@ function SkynetIADS:addSAMSite(samSiteName)
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
 	samSite:setupElements()
-	--samSite:setShallEngageAirWeapons(true)
+	samSite:setCanEngageAirWeapons(true)
 	samSite:goLive()
 	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
 	if self.ewRadarScanMistTaskID ~= nil then
@@ -526,28 +524,13 @@ end
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS.activate(self)
 	mist.removeFunction(self.ewRadarScanMistTaskID)
-	mist.removeFunction(self.samSetupMistTaskID)
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 	self:buildRadarCoverage()
 end
 
 function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
-	if setupTime then
-		self.samSetupTime = setupTime
-	end
-	local samSites = self:getSAMSites()
-	for i = 1, #samSites do
-		local sam = samSites[i]
-		sam:goLive()
-		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them by calling a separate goLive call here, point defence SAMs will therefore receive 2 goLive calls
-		-- this should not have a negative impact on performance
-		local pointDefences = sam:getPointDefences()
-		for j = 1, #pointDefences do
-			pointDefence = pointDefences[j]
-			pointDefence:goLive()
-		end
-	end
-	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
+	self:activate()
+	self.iads:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
 end
 
 function SkynetIADS:deactivate()

@@ -41,7 +41,7 @@ end
 
 function SkynetIADSSamSite:informOfContact(contact)
 	-- we make sure isTargetInRange (expensive call) is only triggered if no previous calls to this method resulted in targets in range
-	if ( self.targetsInRange == false and self:isTargetInRange(contact) and ( contact:isIdentifiedAsHARM() == false or ( contact:isIdentifiedAsHARM() == true and self:isSetToEngageAirWeapons() == true ) ) ) then
+	if ( self.targetsInRange == false and self:isTargetInRange(contact) and ( contact:isIdentifiedAsHARM() == false or ( contact:isIdentifiedAsHARM() == true and self:getCanEngageHARM() == true ) ) ) then
 		self:goLive()
 		self.targetsInRange = true
 	end
