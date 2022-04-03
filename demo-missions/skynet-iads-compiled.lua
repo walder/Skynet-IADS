@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.0.0-develop | BUILD TIME: 03.04.2022 1630Z ---")
+env.info("--- SKYNET VERSION: 3.0.0-develop | BUILD TIME: 03.04.2022 1701Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -961,8 +961,14 @@ function SkynetIADSLogger:printSAMSiteStatus()
 		
 		local samSitesInCoveredArea = samSite:getChildRadars()
 		
+		local engageAirWeapons = samSite:getCanEngageAirWeapons()
+		
+		local engageHARMS = samSite:getCanEngageHARM()
+		
+		local hasAmmo = samSite:hasRemainingAmmo()
+		
 		self:printOutputToLog("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
-		self:printOutputToLog("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT: "..tostring(samSite:getNumberOfMissilesInFlight()))
+		self:printOutputToLog("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | CAN ENGAGE AIR WEAPONS : "..tostring(engageAirWeapons).." | CAN ENGAGE HARMS : "..tostring(engageHARMS).." | HAS AMMO: "..tostring(hasAmmo).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT: "..tostring(samSite:getNumberOfMissilesInFlight()))
 		
 		if numConnectionNodes > 0 then
 			self:printOutputToLog("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
@@ -2119,7 +2125,6 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
 	instance.harmDecoys = {}
-	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = true

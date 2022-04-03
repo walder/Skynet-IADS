@@ -30,7 +30,6 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
 	instance.harmDecoys = {}
-	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = true
