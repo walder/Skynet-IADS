@@ -125,7 +125,7 @@ When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a cha
 
 Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The radar emitter will shut down, if it believes its point defences won't be able to handle the number of HARMs inbound. As long as there is one point defence launcher and missile per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers and missiles the protected asset will shut down. Tests in DCS have shown that this is roughly the saturation point. If the SAM site reling on point defence can engagen HARMs its launchers an missiles will also count to the saturation point.
 
-As of April 2022 I have only been able to get the SA-15 and the SA-10 to engage HARMS. The SA-10 seems to have dificullty engaging HARMS when they are launched above a certain altitude (in my tests 25 k feet). The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
+See FAQ [Which SAM systems can engage HARMS?](#which-sam-systems-can-engage-harms)
 
 [Point defence setup example](#point-defence-1)
 
@@ -635,6 +635,9 @@ In theory you can add all the types that are listed in the [skynet-iads-supporte
 Very short range units (like the Shilka AAA, Rapier) won't really benefit from the IADS apart from reacting to HARMs. These are better just placed in a mission and handeled by the default AI of DCS.
 This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
+
+## Which SAM systems can engage HARMS?
+As of April 2022 I have only been able to get the SA-15, SA-10, NASAMS and Patriot to engage HARMS. The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
 
 ## What exactly does Skynet do with the SAMS?
 Via the scripting engine one can toggle the radar emitters on and off. Further options are the alarm state and the rules of engagement. In a nutshell that's all that Skynet does. Skynet does also read the radar and firing range properties of a SAM site. Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
