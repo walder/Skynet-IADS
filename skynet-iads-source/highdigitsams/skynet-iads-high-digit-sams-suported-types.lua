@@ -73,7 +73,8 @@ samTypesDB['S-300PMU1'] = {
 	['name']  = {
 		['NATO'] = 'SA-20A Gargoyle'
 	},
-	['harm_detection_chance'] = 90
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
 }	
 
 --[[ Units in the SA-23 Group:
@@ -117,7 +118,8 @@ samTypesDB['S-300VM'] = {
 	['name']  = {
 		['NATO'] = 'SA-23 Antey-2500'
 	},
-	['harm_detection_chance'] = 90
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
 }	
 
 --[[ Units in the SA-10B Group:
@@ -166,7 +168,8 @@ samTypesDB['S-300PS'] = {
 	['name']  = {
 		['NATO'] = 'SA-10B Grumble'
 	},
-	['harm_detection_chance'] = 90
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
 }
 
 --[[ Extra launchers for the in game SA-10C and HighDigitSAMs SA-10B, SA-20B
@@ -274,7 +277,8 @@ samTypesDB['S-300V'] = {
 	['name']  = {
 		['NATO'] = 'SA-12 Gladiator/Giant'
 	},
-	['harm_detection_chance'] = 90
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
 }
 
 --[[
@@ -330,8 +334,13 @@ samTypesDB['S-300PMU2'] = {
 	['name']  = {
 		['NATO'] = 'SA-20B Gargoyle B'
 	},
-	['harm_detection_chance'] = 90
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
 }
+
+--[[
+
+--]]
 end
 
 

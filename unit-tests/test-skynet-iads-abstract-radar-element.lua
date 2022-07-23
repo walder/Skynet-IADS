@@ -29,7 +29,181 @@ function TestSkynetIADSAbstractRadarElement:tearDown()
 	self.samSiteName = nil
 end
 
-function TestSkynetIADSAbstractRadarElement:testAddChildRadar()
+--TODO: test other calls in the GoDark Method
+function TestSkynetIADSAbstractRadarElement:testGoDark()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local mockRepresentation = {}
+	
+	local emissionState = nil
+	
+	function mockRepresentation:enableEmission(state)
+		emissionState = false
+	end
+	
+	function mockRepresentation:isExist()
+		return true
+	end
+	
+	function self.samSite:getDCSRepresentation()
+		return mockRepresentation
+	end
+	
+	
+	local mockController = {}
+	
+	function mockController:setOption(option)
+	
+	end
+	
+	function mockRepresentation:getController()
+		return mockController
+	end
+	
+	
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(emissionState, false)
+	
+end
+
+--TODO: test other calls in the GoLive Method
+function TestSkynetIADSAbstractRadarElement:testGoLive()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	self.samSite:goDark()
+	
+	local mockRepresentation = {}
+	
+	local emissionState = nil
+	
+	function mockRepresentation:enableEmission(state)
+		emissionState = true
+	end
+	
+	function mockRepresentation:isExist()
+		return true
+	end
+	
+	function self.samSite:getDCSRepresentation()
+		return mockRepresentation
+	end
+	
+	
+	local mockController = {}
+	
+	function mockController:setOption(option)
+	
+	end
+	
+	function mockRepresentation:getController()
+		return mockController
+	end
+	
+	
+	self.samSite:goLive()
+	lu.assertEquals(self.samSite:isActive(), true)
+	lu.assertEquals(emissionState, true)
+end
+
+function TestSkynetIADSAbstractRadarElement:testCanEngageAirWeapons()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local called = false
+	local mockController = {}
+	function mockController:setOption(option, value)
+		lu.assertEquals(option, AI.Option.Ground.id.ENGAGE_AIR_WEAPONS)
+		lu.assertEquals(value, true)
+		called = true
+	end
+	
+	local mockDCSRepresenation = {}
+	function mockDCSRepresenation:getController()
+		return mockController
+	end
+	
+	function self.samSite:getDCSRepresentation()
+		return mockDCSRepresenation
+	end
+
+	
+	function self.samSite:getController()
+		return mockController
+	end
+	--by default SAM site is not set to engage air weapons in Skynet:
+	lu.assertEquals(self.samSite:getCanEngageAirWeapons(), false)
+	lu.assertEquals(self.samSite:setCanEngageAirWeapons(true), self.samSite)
+	lu.assertEquals(self.samSite:getCanEngageAirWeapons(), true)
+	lu.assertEquals(called, true)
+	
+	--we test that calling setEngageAirWeapons with true on a SAM site that can by default engage harms also sets canEngageHarm to true
+	
+	function mockController:setOption(option, value)
+	end
+	
+	self.samSite.dataBaseSupportedTypesCanEngageHARM = true
+	self.samSite:setCanEngageAirWeapons(false)
+	self.samSite:setCanEngageAirWeapons(true)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	self.samSite = nil
+end
+
+function TestSkynetIADSAbstractRadarElement:testCanEngageHARM()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local called = false
+	function self.samSite:setCanEngageAirWeapons(state)
+		lu.assertEquals(state, true)
+		called = true
+	end
+	
+	lu.assertEquals(self.samSite:setCanEngageHARM(true), self.samSite)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	lu.assertEquals(called, true)
+	
+	local called = false
+	self.samSite:setCanEngageHARM(false)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), false)
+	lu.assertEquals(called, false)
+	
+end
+
+function TestSkynetIADSAbstractRadarElement:testAddParentRadarAndClearParentRadars()
+	self.samSiteName = "SAM-SA-6-2"
+	self:setUp()
+	
+	local called = false
+	function self.samSite:setToCorrectAutonomousState()
+		called = true
+	end
+	
+	lu.assertEquals(#self.samSite:getParentRadars(), 0)
+	local parentRad1 = {}
+	self.samSite:addParentRadar(parentRad1)
+	lu.assertEquals(#self.samSite:getParentRadars(), 1)
+	
+	--try adding the same radar again, make sure its not added:
+	self.samSite:addParentRadar(parentRad1)
+	lu.assertEquals(#self.samSite:getParentRadars(), 1)
+	
+	local parentRad2 = {}
+	self.samSite:addParentRadar(parentRad2)
+	lu.assertEquals(#self.samSite:getParentRadars(), 2)
+	
+	lu.assertEquals(self.samSite:getParentRadars()[1], parentRad2)
+	lu.assertEquals(self.samSite:getParentRadars()[2], parentRad1)
+	
+	lu.assertEquals(called, true)
+	
+	--reset array to prevent teardown issues with mock objects
+	self.samSite:clearParentRadars()
+	lu.assertEquals(#self.samSite:getParentRadars(), 0)
+end
+
+function TestSkynetIADSAbstractRadarElement:testAddChildRadarAndClearChildRadars()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
 	lu.assertEquals(#self.samSite:getChildRadars(), 0)
@@ -100,38 +274,6 @@ function TestSkynetIADSAbstractRadarElement:testGetUsableChildRadars()
 	--reset array to prevent teardown issues with mock objects
 	self.samSite.childRadars = {}
 	
-end
-
-function TestSkynetIADSAbstractRadarElement:testAddParentRadar()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	
-	local called = false
-	function self.samSite:setToCorrectAutonomousState()
-		called = true
-	end
-	
-	lu.assertEquals(#self.samSite:getParentRadars(), 0)
-	local parentRad1 = {}
-	self.samSite:addParentRadar(parentRad1)
-	lu.assertEquals(#self.samSite:getParentRadars(), 1)
-	
-	--try adding the same radar again, make sure its not added:
-	self.samSite:addParentRadar(parentRad1)
-	lu.assertEquals(#self.samSite:getParentRadars(), 1)
-	
-	local parentRad2 = {}
-	self.samSite:addParentRadar(parentRad2)
-	lu.assertEquals(#self.samSite:getParentRadars(), 2)
-	
-	lu.assertEquals(self.samSite:getParentRadars()[1], parentRad2)
-	lu.assertEquals(self.samSite:getParentRadars()[2], parentRad1)
-	
-	lu.assertEquals(called, true)
-	
-	--reset array to prevent teardown issues with mock objects
-	self.samSite:clearParentRadars()
-	lu.assertEquals(#self.samSite:getParentRadars(), 0)
 end
 
 function TestSkynetIADSAbstractRadarElement:testInformChildrenOfStateChange()
@@ -341,6 +483,8 @@ function TestSkynetIADSAbstractRadarElement:testUpdateMissilesInFlight()
 	lu.assertEquals(self.samSite:hasMissilesInFlight(), false)
 end
 
+<<<<<<< HEAD
+=======
 function TestSkynetIADSAbstractRadarElement:testCheckSA6GroupNumberOfLaunchersAndRangeValuesAndSearchRadarsAndNatoName()
 --[[
 	DCS properties SA-6 (Kub / Gainful) 
@@ -658,6 +802,7 @@ function TestSkynetIADSAbstractRadarElement:testShilkaGroupLaunchersSearchRadarR
 	lu.assertEquals(launcher:isWithinFiringHeight(target), false)
 end
 
+>>>>>>> 4c54b8735ac3c8093ad701433ce0cd7b98831965
 function TestSkynetIADSAbstractRadarElement:testShutDownShilkaWhenOutOfAmmo()
 	local launcherData =
 	{
@@ -743,82 +888,6 @@ function TestSkynetIADSAbstractRadarElement:testShutDownShilkaWhenOutOfAmmo()
 	
 end
 
-function TestSkynetIADSAbstractRadarElement:testSA15LaunchersSearchRadarRangeAndHARMDefenceChance()
-	--[[ 
-	DCS SA-15: properties:
-	Launcher
-    {
-        count=8,
-        desc={
-            Nmax=30,
-            RCS=0.03070000000298,
-            _origin="",
-            altMax=6000,
-            altMin=10,
-            box={
-                max={x=1.8263295888901, y=0.26701140403748, z=0.26600670814514},
-                min={x=-1.678077340126, y=-0.26701140403748, z=-0.26600670814514}
-            },
-            category=1,
-            displayName="9M330 Tor (SA-15 Gauntlet)",
-            fuseDist=7,
-            guidance=4,
-            life=2,
-            missileCategory=2,
-            rangeMaxAltMax=12000,
-            rangeMaxAltMin=12000,
-            rangeMin=1500,
-            typeName="SA9M330",
-            warhead={caliber=220, explosiveMass=14.5, mass=14.5, type=1}
-        }
-    }
-	
-	Radar:
-{
-    0={{opticType=0, type=0, typeName="generic SAM search visir"}},
-    {
-        {
-            detectionDistanceAir={
-                lowerHemisphere={headOn=16718.5078125, tailOn=16718.5078125},
-                upperHemisphere={headOn=16718.5078125, tailOn=16718.5078125}
-            },
-            type=1,
-            typeName="Tor 9A331"
-        }
-    }
-}	--]]
-
-	self.samSiteName = "SAM-SA-15"
-	self:setUp()
-
-	lu.assertEquals(self.samSite:getHARMDetectionChance(), 0)
-	lu.assertEquals(#self.samSite:getRadars(),1)	
-	
-	local target = IADSContactFactory("Harrier Pilot")
-	
-	local searchRadar = self.samSite:getSearchRadars()[1]
-	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 16718.5078125)
-	lu.assertEquals(searchRadar:isInRange(target), false)
-	
-	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
-	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
-	lu.assertEquals(#self.samSite:getLaunchers(), 1)
-	
-	local launcher = self.samSite:getLaunchers()[1]
-	lu.assertEquals(launcher:getRange(), 12000)
-	lu.assertEquals(launcher:getMaximumFiringAltitude(), 6000)
-	
-	lu.assertEquals(launcher:isInRange(target), false)
-
-	lu.assertEquals(mist.utils.round(launcher:getHeight(target)), 1930)
-	lu.assertEquals(launcher:getMaximumFiringAltitude(), 6000)
-	lu.assertEquals(launcher:isWithinFiringHeight(target), true)
-	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 8)
-	
-	launcher.maximumFiringAltitude = 400
-	lu.assertEquals(launcher:isWithinFiringHeight(target), false)
-end
-
 function TestSkynetIADSAbstractRadarElement:testCreateSamSiteFromInvalidGroup()
 	self.samSiteName = "Invalid-for-sam"
 	self:setUp()
@@ -827,72 +896,6 @@ function TestSkynetIADSAbstractRadarElement:testCreateSamSiteFromInvalidGroup()
 	lu.assertEquals(#self.samSite:getLaunchers(), 0)
 	lu.assertEquals(#self.samSite:getSearchRadars(), 0)
 	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
-end
-
-function TestSkynetIADSAbstractRadarElement:testSA13LaunchersSearchRadarRangeAndHARMDefence()
---[[
-DCS SA-13 Properties (Strela-10M3 / Gopher):
-{
-    {
-        count=8,
-        desc={
-            Nmax=16,
-            RCS=0.050000000745058,
-            _origin="",
-            altMax=3500,
-            altMin=25,
-            box={
-                max={x=1.1227556467056, y=0.13098473846912, z=0.13213211297989},
-                min={x=-1.1213990449905, y=-0.13098473846912, z=-0.13213211297989}
-            },
-            category=1,
-            displayName="9M333 Strela-10 (SA-13 Gopher)",
-            fuseDist=3,
-            guidance=2,
-            life=2,
-            missileCategory=2,
-            rangeMaxAltMax=5000,
-            rangeMaxAltMin=5000,
-            rangeMin=800,
-            typeName="SA9M333",
-            warhead={caliber=120, explosiveMass=3.5, mass=3.5, type=1}
-        }
-    },
-    {
-	count=1009,
-        desc={
-            _origin="",
-            box={
-                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
-                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
-            },
-            category=0,
-            displayName="7.62mm",
-            life=2,
-            typeName="weapons.shells.7_62x54",
-            warhead={caliber=7.62, explosiveMass=0, mass=0.0119, type=0}
-        }
-    }
-	Does not have any Radar Properties in DCS
---]]
-
-	self.samSiteName = "SAM-SA-13"
-	self:setUp()
-	lu.assertEquals(#self.samSite:getRadars(), 1)
-	lu.assertEquals(#self.samSite:getSearchRadars(), 1)
-	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
-	lu.assertEquals(#self.samSite:getLaunchers(), 1)
-	
-	local searchRadar = self.samSite:getSearchRadars()[1]
-	
-	--this asset has no radar sensor information, we load the launcher data instead, to keep interface consistent:
-	lu.assertEquals(searchRadar:getDCSRepresentation():getSensors(), nil)
-	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 5000)
-	
-	local launcher = self.samSite:getLaunchers()[1]
-	lu.assertEquals(launcher:getRange(), 5000)
-	lu.assertEquals(launcher:getMaximumFiringAltitude(), 3500)
-	lu.assertEquals(launcher:getRemainingNumberOfMissiles(), 8)
 end
 
 function TestSkynetIADSAbstractRadarElement:testSamSiteGroupContainingOfOneUnitOnlySA8()
@@ -936,110 +939,6 @@ function TestSkynetIADSAbstractRadarElement:testHARMTimeToImpactCalculation()
 	lu.assertEquals(self.samSite:getSecondsToImpact(400, 0), 0)
 end
 
-function TestSkynetIADSAbstractRadarElement:testEvaluateIfTargetsContainHARMsShallReactTrue()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	
-	local iadsContact = IADSContactFactory("test-distance-calculation")
-	
-	local calledShutdown = false
-	
-	function self.samSite:getDetectedTargets()
-		return {iadsContact}
-	end
-	function self.samSite:getDistanceInMetersToContact(a, b)
-		return 50
-	end
-	function self.samSite:calculateImpactPoint(a, b)
-		return self:getRadars()[1]:getPosition().p
-	end
-	
-	function self.samSite:shallReactToHARM()
-		return true
-	end
-	
-	function self.samSite:goSilentToEvadeHARM()
-		calledShutdown = true
-	end
-	
-	lu.assertEquals(#self.samSite:getRadars(), 1)
-	self.samSite:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(calledShutdown, false)
-	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['target'], iadsContact)
-	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 1)
-	self.samSite:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
-	lu.assertEquals(calledShutdown, true)
-end
-
-
-function TestSkynetIADSAbstractRadarElement:testNoErrorTriggeredWhenRadarUnitDestroyedAndHARMDefenceIsRunning()
-	
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	
-	local iadsContact = IADSContactFactory("test-distance-calculation")
-	
-	local calledPosition = false
-	
-	function self.samSite:getDetectedTargets()
-		return {iadsContact}
-	end
-	
-	local radar = self.samSite:getRadars()[1]
-	
-	--simulate a destroyed radar:
-	function radar:isExist()
-		return false
-	end
-	
-	--a destroyed radar returns nil for its position:
-	function radar:getPosition()
-		calledPosition = true
-		self:getDCSRepresentation():getPosition()
-	end
-	
-	lu.assertEquals(#self.samSite:getRadars(), 1)
-	self.samSite:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(calledPosition, false)
-end
-
-function TestSkynetIADSAbstractRadarElement:testEvaluateIfTargetsContainHARMsShallReactFalse()
-	self.samSiteName = "SAM-SA-6-2"
-	self:setUp()
-	
-	local iadsContact = IADSContactFactory("test-distance-calculation")
-	
-	local calledShutdown = false
-	
-	function self.samSite:getDetectedTargets()
-		return {iadsContact}
-	end
-	function self.samSite:getDistanceInMetersToContact(a, b)
-		return 50
-	end
-	function self.samSite:calculateImpactPoint(a, b)
-		return self:getRadars()[1]:getPosition().p
-	end
-	
-	function self.samSite:shallReactToHARM()
-		return false
-	end
-	
-	function self.samSite:goSilentToEvadeHARM()
-		calledShutdown = true
-	end
-	
-	lu.assertEquals(#self.samSite:getRadars(), 1)
-	self.samSite:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(calledShutdown, false)
-	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['target'], iadsContact)
-	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 1)
-	self.samSite:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(self.samSite.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
-	lu.assertEquals(calledShutdown, false)
-end
-
 function TestSkynetIADSAbstractRadarElement:testSlantRangeCalculationForHARMDefence()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
@@ -1053,9 +952,10 @@ end
 function TestSkynetIADSAbstractRadarElement:testFinishHARMDefence()
 	self.samSiteName = "SAM-SA-6-2"
 	self:setUp()
-	self.samSite:goSilentToEvadeHARM()
+	self.samSite:goSilentToEvadeHARM(10)
 	lu.assertEquals(self.samSite:isActive(), false)
 	self.samSite:finishHarmDefence()
+	lu.assertEquals(self.samSite.harmShutdownTime, 0)
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:isActive(), true)
 end
@@ -1203,42 +1103,6 @@ function TestSkynetIADSAbstractRadarElement:testInformOfContactInRangeWhenEarlyW
 	lu.assertEquals(self.samSite:isActive(), true)
 end
 
-function TestSkynetIADSAbstractRadarElement:testInformOfContactMultipleTimesOnlyOneIsTargetInRangeCall()
-	self.samSiteName = "SAM-SA-6"
-	self:setUp()
-	
-	local mockContact = {}
-	
-	local numTimesCalledTargetInRange = 0
-	
-	function self.samSite:isTargetInRange(target)
-		numTimesCalledTargetInRange = numTimesCalledTargetInRange + 1
-		lu.assertIs(target, mockContact)
-		return true
-	end
-	self.samSite:targetCycleUpdateStart()
-	self.samSite:informOfContact(mockContact)
-	self.samSite:informOfContact(mockContact)
-	lu.assertEquals(numTimesCalledTargetInRange, 1)
-end
-
-function TestSkynetIADSAbstractRadarElement:testInformOfContactInRange()
-	self.samSiteName = "SAM-SA-6"
-	self:setUp()
-	local mockContact = {}
-	function self.samSite:isTargetInRange(target)
-		lu.assertIs(target, mockContact)
-		return true
-	end
-	self.samSite:goDark()
-	self.samSite:targetCycleUpdateStart()
-	lu.assertEquals(self.samSite:isActive(), false)
-	self.samSite:informOfContact(mockContact)
-	lu.assertEquals(self.samSite:isActive(), true)
-	self.samSite:targetCycleUpdateEnd()
-	lu.assertEquals(self.samSite:isActive(), true)
-end
-
 function TestSkynetIADSAbstractRadarElement:testSA2InformOfContactTargetInRangeMethod()
 	self.samSiteName = "SAM-SA-2"
 	self:setUp()
@@ -1254,7 +1118,10 @@ function TestSkynetIADSAbstractRadarElement:testSA2InformOfContactTargetInRangeM
 	local searchRadar = self.samSite:getSearchRadars()[1]
 	lu.assertEquals(searchRadar:getTypeName(), 'p-19 s-125 sr')
 	local sensors = Unit.getByName('Unit #005'):getSensors()
+<<<<<<< HEAD
+=======
 		
+>>>>>>> 4c54b8735ac3c8093ad701433ce0cd7b98831965
 	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 53499.2265625)
 
 	local launcher = self.samSite:getLaunchers()[1]
@@ -1372,6 +1239,8 @@ function TestSkynetIADSAbstractRadarElement:testSA2OutOfMissilesNoMissilesInFlig
 	
 end
 
+--[[
+This test is no longer required with setEmission available in dcs 2.7
 function TestSkynetIADSAbstractRadarElement:testControllerNotDisabledWhenGoingDarkAndOutOfAmmo()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
@@ -1401,7 +1270,10 @@ function TestSkynetIADSAbstractRadarElement:testControllerNotDisabledWhenGoingDa
 	lu.assertEquals(optionCalled, true)
 	
 end
+--]]
 
+--[[
+This test is no longer required with setEmission available in dcs 2.7
 function TestSkynetIADSAbstractRadarElement:testControllerDisabledWhenGoingDarkAndHasRemainingAmmo()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
@@ -1430,7 +1302,7 @@ function TestSkynetIADSAbstractRadarElement:testControllerDisabledWhenGoingDarkA
 	lu.assertEquals(stateCalled, true)
 	lu.assertEquals(optionCalled, false)
 end
-
+--]]
 function TestSkynetIADSAbstractRadarElement:testSA2GoLiveRangeInPercentInKillZone()
 	self.samSiteName = "SAM-SA-2"
 	self:setUp()
@@ -1523,6 +1395,67 @@ function TestSkynetIADSAbstractRadarElement:testWillSAMShutDownWhenItLoosesPower
 	lu.assertEquals(self.samSite:isActive(), false)
 end
 
+function TestSkynetIADSAbstractRadarElement:testSetPointDefence()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	local pd = self.skynetIADS:addSAMSite("SAM-SA-15-1")
+	lu.assertEquals(pd:getIsAPointDefence(), false)
+	self.samSite:addPointDefence(pd)
+	lu.assertEquals(pd:getIsAPointDefence(), true)
+end
+
+function TestSkynetIADSAbstractRadarElement:testPointDefencesGoLive()
+
+	local stateSet = false
+	local mockPD1 = {}
+	function mockPD1:getActAsEW()
+		return false
+	end
+	function mockPD1:setIsAPointDefence(state)
+	
+	end
+	function mockPD1:setActAsEW(state)
+		stateSet = true
+	end
+	
+	function mockPD1:cleanUp()
+	
+	end
+	
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	self.samSite:addPointDefence(mockPD1)
+	lu.assertEquals(self.samSite:pointDefencesGoLive(), true)
+	lu.assertEquals(stateSet, true)
+	
+	
+	self:tearDown()
+	
+	local stateSet = false
+	local mockPD1 = {}
+	function mockPD1:getActAsEW()
+		return true
+	end
+	function mockPD1:setActAsEW(state)
+		stateSet = true
+	end
+	function mockPD1:setIsAPointDefence(state)
+	
+	end
+	
+	function mockPD1:cleanUp()
+	
+	end
+	
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	self.samSite:addPointDefence(mockPD1)
+	lu.assertEquals(self.samSite:pointDefencesGoLive(), false)
+	lu.assertEquals(stateSet, false)
+	
+	
+end
+
 function TestSkynetIADSAbstractRadarElement:testPointDefenceActiveWhenSAMGoesDarkDueToHARMDefence()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
@@ -1550,213 +1483,17 @@ end
 function TestSkynetIADSAbstractRadarElement:testCleanUpOldObjectsIdentifiedAsHARMS()
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
-	
-	local sa15 = Group.getByName("SAM-SA-15-1")
-	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
-	pointDefence:setupElements()
-	pointDefence:goLive()
-	pointDefence:goDark()
-	lu.assertEquals(self.samSite:addPointDefence(pointDefence), self.samSite)
-	lu.assertEquals(#self.samSite:getPointDefences(), 1)
-	
-	-- set point defence to ew mode: that's the state it is in, when defending a HARM
-	pointDefence:setActAsEW(true)
-	
-	local iadsContact = IADSContactFactory("test-distance-calculation")
-	local iadsContact2 = IADSContactFactory("test-not-in-firing-range-of-sa-2")	
-	local iadsContact3 = IADSContactFactory("test-outer-search-range")
-	
-	function self.samSite:getDetectedTargets()
-		return {iadsContact, iadsContact2, iadsContact3}
+	local mockContact = {}
+	function mockContact:getAge()
+		return 10
 	end
-	
-	function self.samSite:getDistanceInMetersToContact(a, b)
-		return 50
-	end
-	function self.samSite:calculateImpactPoint(a, b)
-		return self:getRadars()[1]:getPosition().p
-	end
-	
-	function self.samSite:shallReactToHARM()
-		return true
-	end
-	
-	function self.samSite:goSilentToEvadeHARM()
-	
-	end
-	
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(#self.samSite:getDetectedTargets(), 3)
-	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 3)
-	
-	self.samSite.objectsIdentifiedAsHarms = {}
-	
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	
-	--age a target
-	local testSAMSite = self.samSite	
-	function iadsContact3:getAge()
-		return testSAMSite.objectsIdentifiedAsHarmsMaxTargetAge + 1
-	end
-	
-	self.samSite:cleanUpOldObjectsIdentifiedAsHARMS()
-	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)
-	
-	---set to 0 harms detected, check if point defence is no longer in EW mode:
-	function iadsContact:getAge()
-		return testSAMSite.objectsIdentifiedAsHarmsMaxTargetAge + 1
-	end
-
-	function iadsContact2:getAge()
-		return testSAMSite.objectsIdentifiedAsHarmsMaxTargetAge + 1
-	end
-	
-	self.samSite:cleanUpOldObjectsIdentifiedAsHARMS()
-	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 0)
-	
-	lu.assertEquals(pointDefence:getActAsEW(), false)
-	
+	table.insert(self.samSite.objectsIdentifiedAsHarms, mockContact)
+	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 1)
 end
 
+--TODO:write Unit test
 function TestSkynetIADSAbstractRadarElement:testPointDefenceWhenOnlyOneEWRadarIsActiveAndAmmoIsStillAvailable()
-	self.samSiteName = "SAM-SA-10"
-	self:setUp()
-	self.samSite:setActAsEW(true)
-	
-	local sa15 = Group.getByName("SAM-SA-15-1")
-	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
-	pointDefence:setupElements()
-	pointDefence:goLive()
-	pointDefence:goDark()
-	lu.assertEquals(self.samSite:addPointDefence(pointDefence), self.samSite)
-	lu.assertEquals(#self.samSite:getPointDefences(), 1)
-	
-	local iadsContact = IADSContactFactory("test-distance-calculation")
-	local iadsContact2 = IADSContactFactory("test-not-in-firing-range-of-sa-2")	
-	local iadsContact3 = IADSContactFactory("test-outer-search-range")
-	
-	local calledShutdown = false
-	
-	-- we start with one contact the sam detects
-	function self.samSite:getDetectedTargets()
-		return {iadsContact}
-	end
-	
-	-- in this test we simulate an impact point that is close enough for the contact to be identified as a HARM
-	function self.samSite:getDistanceInMetersToContact(a, b)
-		return 50
-	end
-	
-	--we simulate the impact point to be a radar of the SAM site
-	function self.samSite:calculateImpactPoint(a, b)
-		return self:getRadars()[1]:getPosition().p
-	end
-	
-	--we ensure it will react to HARM (no probability in this test)
-	function self.samSite:shallReactToHARM()
-		return true
-	end
-	
-	function self.samSite:goSilentToEvadeHARM()
-		calledShutdown = true
-	end
-	
-	
-	--this test is for when setIgnoreHARMSWhilePointDefencesHaveAmmo is  not set expicitly (state false)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(calledShutdown, true)
-	
-	self.samSite.objectsIdentifiedAsHarms = {}
-	calledShutdown = false
-	
-	
-	-- set the state for HARM Ignore to true and check if the method returns a sam site for daisy chaining
-	lu.assertEquals(self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true), self.samSite)
-	
-	--this test should not provoke a HARM inbound response due to the point defence still having ammo and the number of HARMS is not greater than the point defences
-	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
-	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
-	
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(calledShutdown, false)
-	lu.assertEquals(self.samSite:isActive(), true)
-	lu.assertEquals(pointDefence:isActive(), true)
-	
-	self.samSite.objectsIdentifiedAsHarms = {}
-	calledShutdown = false
-	
-	
-	--this test if for when there are less point defence launchers than HARMs inbound, radar emitter will shut down:
-	function self.samSite:getDetectedTargets()
-		return {iadsContact, iadsContact2, iadsContact3}
-	end
-	
-	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
-	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
-	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 3)	
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(calledShutdown, true)
-	
-	self.samSite.objectsIdentifiedAsHarms = {}
-	calledShutdown = false
-	pointDefence:setActAsEW(false)
-	pointDefence:goDark()
-	
-	--this test is for when there are equal number of point defence launchers and HARMs inbound, radar emitter will not shut down
-	function self.samSite:getDetectedTargets()
-		return {iadsContact, iadsContact2}
-	end
 
-	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 2)	
-	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
-	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(calledShutdown, false)
-	lu.assertEquals(self.samSite:isActive(), true)
-	lu.assertEquals(pointDefence:isActive(), true)
-	
-	self.samSite.objectsIdentifiedAsHarms = {}
-	calledShutdown = false
-	pointDefence:setActAsEW(false)
-	pointDefence:goDark()
-	
-	
-	--this tests if there are lower number of point defence launchers than HARMs inbound, radar emitter will not shut down:
-	function self.samSite:getDetectedTargets()
-		return {iadsContact}
-	end
-	
-	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(self.samSite:getNumberOfObjectsItentifiedAsHARMS(), 1)	
-	lu.assertEquals(self.samSite:pointDefencesHaveEnoughLaunchers(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), true)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	lu.assertEquals(calledShutdown, false)
-	lu.assertEquals(self.samSite:isActive(), true)
-	lu.assertEquals(pointDefence:isActive(), true)
-	
-	self.samSite.objectsIdentifiedAsHarms = {}
-	calledShutdown = false
-	pointDefence:setActAsEW(false)
-	pointDefence:goDark()
-	
-	--this test is for when the point defence is out of ammo and setIgnoreHARMSWhilePointDefencesHaveAmmo is set to true
-	function pointDefence:getRemainingNumberOfMissiles()
-		return 0
-	end
-	self.samSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	self.samSite:evaluateIfTargetsContainHARMs(self.samSite)
-	
-	lu.assertEquals(self.samSite:pointDefencesHaveRemainingAmmo(self.samSite:getNumberOfObjectsItentifiedAsHARMS()), false)
-	lu.assertEquals(calledShutdown, true)
-	
 end
 
 function TestSkynetIADSAbstractRadarElement:testPointDefencesAreNotActivatedWhenNoHARMSRemoved()
@@ -1769,7 +1506,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefencesAreNotActivatedWhen
 	function self.samSite:pointDefencesStopActingAsEW()
 		calledStopPointDefence = true
 	end
-	 self.samSite:evaluateIfTargetsContainHARMs()
+	self.samSite:evaluateIfTargetsContainHARMs()
 	lu.assertEquals(calledStopPointDefence, false)
 end
 
@@ -1779,6 +1516,7 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWillGoDarkWhenSAMItI
 	local sa15 = Group.getByName("SAM-SA-15-1")
 	local pointDefence = SkynetIADSSamSite:create(sa15, self.skynetIADS)
 	self.samSite:addPointDefence(pointDefence)
+	pointDefence:setActAsEW(true)
 	self.samSite:goDark()
 	lu.assertEquals(pointDefence:isActive(), false)
 end
@@ -1836,6 +1574,7 @@ Search Radar:
 	self:setUp()
 	lu.assertEquals(self.samSite:getNatoName(), "Patriot")
 	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	
 	local radar = self.samSite:getSearchRadars()[1]
 	lu.assertEquals(radar:getMaxRangeFindingTarget(), 173872.484375)
@@ -1969,6 +1708,9 @@ Launcher:
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 10)
 end
 
+<<<<<<< HEAD
+function TestSkynetIADSAbstractRadarElement:testNASAMS()
+=======
 function TestSkynetIADSAbstractRadarElement:testNASAM()
 
 	self.samSiteName = "BLUE-SAM-NASAM"
@@ -2005,52 +1747,20 @@ Radar:
         }
     }
 }
+>>>>>>> 4c54b8735ac3c8093ad701433ce0cd7b98831965
 
-Launcher:
-{
-    {
-        count=4,
-        desc={
-            Nmax=18,
-            RCS=0.0099999997764826,
-            _origin="",
-            altMax=5500,
-            altMin=14.5,
-            box={
-                max={x=1.245908498764, y=0.20055842399597, z=0.20074887573719},
-                min={x=-1.754227399826, y=-0.20056092739105, z=-0.20036999881268}
-            },
-            category=1,
-            displayName="HQ-7",
-            fuseDist=7,
-            guidance=4,
-            life=2,
-            missileCategory=2,
-            rangeMaxAltMax=12000,
-            rangeMaxAltMin=12000,
-            rangeMin=500,
-            typeName="HQ-7",
-            warhead={caliber=156, explosiveMass=15, mass=15, type=1}
-        }
-    }
-}
---]]
-	self.samSiteName = "SAM-HQ-7"
+	self.samSiteName = "BLUE-SAM-NASAMS"
 	self:setUp()
+	lu.assertEquals(self.samSite:getNatoName(), "NASAMS")
+	lu.assertEquals(self.samSite:getHARMDetectionChance(),90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 26749.61328125)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 57000)
+	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 6)
 	
-	local group = Group.getByName(self.samSiteName)
---[[
-	local units = group:getUnits()
-	for i = 1, #units do
-		local unit = units[i]
-		if unit:getAmmo() then
-		--	lu.assertEquals(unit:getAmmo(), false)
-		end
-	end
---]]
-	lu.assertEquals(self.samSite:getNatoName(), "CSA-4")
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 12000)
-	lu.assertEquals(mist.utils.round(self.samSite:getRadars()[1]:getMaxRangeFindingTarget()), mist.utils.round(10090.756835938))
+	lu.assertEquals(self.samSite:getLaunchers()[2]:getRange(), 61000)
+	lu.assertEquals(self.samSite:getLaunchers()[2]:getInitialNumberOfMissiles(), 6)
+	
 end
 
 function TestSkynetIADSAbstractRadarElement:testSA5()
@@ -2145,7 +1855,7 @@ function TestSkynetIADSAbstractRadarElement:testCacheDetectedTargets()
 end
 
 --[[
-the IADS turns controllers of a SAM or EW site on and of. This has the advantage that a SAM site will react faster  after beeing waken up by the IADS
+the IADS turns controllers of a SAM or EW site on and off. This has the advantage that a SAM site will react faster  after beeing waken up by the IADS
 the down side is that the first call to getDetectedTarget() on a controller after a goLive returns no targets, this result is cached causing the SAM site to misbehave in the IADS.
 Therefore for the first seconds after goLive the cache of getDetectedTargets is bypassed, ensuring targets are stored and the SAM site behaves correctly. 
 --]]
@@ -2155,6 +1865,235 @@ function TestSkynetIADSAbstractRadarElement:testCacheInvalidatedFirstfewSecondsA
 	self.samSite:goDark()
 	self.samSite:goLive()
 	lu.assertEquals(self.samSite:getDetectedTargets() == self.samSite:getDetectedTargets(), false)
+end
+
+function TestSkynetIADSAbstractRadarElement:testCalculateAspectInDegrees()
+	self.samSite = self.skynetIADS:getSAMSiteByGroupName('SAM-SA-10')
+	lu.assertEquals(self.samSite:calculateAspectInDegrees(0, 90), 90)
+	lu.assertEquals(self.samSite:calculateAspectInDegrees(300, 90), 150)
+	lu.assertEquals(self.samSite:calculateAspectInDegrees(010, 280), 90)
+	lu.assertEquals(self.samSite:calculateAspectInDegrees(190, 350), 160)
+	lu.assertEquals(self.samSite:calculateAspectInDegrees(090, 270), 180)
+	lu.assertEquals(self.samSite:calculateAspectInDegrees(010, 170), 160)
+end
+
+function TestSkynetIADSAbstractRadarElement:testShallIgnoreHARMShutdown()
+	self.samSiteName = "SAM-SA-10"
+	self:setUp()
+	
+	--older sam site that can not engage HARMs (air weapons)
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), false)
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return false
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return false
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return true
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+	
+	
+	function self.samSite:hasEnoughLaunchersToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:hasRemainingAmmoToEngageMissiles(value)
+		return true
+	end
+	
+	function self.samSite:getCanEngageHARM()
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveRemainingAmmo(value)
+		return true
+	end
+	
+	function self.samSite:pointDefencesHaveEnoughLaunchers(value)
+		return false
+	end
+
+	lu.assertEquals(self.samSite:shallIgnoreHARMShutdown(), true)
+	
+
 end
 
 end

@@ -5,13 +5,14 @@ redIADS = SkynetIADS:create("Red IADS")
 local iadsDebug = redIADS:getDebugSettings()
 iadsDebug.IADSStatus = true
 iadsDebug.contacts = true
+iadsDebug.harmDefence = true
 --[[
 iadsDebug.radarWentDark = true
 iadsDebug.radarWentLive = true
 iadsDebug.jammerProbability = true
 iadsDebug.addedEWRadar = true
 iadsDebug.addedSAMSite = true
-iadsDebug.harmDefence = true
+
 iadsDebug.commandCenterStatusEnvOutput = true
 iadsDebug.samSiteStatusEnvOutput = true
 iadsDebug.earlyWarningRadarStatusEnvOutput = true
@@ -31,12 +32,12 @@ redIADS:addSAMSitesByPrefix('SAM'):setHARMDetectionChance(100)
 ewConnectionNode = Unit.getByName('connection-node-ew')
 redIADS:getEarlyWarningRadarByUnitName('EW-west2'):setHARMDetectionChance(100):addConnectionNode(ewConnectionNode)
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15-1')
-redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):setActAsEW(true):setHARMDetectionChance(100):addPointDefence(sa15)
 redIADS:getSAMSiteByGroupName('SAM-HQ-7'):setEngagementZone(SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE)
 local connectioNode = StaticObject.getByName('Unused Connection Node')
 redIADS:getSAMSiteByGroupName('SAM-SA-6-2'):addConnectionNode(connectioNode):setGoLiveRangeInPercent(120):setHARMDetectionChance(100)
 
-redIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(redIADS:getSAMSiteByGroupName('SAM-SA-15-P19')):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+redIADS:getEarlyWarningRadarByUnitName('EW-SR-P19'):addPointDefence(redIADS:getSAMSiteByGroupName('SAM-SA-15-P19'))
 
 
 

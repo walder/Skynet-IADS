@@ -9,6 +9,9 @@ SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK = 2
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE = 1
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE = 2
 
+SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT = 15
+SkynetIADSAbstractRadarElement.HARM_LOOKAHEAD_NM = 20
+
 function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	local instance = self:superClass():create(dcsElementWithRadar, iads)
 	setmetatable(instance, self)
@@ -26,7 +29,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.childRadars = {}
 	instance.missilesInFlight = {}
 	instance.pointDefences = {}
-	instance.ingnoreHARMSWhilePointDefencesHaveAmmo = false
+	instance.harmDecoys = {}
 	instance.autonomousBehaviour = SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI
 	instance.goLiveRange = SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
 	instance.isAutonomous = true
@@ -35,12 +38,17 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.maxHarmShutDownTime = 0
 	instance.minHarmPresetShutdownTime = 30
 	instance.maxHarmPresetShutdownTime = 180
+	instance.harmShutdownTime = 0
 	instance.firingRangePercent = 100
 	instance.actAsEW = false
 	instance.cachedTargets = {}
 	instance.cachedTargetsMaxAge = 1
 	instance.cachedTargetsCurrentAge = 0
 	instance.goLiveTime = 0
+	instance.engageAirWeapons = false
+	instance.isAPointDefence = false
+	instance.canEngageHARM = false
+	instance.dataBaseSupportedTypesCanEngageHARM = false
 	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
 	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
@@ -75,8 +83,19 @@ function SkynetIADSAbstractRadarElement:cleanUp()
 	self:removeEventHandlers()
 end
 
+function SkynetIADSAbstractRadarElement:setIsAPointDefence(state)
+	if (state == true or state == false) then
+		self.isAPointDefence = state
+	end
+end
+
+function SkynetIADSAbstractRadarElement:getIsAPointDefence()
+	return self.isAPointDefence
+end
+
 function SkynetIADSAbstractRadarElement:addPointDefence(pointDefence)
 	table.insert(self.pointDefences, pointDefence)
+	pointDefence:setIsAPointDefence(true)
 	return self
 end
 
@@ -84,8 +103,12 @@ function SkynetIADSAbstractRadarElement:getPointDefences()
 	return self.pointDefences
 end
 
+function SkynetIADSAbstractRadarElement:addHARMDecoy(harmDecoy)
+	table.insert(self.harmDecoys, harmDecoy)
+end
+
 function SkynetIADSAbstractRadarElement:addParentRadar(parentRadar)
-	self:abstractAddRadar(parentRadar, self.parentRadars)
+	self:insertToTableIfNotAlreadyAdded(self.parentRadars, parentRadar)
 	self:informChildrenOfStateChange()
 end
 
@@ -97,21 +120,8 @@ function SkynetIADSAbstractRadarElement:clearParentRadars()
 	self.parentRadars = {}
 end
 
-function SkynetIADSAbstractRadarElement:abstractAddRadar(radar, tbl)
-local isAdded = false
-	for i = 1, #tbl do
-		local child = tbl[i]
-		if child == radar then
-			isAdded = true
-		end
-	end
-	if isAdded == false then
-		table.insert(tbl, radar)
-	end
-end
-
 function SkynetIADSAbstractRadarElement:addChildRadar(childRadar)
-	self:abstractAddRadar(childRadar, self.childRadars)
+	self:insertToTableIfNotAlreadyAdded(self.childRadars, childRadar)
 end
 
 function SkynetIADSAbstractRadarElement:getChildRadars()
@@ -194,11 +204,31 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveRemainingAmmo(minNumber
 		local pointDefence = self.pointDefences[i]
 		remainingMissiles = remainingMissiles + pointDefence:getRemainingNumberOfMissiles()
 	end
+	return self:hasRequiredNumberOfMissiles(minNumberOfMissiles, remainingMissiles)
+end
+
+function SkynetIADSAbstractRadarElement:hasRequiredNumberOfMissiles(minNumberOfMissiles, remainingMissiles)
 	local returnValue = false
 	if ( remainingMissiles > 0 and remainingMissiles >= minNumberOfMissiles ) then
 		returnValue = true
 	end
 	return returnValue
+end
+
+function SkynetIADSAbstractRadarElement:hasRemainingAmmoToEngageMissiles(minNumberOfMissiles)
+	local remainingMissiles = self:getRemainingNumberOfMissiles()
+	return self:hasRequiredNumberOfMissiles(minNumberOfMissiles, remainingMissiles)
+end
+
+-- this method needs to be refactored so that it works for ew radars that don't have launchers, or that it is only called by sam sites
+function SkynetIADSAbstractRadarElement:hasEnoughLaunchersToEngageMissiles(minNumberOfLaunchers)
+	local launchers = self:getLaunchers()
+	if(launchers ~= nil) then
+	 launchers = #self:getLaunchers()
+	else 
+		launchers = 0
+	end
+	return self:hasRequiredNumberOfMissiles(minNumberOfLaunchers, launchers)
 end
 
 function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumberOfLaunchers)
@@ -207,17 +237,11 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumb
 		local pointDefence = self.pointDefences[i]
 		numOfLaunchers = numOfLaunchers + #pointDefence:getLaunchers()	
 	end
-	local returnValue = false
-	if ( numOfLaunchers > 0 and numOfLaunchers >= minNumberOfLaunchers ) then
-		returnValue = true
-	end
-	return returnValue
+	return self:hasRequiredNumberOfMissiles(minNumberOfLaunchers, numOfLaunchers)
 end
 
 function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
-	if state == true or state == false then
-		self.ingnoreHARMSWhilePointDefencesHaveAmmo = state
-	end
+	self.iads:printOutputToLog("DEPRECATED: setIgnoreHARMSWhilePointDefencesHaveAmmo SAM Site will stay live automaticall as long as itself or it's point defences can defend against a HARM")
 	return self
 end
 
@@ -359,13 +383,50 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
-			local harmDetection = dataType['harm_detection_chance']
-			self:setHARMDetectionChance(harmDetection)
+			self:setHARMDetectionChance(dataType['harm_detection_chance'])
+			self.dataBaseSupportedTypesCanEngageHARM = dataType['can_engage_harm'] 
+			self:setCanEngageHARM(self.dataBaseSupportedTypesCanEngageHARM)
 			local natoName = dataType['name']['NATO']
 			self:buildNatoName(natoName)
 			break
 		end	
 	end
+end
+
+function SkynetIADSAbstractRadarElement:setCanEngageHARM(canEngage)
+	if canEngage == true or canEngage == false then
+		self.canEngageHARM = canEngage
+		if ( canEngage == true and self:getCanEngageAirWeapons() == false ) then
+			self:setCanEngageAirWeapons(true)
+		end
+	end
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getCanEngageHARM()
+	return self.canEngageHARM
+end
+
+function SkynetIADSAbstractRadarElement:setCanEngageAirWeapons(engageAirWeapons)
+	if self:isDestroyed() == false then
+		local controller = self:getDCSRepresentation():getController()
+		if ( engageAirWeapons == true ) then
+			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, true)
+			--its important that we set var to true here, to prevent recursion in setCanEngageHARM
+			self.engageAirWeapons = true
+			--we set the original value we got when loading info about the SAM site
+			self:setCanEngageHARM(self.dataBaseSupportedTypesCanEngageHARM)
+		else
+			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, false)
+			self:setCanEngageHARM(false)
+			self.engageAirWeapons = false
+		end
+	end
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getCanEngageAirWeapons()
+	return self.engageAirWeapons
 end
 
 function SkynetIADSAbstractRadarElement:buildNatoName(natoName)
@@ -468,9 +529,9 @@ function SkynetIADSAbstractRadarElement:goLive()
 	then
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
-			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			self:getDCSRepresentation():enableEmission(true)
 			self.goLiveTime = timer.getTime()
 			self.aiState = true
 		end
@@ -495,16 +556,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	then
 		if self:isDestroyed() == false then
-			local controller = self:getController()
-			-- if the SAM site still has ammo we turn off the controller, this prevents rearming, however this way the SAM site is frozen in a red state, on the next actication it will be up and running much faster, therefore it will instantaneously engage targets
-			-- also  this is a better way to get the HARM to miss the target, if not set to false the HARM often sticks to the target
-			if self:hasRemainingAmmo() then
-				controller:setOnOff(false)
-			--if the SAM is out of ammo we set the state to green, and ROE to weapon hold, this way it will shut down its radar and it can be rearmed
-			else
-				controller:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.GREEN)
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-			end
+			self:getDCSRepresentation():enableEmission(false)
 		end
 		-- point defence will only go live if the Radar Emitting site it is protecting goes dark and this is due to a it defending against a HARM
 		if (self.harmSilenceID ~= nil) then
@@ -519,10 +571,15 @@ function SkynetIADSAbstractRadarElement:goDark()
 end
 
 function SkynetIADSAbstractRadarElement:pointDefencesGoLive()
+	local setActive = false
 	for i = 1, #self.pointDefences do
 		local pointDefence = self.pointDefences[i]
-		pointDefence:setActAsEW(true)
+		if ( pointDefence:getActAsEW() == false ) then
+			setActive = true
+			pointDefence:setActAsEW(true)
+		end
 	end
+	return setActive
 end
 
 function SkynetIADSAbstractRadarElement:isActive()
@@ -645,16 +702,26 @@ end
 
 function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self:finishHarmDefence(self)
-	--self.objectsIdentifiedAsHarms = {}
-	local harmTime = self:getHarmShutDownTime()
-	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..harmTime.." seconds | TTI: "..timeToImpact)
+	if ( timeToImpact == nil ) then
+		timeToImpact = 0
 	end
-	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + harmTime, 1)
+	
+	self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
+	self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
+	
+	self.harmShutdownTime = self:calculateHARMShutdownTime()
+	if self.iads:getDebugSettings().harmDefence then
+		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
+	end
+	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
 
-function SkynetIADSAbstractRadarElement:getHarmShutDownTime()
+function SkynetIADSAbstractRadarElement:getHARMShutdownTime()
+	return self.harmShutdownTime
+end
+
+function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
 	return shutDownTime
 end
@@ -662,6 +729,7 @@ end
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
 	mist.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
+	self.harmShutdownTime = 0
 	
 	if ( self:getAutonomousState() == true ) then
 		self:goAutonomous()
@@ -678,7 +746,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 				local target = targets[i]
 				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
 				if target.object then
-					local iadsTarget = SkynetIADSContact:create(target)
+					local iadsTarget = SkynetIADSContact:create(target, self)
 					iadsTarget:refresh()
 					if self:isTargetInRange(iadsTarget) then
 						table.insert(self.cachedTargets, iadsTarget)
@@ -725,37 +793,74 @@ end
 -- will only check for missiles, if DCS ads AAA than can engage HARMs then this code must be updated:
 function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
 	local numOfHarms = self:getNumberOfObjectsItentifiedAsHARMS()
-	return ( self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms) and self.ingnoreHARMSWhilePointDefencesHaveAmmo == true)
+	--[[
+	self.iads:printOutputToLog("Self enough launchers: "..tostring(self:hasEnoughLaunchersToEngageMissiles(numOfHarms)))
+	self.iads:printOutputToLog("Self enough missiles: "..tostring(self:hasRemainingAmmoToEngageMissiles(numOfHarms)))
+	self.iads:printOutputToLog("PD enough missiles: "..tostring(self:pointDefencesHaveRemainingAmmo(numOfHarms)))
+	self.iads:printOutputToLog("PD enough launchers: "..tostring(self:pointDefencesHaveEnoughLaunchers(numOfHarms)))
+	--]]
+	return ( ((self:hasEnoughLaunchersToEngageMissiles(numOfHarms) and self:hasRemainingAmmoToEngageMissiles(numOfHarms) and self:getCanEngageHARM()) or (self:pointDefencesHaveRemainingAmmo(numOfHarms) and self:pointDefencesHaveEnoughLaunchers(numOfHarms))))
 end
 
+function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
+	local radars = self:getRadars()
+		for j = 1, #radars do
+			local radar = radars[j]
+			local distanceNM =  mist.utils.metersToNM(self:getDistanceInMetersToContact(radar, harmContact:getPosition().p))
+			local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(harmContact:getPosition().p, radar:getPosition().p))
+			local harmToSAMAspect = self:calculateAspectInDegrees(harmContact:getMagneticHeading(), harmToSAMHeading)
+			local speedKT = harmContact:getGroundSpeedInKnots(0)
+			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
+			--TODO: use tti instead of distanceNM?
+			-- when iterating through the radars, store shortest tti and work with that value??
+			if ( harmToSAMAspect < SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT and distanceNM < SkynetIADSAbstractRadarElement.HARM_LOOKAHEAD_NM ) then
+				self:addObjectIdentifiedAsHARM(harmContact)
+				if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
+						self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
+				end
+				--self.iads:printOutputToLog("Ignore HARM shutdown: "..tostring(self:shallIgnoreHARMShutdown()))
+				if ( self:getIsAPointDefence() == false and ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
+					self:goSilentToEvadeHARM(secondsToImpact)
+					break
+				end
+			end
+		end
+end
+
+function SkynetIADSAbstractElement:addObjectIdentifiedAsHARM(harmContact)
+	self:insertToTableIfNotAlreadyAdded(self.objectsIdentifiedAsHarms, harmContact)
+end
+
+function SkynetIADSAbstractRadarElement:calculateAspectInDegrees(harmHeading, harmToSAMHeading)
+		local aspect = harmHeading - harmToSAMHeading
+		if ( aspect < 0 ) then
+			aspect = -1 * aspect
+		end
+		if aspect > 180 then
+			aspect = 360 - aspect
+		end
+		return mist.utils.round(aspect)
+end
 
 function SkynetIADSAbstractRadarElement:getNumberOfObjectsItentifiedAsHARMS()
-	local numFound = 0
-	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
-		numFound = numFound + 1
-	end
-	return numFound
+	return #self.objectsIdentifiedAsHarms
 end
 
 function SkynetIADSAbstractRadarElement:cleanUpOldObjectsIdentifiedAsHARMS()
-	local validObjects = {}
-	local validCount = 0
-	for unitName, unit in pairs(self.objectsIdentifiedAsHarms) do
-		local harm = unit['target']
-		if harm:getAge() <= self.objectsIdentifiedAsHarmsMaxTargetAge then
-			validObjects[harm:getName()] = {}
-			validObjects[harm:getName()]['target'] = harm
-			validObjects[harm:getName()]['count'] = unit['count']
-			validCount = validCount + 1
+	local newHARMS = {}
+	for i = 1, #self.objectsIdentifiedAsHarms do
+		local harmContact = self.objectsIdentifiedAsHarms[i]
+		if harmContact:getAge() < self.objectsIdentifiedAsHarmsMaxTargetAge then
+			table.insert(newHARMS, harmContact)
 		end
-	end	
-	--stop point defences acting as ew (always on), will occur if activated via shallIgnoreHARMShutdown() in evaluateIfTargetsContainHARMs
+	end
+	--stop point defences acting as ew (always on), will occur if activated via evaluateIfTargetsContainHARMs()
 	--if in this iteration all harms where cleared we turn of the point defence. But in any other cases we dont turn of point defences, that interferes with other parts of the iads
 	-- when setting up the iads (letting pds go to read state)
-	if validCount == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
+	if (#newHARMS == 0 and self:getNumberOfObjectsItentifiedAsHARMS() > 0 ) then
 		self:pointDefencesStopActingAsEW()
 	end
-	self.objectsIdentifiedAsHarms = validObjects
+	self.objectsIdentifiedAsHarms = newHARMS
 end
 
 
@@ -770,58 +875,6 @@ function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
 	--we use the regular interval of this method to update to other states: 
 	self:updateMissilesInFlight()	
 	self:cleanUpOldObjectsIdentifiedAsHARMS()
-	
-	
-	local targets = self:getDetectedTargets() 
-	for i = 1, #targets do
-		local target = targets[i]
-		local radars = self:getRadars()
-		for j = 1, #radars do	
-			local radar = radars[j]
-			if radar:isExist() == true then
-				local distance = self:getDistanceInMetersToContact(radar, target:getPosition().p)
-				local impactPoint = self:calculateImpactPoint(target, distance)
-				if impactPoint then
-					local harmImpactPointDistanceToSAM = self:getDistanceInMetersToContact(radar, impactPoint)
-					if harmImpactPointDistanceToSAM <= 100 then
-						if self.objectsIdentifiedAsHarms[target:getName()] then
-							self.objectsIdentifiedAsHarms[target:getName()]['count'] = self.objectsIdentifiedAsHarms[target:getName()]['count'] + 1
-						else
-							self.objectsIdentifiedAsHarms[target:getName()] =  {}
-							self.objectsIdentifiedAsHarms[target:getName()]['target'] = target
-							self.objectsIdentifiedAsHarms[target:getName()]['count'] = 1
-						end
-						local savedTarget = self.objectsIdentifiedAsHarms[target:getName()]['target']
-						savedTarget:refresh()
-						local numDetections = self.objectsIdentifiedAsHarms[target:getName()]['count']
-						local speed = savedTarget:getGroundSpeedInKnots()
-						local timeToImpact = self:getSecondsToImpact(mist.utils.metersToNM(distance), speed)
-						local shallReactToHarm = self:shallReactToHARM()
-						
-					--	if self:getNumberOfObjectsItentifiedAsHARMS() > 0 then
-					--		env.info("detect as HARM: "..self:getDCSName().." "..self:getNumberOfObjectsItentifiedAsHARMS())
-					--	end
-						
-						-- we use 2 detection cycles so a random object in the air pointing at the SAM site for a spilt second will not trigger a shutdown. shallReactToHarm adds some salt otherwise the SAM will always shut down 100% of the time.
-						if numDetections == 2 and shallReactToHarm then
-							if self:shallIgnoreHARMShutdown() == false then
-								self.minHarmShutdownTime = self:calculateMinimalShutdownTimeInSeconds(timeToImpact)
-								self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
-								self:goSilentToEvadeHARM(timeToImpact)
-							else
-								self:pointDefencesGoLive()
-							end
-						end
-						if numDetections == 2 and shallReactToHarm == false then
-							if self.iads:getDebugSettings().harmDefence then
-								self.iads:printOutputToLog("HARM DEFENCE NO REACTION: "..self:getDCSName())
-							end
-						end
-					end
-				end
-			end
-		end
-	end
 end
 
 end

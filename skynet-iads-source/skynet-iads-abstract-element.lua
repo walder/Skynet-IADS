@@ -1,17 +1,16 @@
 do
 
 SkynetIADSAbstractElement = {}
+SkynetIADSAbstractElement = inheritsFrom(SkynetIADSAbstractDCSObjectWrapper)
 
 function SkynetIADSAbstractElement:create(dcsRepresentation, iads)
-	local instance = {}
+	local instance = self:superClass():create(dcsRepresentation)
 	setmetatable(instance, self)
 	self.__index = self
 	instance.connectionNodes = {}
 	instance.powerSources = {}
 	instance.iads = iads
 	instance.natoName = "UNKNOWN"
-	instance.dcsName = ""
-	instance:setDCSRepresentation(dcsRepresentation)
 	world.addEventHandler(instance)
 	return instance
 end
@@ -82,17 +81,6 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	return isAlive
 end
 
-function SkynetIADSAbstractElement:setDCSRepresentation(representation)
-	self.dcsRepresentation = representation
-	if self.dcsRepresentation then
-		self.dcsName = self:getDCSRepresentation():getName()
-	end
-end
-
-function SkynetIADSAbstractElement:getDCSRepresentation()
-	return self.dcsRepresentation
-end
-
 function SkynetIADSAbstractElement:getNatoName()
 	return self.natoName
 end
@@ -140,54 +128,6 @@ end
 --placeholder method, can be implemented by subclasses
 function SkynetIADSAbstractElement:informChildrenOfStateChange()
 	
-end
-
--- helper code for class inheritance
-function inheritsFrom( baseClass )
-
-    local new_class = {}
-    local class_mt = { __index = new_class }
-
-    function new_class:create()
-        local newinst = {}
-        setmetatable( newinst, class_mt )
-        return newinst
-    end
-
-    if nil ~= baseClass then
-        setmetatable( new_class, { __index = baseClass } )
-    end
-
-    -- Implementation of additional OO properties starts here --
-
-    -- Return the class object of the instance
-    function new_class:class()
-        return new_class
-    end
-
-    -- Return the super class object of the instance
-    function new_class:superClass()
-        return baseClass
-    end
-
-    -- Return true if the caller is an instance of theClass
-    function new_class:isa( theClass )
-        local b_isa = false
-
-        local cur_class = new_class
-
-        while ( nil ~= cur_class ) and ( false == b_isa ) do
-            if cur_class == theClass then
-                b_isa = true
-            else
-                cur_class = cur_class:superClass()
-            end
-        end
-
-        return b_isa
-    end
-
-    return new_class
 end
 
 end

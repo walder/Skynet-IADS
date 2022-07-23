@@ -61,7 +61,7 @@ function SkynetIADSSAMSearchRadar:setFiringRangePercent(percent)
 end
 
 function SkynetIADSSAMSearchRadar:getDistance(target)
-	return mist.utils.get2DDist(target:getPosition().p, self.dcsObject:getPosition().p)
+	return mist.utils.get2DDist(target:getPosition().p, self:getDCSRepresentation():getPosition().p)
 end
 
 function SkynetIADSSAMSearchRadar:getHeight(target)

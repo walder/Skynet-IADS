@@ -10,7 +10,7 @@ A modern IADS also depends on command centers and datalinks to the SAM sites. Th
 
 This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IADS](https://www.youtube.com/watch?v=9J9kntzkSQY).
 
-Visit [this DCS forum thread](https://forums.eagle.ru/showthread.php?p=4221918) for development updates.
+Visit [this DCS forum thread](https://forums.eagle.ru/topic/226173-skynet-an-iads-for-mission-builders) for development updates.
 
 Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
 
@@ -44,6 +44,9 @@ If you like using it, please consider a donation:**
    * [Ships](#ships)
  * [Tactics](#tactics)
    * [HARM defence](#harm-defence)
+     * [HARM detection](#harm-detection)
+     * [HARM flight path analysis](#harm-flight-path-analysis)
+   * [HARM radar shutdown](#harm-radar-shutdown)
    * [Point defence](#point-defence)
    * [Electronic Warfare](#electronic-warfare)
  * [Using Skynet in the mission editor](#using-skynet-in-the-mission-editor)
@@ -66,6 +69,8 @@ If you like using it, please consider a donation:**
      * [Act as EW radar](#act-as-ew-radar)
      * [Engagement zone](#engagement-zone)
        * [Engagement zone options](#engagement-zone-options)
+     * [Engage air weapons](#engage-air-weapons)
+     * [Engage HARM](#engage-harm)
    * [EW radar configuration](#ew-radar-configuration)
      * [Adding EW radars](#adding-ew-radars)
        * [Add multiple EW radars](#add-multiple-ew-radars)
@@ -85,6 +90,7 @@ If you like using it, please consider a donation:**
  * [FAQ](#faq)
    * [Does Skynet IADS have an impact on game performance?](#does-skynet-iads-have-an-impact-on-game-performance)
    * [What air defence units shall I add to the Skynet IADS?](#what-air-defence-units-shall-i-add-to-the-skynet-iads)
+   * [Which SAM systems can engage HARMS?](#which-sam-systems-can-engage-harms)
    * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
    * [Are there known bugs?](#are-there-known-bugs)
    * [How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?](#how-do-i-know-if-a-sam-site-is-in-range-of-an-ew-site-or-a-sam-site-in-ew-mode)
@@ -96,7 +102,7 @@ If you like using it, please consider a donation:**
 Tired of reading already? Download the [demo mission](/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.
 
 # Skynet IADS Elements
-![Skynet IADS overview](/images/skynet-overview.jpeg)
+![Skynet IADS overview](/images/skynet-overview.jpg)
 
 ## IADS
 A Skynet IADS is a complete operational network. You can have multiple Skynet IADS instances per coalition in a DCS mission. A simple setup would be one IADS for the blue side and one IADS for the red side.
@@ -130,7 +136,7 @@ Nice to know:
 Terrain elevation around an EW radar will create blinds spots, allowing low and fast movers to penetrate radar networks through valleys.
 
 ##  Power Sources
-By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM units, EW radars and command centers.
+By default Skynet IADS will run without having to add power sources. You can add multiple power sources to SAM sites, EW radars and command centers.
 Once a power source is fully damaged the Skynet IADS unit will stop working.
 
 Nice to know:
@@ -158,35 +164,40 @@ Ships will contribute to the IADS the same way AWACS units do. Add them as a reg
 # Tactics
 
 ## HARM defence
-SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the SAM site has to detect the HARM missile with its radar. 
-The SAM site will then calculate the probable impact point of the HARM, if it determines it is within 100 m of a radar it will shut down.
+SAM sites and EW radars will shut down their radars if they believe a HARM (High speed anti radiation missile) is heading for them. For this to happen, the IADS will evaluate contacts and determine if they are likely to be HARMs.
+Each SAM site or EW radar has HARM detection chance set. If a HARM is detected by more than one radar, the chance of it being identified as a HARM is increased.  
+See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per radar system.
 
-SAM sites and EW radars will react to air to ground missiles and even aircraft (when on a Kamikazee attack) in the same way. They currently don't react to bombs, since they are not detected by DCS radars. 
-The site will calculate time to impact and shut down a random value between a few seconds after time to impact and 180 seconds after time to impact. 
+### HARM detection
+let's say SAM site A has a 60% HARM detection chance and SAM site B has a 50% HARM detection cance. If a HARM is picked up by both radars the chance the IADS will identify the HARM will be 80%.  
 
-This implementation is closer to real life. SAM sites like the patriot calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+With the radar cross section updates of HARMs in DCS 2.7 older radars like the ones used in the SA-2 and SA-6 can only identifiy a HARM at very close range usualy less than 10 seconds before impact. These systems will not have a very good HARM defence with Skynet.
 
-Since impact point calculation is almost always perfect in DCS there is also a reaction probability involved, newer SAM systems will have a higher probabilty than older ones in detecting an inbound HARM missile. 
-See [skynet-iads-supported-types.lua](/skynet-iads-source/skynet-iads-supported-types.lua) field ```['harm_detection_chance']``` for the probability per SAM system.
+![Skynet IADS overview](/images/skynet-harm-detection.jpg)
+
+### HARM flight path analysis
+The contact needs to be traveling faster than 800 kt and it may not have changed its flight path more than 2 times (eg ```climb-descend```, ```climb``` or ```descend```).This is to minimise false positives, for example a fighter flying very fast.
+
+![Skynet IADS overview](/images/skynet-harm-flightpath.jpg)
+
+This implementation is closer to real life. SAM sites like the patriot and most likely modern Russian systems calculate the flight path and analyse the radar cross section to determine if a contact heading inbound is a HARM.
+
+If identified as a HARM the IADS will shut down radars 15 degrees left and right of the HARM's fight path up to a distance of 20 nautical miles in front of the HARM.
+The IADS will calculate time to impact and shut down radar emitters up to a maximum of 180 seconds after time to impact. 
+
+## HARM radar shutdown
+Once a HARM has been identified by Skynet, radars up to 20 nm ahead and 15 degrees left or right of the HARM will be notified. Depending on their settins radar emitters will shut down or start defending against the HARM.
+
+![Skynet IADS overview](/images/skynet-harm-radar-shutdown.jpg)
 
 ## Point defence
-When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information.
-This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
+When a radar emitter (EW radar or SAM site) is attacked by a HARM there is a chance it may detect the HARM and go dark. If this radar emitter is acting as the sole EW radar in the area, surrounding SAM sites will not be able to go live since they rely on the EW radar for target information. This is an issue if you have SA-15 Tors next to the EW radar for point defence protection. They will stay dark and not engange the HARM.
 
-You can tell a radar emitter it has a point denfence to rely on. If the radar emitter goes dark due to an inbound HARM it will activate its point defences to fire at the HARM.
+Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The radar emitter will shut down, if it believes its point defences won't be able to handle the number of HARMs inbound. As long as there is one point defence launcher and missile per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers and missiles the protected asset will shut down. Tests in DCS have shown that this is roughly the saturation point. If the SAM site reling on point defence can engagen HARMs its launchers an missiles will also count to the saturation point.
 
-You can set the radar emitter to keep emitting when a HARM is inbound as long as the point defence has ammo left. When the point defence is out of ammo the radar emitter will revert back to its previously set HARM defence behaviour.
-Use this feature if you don't want the IADS to loose situational awareness just because a HARM is inbound. The radar emitter will shut down, if it believes its point defences won't be able to handle the number of HARMs inbound. 
-As long as there is one point defence launcher per HARM inbound the radar emitter will keep emitting. If the HARMs exeed the number of point defence launchers if will shut down. Tests in DCS have shown that this is roughly the saturation point.
-
-As of April 2020 I have only been able to get the SA-15 and the SA-10 to engage HARMS. The SA-10 seems to have dificullty engaging HARMS when they are launched above a certain altitude (in my tests 25 k feet).
-The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
-
-The SA-15 does not have a HARM detection chance by default in Skynet, since this would mean it would shut down when targeted by a HARM, defeating its purpose.
+See FAQ [Which SAM systems can engage HARMS?](#which-sam-systems-can-engage-harms)
 
 [Point defence setup example](#point-defence-1)
-
-There's an interesting [documentary on the Tor by RT](https://www.youtube.com/watch?v=objljEE7B6M) (ignore politics and propaganda).
 
 ## Electronic Warfare
 A simple form of jamming is part of the Skynet IADS package. It's off by default. The jamming works by setting the ROE state of a SAM Site. 
@@ -212,23 +223,27 @@ It's quite simple to setup an IADS have a look at the demo missions in the [/dem
 ## Placing units
 This tutorial assumes you are familiar on how to set up a SAM site in DCS. If not I suggest you watch [this video](https://www.youtube.com/watch?v=YZPh-JNf6Ww) by the Grim Reapers.
 Place the IADS elements you wish to add on the map.
+
 ![Mission Editor IADS Setup](/images/iads-setup.png)  
 
 ## Preparing a SAM site
-There may be only be **one SAM site per group**. More than one SAM site per group will result in Skynet no being able to control a single SAM site. Also please refrain from from adding units to the SAM group that are not required for the SAM like trucks, tanks and soldiers.
-The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.  
+There may be only be **one type of SAM site per group**. More than one type of SAM site per group will result in Skynet no being able to properly controll the group. Also please refrain from from adding units to the SAM group that are not required for the SAM like trucks, tanks and soldiers.
+The skill level you set on a SAM group is retained by Skynet. Make sure you name the **SAM site group** in a consistent manner with a prefix e.g. 'SAM-SA-2'.
+
 ![Mission Editor add SAM site](/images/add-sam-site.png)  
 
 ## Preparing an EW radar
-You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'. Make sure you have only **one EW radar in a group** otherwise Skynet will not be able to control single EW radars. 
+You can use any type of radar as an EW radar. Make sure you **name the unit** in a consistent manner with a prefix, e.g. 'EW-center3'. Make sure you have only **one EW radar in a group** otherwise Skynet will not be able to control single EW radars.
+
 ![Mission Editor EW radar](/images/ew-setup.png)  
 
 ## Adding the Skynet code
 Skynet requires MIST. A version is provided in this repository or you can download the most current version [here](https://github.com/mrSkortch/MissionScriptingTools).
-Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_4_90.lua](/demo-missions/mist_4_4_90.lua) files are located in the [/demo-missions/](/demo-missions) folder. 
+Make sure you load MIST and the compiled skynet code in to a mission. The [skynet-iads-compiled.lua](/demo-missions/skynet-iads-compiled.lua) and [mist_4_5_107.lua](/demo-missions/mist_4_5_107.lua) files are located in the [/demo-missions/](/demo-missions) folder. 
 
 I recommend you create a text file e.g. 'my-iads-setup.lua' and then add the code needed to get the IADS runing. When updating the setup remember to reload the file in the mission editor. Otherwise changes will not become effective.
 You can also add the code directly in the mission editor, however that input field is quite small if you write more than a few lines of code.
+
 ![Mission Editor IADS Setup](/images/load-scripts.png)  
 
 ## Adding the Skynet IADS
@@ -296,7 +311,7 @@ You can use units or static objects. Call the function multiple times to add mor
 ```unit``` refers to a SAM site, or EW Radar you retrieved from the IADS, see [setting an option for Radar units](#setting-an-option).
 ```lua
 local powerSource = StaticObject.getByName("EW Power Source")  
-unit:addPowerSource(powerSource
+unit:addPowerSource(powerSource)
 ```
 
 ```lua
@@ -312,28 +327,11 @@ redIADS:addCommandCenter(commandCenter):addPowerSource(comPowerSource)
 ```
 
 ## Warm up the SAM sites of an IADS
-Every SAM site starts in a non-active green state on mission load. Calling this function will allow some time for the SAM sites to run through their setup cycle. After that they are frozen in a red state, ready to fire.
-This has the advantage that the SAM sites will fire faster after beeing woken up by Skynet. The downside is that for the first few seconds of the mission the SAM sites will activate their radars giving away their position. 
+This function is deprecated and will be removed in a future release.
 
-If you start your mission at a friendly base far away from the enemy IADS this in no big deal.
-If you start in the air close to the enemy IADS, you might want to refrain from using this function since a player or AI aircraft will see the SAM sites on the radar warning receiver.
-
-This function will not shorten the time from a radar lock until a SAM site fires. It will however reduce total reaction time of a SAM site after beeing notified by Skynet to go live. 
-
-For example: the SA-15 Tor needs roughtly 18 seconds to animate from green state until it fires a missile. It needs roughly 10 seconds to animate in to the red state.
-Then it needs another 8 seconds to track and fire. An aircraft will only see the SAM on the RWR (radar warning receiver) for 8 seconds.
-
- By default Skynet will activate the SAMs for 60 seconds, this should allow enough time for all SAM types to run trough their activation animation:
 ```lua
 redIADS:setupSAMSitesAndThenActivate()
 ```
-
-You can also pass the number of seconds you would like to warm up the SAM sites if you think 60 seconds is too long:
-```lua
-redIADS:setupSAMSitesAndThenActivate(30)
-```
-
-No separate call to ```redIADS:activate()``` must be made.
 
 
 ## Connecting Skynet to the MOOSE AI_A2A_DISPATCHER
@@ -417,6 +415,20 @@ During this time a target might have already left the engagement zone of SAM sit
 samSite:setGoLiveRangeInPercent(90)
 ```
 
+### Engage air weapons
+Will set the SAM site to engage air weapons, if it is able to do so in DCS. It is a wrapper for the [ENGAGE_AIR_WEAPONS](https://wiki.hoggitworld.com/view/DCS_option_engage_air_weapons) setting.
+
+```lua
+samSite:setcanEngageAirWeapons(true)
+```
+
+### Engage HARM
+Will set the SAM site to engage HARMs, if it is able to do so in DCS. If set to false the SAM site will shut down if a HARM that has been identified by the IADS is inbound. SAM sites that can engage HARMS are set to true by default.
+
+```lua
+samSite:setCanEngageHARM(true)
+```
+
 ## EW radar configuration
 
 ### Adding EW radars
@@ -466,6 +478,10 @@ ewRadarOrSamSite:setHARMDetectionChance(50)
 
 ### Point defence
 You must use a point defence SAM that can engage HARM missiles. Can be used to protect SAM sites or EW radars. See [point defence](#point-defence) for information what this does:
+
+If you want the point defences to coordinate their HARM defence then you can add multiple point defence SAM sites in to one group. **This is the only place where you should add multiple SAM sites in to one group in Skynet**.
+Let's assume you have two SA-15 units defending a radar. If the SA-15 units are in separate groups they will both fire at the same HARM inbound. However if they are in the same group and multiple HARMS are inbound they will each pick a separate HARM to engage.
+
 ```lua
 --first get the SAM site you want to use as point defence from the IADS:
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')
@@ -473,7 +489,7 @@ local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15')
 redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15)
 ```
 
-Will prevent the EW radar or SAM site from going dark if a HARM is inbound. Conditions are HARM saturation level is not reached and the point defence has ammo left. Default state is false:
+This function is deprecated and will be removed in a future release.
 ```lua
 ewRadarOrSamSite:setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
 ```
@@ -598,7 +614,7 @@ This is an example of how you can set up your IADS used in the [demo mission](/d
 do
 
 --create an instance of the IADS
-redIADS = SkynetIADS:create('RED')
+redIADS = SkynetIADS:create('RED IADS')
 
 ---debug settings remove from here on if you do not wan't any output on what the IADS is doing by default
 local iadsDebug = redIADS:getDebugSettings()
@@ -641,10 +657,10 @@ redIADS:getSAMSiteByGroupName('SAM-SA-2'):setEngagementZone(SkynetIADSAbstractRa
 --all SA-10 sites shall act as EW sites, meaning their radars will be on all the time:
 redIADS:getSAMSitesByNatoName('SA-10'):setActAsEW(true)
 
---set the SA-15's as point defence for the SA-10 site. We set it to always react to a HARM so we can demonstrate the point defence mechanism in Skynet
--- the SA-10 will stay online when shot at by HARMS as long as the point defences have ammo and the SA-15 is not saturated by HARMS(setIgnoreHARMSWhilePointDefencesHaveAmmo(true))
+--set the SA-15's as point defence for the SA-10 site. We set the SA-10 to always identify HARMs so we can demonstrate the point defence mechanism in Skynet.
+--the SA-10 will stay online when shot at by HARMS as long as the point defences and SAM site have ammo and the saturation point is not reached.
 local sa15 = redIADS:getSAMSiteByGroupName('SAM-SA-15-point-defence-SA-10')
-redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100):setIgnoreHARMSWhilePointDefencesHaveAmmo(true)
+redIADS:getSAMSiteByGroupName('SAM-SA-10'):addPointDefence(sa15):setHARMDetectionChance(100)
 
 --set this SA-11 site to go live 70% of max range of its missiles (default value: 100%), its HARM detection probability is set to 50% (default value: 70%)
 redIADS:getSAMSiteByGroupName('SAM-SA-11'):setGoLiveRangeInPercent(70):setHARMDetectionChance(50)
@@ -666,7 +682,7 @@ local jammer = SkynetIADSJammer:create(Unit.getByName('jammer-emitter'), redIADS
 jammer:masterArmOn()
 
 --setup blue IADS:
-blueIADS = SkynetIADS:create('UAE')
+blueIADS = SkynetIADS:create('BLUE IADS')
 blueIADS:addSAMSitesByPrefix('BLUE-SAM')
 blueIADS:addEarlyWarningRadarsByPrefix('BLUE-EW')
 blueIADS:activate()
@@ -682,7 +698,7 @@ end
 # FAQ
 
 ## Does Skynet IADS have an impact on game performance?
-Skynet may actually improve game performance when using a lot of SAM AI units. This is because Skynet will turn off the AI of all SAM groups currently not in range of a target. By default these SAM groups would otherwise have their AI on. Skynet caches target information for a few seconds to reduce expensive calls on DCS radar detection.
+Skynet may actually improve game performance when using a lot of SAM AI units. This is because Skynet will turn off radar emissions of all SAM groups currently not in range of a target. By default these SAM groups would otherwise have their radars on. Skynet caches target information for a few seconds to reduce expensive calls on DCS radar detection.
 
 ## What air defence units shall I add to the Skynet IADS?
 In theory you can add all the types that are listed in the [skynet-iads-supported-types.lua](skynet-iads-source/skynet-iads-supported-types.lua) file. 
@@ -690,14 +706,17 @@ Very short range units (like the Shilka AAA, Rapier) won't really benefit from t
 This is due to the short range of their radars. By the time the IADS wakes them up, the contact has likely passed their engagement range.
 The strength of the Skynet IADS lies with handling long range systems that operate by radar.
 
+## Which SAM systems can engage HARMS?
+As of July 2022 I have only been able to get the SA-15, SA-10, NASAMS and Patriot to engage HARMS. The best option for a solid HARM defence is to add SA-15's around EW radars or high value SAM sites.
+
 ## What exactly does Skynet do with the SAMS?
-Via the scripting engine one can toggle a radar emitter's group controller on and off. Further options are the alarm state and the rules of engagement. In a nutshell that's all that Skynet does. Skynet does however read the radar and firing range properties of a SAM site. Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
+Via the scripting engine one can toggle the radar emitters on and off. Further options are the alarm state and the rules of engagement. In a nutshell that's all that Skynet does. Skynet does also read the radar and firing range properties of a SAM site. Based on that data and the setup options a mission designer provides Skynet will turn a SAM site on or off. 
 
 No god like intervention is used (like magically exploding HARMS via the scripting engine).
-If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 20-80 meters.
+If a SAM site or EW radar detects an inbound HARM it just turns off its radar as in real life. The HARM as it is programmed in DCS will try and glide in to the last known position mostly resulting in misses by 50-100 meters.
 
 ## Are there known bugs?
-Yes, when placing multi unit SAM sites (e.g. SA-3 Patriot..) make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
+Yes, when placing multi unit SAM sites (e.g. SA-3, Patriot..) make sure the first unit you place is the search radar. If you add any other element as the first unit, Skynet will not be able to read radar data.
 The result will be that the SAM site won't go live. This bug was observed in DCS 2.5.5. The SAM site will work fine when used as a standalone unit outside of Skynet.
 
 ## How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?

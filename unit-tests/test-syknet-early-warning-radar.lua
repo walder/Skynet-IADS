@@ -63,62 +63,7 @@ function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
 		ewRadar:cleanUp()
 end
 
-function TestSkynetIADSEWRadar:testEvaluateIfTargetsContainHARMsShallReactTrue()
-	self.ewRadarName = "EW-west2"
-	self:setUp()
-	
-	lu.assertNotIs(self.ewRadar.harmScanID, nil)
-	local iadsContact = IADSContactFactory("test-distance-calculation")
-	
-	local calledShutdown = false
-	
-	function self.ewRadar:getDetectedTargets()
-		return {iadsContact}
-	end
-	function self.ewRadar:getDistanceInMetersToContact(a, b)
-		return 50
-	end
-	function self.ewRadar:calculateImpactPoint(a, b)
-		return self:getRadars()[1]:getPosition().p
-	end
-	
-	function self.ewRadar:shallReactToHARM()
-		return true
-	end
-	
-	function self.ewRadar:goSilentToEvadeHARM()
-		calledShutdown = true
-	end
-	
-	lu.assertEquals(#self.ewRadar:getRadars(), 1)
-	self.ewRadar:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(calledShutdown, false)
-	lu.assertEquals(self.ewRadar.objectsIdentifiedAsHarms[iadsContact:getName()]['target'], iadsContact)
-	lu.assertEquals(self.ewRadar.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 1)
-	self.ewRadar:evaluateIfTargetsContainHARMs()
-	lu.assertEquals(self.ewRadar.objectsIdentifiedAsHarms[iadsContact:getName()]['count'], 2)
-	lu.assertEquals(calledShutdown, true)
-end
-
-
 function TestSkynetIADSEWRadar:testFinishHARMDefence()
---[[
-	Radar:
-	{
-		{
-			{
-				detectionDistanceAir={
-					lowerHemisphere={headOn=80248.84375, tailOn=80248.84375},
-					upperHemisphere={headOn=80248.84375, tailOn=80248.84375}
-				},
-				type=1,
-				typeName="1L13 EWR"
-			}
-		}
-	}
-
-
---]]
 	self.ewRadarName = "EW-west2"
 	self:setUp()
 	lu.assertEquals(self.ewRadar:isActive(), true)

@@ -13,17 +13,16 @@ function SkynetIADS:create(name)
 	iads.samSites = {}
 	iads.commandCenters = {}
 	iads.ewRadarScanMistTaskID = nil
-	iads.samSetupMistTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
 	iads.name = name
+	iads.harmDetection = SkynetIADSHARMDetection:create(iads)
 	iads.logger = SkynetIADSLogger:create(iads)
 	if iads.name == nil then
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
-	iads.samSetupTime = 60
 	return iads
 end
 
@@ -189,11 +188,8 @@ function SkynetIADS:addSAMSite(samSiteName)
 	self:setCoalition(samSiteDCS)
 	local samSite = SkynetIADSSamSite:create(samSiteDCS, self)
 	samSite:setupElements()
+	samSite:setCanEngageAirWeapons(true)
 	samSite:goLive()
-	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
-	if self.ewRadarScanMistTaskID ~= nil then
-		self:buildRadarCoverageForSAMSite(samSite)
-	end
 	samSite:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutputToLog("you have added an SAM site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
@@ -203,6 +199,10 @@ function SkynetIADS:addSAMSite(samSiteName)
 		table.insert(self.samSites, samSite)
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutputToLog("ADDED: "..samSite:getDescription())
+		end
+		-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
+		if self.ewRadarScanMistTaskID ~= nil then
+			self:buildRadarCoverageForSAMSite(samSite)
 		end
 		return samSite
 	end 
@@ -352,6 +352,9 @@ function SkynetIADS.evaluateContacts(self)
 		samSite:targetCycleUpdateEnd()
 	end
 	
+	self.harmDetection:setContacts(self:getContacts())
+	self.harmDetection:evaluateContacts()
+	
 	self.logger:printSystemStatus()
 end
 
@@ -453,22 +456,24 @@ function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarEleme
 	for i = 1, #abstractRadarElements do
 		local aElementToCompare = abstractRadarElements[i]
 		if aElementToCompare ~= abstractRadarElement then
-		
-			if aElementToCompare:isInRadarDetectionRangeOf(abstractRadarElement) then
-				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSSamSite then
-					abstractRadarElement:addChildRadar(aElementToCompare)
-				end
-				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar or getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSAWACSRadar then
-					abstractRadarElement:addChildRadar(aElementToCompare)
-				end
-			
-				--EW Radars should not have parent Radars
-				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar and getmetatable(aElementToCompare) ~= SkynetIADSAWACSRadar  then
-					aElementToCompare:addParentRadar(abstractRadarElement)
-				end
+			if abstractRadarElement:isInRadarDetectionRangeOf(aElementToCompare) then
+				self:buildRadarAssociation(aElementToCompare, abstractRadarElement)
 			end
-			
+			if aElementToCompare:isInRadarDetectionRangeOf(abstractRadarElement) then
+				self:buildRadarAssociation(abstractRadarElement, aElementToCompare)
+			end
 		end
+	end
+end
+
+function SkynetIADS:buildRadarAssociation(parent, child)
+	--chilren should only be SAM sites not EW radars
+	if ( getmetatable(child) == SkynetIADSSamSite ) then
+		parent:addChildRadar(child)
+	end
+	--Only SAM Sites should have parent Radars, not EW Radars
+	if ( getmetatable(child) == SkynetIADSSamSite ) then
+		child:addParentRadar(parent)
 	end
 end
 
@@ -488,6 +493,13 @@ function SkynetIADS:mergeContact(contact)
 		local iadsContact = self.contacts[i]
 		if iadsContact:getName() == contact:getName() then
 			iadsContact:refresh()
+			--these contacts are used in the logger we set a kown harm state of a contact coming from a SAM site. So the logger will show them als HARMs
+			contact:setHARMState(iadsContact:getHARMState())
+			local radars = contact:getAbstractRadarElementsDetected()
+			for j = 1, #radars do
+				local radar = radars[j]
+				iadsContact:addAbstractRadarElementDetected(radar)
+			end
 			existingContact = true
 		end
 	end
@@ -516,28 +528,13 @@ end
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS.activate(self)
 	mist.removeFunction(self.ewRadarScanMistTaskID)
-	mist.removeFunction(self.samSetupMistTaskID)
 	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 	self:buildRadarCoverage()
 end
 
 function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
-	if setupTime then
-		self.samSetupTime = setupTime
-	end
-	local samSites = self:getSAMSites()
-	for i = 1, #samSites do
-		local sam = samSites[i]
-		sam:goLive()
-		--point defences will go dark after sam:goLive() call on the SAM they are protecting, so we load them by calling a separate goLive call here, point defence SAMs will therefore receive 2 goLive calls
-		-- this should not have a negative impact on performance
-		local pointDefences = sam:getPointDefences()
-		for j = 1, #pointDefences do
-			pointDefence = pointDefences[j]
-			pointDefence:goLive()
-		end
-	end
-	self.samSetupMistTaskID = mist.scheduleFunction(SkynetIADS.activate, {self}, timer.getTime() + self.samSetupTime)
+	self:activate()
+	self.iads:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
 end
 
 function SkynetIADS:deactivate()
