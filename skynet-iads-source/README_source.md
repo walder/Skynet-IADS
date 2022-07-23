@@ -349,7 +349,7 @@ samSite:setGoLiveRangeInPercent(90)
 Will set the SAM site to engage air weapons, if it is able to do so in DCS. It is a wrapper for the [ENGAGE_AIR_WEAPONS](https://wiki.hoggitworld.com/view/DCS_option_engage_air_weapons) setting.
 
 ```lua
-samSite:setcanEngageAirWeapons(true)
+samSite:setCanEngageAirWeapons(true)
 ```
 
 ### Engage HARM
