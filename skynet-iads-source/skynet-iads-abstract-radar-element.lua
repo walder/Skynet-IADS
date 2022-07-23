@@ -410,7 +410,7 @@ end
 function SkynetIADSAbstractRadarElement:setCanEngageAirWeapons(engageAirWeapons)
 	if self:isDestroyed() == false then
 		local controller = self:getDCSRepresentation():getController()
-		if ( engageAirWeapons == true and self.engageAirWeapons == false ) then
+		if ( engageAirWeapons == true ) then
 			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, true)
 			--its important that we set var to true here, to prevent recursion in setCanEngageHARM
 			self.engageAirWeapons = true

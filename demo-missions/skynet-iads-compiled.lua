@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.0.0-develop | BUILD TIME: 23.07.2022 1253Z ---")
+env.info("--- SKYNET VERSION: 3.0.0 | BUILD TIME: 23.07.2022 1404Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1640,6 +1640,8 @@ function SkynetIADS:mergeContact(contact)
 		local iadsContact = self.contacts[i]
 		if iadsContact:getName() == contact:getName() then
 			iadsContact:refresh()
+			--these contacts are used in the logger we set a kown harm state of a contact coming from a SAM site. So the logger will show them als HARMs
+			contact:setHARMState(iadsContact:getHARMState())
 			local radars = contact:getAbstractRadarElementsDetected()
 			for j = 1, #radars do
 				local radar = radars[j]
@@ -2512,7 +2514,7 @@ end
 function SkynetIADSAbstractRadarElement:setCanEngageAirWeapons(engageAirWeapons)
 	if self:isDestroyed() == false then
 		local controller = self:getDCSRepresentation():getController()
-		if ( engageAirWeapons == true and self.engageAirWeapons == false ) then
+		if ( engageAirWeapons == true ) then
 			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, true)
 			--its important that we set var to true here, to prevent recursion in setCanEngageHARM
 			self.engageAirWeapons = true
@@ -3087,6 +3089,10 @@ end
 
 function SkynetIADSContact:setHARMState(state)
 	self.harmState = state
+end
+
+function SkynetIADSContact:getHARMState()
+	return self.harmState
 end
 
 function SkynetIADSContact:isIdentifiedAsHARM()

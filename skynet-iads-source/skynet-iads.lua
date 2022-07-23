@@ -493,6 +493,8 @@ function SkynetIADS:mergeContact(contact)
 		local iadsContact = self.contacts[i]
 		if iadsContact:getName() == contact:getName() then
 			iadsContact:refresh()
+			--these contacts are used in the logger we set a kown harm state of a contact coming from a SAM site. So the logger will show them als HARMs
+			contact:setHARMState(iadsContact:getHARMState())
 			local radars = contact:getAbstractRadarElementsDetected()
 			for j = 1, #radars do
 				local radar = radars[j]

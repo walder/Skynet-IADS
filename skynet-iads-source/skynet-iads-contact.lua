@@ -31,6 +31,10 @@ function SkynetIADSContact:setHARMState(state)
 	self.harmState = state
 end
 
+function SkynetIADSContact:getHARMState()
+	return self.harmState
+end
+
 function SkynetIADSContact:isIdentifiedAsHARM()
 	return self.harmState == SkynetIADSContact.HARM
 end
