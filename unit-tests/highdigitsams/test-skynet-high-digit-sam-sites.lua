@@ -70,6 +70,7 @@ function TestSyknetIADSHighDigitSAMSites:testSA20AGargoyle()
 	lu.assertEquals(trackingRadar2:getMaxRangeFindingTarget(), 106998.453125)
 	
 	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	
 	--output sensor data to dcs.log:
 	--lu.assertEquals(launcher1:getDCSRepresentation():getSensors(), "00")
@@ -157,6 +158,8 @@ function TestSyknetIADSHighDigitSAMSites:testSA23GladiatorOrGiant()
 	lu.assertEquals(trackingRadar1:getTypeName(), "S-300VM 9S32ME tr")
 	lu.assertEquals(trackingRadar1:getMaxRangeFindingTarget(), 213996.90625)
 
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	
 end
 
@@ -201,6 +204,10 @@ function TestSyknetIADSHighDigitSAMSites:testSA10BGrumble()
 	local trackingRadar1 = trackingRadars[2]
 	lu.assertEquals(trackingRadar1:getTypeName(), "S-300PS SA-10B 40B6M MAST tr")
 	lu.assertEquals(trackingRadar1:getMaxRangeFindingTarget(), 80248.84375)
+	
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	
 end
 
 function TestSyknetIADSHighDigitSAMSites:testEDDefaultSA10GrubleWith55VRUD()
@@ -336,6 +343,10 @@ function TestSyknetIADSHighDigitSAMSites:testSA12GladiatorGiant()
 	lu.assertEquals(launcher2:getMaximumFiringAltitude(), 30000)
 	lu.assertEquals(launcher2:getInitialNumberOfMissiles(), 2)	
 	
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	
+	
 end
 
 function TestSyknetIADSHighDigitSAMSites:testSA20BGargoyle()
@@ -365,6 +376,10 @@ function TestSyknetIADSHighDigitSAMSites:testSA20BGargoyle()
 	lu.assertEquals(launcher1:getRange(), 200000)
 	lu.assertEquals(launcher1:getMaximumFiringAltitude(), 27000)
 	lu.assertEquals(launcher1:getInitialNumberOfMissiles(), 4)
+	
+	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	
 end
 
 end

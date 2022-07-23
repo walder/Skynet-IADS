@@ -66,7 +66,7 @@ samTypesDB = {
 			['NATO'] = 'SA-10 Grumble',
 		},
 		['harm_detection_chance'] = 90,
-		['canEngageHARM'] = true
+		['can_engage_harm'] = true
 	},
 	['Buk'] = {
 		['type'] = 'complex',
@@ -184,7 +184,7 @@ samTypesDB = {
 			['NATO'] = 'Patriot',
 		},
 		['harm_detection_chance'] = 90,
-		['canEngageHARM'] = true
+		['can_engage_harm'] = true
 	},
 	['Hawk'] = {
 		['type'] = 'complex',
@@ -247,7 +247,7 @@ samTypesDB = {
 				['required'] = false,
 			},
 		},
-		['canEngageHARM'] = true,
+		['can_engage_harm'] = true,
 		['harm_detection_chance'] = 90
 	},	
 	['2S6 Tunguska'] = {
@@ -324,7 +324,7 @@ samTypesDB = {
 			['NATO'] = 'SA-15 Gauntlet',
 		},
 		['harm_detection_chance'] = 90,
-		['canEngageHARM'] = true
+		['can_engage_harm'] = true
 		
 	},
 	['Gepard'] = {

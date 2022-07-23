@@ -9,7 +9,7 @@ SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK = 2
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE = 1
 SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE = 2
 
-SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT = 30
+SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT = 15
 SkynetIADSAbstractRadarElement.HARM_LOOKAHEAD_NM = 20
 
 function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
@@ -48,6 +48,7 @@ function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
 	instance.engageAirWeapons = false
 	instance.isAPointDefence = false
 	instance.canEngageHARM = false
+	instance.dataBaseSupportedTypesCanEngageHARM = false
 	-- 5 seconds seems to be a good value for the sam site to find the target with its organic radar
 	instance.noCacheActiveForSecondsAfterGoLive = 5
 	return instance
@@ -355,20 +356,6 @@ function SkynetIADSAbstractRadarElement:setHARMDetectionChance(chance)
 	return self
 end
 
-function SkynetIADSAbstractRadarElement:setCanEngageHARM(canEngage)
-	if canEngage == true or canEngage == false then
-		self.canEngageHARM = canEngage
-		if canEngage == true then
-			self:setCanEngageAirWeapons(true)
-		end
-	end
-	return self
-end
-
-function SkynetIADSAbstractRadarElement:getCanEngageHARM()
-	return self.canEngageHARM
-end
-
 function SkynetIADSAbstractRadarElement:setupElements()
 	local numUnits = #self:getUnitsToAnalyse()
 	for typeName, dataType in pairs(SkynetIADS.database) do
@@ -397,7 +384,8 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
 			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
 			self:setHARMDetectionChance(dataType['harm_detection_chance'])
-			self:setCanEngageHARM(dataType['canEngageHARM'])
+			self.dataBaseSupportedTypesCanEngageHARM = dataType['can_engage_harm'] 
+			self:setCanEngageHARM(self.dataBaseSupportedTypesCanEngageHARM)
 			local natoName = dataType['name']['NATO']
 			self:buildNatoName(natoName)
 			break
@@ -405,15 +393,33 @@ function SkynetIADSAbstractRadarElement:setupElements()
 	end
 end
 
+function SkynetIADSAbstractRadarElement:setCanEngageHARM(canEngage)
+	if canEngage == true or canEngage == false then
+		self.canEngageHARM = canEngage
+		if ( canEngage == true and self:getCanEngageAirWeapons() == false ) then
+			self:setCanEngageAirWeapons(true)
+		end
+	end
+	return self
+end
+
+function SkynetIADSAbstractRadarElement:getCanEngageHARM()
+	return self.canEngageHARM
+end
+
 function SkynetIADSAbstractRadarElement:setCanEngageAirWeapons(engageAirWeapons)
 	if self:isDestroyed() == false then
 		local controller = self:getDCSRepresentation():getController()
-		if ( engageAirWeapons == true ) then
-			self.engageAirWeapons = true
+		if ( engageAirWeapons == true and self.engageAirWeapons == false ) then
 			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, true)
+			--its important that we set var to true here, to prevent recursion in setCanEngageHARM
+			self.engageAirWeapons = true
+			--we set the original value we got when loading info about the SAM site
+			self:setCanEngageHARM(self.dataBaseSupportedTypesCanEngageHARM)
 		else
-			self.engageAirWeapons = false
 			controller:setOption(AI.Option.Ground.id.ENGAGE_AIR_WEAPONS, false)
+			self:setCanEngageHARM(false)
+			self.engageAirWeapons = false
 		end
 	end
 	return self
@@ -805,7 +811,7 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 			local harmToSAMAspect = self:calculateAspectInDegrees(harmContact:getMagneticHeading(), harmToSAMHeading)
 			local speedKT = harmContact:getGroundSpeedInKnots(0)
 			local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
-			--TODO: Make constant out of aspect and distance --> use tti instead of distanceNM?
+			--TODO: use tti instead of distanceNM?
 			-- when iterating through the radars, store shortest tti and work with that value??
 			if ( harmToSAMAspect < SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT and distanceNM < SkynetIADSAbstractRadarElement.HARM_LOOKAHEAD_NM ) then
 				self:addObjectIdentifiedAsHARM(harmContact)

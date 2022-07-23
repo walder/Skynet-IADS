@@ -190,10 +190,6 @@ function SkynetIADS:addSAMSite(samSiteName)
 	samSite:setupElements()
 	samSite:setCanEngageAirWeapons(true)
 	samSite:goLive()
-	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
-	if self.ewRadarScanMistTaskID ~= nil then
-		self:buildRadarCoverageForSAMSite(samSite)
-	end
 	samSite:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())
 	if samSite:getNatoName() == "UNKNOWN" then
 		self:printOutputToLog("you have added an SAM site that Skynet IADS can not handle: "..samSite:getDCSName(), true)
@@ -203,6 +199,10 @@ function SkynetIADS:addSAMSite(samSiteName)
 		table.insert(self.samSites, samSite)
 		if self:getDebugSettings().addedSAMSite then
 			self:printOutputToLog("ADDED: "..samSite:getDescription())
+		end
+		-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
+		if self.ewRadarScanMistTaskID ~= nil then
+			self:buildRadarCoverageForSAMSite(samSite)
 		end
 		return samSite
 	end 
@@ -456,22 +456,24 @@ function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarEleme
 	for i = 1, #abstractRadarElements do
 		local aElementToCompare = abstractRadarElements[i]
 		if aElementToCompare ~= abstractRadarElement then
-		
-			if aElementToCompare:isInRadarDetectionRangeOf(abstractRadarElement) then
-				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSSamSite then
-					abstractRadarElement:addChildRadar(aElementToCompare)
-				end
-				if getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSEWRadar or getmetatable(aElementToCompare) == SkynetIADSSamSite and getmetatable(abstractRadarElement) == SkynetIADSAWACSRadar then
-					abstractRadarElement:addChildRadar(aElementToCompare)
-				end
-			
-				--EW Radars should not have parent Radars
-				if getmetatable(aElementToCompare) ~= SkynetIADSEWRadar and getmetatable(aElementToCompare) ~= SkynetIADSAWACSRadar  then
-					aElementToCompare:addParentRadar(abstractRadarElement)
-				end
+			if abstractRadarElement:isInRadarDetectionRangeOf(aElementToCompare) then
+				self:buildRadarAssociation(aElementToCompare, abstractRadarElement)
 			end
-			
+			if aElementToCompare:isInRadarDetectionRangeOf(abstractRadarElement) then
+				self:buildRadarAssociation(abstractRadarElement, aElementToCompare)
+			end
 		end
+	end
+end
+
+function SkynetIADS:buildRadarAssociation(parent, child)
+	--chilren should only be SAM sites not EW radars
+	if ( getmetatable(child) == SkynetIADSSamSite ) then
+		parent:addChildRadar(child)
+	end
+	--Only SAM Sites should have parent Radars, not EW Radars
+	if ( getmetatable(child) == SkynetIADSSamSite ) then
+		child:addParentRadar(parent)
 	end
 end
 

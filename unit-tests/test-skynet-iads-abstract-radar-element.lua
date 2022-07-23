@@ -137,6 +137,16 @@ function TestSkynetIADSAbstractRadarElement:testCanEngageAirWeapons()
 	lu.assertEquals(self.samSite:setCanEngageAirWeapons(true), self.samSite)
 	lu.assertEquals(self.samSite:getCanEngageAirWeapons(), true)
 	lu.assertEquals(called, true)
+	
+	--we test that calling setEngageAirWeapons with true on a SAM site that can by default engage harms also sets canEngageHarm to true
+	
+	function mockController:setOption(option, value)
+	end
+	
+	self.samSite.dataBaseSupportedTypesCanEngageHARM = true
+	self.samSite:setCanEngageAirWeapons(false)
+	self.samSite:setCanEngageAirWeapons(true)
+	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
 	self.samSite = nil
 end
 

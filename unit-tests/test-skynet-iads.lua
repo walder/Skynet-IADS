@@ -49,21 +49,6 @@ function TestSkynetIADS:testCaclulateNumberOfSamSitesAndEWRadarsWhenAddMethodsCa
 	lu.assertEquals(#self.testIADS:getSAMSites(), self.numSAMSites)
 	lu.assertEquals(#self.testIADS:getEarlyWarningRadars(), self.numEWSites)
 end
---[[
-function TestSkynetIADS:testDoubleActivateCall()
-	self.testIADS:activate()
-	self.testIADS:activate()
-	local ews = self.testIADS:getEarlyWarningRadars()
-	for i = 1, #ews do
-		local ew = ews[i]
-		local category = ew:getDCSRepresentation():getDesc().category
-		if category ~= Unit.Category.AIRPLANE and category ~= Unit.Category.SHIP then
-			--env.info(tostring(ew:isScanningForHARMs()))
-			lu.assertEquals(ew:isScanningForHARMs(), true)
-		end
-	end
-end
---]]
 
 function TestSkynetIADS:testWrongCaseStringWillNotLoadSAMGroup()
 	self:tearDown()
@@ -542,117 +527,101 @@ end
 
 --TODO: add more comparisons in this test, this test also tests buildRadarCoverageForAbstractRadarElement
 function TestSkynetIADS:testBuildRadarCoverage()	
-	--we add a mock child and parent radar, it will be removed in buildRadarCoverage
-	local childRadMock = {}
-	function childRadMock:hasWorkingPowerSource()
-		return true
-	end
 	
-	function childRadMock:hasActiveConnectionNode()
-		return true
-	end
-	
-	function childRadMock:setToCorrectAutonomousState()
-		
-	end
-	
-	local sa19 = self.testIADS:getSAMSiteByGroupName('SAM-SA-19')
-	--sa19:addChildRadar(childRadMock)
-	
-	local parentRadMock = {}
-	function parentRadMock:hasWorkingPowerSource()
-		return true
-	end
-	
-	function parentRadMock:hasActiveConnectionNode()
-		return true
-	end
+	self:tearDown()
+	self.testIADS = SkynetIADS:create()
+	local ewWest2 = self.testIADS:addEarlyWarningRadar('EW-west2')
+	local samSA6 = self.testIADS:addSAMSite('SAM-SA-6')
+	local samSA62 = self.testIADS:addSAMSite('SAM-SA-6-2')
+	local samSA2 = self.testIADS:addSAMSite('SAM-SA-2')
+	self.testIADS:buildRadarCoverage()
 
-	function parentRadMock:getActAsEW()
-		return true
-	end
-
-	function parentRadMock:isDestroyed()
-		return false
-	end
+	local ewWestChildren = ewWest2:getChildRadars()
+	lu.assertEquals(#ewWestChildren, 3)
 	
-	function parentRadMock:setToCorrectAutonomousState()
-		
+	local containsSa6 = false
+	local containsSA62 = false
+	local containsSA2  = false
+	for i =  1, #ewWestChildren do
+		local radar = ewWestChildren[i]
+		if radar == samSA6 then
+			containsSa6 = true
+		end
+		if radar == samSA2 then
+			containsSA2 = true
+		end
+		if radar == samSA62 then
+			containsSA62 = true
+		end
 	end
-
-	sa19:addParentRadar(parentRadMock)
+	lu.assertEquals(containsSA2, true)
+	lu.assertEquals(containsSA62, true)
+	lu.assertEquals(containsSa6, true)
 	
-	--local mockComCenterChild = {}
-	--self.testIADS:addCommandCenter(StaticObject.getByName('command-center-unit-test'))
-	--:addChildRadar(mockComCenterChild)
+	--further tests to verify the exact content of the parent radars could be done with these:
+	lu.assertEquals(#samSA6:getParentRadars(), 2)
+	lu.assertEquals(#samSA6:getChildRadars(), 1)
+	
+	lu.assertEquals(#samSA62:getParentRadars(), 2)
+	lu.assertEquals(#samSA62:getChildRadars(), 1)
+	
+	lu.assertEquals(#samSA2:getParentRadars(), 1)
+end
+
+--this test adds an EW Radar to an existing IADS, SAM site under coverage must then be adopted by the new EW radar
+function TestSkynetIADS:testBuildRadarCoverageForSingleEarlyWarningRadar()	
+	self:tearDown()
+	self.testIADS = SkynetIADS:create()
+	
+	
+	self.testIADS:addCommandCenter(StaticObject.getByName("Command Center"))
 	
 	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
-	--ewRadar:addChildRadar(childRadMock)
-	
-	--make sure iads has only one ew:
-	self.testIADS:addEarlyWarningRadarsByPrefix('EW-west23')
+	local sam2 = self.testIADS:addSAMSite('SAM-SA-6')
+	local sam1 = self.testIADS:addSAMSite('SAM-SA-6-2')
 	
 	self.testIADS:buildRadarCoverage()
 
-	--lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), self.numSAMSites + self.numEWSites)
-
-	local sa19 = self.testIADS:getSAMSiteByGroupName('SAM-SA-19')
-	local sa19Parent = sa19:getParentRadars()[1]
-	local sa2 = self.testIADS:getSAMSiteByGroupName('SAM-SA-2')
 	
-	env.info(tostring(sa19Parent:getDCSName()))
-
-	--assertions need to be like this otherwise dcs will crash.
-	lu.assertEquals((sa19Parent == self.testIADS:getEarlyWarningRadarByUnitName('EW-west23')), true)
-end
-
-function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
-	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
+	lu.assertEquals(#sam1:getParentRadars(), 1)
+	lu.assertEquals(#sam2:getParentRadars(), 1)
 	
-	--we add a mock child and parent radar, it will be removed in buildRadarCoverageForEarlyWarningRadar
-	local childRadMock = {}
-	function childRadMock:hasWorkingPowerSource()
-		return true
-	end
+	lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), 2)
 	
-	function childRadMock:hasActiveConnectionNode()
-		return true
-	end
+	local ewWest2 = self.testIADS:addEarlyWarningRadar('EW-west2')
 		
-	ewRadar:clearChildRadars()
+	self.testIADS:buildRadarCoverageForEarlyWarningRadar(ewWest2)
+	
+	lu.assertEquals(#sam1:getParentRadars(), 2)
+	lu.assertEquals(#sam2:getParentRadars(), 2)
+	lu.assertEquals(#ewWest2:getChildRadars(), 2)
+	lu.assertEquals(ewWest2:getAutonomousState(), false)
 
-	--clear sam sites, and make sure only two are loaded:
-	self.testIADS:addSAMSitesByPrefix('SAM-SA-6')
-
-	
-	local sam1 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6-2')
-	sam1:clearParentRadars()
-
-	local sam2 = self.testIADS:getSAMSiteByGroupName('SAM-SA-6')
-	sam2:clearParentRadars()
-	
-	self.testIADS:addCommandCenter(StaticObject.getByName('command-center-unit-test')):addChildRadar(mockComCenterChild)
-	
-	self.testIADS:buildRadarCoverageForEarlyWarningRadar(ewRadar)
-	
-	lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), 1)
-	
-
-	lu.assertEquals(#ewRadar:getChildRadars(), 2)
-	
-	lu.assertEquals(sam1:getParentRadars()[1], ewRadar)
-	lu.assertEquals(sam2:getParentRadars()[1], ewRadar)
-	
-	--we test to make sure AWACS aircraft are added corectly as parent radars:
-	self.testIADS:addSAMSitesByPrefix('SAM-HQ-7')
-	self.testIADS:activate()
-	local hq7 = self.testIADS:getSAMSiteByGroupName('SAM-HQ-7')
-	local kj2000 = hq7:getParentRadars()[1]
-	lu.assertEquals(kj2000:getDCSName(), "EW-AWACS-KJ-2000")
-	
-	local hq7 = kj2000:getChildRadars()[1]
-	lu.assertEquals(hq7:getDCSName(), "SAM-HQ-7")
+	lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), 3)
 end
+
+--this tet adds a SAM site to a IADS network, SAM site under coverage must then be adopted by the new SAM site also EW radars must be added as parents
+function TestSkynetIADS:testBuildRadarCoverageForSingleSAMSite()
+	self:tearDown()
+	self.testIADS = SkynetIADS:create()
+	
+	local sam1 = self.testIADS:addSAMSite('SAM-SA-6-2')
+	local ewWest2 = self.testIADS:addEarlyWarningRadar('EW-west2')
+	self.testIADS:buildRadarCoverage()
+	
+	lu.assertEquals(#sam1:getParentRadars(), 1)
+	lu.assertEquals(#ewWest2:getChildRadars(), 1)
+	
+	local sam2 = self.testIADS:addSAMSite('SAM-SA-6')
+	lu.assertEquals(sam2:getAutonomousState(), true)
+	
+	self.testIADS:buildRadarCoverageForSAMSite(sam2)
+	lu.assertEquals(sam2:getAutonomousState(), false)
+	lu.assertEquals(#sam2:getParentRadars(), 2)
+	lu.assertEquals(#sam1:getParentRadars(), 2)
+	lu.assertEquals(#ewWest2:getChildRadars(), 2)
+end
+
 	
 function TestSkynetIADS:testGetSAMSitesByPrefix()
 	local samSites = self.testIADS:getSAMSitesByPrefix('SAM-SA-15')
