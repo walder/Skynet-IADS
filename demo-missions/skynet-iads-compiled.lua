@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.0.0 | BUILD TIME: 23.07.2022 1512Z ---")
+env.info("--- SKYNET VERSION: 3.1.0-develop | BUILD TIME: 28.07.2022 1615Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3509,7 +3509,21 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	setmetatable(sam, self)
 	self.__index = self
 	sam.targetsInRange = false
+	sam.goLiveConstraint = {}
 	return sam
+end
+
+function SkynetIADSSamSite:addGoLiveConstraint(constraintName, constraint)
+	self.goLiveConstraint[constraintName] = constraint
+end
+
+function SkynetIADSAbstractRadarElement:areGoLiveConstraintsSatisfied(contact)
+	for constraintName, constraint in pairs(self.goLiveConstraint) do
+		if ( constraint(contact) ~= true ) then
+			return false
+		end
+	end
+	return true
 end
 
 function SkynetIADSSamSite:isDestroyed()

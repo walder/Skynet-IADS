@@ -8,7 +8,21 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	setmetatable(sam, self)
 	self.__index = self
 	sam.targetsInRange = false
+	sam.goLiveConstraint = {}
 	return sam
+end
+
+function SkynetIADSSamSite:addGoLiveConstraint(constraintName, constraint)
+	self.goLiveConstraint[constraintName] = constraint
+end
+
+function SkynetIADSAbstractRadarElement:areGoLiveConstraintsSatisfied(contact)
+	for constraintName, constraint in pairs(self.goLiveConstraint) do
+		if ( constraint(contact) ~= true ) then
+			return false
+		end
+	end
+	return true
 end
 
 function SkynetIADSSamSite:isDestroyed()
