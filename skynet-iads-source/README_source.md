@@ -360,12 +360,22 @@ samSite:setCanEngageHARM(true)
 ```
 
 ## Add go live conditions
-You can include aditional conditions wich must be satisfied for the SAM site to go live. For example you could define that a contact needs to be on a certain heading or altitude for the SAM site to go live.
-Please note this only controls activation of the SAM site there is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS.  
+You can include conditions wich must be satisfied for the SAM site to go live. For example you could define that a contact needs to be on a certain heading or altitude for the SAM site to go live.  
 
-You do not have to use the contact to evaluate the condition. You can run any type of check, for example you could turn the SAM site on if a certain unit or building is destroyed.
+Please note this only controls activation of the SAM site there is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS. 
 
-create a function that will evaluate if the constraint is satisfied. The function will have access to the contact the SAM site is evaluating.
+The additional condition must evaluate to true and the contact must be in range of the SAM site. 
+
+### Use cases
+Place a SAM site on an flight path that you suspect strike strike fighters will pass. Add a heading condition to ensure that the SAM site will only go ive when fighters are on their way back from the target.  
+
+Set a SAM site to only go live if aircraft are in a certain altitude band.
+
+SAM site shall only go live once a strike package has destroyed a certain building or unit.  
+
+You do not have to use the contact provided in the function to evaluate the condition. You can run any type of check, for example you could turn the SAM site on if a certain unit or building is destroyed.
+
+Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating.
 ```lua
 
 local function goLiveConstraint(contact)
@@ -376,16 +386,47 @@ end
 Add the function to the SAM site and give it a name. You can add as many constraints as you wish
 ```lua
 Add the function to the SAM site and give it a name.
-	self.samSite:addGoLiveConstraint('low-flying-contacts', goLiveConstraint)
+	self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
 ```
 
 ## Contact
 You can use the following methods to get information about a contact.
 
-Will return true if contact has been identified as a HARM by Skynet
+Will return true if contact has been identified as a HARM by Skynet:
 ```lua
 contact:isIdentifiedAsHARM()
-```
+```  
+
+Will return the height of a contact:
+```lua
+contact:getHeightInFeetMSL()
+```  
+
+Will return the current magnetic heading of a contact. Note the heading is availble only after a contact has been tracked in more than one cycle by the IADS. Until that has happened heading will be 0:
+```lua
+contact:getMagneticHeading()
+```  
+
+Will return the current ground speed of a contact. Note the speed is availble only after a contact has been tracked in more than one cycle by the IADS. Until that has happend speed will be 0:
+```lua
+contact:getMagneticHeading()
+```  
+
+Will return the time in seconds a contact has been known to the IADS:
+```lua
+contact:getAge()
+```  
+
+Will return the type as a ```Object.Category```:
+```lua
+contact:getTypeName()
+```  
+
+Will return the unit name:
+```lua
+contact:getName()
+```  
+
 
 ## EW radar configuration
 
