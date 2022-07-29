@@ -371,7 +371,7 @@ Set a SAM site to only go live if aircraft are in a certain altitude band.
 
 SAM site shall only go live once a strike package has destroyed a certain building or unit.  
 
-You do not have to use the contact provided in the function to evaluate the condition. You can run any type of check, for example you could turn the SAM site on if a certain unit or building is destroyed.
+You do not have to use the contact provided in the function to evaluate the condition. You can make any assertion you want.
 
 Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating.
 ```lua
@@ -383,7 +383,6 @@ end
 
 Add the function to the SAM site and give it a name. You can add as many constraints as you wish
 ```lua
-Add the function to the SAM site and give it a name.
 	self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
 ```
 
