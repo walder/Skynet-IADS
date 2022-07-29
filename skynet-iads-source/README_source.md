@@ -373,7 +373,7 @@ SAM site shall only go live once a strike package has destroyed a certain buildi
 
 You do not have to use the contact provided in the function to evaluate the condition. You can make any assertion you want.
 
-Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating.
+Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating:
 ```lua
 
 local function goLiveConstraint(contact)
@@ -381,7 +381,7 @@ local function goLiveConstraint(contact)
 end
 ```
 
-Add the function to the SAM site and give it a name. You can add as many constraints as you wish
+Add the function to the SAM site and give it a name. You can add as many constraints as you wish:
 ```lua
 	self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
 ```
