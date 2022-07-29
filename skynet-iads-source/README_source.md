@@ -383,7 +383,7 @@ end
 
 Add the function to the SAM site and give it a name. You can add as many constraints as you wish:
 ```lua
-	self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
+self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
 ```
 
 ## Contact
