@@ -231,4 +231,20 @@ function TestSkynetIADSSAMSite:testGoLiveConstraint()
 
 end
 
+function TestSkynetIADSSAMSite:testSAMSiteWillNotGoLiveIfConstraintFailesAndContactIsInRange()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local contact = IADSContactFactory('test-in-firing-range-of-sa-2')
+	
+	local function goLiveConstraintFalse(contact)
+		return ( contact:getHeightInFeetMSL() < 4000 )
+	end
+
+	self.samSite:addGoLiveConstraint('helicopter', goLiveConstraintFalse)
+	self.samSite:goDark()
+	self.samSite:targetCycleUpdateStart()
+	self.samSite:informOfContact(contact)
+	lu.assertEquals(self.samSite:isActive(), false)
+end
+
 end

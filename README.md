@@ -71,6 +71,8 @@ If you like using it, please consider a donation:**
        * [Engagement zone options](#engagement-zone-options)
      * [Engage air weapons](#engage-air-weapons)
      * [Engage HARM](#engage-harm)
+   * [Add go live conditions](#add-go-live-conditions)
+   * [Contact](#contact)
    * [EW radar configuration](#ew-radar-configuration)
      * [Adding EW radars](#adding-ew-radars)
        * [Add multiple EW radars](#add-multiple-ew-radars)
@@ -427,6 +429,34 @@ Will set the SAM site to engage HARMs, if it is able to do so in DCS. If set to 
 
 ```lua
 samSite:setCanEngageHARM(true)
+```
+
+## Add go live conditions
+You can include aditional conditions wich must be satisfied for the SAM site to go live. For example you could define that a contact needs to be on a certain heading or altitude for the SAM site to go live.
+Please note this only controls activation of the SAM site there is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS.  
+
+You do not have to use the contact to evaluate the condition. You can run any type of check, for example you could turn the SAM site on if a certain unit or building is destroyed.
+
+create a function that will evaluate if the constraint is satisfied. The function will have access to the contact the SAM site is evaluating.
+```lua
+
+local function goLiveConstraint(contact)
+	return ( contact:getHeightInFeetMSL() < 1000 )
+end
+```
+
+Add the function to the SAM site and give it a name. You can add as many constraints as you wish
+```lua
+Add the function to the SAM site and give it a name.
+	self.samSite:addGoLiveConstraint('low-flying-contacts', goLiveConstraint)
+```
+
+## Contact
+You can use the following methods to get information about a contact.
+
+Will return true if contact has been identified as a HARM by Skynet
+```lua
+contact:isIdentifiedAsHARM()
 ```
 
 ## EW radar configuration

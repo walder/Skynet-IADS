@@ -8,16 +8,16 @@ function SkynetIADSSamSite:create(samGroup, iads)
 	setmetatable(sam, self)
 	self.__index = self
 	sam.targetsInRange = false
-	sam.goLiveConstraint = {}
+	sam.goLiveConstraints = {}
 	return sam
 end
 
 function SkynetIADSSamSite:addGoLiveConstraint(constraintName, constraint)
-	self.goLiveConstraint[constraintName] = constraint
+	self.goLiveConstraints[constraintName] = constraint
 end
 
 function SkynetIADSAbstractRadarElement:areGoLiveConstraintsSatisfied(contact)
-	for constraintName, constraint in pairs(self.goLiveConstraint) do
+	for constraintName, constraint in pairs(self.goLiveConstraints) do
 		if ( constraint(contact) ~= true ) then
 			return false
 		end
@@ -55,7 +55,7 @@ end
 
 function SkynetIADSSamSite:informOfContact(contact)
 	-- we make sure isTargetInRange (expensive call) is only triggered if no previous calls to this method resulted in targets in range
-	if ( self.targetsInRange == false and self:isTargetInRange(contact) and ( contact:isIdentifiedAsHARM() == false or ( contact:isIdentifiedAsHARM() == true and self:getCanEngageHARM() == true ) ) ) then
+	if ( self.targetsInRange == false and self:areGoLiveConstraintsSatisfied(contact) == true and self:isTargetInRange(contact) and ( contact:isIdentifiedAsHARM() == false or ( contact:isIdentifiedAsHARM() == true and self:getCanEngageHARM() == true ) ) ) then
 		self:goLive()
 		self.targetsInRange = true
 	end
