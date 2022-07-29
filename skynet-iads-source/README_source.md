@@ -360,11 +360,9 @@ samSite:setCanEngageHARM(true)
 ```
 
 ## Add go live conditions
-You can include conditions wich must be satisfied for the SAM site to go live. For example you could define that a contact needs to be on a certain heading or altitude for the SAM site to go live.  
+You can include conditions wich must be satisfied for the SAM site to go live. Please note this only controls activation of the SAM site. There is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS. 
 
-Please note this only controls activation of the SAM site there is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS. 
-
-The additional condition must evaluate to true and the contact must be in range of the SAM site. 
+The additional condition must evaluate to true and the contact must be in range of the SAM site (handled by Skynet). 
 
 ### Use cases
 Place a SAM site on an flight path that you suspect strike strike fighters will pass. Add a heading condition to ensure that the SAM site will only go ive when fighters are on their way back from the target.  
