@@ -369,17 +369,34 @@ Launchers:
         desc={
             _origin="",
             box={
+			
+
+	SENSOR:
+	{
+	0={{opticType=0, type=0, typeName="long-range naval optics"}},
+	{
+		{
+			detectionDistanceAir={
+				lowerHemisphere={headOn=173872.484375, tailOn=173872.484375},
+				upperHemisphere={headOn=173872.484375, tailOn=173872.484375}
+			},
+			type=1,
+			typeName="Patriot str"
+		},
+		{detectionDistanceRBM=336.19998168945, type=1, typeName="perry search radar"}
+	}
+	}	
 --]]
+
 	self.ewRadarName = "BLUE-EW-Oliver-Hazzard"
 	self.blue = "BLUE-"
-	self:setUp()	
+	self:setUp()
 	lu.assertEquals(self.ewRadar:getNatoName(), "PERRY")
 	--as long as we don't use the PERRY as a SAM site the distance returned is irrelevant, because it's radar wil be on all the time
-	lu.assertEquals(self.ewRadar:getRadars()[1]:getMaxRangeFindingTarget(), 241401)
+	lu.assertEquals(self.ewRadar:getRadars()[1]:getMaxRangeFindingTarget(), 173872.484375)
 	
 	--PERRY does not have radar data
 	local unit = Unit.getByName(self.ewRadarName)
-	lu.assertEquals(unit:getSensors(), nil)
 end
 
 function TestSkynetIADSEWRadar:testTiconderoga()

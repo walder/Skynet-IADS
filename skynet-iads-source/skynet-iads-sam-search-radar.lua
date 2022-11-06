@@ -34,7 +34,7 @@ function SkynetIADSSAMSearchRadar:setupRangeData()
 				local sensorInformation = subEntries[j]
 				-- some sam sites have  IR and passive EWR detection, we are just interested in the radar data
 				-- investigate if upperHemisphere and headOn is ok, I guess it will work for most detection cases
-				if sensorInformation.type == Unit.SensorType.RADAR then
+				if sensorInformation.type == Unit.SensorType.RADAR and sensorInformation['detectionDistanceAir'] then
 					local upperHemisphere = sensorInformation['detectionDistanceAir']['upperHemisphere']['headOn']
 					local lowerHemisphere = sensorInformation['detectionDistanceAir']['lowerHemisphere']['headOn']
 					self.maximumRange = upperHemisphere

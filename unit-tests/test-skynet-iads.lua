@@ -576,54 +576,21 @@ function TestSkynetIADS:testBuildRadarCoverageForSingleEarlyWarningRadar()
 	
 	self.testIADS:addCommandCenter(StaticObject.getByName("Command Center"))
 	
-<<<<<<< HEAD
-	--make sure iads has only one ew:
-	self.testIADS:addEarlyWarningRadarsByPrefix('EW-west23')
-	
-	--make sure iads has only one ew:
-	self.testIADS:addEarlyWarningRadarsByPrefix('EW-west23')
-=======
 	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
 	local sam2 = self.testIADS:addSAMSite('SAM-SA-6')
 	local sam1 = self.testIADS:addSAMSite('SAM-SA-6-2')
->>>>>>> 2dcb27722387804feb5a0c0cd4717706553b0549
 	
 	self.testIADS:buildRadarCoverage()
 
 	
-<<<<<<< HEAD
-	--env.info(tostring(sa19Parent:getDCSName()))
-
-	--assertions need to be like this otherwise dcs will crash.
-	lu.assertEquals((sa19Parent == self.testIADS:getEarlyWarningRadarByUnitName('EW-west23')), true)
-end
-
-function TestSkynetIADS:testBuildRadarCoverageForEarlyWarningRadar()
-	local ewRadar = self.testIADS:getEarlyWarningRadarByUnitName('EW-west2')
-=======
 	lu.assertEquals(#sam1:getParentRadars(), 1)
 	lu.assertEquals(#sam2:getParentRadars(), 1)
->>>>>>> 2dcb27722387804feb5a0c0cd4717706553b0549
 	
 	lu.assertEquals(#self.testIADS:getCommandCenters()[1]:getChildRadars(), 2)
 	
 	local ewWest2 = self.testIADS:addEarlyWarningRadar('EW-west2')
 		
-<<<<<<< HEAD
-	ewRadar:clearChildRadars()
-<<<<<<< HEAD
-
-	--clear sam sites, and make sure only two are loaded:
-	self.testIADS:addSAMSitesByPrefix('SAM-SA-6')
-
-=======
-	
-	--clear sam sites, and make sure only to are loaded:
-	self.testIADS:addSAMSitesByPrefix('SAM-SA-6')
->>>>>>> 4c54b8735ac3c8093ad701433ce0cd7b98831965
-=======
 	self.testIADS:buildRadarCoverageForEarlyWarningRadar(ewWest2)
->>>>>>> 2dcb27722387804feb5a0c0cd4717706553b0549
 	
 	lu.assertEquals(#sam1:getParentRadars(), 2)
 	lu.assertEquals(#sam2:getParentRadars(), 2)
