@@ -134,6 +134,24 @@ function TestSkynetIADSSAMSite:testInformOfHARMContactSAMCanEngageHARM()
 	
 end
 
+function TestSkynetIADSSAMSite:testInformOfHARMContactSAMCanNotEngageHARM()
+	self.samSiteName = "test-SAM-SA-2-test"
+	self:setUp()
+	function self.samSite:isTargetInRange(contact)
+		return true
+	end
+	local mockTarget = {}
+	function mockTarget:isIdentifiedAsHARM()
+		return true
+	end
+	self.samSite:goDark()
+	lu.assertEquals(self.samSite:isActive(), false)
+	self.samSite:setCanEngageHARM(false)
+	self.samSite:informOfContact(mockTarget)
+	lu.assertEquals(self.samSite:isActive(), false)
+	
+end
+
 function TestSkynetIADSSAMSite:testSA2InformOfContactTargetNotInRange()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
@@ -143,7 +161,7 @@ function TestSkynetIADSSAMSite:testSA2InformOfContactTargetNotInRange()
 	lu.assertEquals(self.samSite:isTargetInRange(target), false)
 	lu.assertEquals(self.samSite:isActive(), false)
 end
---[[
+
 function TestSkynetIADSSAMSite:testSA2InforOfContactInSearchRangeSAMSiteGoLiveWhenSetToSearchRange()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
@@ -177,7 +195,7 @@ function TestSkynetIADSSAMSite:testInformOfContactMultipleTimesOnlyOneIsTargetIn
 	self.samSite:informOfContact(mockContact)
 	lu.assertEquals(numTimesCalledTargetInRange, 1)
 end
---]]
+
 function TestSkynetIADSSAMSite:testSAMStaysActiveWhenInAutonomousMode()
 	self.samSiteName = "test-SAM-SA-2-test"
 	self:setUp()
@@ -185,6 +203,48 @@ function TestSkynetIADSSAMSite:testSAMStaysActiveWhenInAutonomousMode()
 	lu.assertEquals(self.samSite:getAutonomousState(), true)
 	self.samSite:targetCycleUpdateEnd()
 	lu.assertEquals(self.samSite:isActive(), true)
+end
+
+function TestSkynetIADSSAMSite:testGoLiveConstraint()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local contact = IADSContactFactory('test-in-firing-range-of-sa-2')
+	
+	local function goLiveConstraint(contact)
+		return ( contact:getHeightInFeetMSL() > 4000 )
+	end
+
+	lu.assertEquals(goLiveConstraint(contact), true)
+	
+	lu.assertEquals(self.samSite:areGoLiveConstraintsSatisfied(contact), true)
+	self.samSite:addGoLiveConstraint('helicopter', goLiveConstraint)
+	lu.assertEquals(self.samSite:areGoLiveConstraintsSatisfied(contact), true)
+	
+	--TODO: finish test to check return false if constraint is false
+
+	local function goLiveConstraintFalse(contact)
+		return ( contact:getHeightInFeetMSL() < 4000 )
+	end
+	
+	self.samSite:addGoLiveConstraint('helicopter', goLiveConstraintFalse)
+	lu.assertEquals(self.samSite:areGoLiveConstraintsSatisfied(contact), false)
+
+end
+
+function TestSkynetIADSSAMSite:testSAMSiteWillNotGoLiveIfConstraintFailesAndContactIsInRange()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local contact = IADSContactFactory('test-in-firing-range-of-sa-2')
+	
+	local function goLiveConstraintFalse(contact)
+		return ( contact:getHeightInFeetMSL() < 4000 )
+	end
+
+	self.samSite:addGoLiveConstraint('helicopter', goLiveConstraintFalse)
+	self.samSite:goDark()
+	self.samSite:targetCycleUpdateStart()
+	self.samSite:informOfContact(contact)
+	lu.assertEquals(self.samSite:isActive(), false)
 end
 
 end

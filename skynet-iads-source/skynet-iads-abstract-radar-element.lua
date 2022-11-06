@@ -567,7 +567,6 @@ function SkynetIADSAbstractRadarElement:goDark()
 		if self.iads:getDebugSettings().radarWentDark then
 			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
 		end
-		self.conta
 	end
 end
 

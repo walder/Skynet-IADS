@@ -28,75 +28,7 @@ If you like using it, please consider a donation:**
 
  Table of Contents
  =================
-  * [Skynet\-IADS](#skynet-iads)
- * [Abstract](#abstract)
- * [Quick start](#quick-start)
- * [Skynet IADS Elements](#skynet-iads-elements)
-   * [IADS](#iads)
-   * [Track files](#track-files)
-   * [Comand Centers](#comand-centers)
-   * [SAM Sites](#sam-sites)
-   * [Early Warning Radars](#early-warning-radars)
-   * [Power Sources](#power-sources)
-   * [Connection Nodes](#connection-nodes)
-   * [AWACS (Airborne Early Warning and Control System)
-](#awacs-airborne-early-warning-and-control-system)
-   * [Ships](#ships)
- * [Tactics](#tactics)
-   * [HARM defence](#harm-defence)
-     * [HARM detection](#harm-detection)
-     * [HARM flight path analysis](#harm-flight-path-analysis)
-   * [HARM radar shutdown](#harm-radar-shutdown)
-   * [Point defence](#point-defence)
-   * [Electronic Warfare](#electronic-warfare)
- * [Using Skynet in the mission editor](#using-skynet-in-the-mission-editor)
-   * [Placing units](#placing-units)
-   * [Preparing a SAM site](#preparing-a-sam-site)
-   * [Preparing an EW radar](#preparing-an-ew-radar)
-   * [Adding the Skynet code](#adding-the-skynet-code)
-   * [Adding the Skynet IADS](#adding-the-skynet-iads)
- * [Advanced setup](#advanced-setup)
-   * [IADS configuration](#iads-configuration)
-   * [Adding a command center](#adding-a-command-center)
-   * [Power sources and connection nodes](#power-sources-and-connection-nodes)
-   * [Warm up the SAM sites of an IADS](#warm-up-the-sam-sites-of-an-iads)
-   * [Connecting Skynet to the MOOSE AI\_A2A\_DISPATCHER](#connecting-skynet-to-the-moose-ai_a2a_dispatcher)
-   * [SAM site configuration](#sam-site-configuration)
-     * [Adding SAM sites](#adding-sam-sites)
-       * [Add multiple SAM sites](#add-multiple-sam-sites)
-       * [Add a SAM site manually](#add-a-sam-site-manually)
-     * [Accessing SAM sites in the IADS](#accessing-sam-sites-in-the-iads)
-     * [Act as EW radar](#act-as-ew-radar)
-     * [Engagement zone](#engagement-zone)
-       * [Engagement zone options](#engagement-zone-options)
-     * [Engage air weapons](#engage-air-weapons)
-     * [Engage HARM](#engage-harm)
-   * [EW radar configuration](#ew-radar-configuration)
-     * [Adding EW radars](#adding-ew-radars)
-       * [Add multiple EW radars](#add-multiple-ew-radars)
-       * [Add an EW radar manually](#add-an-ew-radar-manually)
-     * [Accessing EW radars in the IADS](#accessing-ew-radars-in-the-iads)
-   * [Options for SAM sites and EW radars](#options-for-sam-sites-and-ew-radars)
-     * [Setting an option](#setting-an-option)
-     * [Daisy chaining options](#daisy-chaining-options)
-     * [HARM Defence](#harm-defence-1)
-     * [Point defence](#point-defence-1)
-     * [Autonomous mode behaviour](#autonomous-mode-behaviour)
-       * [Autonomous mode options](#autonomous-mode-options)
-   * [Adding a jammer](#adding-a-jammer)
-     * [Advanced functions](#advanced-functions)
-   * [Setting debug information](#setting-debug-information)
- * [Example Setup](#example-setup)
- * [FAQ](#faq)
-   * [Does Skynet IADS have an impact on game performance?](#does-skynet-iads-have-an-impact-on-game-performance)
-   * [What air defence units shall I add to the Skynet IADS?](#what-air-defence-units-shall-i-add-to-the-skynet-iads)
-   * [Which SAM systems can engage HARMS?](#which-sam-systems-can-engage-harms)
-   * [What exactly does Skynet do with the SAMS?](#what-exactly-does-skynet-do-with-the-sams)
-   * [Are there known bugs?](#are-there-known-bugs)
-   * [How do I know if a SAM site is in range of an EW site or a SAM site in EW mode?](#how-do-i-know-if-a-sam-site-is-in-range-of-an-ew-site-or-a-sam-site-in-ew-mode)
-   * [How do I connect Skynet with the MOOSE AI\_A2A\_DISPATCHER and what are the benefits of that?](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that)
- * [Thanks](#thanks)
- 
+  
 
 # Quick start
 Tired of reading already? Download the [demo mission](/demo-missions/skynet-test-persian-gulf.miz) in the persian gulf map and see Skynet in action. More complex demo missions will follow soon.
@@ -428,6 +360,72 @@ Will set the SAM site to engage HARMs, if it is able to do so in DCS. If set to 
 ```lua
 samSite:setCanEngageHARM(true)
 ```
+
+## Add go live conditions
+You can include conditions wich must be satisfied for the SAM site to go live. Please note this only controls activation of the SAM site. There is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS. 
+
+The additional condition must evaluate to true and the contact must be in range of the SAM site (handled by Skynet). 
+
+### Use cases
+Place a SAM site on an flight path that you suspect strike strike fighters will pass. Add a heading condition to ensure that the SAM site will only go ive when fighters are on their way back from the target.  
+
+Set a SAM site to only go live if aircraft are in a certain altitude band.
+
+SAM site shall only go live once a strike package has destroyed a certain building or unit.  
+
+You do not have to use the contact provided in the function to evaluate the condition. You can make any assertion you want.
+
+Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating:
+```lua
+
+local function goLiveConstraint(contact)
+	return ( contact:getHeightInFeetMSL() < 1000 )
+end
+```
+
+Add the function to the SAM site and give it a name. You can add as many constraints as you wish:
+```lua
+self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
+```
+
+## Contact
+You can use the following methods to get information about a contact.
+
+Will return true if contact has been identified as a HARM by Skynet:
+```lua
+contact:isIdentifiedAsHARM()
+```  
+
+Will return the height of a contact:
+```lua
+contact:getHeightInFeetMSL()
+```  
+
+Will return the current magnetic heading of a contact. Note the heading is availble only after a contact has been tracked in more than one cycle by the IADS. Until that has happened heading will be 0:
+```lua
+contact:getMagneticHeading()
+```  
+
+Will return the current ground speed of a contact. Note the speed is availble only after a contact has been tracked in more than one cycle by the IADS. Until that has happend speed will be 0:
+```lua
+contact:getMagneticHeading()
+```  
+
+Will return the time in seconds a contact has been known to the IADS:
+```lua
+contact:getAge()
+```  
+
+Will return the type as a ```Object.Category```:
+```lua
+contact:getTypeName()
+```  
+
+Will return the unit name:
+```lua
+contact:getName()
+```  
+
 
 ## EW radar configuration
 
