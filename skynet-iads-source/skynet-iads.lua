@@ -534,7 +534,7 @@ end
 
 function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	self:activate()
-	self.iads:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
+	self.logger:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
 end
 
 function SkynetIADS:deactivate()
