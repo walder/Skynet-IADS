@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.1.0 | BUILD TIME: 09.02.2023 1925Z ---")
+env.info("--- SKYNET VERSION: 3.1.1-develop | BUILD TIME: 09.02.2023 2056Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3797,31 +3797,31 @@ function SkynetIADSHARMDetection:cleanAgedContacts()
 end
 
 function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)
-	local newRadars = contact:getAbstractRadarElementsDetected()
-	local radars = self.contactRadarsEvaluated[contact]
-	if radars then
-		newRadars = {}
-		local contactRadars = contact:getAbstractRadarElementsDetected()
-		for i = 1, #contactRadars do
-			local contactRadar = contactRadars[i]
-			local newRadar = self:isElementInTable(radars, contactRadar)
-			if newRadar ~= nil then
-				table.insert(newRadars, newRadar)
-			end
+	local radarsFromContact = contact:getAbstractRadarElementsDetected()
+	local evaluatedRadars = self.contactRadarsEvaluated[contact]
+	local newRadars = {}
+	if evaluatedRadars == nil then
+		evaluatedRadars = {}
+		self.contactRadarsEvaluated[contact] = evaluatedRadars
+	end
+	for i = 1, #radarsFromContact do
+		local contactRadar = radarsFromContact[i]
+		if self:isElementInTable(evaluatedRadars, contactRadar) == false then
+			table.insert(evaluatedRadars, contactRadar)
+			table.insert(newRadars, contactRadar)
 		end
 	end
-	self.contactRadarsEvaluated[contact] = contact:getAbstractRadarElementsDetected()
 	return newRadars
 end
 
 function SkynetIADSHARMDetection:isElementInTable(tbl, element)
 	for i = 1, #tbl do
-		tblElement = tbl[i]
+		local tblElement = tbl[i]
 		if tblElement == element then
-			return nil
+			return true
 		end
 	end
-	return element
+	return false
 end
 
 function SkynetIADSHARMDetection:informRadarsOfHARM(contact)
