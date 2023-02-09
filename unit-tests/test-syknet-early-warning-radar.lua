@@ -51,6 +51,8 @@ function TestSkynetIADSEWRadar:testCompleteDestructionOfEarlyWarningRadar()
 		lu.assertEquals(sa61:getAutonomousState(), false)
 		lu.assertEquals(sa62:getAutonomousState(), false)
 		trigger.action.explosion(ewRadar:getDCSRepresentation():getPosition().p, 500)
+		--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+		ewRadar:onEvent(createDeadEvent())
 		lu.assertEquals(ewRadar:getDCSRepresentation():isExist(), false)
 	
 		lu.assertEquals(ewRadar:isActive(), false)

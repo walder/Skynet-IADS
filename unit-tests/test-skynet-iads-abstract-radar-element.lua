@@ -323,6 +323,8 @@ function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectio
 	
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), false)
 	trigger.action.explosion(connectionNode:getPosition().p, 500)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	nonAutonomousSAM:onEvent(createDeadEvent())
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
 	
 	local connectionNodeReAdd = StaticObject.getByName('SA-6 Connection Node-autonomous-readd')
@@ -333,6 +335,8 @@ function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectio
 	ewRadar:addConnectionNode(StaticObject.getByName('ew-west-connection-node-test'))
 	
 	trigger.action.explosion(StaticObject.getByName('ew-west-connection-node-test'):getPosition().p, 500)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	ewRadar:onEvent(createDeadEvent())
 	lu.assertEquals(ewRadar:hasActiveConnectionNode(), false)
 	lu.assertEquals(ewRadar:getAutonomousState(), true)
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
@@ -342,6 +346,8 @@ function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectio
 	
 	ewRadar:addPowerSource(StaticObject.getByName('ew-power-source'))
 	trigger.action.explosion(StaticObject.getByName('ew-power-source'):getPosition().p, 500)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	ewRadar:onEvent(createDeadEvent())
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
 	lu.assertEquals(nonAutonomousSAM:getAutonomousState(), true)
 	
@@ -352,6 +358,8 @@ function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectio
 	--test if a SAM site will stay active if it's in EW mode and it's parent EW radar becomes inoperable as long as SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK is set this will work
 	nonAutonomousSAM:setActAsEW(true)
 	trigger.action.explosion(StaticObject.getByName('ew-power-source-2'):getPosition().p, 500)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	ewRadar:onEvent(createDeadEvent())
 	lu.assertEquals(ewRadar:isActive(), false)
 	lu.assertEquals(ewRadar:hasWorkingPowerSource(), false)
 	lu.assertEquals(nonAutonomousSAM:isActive(), true)
@@ -374,6 +382,8 @@ function TestSkynetIADSAbstractRadarElement:testSAMSiteAndEWRadarLoosesConnectio
 	self.testIADS:buildRadarCoverage()
 	lu.assertEquals(#comCenter:getChildRadars(), 2)
 	trigger.action.explosion(commandCenter:getPosition().p, 5000)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	comCenter:onEvent(createDeadEvent())
 	
 	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
 	lu.assertEquals(ewRadar:getAutonomousState(), true)
@@ -1067,6 +1077,8 @@ function TestSkynetIADSAbstractRadarElement:testWillSAMShutDownWhenItLoosesPower
 
 	--trigger the explosion of the power source, this should shut down the SAM site
 	trigger.action.explosion(powerSource:getPosition().p, 100)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	self.samSite:onEvent(createDeadEvent())
 	lu.assertEquals(self.samSite:hasWorkingPowerSource(), false)
 	lu.assertEquals(self.samSite:isActive(), false)
 end

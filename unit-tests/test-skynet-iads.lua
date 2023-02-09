@@ -146,6 +146,8 @@ function TestSkynetIADS:testSAMSiteLoosesPower()
 	samSite:goLive()
 	lu.assertEquals(samSite:isActive(), true)
 	trigger.action.explosion(powerSource:getPosition().p, 100)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	samSite:onEvent(createDeadEvent())
 	lu.assertEquals(#self.testIADS:getUsableSAMSites(), self.numSAMSites-1)
 	lu.assertEquals(samSite:isActive(), false)
 end
@@ -216,7 +218,10 @@ function TestSkynetIADS:testOneCommandCenterHasNoConnectionNode()
 	self.testIADS:activate()
 
 	trigger.action.explosion(commandCenter2ConnectionNode:getPosition().p, 500)
+	--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+	comCenter:onEvent(createDeadEvent())
 	lu.assertEquals(self.testIADS:isCommandCenterUsable(), false)
+
 	
 	--after the command center is no longer reachable we check to see if all SAM and EW radars are in their expected autonomous state:
 	for i = 1, #samSites do

@@ -14,6 +14,13 @@ function IADSContactFactory(unitName)
 	return  iadsContact
 end
 
+function createDeadEvent()
+	local event = {}
+	event.id = world.event.S_EVENT_DEAD
+	return event
+end
+
+
 lu.LuaUnit.run()
 
 --clean mist left over scheduled tasks form unit tests, check there are no left over tasks in the IADS

@@ -50,11 +50,15 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	for i = 1, #radars do
 		local radar = radars[i]
 		trigger.action.explosion(radar:getDCSRepresentation():getPosition().p, 500)
+		--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+		samSite:onEvent(createDeadEvent())
 	end	
 	local launchers = samSite:getLaunchers()
 	for i = 1, #launchers do
 		local launcher = launchers[i]
 		trigger.action.explosion(launcher:getDCSRepresentation():getPosition().p, 900)
+		--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+		samSite:onEvent(createDeadEvent())
 	end	
 	lu.assertEquals(samSite:isActive(), false)
 	lu.assertEquals(samSite:isDestroyed(), true)
@@ -229,6 +233,36 @@ function TestSkynetIADSSAMSite:testGoLiveConstraint()
 	self.samSite:addGoLiveConstraint('helicopter', goLiveConstraintFalse)
 	lu.assertEquals(self.samSite:areGoLiveConstraintsSatisfied(contact), false)
 
+end
+
+function TestSkynetIADSSAMSite:testRemoveGoLiveConstraint()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	self.samSite:addGoLiveConstraint("constraint", {})
+	
+	--this marker funtion is to test if after removing the first function this one will still exist
+	function testMarkerFunction(contact)
+		return 3
+	end
+	
+	self.samSite:addGoLiveConstraint("test", testMarkerFunction)
+	
+	local count = 0
+	for constraintName, constraint in pairs(self.samSite:getGoLiveConstraints()) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 2)
+	
+	count = 0
+	self.samSite:removeGoLiveConstraint("constraint")
+	for constraintName, constraint in pairs(self.samSite:getGoLiveConstraints()) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 1)
+	
+	lu.assertEquals(self.samSite:getGoLiveConstraints()["test"](contact), 3)
+	
+	
 end
 
 function TestSkynetIADSSAMSite:testSAMSiteWillNotGoLiveIfConstraintFailesAndContactIsInRange()

@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.0.1 | BUILD TIME: 06.11.2022 1728Z ---")
+env.info("--- SKYNET VERSION: 3.1.0 | BUILD TIME: 09.02.2023 1925Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1681,7 +1681,7 @@ end
 
 function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	self:activate()
-	self.iads:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
+	self.logger:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
 end
 
 function SkynetIADS:deactivate()
@@ -3524,6 +3524,20 @@ function SkynetIADSAbstractRadarElement:areGoLiveConstraintsSatisfied(contact)
 		end
 	end
 	return true
+end
+
+function SkynetIADSAbstractRadarElement:removeGoLiveConstraint(constraintName)
+	local constraints = {}
+	for cName, constraint in pairs(self.goLiveConstraints) do
+		if cName ~= constraintName then
+			constraints[cName] = constraint
+		end
+	end
+	self.goLiveConstraints = constraints
+end
+
+function SkynetIADSAbstractRadarElement:getGoLiveConstraints()
+	return self.goLiveConstraints
 end
 
 function SkynetIADSSamSite:isDestroyed()
