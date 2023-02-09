@@ -376,7 +376,7 @@ You do not have to use the contact provided in the function to evaluate the cons
 
 Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating:
 ```lua
---sam site will only go live if the contact is below 1000 feet.
+--SAM site will only go live if the contact is below 1000 feet.
 local function goLiveConstraint(contact)
 	return ( contact:getHeightInFeetMSL() < 1000 )
 end
