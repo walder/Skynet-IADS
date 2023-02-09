@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.0.1 | BUILD TIME: 09.02.2023 1758Z ---")
+env.info("--- SKYNET VERSION: 3.0.1 | BUILD TIME: 09.02.2023 1839Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2907,6 +2907,9 @@ function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
 end
 
 function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
+	if(harmContact:getPosition() == nil) then
+		env.info("harm is nil")
+	end
 	local radars = self:getRadars()
 		for j = 1, #radars do
 			local radar = radars[j]
