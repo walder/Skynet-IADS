@@ -50,11 +50,15 @@ function TestSkynetIADSSAMSite:testCompleteDestructionOfSamSiteAndLoadDestroyedS
 	for i = 1, #radars do
 		local radar = radars[i]
 		trigger.action.explosion(radar:getDCSRepresentation():getPosition().p, 500)
+		--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+		samSite:onEvent(createDeadEvent())
 	end	
 	local launchers = samSite:getLaunchers()
 	for i = 1, #launchers do
 		local launcher = launchers[i]
 		trigger.action.explosion(launcher:getDCSRepresentation():getPosition().p, 900)
+		--we simulate a call to the event, since in game will be triggered to late to for later checks in this unit test
+		samSite:onEvent(createDeadEvent())
 	end	
 	lu.assertEquals(samSite:isActive(), false)
 	lu.assertEquals(samSite:isDestroyed(), true)
