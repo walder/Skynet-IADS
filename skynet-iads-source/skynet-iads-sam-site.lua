@@ -25,6 +25,20 @@ function SkynetIADSAbstractRadarElement:areGoLiveConstraintsSatisfied(contact)
 	return true
 end
 
+function SkynetIADSAbstractRadarElement:removeGoLiveConstraint(constraintName)
+	local constraints = {}
+	for cName, constraint in pairs(self.goLiveConstraints) do
+		if cName ~= constraintName then
+			constraints[cName] = constraint
+		end
+	end
+	self.goLiveConstraints = constraints
+end
+
+function SkynetIADSAbstractRadarElement:getGoLiveConstraints()
+	return self.goLiveConstraints
+end
+
 function SkynetIADSSamSite:isDestroyed()
 	local isDestroyed = true
 	for i = 1, #self.launchers do

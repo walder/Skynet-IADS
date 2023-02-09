@@ -235,6 +235,36 @@ function TestSkynetIADSSAMSite:testGoLiveConstraint()
 
 end
 
+function TestSkynetIADSSAMSite:testRemoveGoLiveConstraint()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	self.samSite:addGoLiveConstraint("constraint", {})
+	
+	--this marker funtion is to test if after removing the first function this one will still exist
+	function testMarkerFunction(contact)
+		return 3
+	end
+	
+	self.samSite:addGoLiveConstraint("test", testMarkerFunction)
+	
+	local count = 0
+	for constraintName, constraint in pairs(self.samSite:getGoLiveConstraints()) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 2)
+	
+	count = 0
+	self.samSite:removeGoLiveConstraint("constraint")
+	for constraintName, constraint in pairs(self.samSite:getGoLiveConstraints()) do
+		count = count + 1
+	end
+	lu.assertEquals(count, 1)
+	
+	lu.assertEquals(self.samSite:getGoLiveConstraints()["test"](contact), 3)
+	
+	
+end
+
 function TestSkynetIADSSAMSite:testSAMSiteWillNotGoLiveIfConstraintFailesAndContactIsInRange()
 	self.samSiteName = "SAM-SA-2"
 	self:setUp()

@@ -359,23 +359,24 @@ Will set the SAM site to engage HARMs, if it is able to do so in DCS. If set to 
 samSite:setCanEngageHARM(true)
 ```
 
-## Add go live conditions
-You can include conditions wich must be satisfied for the SAM site to go live. Please note this only controls activation of the SAM site. There is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS. 
+## Add go live constraints
+You can include constraints wich must be satisfied for the SAM site to go live. Please note this only controls activation of the SAM site. 
+There is currently no way to tell a SAM site to only target a certain contact via the lua scripting engine in DCS. 
 
-The additional condition must evaluate to true and the contact must be in range of the SAM site (handled by Skynet). 
+The constraint must evaluate to true and the contact must be in range of the SAM site (handled by Skynet). 
 
 ### Use cases
-Place a SAM site on an flight path that you suspect strike strike fighters will pass. Add a heading condition to ensure that the SAM site will only go ive when fighters are on their way back from the target.  
+Place a SAM site on an flight path that you suspect strike strike fighters will pass. Add a heading constraint to ensure that the SAM site will only go ive when fighters are on their way back from the target.  
 
 Set a SAM site to only go live if aircraft are in a certain altitude band.
 
 SAM site shall only go live once a strike package has destroyed a certain building or unit.  
 
-You do not have to use the contact provided in the function to evaluate the condition. You can make any assertion you want.
+You do not have to use the contact provided in the function to evaluate the constraint. You can make any assertion you want.
 
 Create a function that will evaluate if the constraint is satisfied. The function will have access to the [contact](#contact) the SAM site is evaluating:
 ```lua
-
+--sam site will only go live if the contact is below 1000 feet.
 local function goLiveConstraint(contact)
 	return ( contact:getHeightInFeetMSL() < 1000 )
 end
@@ -384,6 +385,16 @@ end
 Add the function to the SAM site and give it a name. You can add as many constraints as you wish:
 ```lua
 self.samSite:addGoLiveConstraint('ignore-low-flying-contacts', goLiveConstraint)
+```
+
+Remove constraint you no longer wish to use:
+```lua
+self.samSite:removeGoLiveConstraint('ignore-low-flying-contacts')
+```
+
+Get a table of all constraints:
+```lua
+self.samSite:getGoLiveConstraints()
 ```
 
 ## Contact

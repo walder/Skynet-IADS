@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.0.1 | BUILD TIME: 09.02.2023 1839Z ---")
+env.info("--- SKYNET VERSION: 3.0.1 | BUILD TIME: 09.02.2023 1922Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -2907,9 +2907,6 @@ function SkynetIADSAbstractRadarElement:shallIgnoreHARMShutdown()
 end
 
 function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
-	if(harmContact:getPosition() == nil) then
-		env.info("harm is nil")
-	end
 	local radars = self:getRadars()
 		for j = 1, #radars do
 			local radar = radars[j]
@@ -3527,6 +3524,20 @@ function SkynetIADSAbstractRadarElement:areGoLiveConstraintsSatisfied(contact)
 		end
 	end
 	return true
+end
+
+function SkynetIADSAbstractRadarElement:removeGoLiveConstraint(constraintName)
+	local constraints = {}
+	for cName, constraint in pairs(self.goLiveConstraints) do
+		if cName ~= constraintName then
+			constraints[cName] = constraint
+		end
+	end
+	self.goLiveConstraints = constraints
+end
+
+function SkynetIADSAbstractRadarElement:getGoLiveConstraints()
+	return self.goLiveConstraints
 end
 
 function SkynetIADSSamSite:isDestroyed()
