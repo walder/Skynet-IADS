@@ -529,6 +529,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 	then
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
+			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 			self:getDCSRepresentation():enableEmission(true)
@@ -561,6 +562,11 @@ function SkynetIADSAbstractRadarElement:goDark()
 		-- point defence will only go live if the Radar Emitting site it is protecting goes dark and this is due to a it defending against a HARM
 		if (self.harmSilenceID ~= nil) then
 			self:pointDefencesGoLive()
+			if self:isDestroyed() == false then
+				--if site goes dark due to HARM we turn off AI, this is due to a bug in DCS multiplayer where the harm will find its way to the radar emitter if just setEmissions is set to false
+				local controller = self:getController()
+				controller:setOnOff(false)
+			end
 		end
 		self.aiState = false
 		self:stopScanningForHARMs()

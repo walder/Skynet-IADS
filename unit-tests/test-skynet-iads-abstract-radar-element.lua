@@ -101,10 +101,52 @@ function TestSkynetIADSAbstractRadarElement:testGoLive()
 		return mockController
 	end
 	
+	--test so see if controller is called when setting site live:
+	call = 0
+	function mockController:setOnOff(state)
+		lu.assertEquals(state, true)
+		call = 1
+	end
 	
 	self.samSite:goLive()
+	lu.assertEquals(call, 1)
 	lu.assertEquals(self.samSite:isActive(), true)
 	lu.assertEquals(emissionState, true)
+end
+	
+function TestSkynetIADSAbstractRadarElement:testGoDarkDueToHARMTestIfAIisOff()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local mockController = {}
+	local call = 0
+	function mockController:setOnOff(state)
+		lu.assertEquals(state, false)
+		call = 1
+	end
+	function self.samSite:getController()
+		return mockController
+	end
+	self.samSite:goSilentToEvadeHARM(10)
+	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(call, 1)
+	
+	--test so no controller call is made if sam site is destroyed:
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local mockController = {}
+	call = 0
+	function mockController:setOnOff(state)
+		call = call + 1
+	end
+	function self.samSite:getController()
+		return mockController
+	end
+	function self.samSite:isDestroyed()
+		return true
+	end
+	self.samSite:goSilentToEvadeHARM(10)
+	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(call, 0)
 end
 
 function TestSkynetIADSAbstractRadarElement:testCanEngageAirWeapons()
