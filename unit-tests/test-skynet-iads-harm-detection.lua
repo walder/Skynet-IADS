@@ -182,24 +182,24 @@ function TestSkynetIADSHARMDetection:testGetNewRadarsThatHaveDetectedContact()
 	end
 	local result = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
 	lu.assertEquals(result, {mockRadar1, mockRadar2})
-	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2}}
+	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2})
 
 	local result2 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
 	lu.assertEquals(result2, {})
-	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2}}
+	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2})
 	
 	local mockRadar3 = {"MockRadar3"}
 	table.insert(detectedRadars, mockRadar3)
 	lu.assertEquals(#mockContact:getAbstractRadarElementsDetected(), 3)
 	local result3 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
 	lu.assertEquals(result3, {mockRadar3})	
-	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2, mockRadar3}}
+	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2, mockRadar3})
 	
 	local mockRadar4 = {"MockRadar4"}
 	table.insert(detectedRadars, mockRadar4)
 	local result4 = self.harmDetection:getNewRadarsThatHaveDetectedContact(mockContact)
 	lu.assertEquals(result4, {mockRadar4})	
-	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2, mockRadar3, mockRadar4}}
+	lu.assertEquals(self.harmDetection.contactRadarsEvaluated[mockContact], {mockRadar1, mockRadar2, mockRadar3, mockRadar4})
 end
 
 function TestSkynetIADSHARMDetection:testCleanAgedContacts()

@@ -61,10 +61,11 @@ function TestSkynetIADSAbstractRadarElement:testGoDark()
 		return mockController
 	end
 	
-	
+	table.insert(self.samSite.cachedTargets,{"Mock1"})
 	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
 	lu.assertEquals(emissionState, false)
+	lu.assertEquals(#self.samSite.cachedTargets, 0)
 	
 end
 

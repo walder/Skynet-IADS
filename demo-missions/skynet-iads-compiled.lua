@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.1.1-develop | BUILD TIME: 09.02.2023 2152Z ---")
+env.info("--- SKYNET VERSION: 3.1.1-develop | BUILD TIME: 10.02.2023 1756Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -1170,7 +1170,15 @@ function SkynetIADS:create(name)
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
+	world.addEventHandler(iads)
 	return iads
+end
+
+function SkynetIADS:onEvent(event)
+	if (event.id == world.event.S_EVENT_BIRTH ) then
+		env.info("New Object Spawned")
+		self:addSAMSite(event.initiator:getGroup():getName());
+	end
 end
 
 function SkynetIADS:setUpdateInterval(interval)
@@ -1305,7 +1313,7 @@ function SkynetIADS:addSAMSitesByPrefix(prefix)
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
-			if dcsObject then
+			if dcsObject and dcsObject:getUnits()[1]:isActive() then
 				self:addSAMSite(groupName)
 			end
 		end
@@ -2674,6 +2682,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 		end
 		self.aiState = false
 		self:stopScanningForHARMs()
+		self.cachedTargets = {}
 		if self.iads:getDebugSettings().radarWentDark then
 			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
 		end
