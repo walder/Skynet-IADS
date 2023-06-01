@@ -84,7 +84,17 @@ function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)
 			end
 		end
 	end
-	self.contactRadarsEvaluated[contact] = contact:getAbstractRadarElementsDetected()
+	-- FG correction FG self.contactRadarsEvaluated[contact] = contact:getAbstractRadarElementsDetected()
+	-- if the evaluated table is the same as the detected one, when we merge the contact and update the detected table all new radars are considered as having already evaluated the contact for HARM
+	-- so the table needs to be a *copy*
+	-- then again it is dubious that the hard ident is correct (as described in the docs) because the radars will detect the harm one after the other, and try each one in turn for the identify
+	-- the case when multiple radars will pick up the harm in the same 5 second loop (and so up the prob of ident) seems rare
+	local radarsDetected = contact:getAbstractRadarElementsDetected()
+	self.contactRadarsEvaluated[contact] = {}
+	for j = 1, #radarsDetected do
+		table.insert(self.contactRadarsEvaluated[contact], radarsDetected[j])
+	end
+	--
 	return newRadars
 end
 
