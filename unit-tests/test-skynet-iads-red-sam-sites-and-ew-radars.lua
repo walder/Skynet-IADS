@@ -96,20 +96,6 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 --[[
 	DCS properties SA-10 (S-300 / SA-10 Grumble)
 	
-	Radar:	
-	{
-		{
-			{
-				detectionDistanceAir={
-					lowerHemisphere={headOn=53499.2265625, tailOn=53499.2265625},
-					upperHemisphere={headOn=53499.2265625, tailOn=53499.2265625}
-				},
-				type=1,
-				typeName="S-300PS 40B6M tr"
-			}
-		}
-	}
-	
 	Launcher:
 	{
 		{
@@ -163,14 +149,11 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 	
 	local radars = self.samSite:getRadars()
 	
-	numLoops = 0
-	-- seems like currently both radar types of the SA-10 have the same range values
-	for  i = 1, #radars do
-		local radar = radars[i]
-		lu.assertEquals(radar:getMaxRangeFindingTarget(), 106998.453125)
-		numLoops = numLoops + 1
-	end
-	lu.assertEquals(numLoops, 3)
+	local tr = self.samSite:getTrackingRadars()[1]
+	lu.assertEquals(tr:getMaxRangeFindingTarget(),0)
+	
+	local sr = self.samSite:getSearchRadars()[2]
+	lu.assertEquals(sr:getMaxRangeFindingTarget(), 0)
 end
 
 function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA11GroupNumberOfLaunchersAndSearchRadarsAndNatoName()

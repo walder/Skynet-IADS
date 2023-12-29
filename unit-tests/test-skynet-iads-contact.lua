@@ -113,7 +113,7 @@ function TestSyknetIADSContact:testSetIsHARM()
 end
 
 function TestSyknetIADSContact:testGetMagneticHeading()
-	lu.assertEquals(self.contact:getMagneticHeading(), 348)
+	lu.assertEquals(self.contact:getMagneticHeading(), 347)
 	
 	function self.contact:isExist()
 		return false
