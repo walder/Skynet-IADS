@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.3.0-develop | BUILD TIME: 29.12.2023 2111Z ---")
+env.info("--- SKYNET VERSION: 3.2.0 | BUILD TIME: 29.12.2023 2309Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -1201,7 +1201,7 @@ end
 function SkynetIADS:onEvent(event)
 	if (event.id == world.event.S_EVENT_BIRTH ) then
 		env.info("New Object Spawned")
-		self:addSAMSite(event.initiator:getGroup():getName());
+	--	self:addSAMSite(event.initiator:getGroup():getName());
 	end
 end
 
