@@ -1,7 +1,7 @@
-env.info("--- SKYNET VERSION: 3.2 | BUILD TIME: 29.12.2023 1919Z ---")
+env.info("--- SKYNET VERSION: 3.2.0 | BUILD TIME: 29.12.2023 2309Z ---")
 do
 --this file contains the required units per sam type
-samTypesDB = {
+samTypesDB = {	
 	['S-200'] = {
         ['type'] = 'complex',
         ['searchRadar'] = {
@@ -55,11 +55,9 @@ samTypesDB = {
 		},
 		['trackingRadar'] = {
 			['S-300PS 40B6M tr'] = {
-			},
-			
+			},	
 			['S-300PS 5H63C 30H6_tr'] = {
-			}
-		
+			},
 		},
 		['launchers'] = {
 			['S-300PS 5P85D ln'] = {
@@ -405,8 +403,23 @@ samTypesDB = {
 			['NATO'] = 'CSA-4',
 		},
 		['harm_detection_chance'] = 30
-	},
---- Start of RED EW radars:
+	},	
+	['Phalanx'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['HEMTT_C-RAM_Phalanx'] = {
+			},
+		},
+		['launchers'] = {
+			['HEMTT_C-RAM_Phalanx'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Phalanx',
+		},
+		['harm_detection_chance'] = 10
+	},	
+-- Start of RED EW radars:	
 	['1L13 EWR'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -440,7 +453,7 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 20
 	},
--- Start of BLUE EW  radars:
+-- Start of BLUE EW radars:
 	['FPS-117 Dome'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -767,17 +780,6 @@ samTypesDB['S-300PMU2'] = {
 		},
 		['S-300PMU1 40B6MD sr'] = s300PMU140B6MDsr,
 		['S-300PMU1 64N6E sr'] = s300PMU164N6Esr,
-		
-		['S-300PS 40B6MD sr'] = {
-			['name'] = {
-				['NATO'] = '',
-			},
-		},		
-		['S-300PS 64H6E sr'] = {
-			['name'] = {
-				['NATO'] = '',
-			},
-		},
 	},
 	['trackingRadar'] = {
 		['S-300PMU2 92H6E tr'] = {
@@ -1199,7 +1201,7 @@ end
 function SkynetIADS:onEvent(event)
 	if (event.id == world.event.S_EVENT_BIRTH ) then
 		env.info("New Object Spawned")
-		self:addSAMSite(event.initiator:getGroup():getName());
+	--	self:addSAMSite(event.initiator:getGroup():getName());
 	end
 end
 

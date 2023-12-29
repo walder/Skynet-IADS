@@ -270,6 +270,53 @@ Search Radar:
 	lu.assertEquals(launcher:getRange(), 120000)
 end
 
+function TestSkynetIADSBLUESAMSitesAndEWRadars:testLPWSCRAM()
+	--"HEMTT_C-RAM_Phalanx"
+	
+--[[	
+	{
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=13374.806640625, tailOn=13374.806640625},
+                upperHemisphere={headOn=13374.806640625, tailOn=13374.806640625}
+            },
+            type=1,
+            typeName="C_RAM_Phalanx"
+        }
+    }
+	
+	    {
+        count=1550,
+        desc={
+            _origin="",
+            box={
+                max={x=2.2344591617584, y=0.12504191696644, z=0.12113922089338},
+                min={x=-6.61008644104, y=-0.12504199147224, z=-0.12113920599222}
+            },
+            category=0,
+            displayName="M246_20_HE",
+            life=2,
+            typeName="weapons.shells.M246_20_HE_gr",
+            warhead={caliber=20, explosiveMass=0.1, mass=0.1, type=1}
+        }
+    }
+}
+
+--]]
+	self.samSiteName = "BLUE-SAM-LPWS-C-RAM"
+	self:setUp()
+	lu.assertEquals(#self.samSite:getRadars(),1)
+	lu.assertEquals(#self.samSite:getLaunchers(), 1)
+	lu.assertEquals(#self.samSite:getTrackingRadars(), 0)
+	
+	local searchRadar = self.samSite:getSearchRadars()[1]
+	local launcher = self.samSite:getLaunchers()[1]
+	
+	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 13374.806640625)
+	lu.assertEquals(launcher:getRange(), 13374.806640625)
+end
+
+
 function TestSkynetIADSBLUESAMSitesAndEWRadars:testEWRANFPS117Domed()
 	--[[
 	    {

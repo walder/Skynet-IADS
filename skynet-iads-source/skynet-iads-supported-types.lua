@@ -1,6 +1,6 @@
 do
 --this file contains the required units per sam type
-samTypesDB = {
+samTypesDB = {	
 	['S-200'] = {
         ['type'] = 'complex',
         ['searchRadar'] = {
@@ -54,11 +54,9 @@ samTypesDB = {
 		},
 		['trackingRadar'] = {
 			['S-300PS 40B6M tr'] = {
-			},
-			
+			},	
 			['S-300PS 5H63C 30H6_tr'] = {
-			}
-		
+			},
 		},
 		['launchers'] = {
 			['S-300PS 5P85D ln'] = {
@@ -404,8 +402,23 @@ samTypesDB = {
 			['NATO'] = 'CSA-4',
 		},
 		['harm_detection_chance'] = 30
-	},
---- Start of RED EW radars:
+	},	
+	['Phalanx'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['HEMTT_C-RAM_Phalanx'] = {
+			},
+		},
+		['launchers'] = {
+			['HEMTT_C-RAM_Phalanx'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Phalanx',
+		},
+		['harm_detection_chance'] = 10
+	},	
+-- Start of RED EW radars:	
 	['1L13 EWR'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -439,7 +452,7 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 20
 	},
--- Start of BLUE EW  radars:
+-- Start of BLUE EW radars:
 	['FPS-117 Dome'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
