@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.1.1-develop | BUILD TIME: 29.12.2023 0910Z ---")
+env.info("--- SKYNET VERSION: 3.2 | BUILD TIME: 29.12.2023 1905Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -221,16 +221,18 @@ samTypesDB = {
 
 	},	
 	['Roland ADS'] = {
-		['type'] = 'single',
+		['type'] = 'complex',
 		['searchRadar'] = {
-			['Roland ADS'] = {
+			['Roland Radar'] = {
+				['name'] = {
+					['NATO'] = 'Roland EWR',
+				},
 			},
 		},
 		['launchers'] = {
 			['Roland ADS'] = {
 			},
 		},
-
 		['name'] = {
 			['NATO'] = 'Roland ADS',
 		},
@@ -404,7 +406,7 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 30
 	},
---- Start of EW radars:
+--- Start of RED EW radars:
 	['1L13 EWR'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -438,18 +440,29 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 20
 	},
-	['Roland Radar'] = {
+-- Start of BLUE EW  radars:
+	['FPS-117 Dome'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
-			['Roland Radar'] = {
+			['FPS-117 Dome'] = {
 				['name'] = {
-					['NATO'] = 'Roland EWR',
+					['NATO'] = 'FPS-117 Dome',
 				},
 			},
 		},
-
-		['harm_detection_chance'] = 60
-	},	
+		['harm_detection_chance'] = 80
+	},
+	['FPS-117'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['FPS-117'] = {
+				['name'] = {
+					['NATO'] = 'FPS-117',
+				},
+			},
+		},
+		['harm_detection_chance'] = 80
+	}
 }
 end
 do

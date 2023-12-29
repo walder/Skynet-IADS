@@ -2,8 +2,8 @@ do
 TestSkynetIADSREDSAMSitesAndEWRadars = {}
 
 function TestSkynetIADSREDSAMSitesAndEWRadars:setUp()
+	self.skynetIADS = SkynetIADS:create()
 	if self.samSiteName then
-		self.skynetIADS = SkynetIADS:create()
 		local samSite = Group.getByName(self.samSiteName)
 		self.samSite = SkynetIADSSamSite:create(samSite, self.skynetIADS)
 		
@@ -15,6 +15,11 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:setUp()
 		self.samSite:setupElements()
 		self.samSite:goLive()
 	end
+	
+	if self.ewRadarName then
+		self.skynetIADS:addEarlyWarningRadarsByPrefix('EW')
+		self.ewRadar = self.skynetIADS:getEarlyWarningRadarByUnitName(self.ewRadarName)
+	end
 end
 
 function TestSkynetIADSREDSAMSitesAndEWRadars:tearDown()
@@ -22,10 +27,15 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:tearDown()
 		self.samSite:goDark()
 		self.samSite:cleanUp()
 	end
+	
+	if self.ewRadar then
+		self.ewRadar:cleanUp()
+	end
+	
 	if self.skynetIADS then
 		self.skynetIADS:deactivate()
 	end
-	self.samSite = nil
+	self.ewRadarName = nil
 	self.samSiteName = nil
 end
 
@@ -647,6 +657,129 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testSA5P19()
 	lu.assertEquals(trackingRadar:getMaxRangeFindingTarget(), 53499.2265625)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 240000)
 	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 1)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:test1L13EWRBoxSpring()
+	self.ewRadarName = "EW-west2"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Box Spring")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testCP9S80M1SborkaDogEar()
+	self.ewRadarName = "EW-Dog Ear"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Dog Ear")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:test55G6EWRTalRack()
+	self.ewRadarName = "EW-west8"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Tall Rack")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testEWP19FlatFace()
+	self.ewRadarName = "EW-SR-P19"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Flat Face")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+	lu.assertEquals(self.ewRadar:getHARMDetectionChance(), 30)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testSA10BigBird()
+	self.ewRadarName = "EW-SA-10"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Big Bird")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testSA10ClamShell()
+	self.ewRadarName = "EW-SA-10-2"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Clam Shell")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testSA11SnowDrift()
+	self.ewRadarName = "EW-SA-11"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Snow Drift")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testSA6StraightFlush()
+	self.ewRadarName = "EW-SA-6"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "Straight Flush")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testHQ7()
+	self.ewRadarName = "EW-HQ7-STR"
+	self:setUp()
+	lu.assertEquals(self.ewRadar:getNatoName(), "CSA-4")
+	lu.assertEquals(self.ewRadar:hasWorkingRadar(), true)
+end
+
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testA50AWACSAsEWRadar()
+--[[
+	DCS A-50 properties:
+	
+	Radar:
+	    {
+        {
+            detectionDistanceAir={
+                lowerHemisphere={headOn=204461.796875, tailOn=204461.796875},
+                upperHemisphere={headOn=204461.796875, tailOn=204461.796875}
+            },
+            detectionDistanceRBM=2500,
+            type=1,
+            typeName="Shmel"
+        }
+    },
+    3={{type=3, typeName="Abstract RWR"}}
+}
+
+--]]
+	self.ewRadarName = "EW-AWACS-A-50"
+	self:setUp()
+	local unit = Unit.getByName(self.ewRadarName)
+	lu.assertEquals(unit:getDesc().category, Unit.Category.AIRPLANE)
+	lu.assertEquals(self.ewRadar:getNatoName(), 'A-50')
+	local searchRadar = self.ewRadar:getSearchRadars()[1]
+	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 204461.796875)
+end
+
+function TestSkynetIADSREDSAMSitesAndEWRadars:testKJ2000AWACSAsEWRadar()
+--[[
+	DCS KJ-2000 properties:
+	
+	Radar:
+	{
+		{
+			{
+				detectionDistanceAir={
+					lowerHemisphere={headOn=268356.125, tailOn=268356.125},
+					upperHemisphere={headOn=268356.125, tailOn=268356.125}
+				},
+				detectionDistanceRBM=3500,
+				type=1,
+				typeName="AESA_KJ2000"
+			}
+		},
+		3={{type=3, typeName="Abstract RWR"}}
+	}
+
+--]]
+	self.ewRadarName = "EW-AWACS-KJ-2000"
+	self:setUp()
+	local unit = Unit.getByName('EW-AWACS-KJ-2000')
+	local searchRadar = self.ewRadar:getSearchRadars()[1]
+	lu.assertEquals(self.ewRadar:getNatoName(), 'KJ-2000')
+	lu.assertEquals(searchRadar:getMaxRangeFindingTarget(), 268356.125)
 end
 
 end
