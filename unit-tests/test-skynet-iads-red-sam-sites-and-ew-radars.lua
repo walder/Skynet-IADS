@@ -129,11 +129,12 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 	self.samSiteName = "SAM-SA-10"
 	self:setUp()
 	lu.assertEquals(#self.samSite:getLaunchers(), 2)
-	lu.assertEquals(#self.samSite:getSearchRadars(), 2)
-	lu.assertEquals(#self.samSite:getTrackingRadars(), 1)
-	lu.assertEquals(#self.samSite:getRadars(), 3)
+	lu.assertEquals(#self.samSite:getSearchRadars(), 3)
+	lu.assertEquals(#self.samSite:getTrackingRadars(), 2)
+	lu.assertEquals(#self.samSite:getRadars(), 5)
 	lu.assertEquals(self.samSite:getNatoName(), "SA-10")
 	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
+	
 	
 	local launchers = self.samSite:getLaunchers()
 	local numLoops = 0
@@ -149,11 +150,24 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 	
 	local radars = self.samSite:getRadars()
 	
+	--for some strange reason the s300 does not have any range values in getSensors(), all the data there is empty
 	local tr = self.samSite:getTrackingRadars()[1]
 	lu.assertEquals(tr:getMaxRangeFindingTarget(),0)
 	
+	local tr = self.samSite:getTrackingRadars()[2]
+	lu.assertEquals(tr:getMaxRangeFindingTarget(),0)
+
+	local sr = self.samSite:getSearchRadars()[1]
+	lu.assertEquals(sr:getMaxRangeFindingTarget(), 0)
+	
 	local sr = self.samSite:getSearchRadars()[2]
 	lu.assertEquals(sr:getMaxRangeFindingTarget(), 0)
+	
+	local sr = self.samSite:getSearchRadars()[3]
+	lu.assertEquals(sr:getMaxRangeFindingTarget(), 0)
+	
+
+	
 end
 
 function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA11GroupNumberOfLaunchersAndSearchRadarsAndNatoName()

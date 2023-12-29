@@ -46,10 +46,19 @@ samTypesDB = {
 					['NATO'] = 'Big Bird',
 				},
 			},
+			['S-300PS 40B6MD sr_19J6'] = {
+				['name'] = {
+					['NATO'] = 'Tin Shield',
+				},
+			}
 		},
 		['trackingRadar'] = {
 			['S-300PS 40B6M tr'] = {
 			},
+			
+			['S-300PS 5H63C 30H6_tr'] = {
+			}
+		
 		},
 		['launchers'] = {
 			['S-300PS 5P85D ln'] = {
