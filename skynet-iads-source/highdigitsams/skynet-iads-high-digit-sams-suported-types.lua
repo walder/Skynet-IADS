@@ -300,17 +300,6 @@ samTypesDB['S-300PMU2'] = {
 		},
 		['S-300PMU1 40B6MD sr'] = s300PMU140B6MDsr,
 		['S-300PMU1 64N6E sr'] = s300PMU164N6Esr,
-		
-		['S-300PS 40B6MD sr'] = {
-			['name'] = {
-				['NATO'] = '',
-			},
-		},		
-		['S-300PS 64H6E sr'] = {
-			['name'] = {
-				['NATO'] = '',
-			},
-		},
 	},
 	['trackingRadar'] = {
 		['S-300PMU2 92H6E tr'] = {

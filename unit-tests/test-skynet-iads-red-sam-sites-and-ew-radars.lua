@@ -175,9 +175,6 @@ function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA10GroupNumberOfLauncher
 	
 	local sr = self.samSite:getSearchRadars()[3]
 	lu.assertEquals(sr:getMaxRangeFindingTarget(), 0)
-	
-
-	
 end
 
 function TestSkynetIADSREDSAMSitesAndEWRadars:testCheckSA11GroupNumberOfLaunchersAndSearchRadarsAndNatoName()
