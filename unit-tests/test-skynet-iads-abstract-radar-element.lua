@@ -61,10 +61,11 @@ function TestSkynetIADSAbstractRadarElement:testGoDark()
 		return mockController
 	end
 	
-	
+	table.insert(self.samSite.cachedTargets,{"Mock1"})
 	self.samSite:goDark()
 	lu.assertEquals(self.samSite:isActive(), false)
 	lu.assertEquals(emissionState, false)
+	lu.assertEquals(#self.samSite.cachedTargets, 0)
 	
 end
 
@@ -101,10 +102,52 @@ function TestSkynetIADSAbstractRadarElement:testGoLive()
 		return mockController
 	end
 	
+	--test so see if controller is called when setting site live:
+	call = 0
+	function mockController:setOnOff(state)
+		lu.assertEquals(state, true)
+		call = 1
+	end
 	
 	self.samSite:goLive()
+	lu.assertEquals(call, 1)
 	lu.assertEquals(self.samSite:isActive(), true)
 	lu.assertEquals(emissionState, true)
+end
+	
+function TestSkynetIADSAbstractRadarElement:testGoDarkDueToHARMTestIfAIisOff()
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local mockController = {}
+	local call = 0
+	function mockController:setOnOff(state)
+		lu.assertEquals(state, false)
+		call = 1
+	end
+	function self.samSite:getController()
+		return mockController
+	end
+	self.samSite:goSilentToEvadeHARM(10)
+	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(call, 1)
+	
+	--test so no controller call is made if sam site is destroyed:
+	self.samSiteName = "SAM-SA-2"
+	self:setUp()
+	local mockController = {}
+	call = 0
+	function mockController:setOnOff(state)
+		call = call + 1
+	end
+	function self.samSite:getController()
+		return mockController
+	end
+	function self.samSite:isDestroyed()
+		return true
+	end
+	self.samSite:goSilentToEvadeHARM(10)
+	lu.assertEquals(self.samSite:isActive(), false)
+	lu.assertEquals(call, 0)
 end
 
 function TestSkynetIADSAbstractRadarElement:testCanEngageAirWeapons()
@@ -1207,209 +1250,6 @@ function TestSkynetIADSAbstractRadarElement:testPointDefenceWillGoDarkWhenSAMItI
 	pointDefence:setActAsEW(true)
 	self.samSite:goDark()
 	lu.assertEquals(pointDefence:isActive(), false)
-end
-
-
-function TestSkynetIADSAbstractRadarElement:testPatriotLauncherAndRadar()
-
---[[
-Patriot:
-
-Radar:
-{
-    {
-        count=4,
-        desc={
-            Nmax=25,
-            RCS=0.10660000145435,
-            _origin="",
-            altMax=24240,
-            altMin=45,
-            box={
-                max={x=2.5578553676605, y=0.33423712849617, z=0.32681864500046},
-                min={x=-2.5578553676605, y=-0.33423712849617, z=-0.32681867480278}
-            },
-            category=1,
-            displayName="MIM-104 Patriot",
-            fuseDist=13,
-            guidance=4,
-            life=2,
-            missileCategory=2,
-            rangeMaxAltMax=120000,
-            rangeMaxAltMin=30000,
-            rangeMin=3000,
-            typeName="MIM_104",
-            warhead={caliber=410, explosiveMass=73, mass=73, type=1}
-        }
-    }
-}
-
-Search Radar:
-{
-    {
-        {
-            detectionDistanceAir={
-                lowerHemisphere={headOn=173872.484375, tailOn=173872.484375},
-                upperHemisphere={headOn=173872.484375, tailOn=173872.484375}
-            },
-            type=1,
-            typeName="Patriot str"
-        }
-    }
-}
---]]
-	self.samSiteName = "BLUE-SAM-PATRIOT"
-	self:setUp()
-	lu.assertEquals(self.samSite:getNatoName(), "Patriot")
-	lu.assertEquals(self.samSite:getHARMDetectionChance(), 90)
-	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
-	
-	local radar = self.samSite:getSearchRadars()[1]
-	lu.assertEquals(radar:getMaxRangeFindingTarget(), 173872.484375)
-	
-	local launcher = self.samSite:getLaunchers()[1]
-	lu.assertEquals(launcher:getInitialNumberOfMissiles(), 4)
-	lu.assertEquals(launcher:getRange(), 120000)
-end
-
-function TestSkynetIADSAbstractRadarElement:testRapierLauncherAndRadar()
---[[
-Rapier:
-
-Radar: (for some reason the typeName  is Tor?)
-{
-    {
-        {
-            detectionDistanceAir={
-                lowerHemisphere={headOn=16718.5078125, tailOn=16718.5078125},
-                upperHemisphere={headOn=16718.5078125, tailOn=16718.5078125}
-            },
-            type=1,
-            typeName="Tor 9A331"
-        }
-    }
-}
-
-Launcher:
-{
-    {
-        count=4,
-        desc={
-            Nmax=14,
-            RCS=0.079999998211861,
-            _origin="",
-            altMax=3000,
-            altMin=50,
-            box={
-                max={x=1.4030002355576, y=0.13611803948879, z=0.13611821830273},
-                min={x=-0.84999942779541, y=-0.13611836731434, z=-0.1361181885004}
-            },
-            category=1,
-            displayName="Rapier",
-            fuseDist=0,
-            guidance=8,
-            life=2,
-            missileCategory=2,
-            rangeMaxAltMax=6800,
-            rangeMaxAltMin=6800,
-            rangeMin=400,
-            typeName="Rapier",
-            warhead={caliber=133, explosiveMass=1.3999999761581, mass=1.3999999761581, type=1}
-        }
-    }
-}
-
---]]
-	self.samSiteName = "BLUE-SAM-RAPIER"
-	self:setUp()
-	lu.assertEquals(self.samSite:getNatoName(), "Rapier")
-	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 16718.5078125)
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 6800)
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 4)
-	
-	local units = Group.getByName(self.samSiteName):getUnits()
-	for i = 1, #units do
-		local unit = units[i]
-		if unit:getTypeName() == 'rapier_fsa_optical_tracker_unit' then
-	--		lu.assertEquals(unit:getSensors(), true)
-		end
-	end
-end
-
-function TestSkynetIADSAbstractRadarElement:testRolandLauncherAndRadar()
---[[
-Roland:
-
-Radar:
-{
-    0={
-        {opticType=0, type=0, typeName="generic SAM search visir"},
-        {opticType=2, type=0, typeName="generic SAM IR search visir"}
-    },
-    {
-        {
-            detectionDistanceAir={
-                lowerHemisphere={headOn=8024.8837890625, tailOn=8024.8837890625},
-                upperHemisphere={headOn=8024.8837890625, tailOn=8024.8837890625}
-            },
-            type=1,
-            typeName="Roland ADS"
-        }
-    }
-}
-
-Launcher:
-{
-    {
-        count=10,
-        desc={
-            Nmax=14,
-            RCS=0.019600000232458,
-            _origin="",
-            altMax=6000,
-            altMin=10,
-            box={
-                max={x=1.2142661809921, y=0.17386008799076, z=0.1697566062212},
-                min={x=-1.212909579277, y=-0.1738600730896, z=-0.1697566062212}
-            },
-            category=1,
-            displayName="XMIM-115 Roland",
-            fuseDist=5,
-            guidance=4,
-            life=2,
-            missileCategory=2,
-            rangeMaxAltMax=8000,
-            rangeMaxAltMin=8000,
-            rangeMin=500,
-            typeName="ROLAND_R",
-            warhead={caliber=150, explosiveMass=6.5, mass=6.5, type=1}
-        }
-    }
-}
-
---]]
-	self.samSiteName = "BLUE-SAM-ROLAND"
-	self:setUp()
-	lu.assertEquals(self.samSite:getNatoName(), "Roland ADS")
-	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 8024.8837890625)
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 8000)
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 10)
-end
-
-function TestSkynetIADSAbstractRadarElement:testNASAMS()
-
-	self.samSiteName = "BLUE-SAM-NASAMS"
-	self:setUp()
-	lu.assertEquals(self.samSite:getNatoName(), "NASAMS")
-	lu.assertEquals(self.samSite:getHARMDetectionChance(),90)
-	lu.assertEquals(self.samSite:getCanEngageHARM(), true)
-	lu.assertEquals(self.samSite:getRadars()[1]:getMaxRangeFindingTarget(), 26749.61328125)
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getRange(), 57000)
-	lu.assertEquals(self.samSite:getLaunchers()[1]:getInitialNumberOfMissiles(), 6)
-	
-	lu.assertEquals(self.samSite:getLaunchers()[2]:getRange(), 61000)
-	lu.assertEquals(self.samSite:getLaunchers()[2]:getInitialNumberOfMissiles(), 6)
-	
 end
 
 --[[

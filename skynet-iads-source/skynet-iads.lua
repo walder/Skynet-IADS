@@ -23,7 +23,15 @@ function SkynetIADS:create(name)
 		iads.name = ""
 	end
 	iads.contactUpdateInterval = 5
+	world.addEventHandler(iads)
 	return iads
+end
+
+function SkynetIADS:onEvent(event)
+	if (event.id == world.event.S_EVENT_BIRTH ) then
+		env.info("New Object Spawned")
+		self:addSAMSite(event.initiator:getGroup():getName());
+	end
 end
 
 function SkynetIADS:setUpdateInterval(interval)
@@ -158,7 +166,7 @@ function SkynetIADS:addSAMSitesByPrefix(prefix)
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
-			if dcsObject then
+			if dcsObject and dcsObject:getUnits()[1]:isActive() then
 				self:addSAMSite(groupName)
 			end
 		end
