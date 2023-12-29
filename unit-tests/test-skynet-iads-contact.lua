@@ -148,4 +148,20 @@ function TestSyknetIADSContact:testAddAbstractRadarElementDetected()
 	lu.assertEquals(#self.contact:getAbstractRadarElementsDetected(), 2)
 end	
 
+function TestSyknetIADSContact:testGetTypeNameUNKNOWN()
+	function self.contact:getDCSRepresentation()
+		return nil
+	end
+	lu.assertEquals(self.contact:getTypeName(), "UNKNOWN")
+end
+
+function TestSyknetIADSContact:testGetTypeNameisHARM()
+	self.contact:setHARMState(SkynetIADSContact.HARM)
+	lu.assertEquals(self.contact:getTypeName(), SkynetIADSContact.HARM)
+end
+
+function TestSyknetIADSContact:testGetTypeNameisUnit()
+	lu.assertEquals(self.contact:getTypeName(), "AH-1W")
+end
+
 end

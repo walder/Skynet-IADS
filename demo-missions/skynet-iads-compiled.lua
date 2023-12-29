@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.1.1-develop | BUILD TIME: 25.06.2023 1823Z ---")
+env.info("--- SKYNET VERSION: 3.1.1-develop | BUILD TIME: 29.12.2023 0756Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {
@@ -3146,9 +3146,11 @@ function SkynetIADSContact:getTypeName()
 	if self:isIdentifiedAsHARM() then
 		return SkynetIADSContact.HARM
 	end
-	local category = self:getDCSRepresentation():getCategory()
-	if category == Object.Category.UNIT then
-		return self.typeName
+	if self:getDCSRepresentation() ~= nil then
+		local category = self:getDCSRepresentation():getCategory()
+		if category == Object.Category.UNIT then
+			return self.typeName
+		end
 	end
 	return "UNKNOWN"
 end

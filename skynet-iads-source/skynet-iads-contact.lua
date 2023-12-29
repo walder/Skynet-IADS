@@ -71,9 +71,11 @@ function SkynetIADSContact:getTypeName()
 	if self:isIdentifiedAsHARM() then
 		return SkynetIADSContact.HARM
 	end
-	local category = self:getDCSRepresentation():getCategory()
-	if category == Object.Category.UNIT then
-		return self.typeName
+	if self:getDCSRepresentation() ~= nil then
+		local category = self:getDCSRepresentation():getCategory()
+		if category == Object.Category.UNIT then
+			return self.typeName
+		end
 	end
 	return "UNKNOWN"
 end
