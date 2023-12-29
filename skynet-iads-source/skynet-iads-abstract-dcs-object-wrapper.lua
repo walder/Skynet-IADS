@@ -18,10 +18,7 @@ end
 function SkynetIADSAbstractDCSObjectWrapper:setDCSRepresentation(representation)
 	self.dcsRepresentation = representation
 	if self.dcsRepresentation then
-		self.dcsName = self.dcsRepresentation:getName()
-		if (self.dcsName == nil or string.len(self.dcsName) == 0) and self.dcsRepresentation.id_ then
-			self.dcsName = self.dcsRepresentation.id_
-		end
+		self.dcsName = self:getDCSRepresentation():getName()
 	end
 end
 
