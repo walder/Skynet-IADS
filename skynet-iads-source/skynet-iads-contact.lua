@@ -71,12 +71,15 @@ function SkynetIADSContact:getTypeName()
 	if self:isIdentifiedAsHARM() then
 		return SkynetIADSContact.HARM
 	end
+
+	-- self:getDCSRepresentation():getCategory() will fail with an error if self:getDCSRepresentation() is not nil but the unit is destroyed. The error will obviously interrupt the treatment that called getTypeName(), with consequences I did not try to track.
+	-- Using Object.getCategory instead will get us nil in that case.
 	if self:getDCSRepresentation() ~= nil then
-		local category = self:getDCSRepresentation():getCategory()
+		local category = Object.getCategory(self:getDCSRepresentation())
 		if category == Object.Category.UNIT then
 			return self.typeName
 		end
-	end
+	end 
 	return "UNKNOWN"
 end
 
