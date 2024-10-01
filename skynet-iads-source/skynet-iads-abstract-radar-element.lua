@@ -1,6 +1,45 @@
 do
 
+SkynetIADSAbstractRadarElement = {-- Class for SkynetIADSAbstractRadarElement
 SkynetIADSAbstractRadarElement = {}
+SkynetIADSAbstractRadarElement = inheritsFrom(SkynetIADSAbstractElement)
+
+-- Define states for autonomous behavior
+SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI = 1
+SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK = 2
+
+-- Method to create radar instance
+function SkynetIADSAbstractRadarElement:create(dcsElementWithRadar, iads)
+    local instance = self:superClass():create(dcsElementWithRadar, iads)
+    setmetatable(instance, self)
+    self.__index = self
+    -- Initialize properties
+    instance.isAutonomous = true
+    return instance
+end
+
+-- Method to disable radar from remote
+function SkynetIADSAbstractRadarElement:disableRadar()
+    if self.isAutonomous then
+        self:goDark() -- Transition to dark state
+        self.iads:printOutputToLog("Radar has been disabled remotely.")
+    else
+        self.iads:printOutputToLog("Radar is already disabled.")
+    end
+end
+
+-- Method to transition radar to dark state
+function SkynetIADSAbstractRadarElement:goDark()
+    -- Logic to turn radar off
+    self.isAutonomous = false
+    self:cleanUp()
+end
+
+-- Cleanup method
+function SkynetIADSAbstractRadarElement:cleanUp()
+    -- Code to clean up resources and handlers
+    self:removeEventHandlers()
+		end}
 SkynetIADSAbstractRadarElement = inheritsFrom(SkynetIADSAbstractElement)
 
 SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI = 1
