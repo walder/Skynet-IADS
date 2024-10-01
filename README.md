@@ -12,17 +12,10 @@ This all sounds gibberish to you? Watch [this video by Covert Cabal on modern IA
 
 Visit [this DCS forum thread](https://forums.eagle.ru/topic/226173-skynet-an-iads-for-mission-builders) for development updates.
 
-Join the [Skynet discord group](https://discord.gg/pz8wcQs) and get support setting up your mission.
-
-Skynet supports the [HighDigitSAMs Mod](https://github.com/Auranis/HighDigitSAMs).
-
 You can also connect [Skynet with the AI_A2A_DISPATCHER](#how-do-i-connect-skynet-with-the-moose-ai_a2a_dispatcher-and-what-are-the-benefits-of-that) by MOOSE to add interceptors to the IADS.
 
 **So far over 200 hours of work went in to the development of Skynet.  
 If you like using it, please consider a donation:**
-
-[![Skynet IADS donation](/images/btn_donateCC_LG.gif.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7GSVFH448BWFQ&source=url)
-
 
 
 
