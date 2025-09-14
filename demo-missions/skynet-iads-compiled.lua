@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.3.0 | BUILD TIME: 29.12.2023 2311Z ---")
+env.info("--- SKYNET VERSION: 3.3.1 | BUILD TIME: 13.07.2025 0039Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -810,6 +810,902 @@ samTypesDB['S-300PMU2'] = {
 --[[
 
 --]]
+end
+
+
+
+do
+-- this file contains the definitions for the SAMPack_S_300/SAM Sites Asset Pack (2SAP): https://drive.google.com/file/d/15STKuCIaQcbbjSO_xlDKvREtbYJ67an5/view?usp=sharing
+
+
+--[[ units in S-300 PS:
+vehicle_file("/Database/Vehicle/S-300PS_5P85DE_LN.lua")
+vehicle_file("/Database/Vehicle/S-300PS_5P85SE_LN.lua")
+vehicle_file("/Database/Vehicle/S-300PS_5P85SU_LN.lua")
+vehicle_file("/Database/Vehicle/S-300PS_54K6_CP.lua")
+vehicle_file("/Database/Vehicle/radar/S-300PS_30N6_TR_Mast.lua")
+vehicle_file("/Database/Vehicle/radar/S-300PS_30N6_TR_Truck.lua")
+vehicle_file("/Database/Vehicle/radar/S-300PS_64N6E_SR_Truck.lua")
+vehicle_file("/Database/Vehicle/radar/S-300PS_76N6_SR.lua")
+--]]
+samTypesDB['S-300PS'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-300PS 64H6E MOD sr'] = {
+			['name'] = {
+				['NATO'] = 'Big Bird',
+			},
+		},
+		['S-300PS SA-10B 76N6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Clam Shell',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-300PS 30N6 TRAILER tr'] = {
+			['name'] = {
+				['NATO'] = 'Flap Lid',
+			},
+		},
+		['S-300PS SA-10B 30N6 MAST tr'] = {
+			['name'] = {
+				['NATO'] = 'Flap Lid',
+			},
+		},
+		['S-300PS 40B6M tr'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
+		},
+	},
+	['misc'] = {
+		['S-300PS SA-10B 54K6 cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-300PS 5P85SE_mod ln'] = {
+		},
+		['S-300PS 5P85SU_mod ln'] = {
+		},
+		['S-300PS 5P85DE ln'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-10B Grumble'
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}	
+
+--[[ Units in the S-300V4:
+vehicle_file("/Database/Vehicle/radar/S-300V4_9S32M-1E_TR.lua")
+vehicle_file("/Database/Vehicle/radar/S-300V4_9S19M-1E_SR.lua")
+vehicle_file("/Database/Vehicle/radar/S-300V4_9S15MDE_SR.lua")
+vehicle_file("/Database/Vehicle/S-300V4_9A82M-2E_LN.lua")
+vehicle_file("/Database/Vehicle/S-300V4_9A83M-2E_LN.lua")
+vehicle_file("/Database/Vehicle/S-300V4_9A84M-2E_LN.lua")
+vehicle_file("/Database/Vehicle/S-300V4_9S457-2E_CP.lua")
+
+]]--
+samTypesDB['S-300V4'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-300V4 9S15MDE sr'] = {
+			['name'] = {
+				['NATO'] = 'Bill Board-C',
+			},
+		},
+		['S-300V4 9S19M-1E sr'] = {
+			['name'] = {
+				['NATO'] = 'High Screen-B',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-300V4 9S32M-1E tr'] = {
+		},
+	},
+	['misc'] = {
+		['S-300V4 9S457-2E cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-300V4 9A83M-2E ln'] = {
+		},
+		['S-300V4 9A82M-2E ln'] = {
+		},
+		['S-300V4 9A84M-2E ln'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-23 Antey-4000'
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}	
+
+--[[ Units in the S-400:
+vehicle_file("/Database/Vehicle/S-400_51P6A_LN.lua")
+vehicle_file("/Database/Vehicle/S-400_51P6A_V2_LN.lua")
+vehicle_file("/Database/Vehicle/S-400_55K6_CP.lua")
+vehicle_file("/Database/Vehicle/radar/S-400_96L6E_SR.lua")
+vehicle_file("/Database/Vehicle/radar/S-400_96L6E_Mast_SR.lua")
+vehicle_file("/Database/Vehicle/radar/S-400_92H6E_TR.lua")
+vehicle_file("/Database/Vehicle/radar/S-400_91N6E_SR.lua")
+vehicle_file("/Database/Vehicle/radar/S-400_92H6E_Mast_TR.lua")
+--]]
+samTypesDB['S-400'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-400 96L6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Cheese Board',
+			},
+		},
+		['S-400 96L6E mast sr'] = {
+			['name'] = {
+				['NATO'] = 'Cheese Board',
+			},
+		},
+		['S-400 91N6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Big Bird',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-400 92N6E tr'] = {
+			['name'] = {
+				['NATO'] = 'Grave Stone',
+			},
+		},
+		['S-400 92N6E mast tr'] = {
+			['name'] = {
+				['NATO'] = 'Grave Stone',
+			},
+		},
+	},
+	['misc'] = {
+		['S-400 55K6 cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-400 51P6A ln'] = {
+		},
+		['S-400 51P6A (9M96E2) ln'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-21 Growler'
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['Pantsir-SM'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['Pantsir_SM'] = {
+		},
+	},
+	['launchers'] = {
+		['Pantsir_SM'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-22 Greyhound',
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+	
+}
+
+--[[
+
+--]]
+end
+
+
+
+do
+-- this file contains the definitions for the CurrentHill Russian Military Asset Pack: https://www.currenthill.com/russia
+
+samTypesDB['2S38'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_2S38'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_2S38'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = '2S38',
+	},
+	['harm_detection_chance'] = 5,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['2S38_LG'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_2S38_LG'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_2S38_LG'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = '2S38',
+	},
+	['harm_detection_chance'] = 5,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Pantsir-S1'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['PantsirS1'] = {
+		},
+	},
+	['launchers'] = {
+		['PantsirS1'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-22 Greyhound',
+	},
+	['harm_detection_chance'] = 75,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Pantsir-S2'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['PantsirS2'] = {
+		},
+	},
+	['launchers'] = {
+		['PantsirS2'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-22 Greyhound',
+	},
+	['harm_detection_chance'] = 75,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Tor-M2'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['TorM2'] = {
+		},
+	},
+	['launchers'] = {
+		['TorM2'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-15C "Gauntlet',
+	},
+	['harm_detection_chance'] = 80,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Tor-M2K'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['TorM2K'] = {
+		},
+	},
+	['launchers'] = {
+		['TorM2K'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-15D "Gauntlet',
+	},
+	['harm_detection_chance'] = 80,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Tor-M2M'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['TorM2M'] = {
+		},
+	},
+	['launchers'] = {
+		['TorM2M'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-15E "Gauntlet',
+	},
+	['harm_detection_chance'] = 85,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['S-350'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_S350_96L6'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
+		},
+		['CH_S350_50N6'] = {
+			['name'] = {
+				['NATO'] = '',
+			},
+		},
+	},
+	['misc'] = {
+		['CH_S350_50K6'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_S350_50P6_9M96D'] = {
+		},
+		['CH_S350_50P6_9M100'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-27 Sizzler'
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}	
+
+samTypesDB['Buk-M3'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_BukM3_9S18M13'] = {
+			['name'] = {
+				['NATO'] = 'Snow Drift',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['CH_BukM3_9S36M'] = {
+		},
+	},
+	['misc'] = {
+		['CH_BukM3_9S510M'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_BukM3_9A317M'] = {
+		},
+		['CH_BukM3_9A317MA'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'SA-27 Gollum'
+	},
+	['harm_detection_chance'] = 92,
+	['can_engage_harm'] = true
+}	
+
+--[[
+
+--]]
+
+end
+
+
+
+do
+-- this file contains the definitions for the CurrentHill Russian Military Asset Pack: https://www.currenthill.com/russia
+
+samTypesDB['Centurion_C_RAM'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_Centurion_C_RAM'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_Centurion_C_RAM'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Centurion',
+	},
+	['harm_detection_chance'] = 38,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['LAV_AD'] = {
+	['type'] = 'single',
+	['launchers'] = {
+		['CH_LAVAD'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'LAV-AD',
+	},
+	['harm_detection_chance'] = 5,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['MIM-104_US'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['MIM104_ANMPQ65'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+		['MIM104_ANMPQ65_HEMTT'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+		['MIM104_ANMPQ65A'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+		['MIM104_ANMPQ65A_HEMTT'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+		['MIM104_LTAMDS'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+		['MIM104_LTAMDS_HEMTT'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+	},
+	['misc'] = {
+		['MIM104_ECS'] = {
+			['required'] = true,
+		},
+		['MIM104_EPP'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['MIM104_M903_PAC2'] = {
+		},
+		['MIM104_M903_PAC2_HEMTT'] = {
+		},
+		['MIM104_M903_PAC3'] = {
+		},
+		['MIM104_M903_PAC3_HEMTT'] = {
+		},
+		
+	},
+	['name']  = {
+		['NATO'] = 'SAM-10 Guardian'
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}	
+
+samTypesDB['NASAMS_CH'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_NASAMS3_SR'] = {
+		},
+	},
+	['misc'] = {
+		['CH_NASAMS3_CP'] = {
+			['required'] = false,
+		},
+	},
+	['launchers'] = {
+		['CH_NASAMS3_LN_AMRAAM_ER'] = {
+		},
+		['CH_NASAMS3_LN_AIM9X2'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'NASAMS'
+	},
+	['harm_detection_chance'] = 86,
+	['can_engage_harm'] = true
+}	
+
+samTypesDB['THAAD'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_THAAD_ANTPY2'] = {
+		},
+	},
+	['misc'] = {
+		['CH_THAAD_TFCC'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_THAAD_M1120'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'THAAD'
+	},
+	['harm_detection_chance'] = 98,
+	['can_engage_harm'] = true
+}	
+
+--[[
+
+--]]
+
+end
+
+
+
+do
+-- this file contains the definitions for the CurrentHill Russian Military Asset Pack: https://www.currenthill.com/russia
+
+samTypesDB['CH_StormerHVM'] = {
+	['type'] = 'single',
+	['launchers'] = {
+		['CH_StormerHVM'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Stormer HVM',
+	},
+	['harm_detection_chance'] = 5,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Sky Sabre'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_SkySabreGiraffe'] = {
+		},
+	},
+	['misc'] = {
+		['CH_SkySabreC2'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_SkySabre'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'Sky Sabre'
+	},
+	['harm_detection_chance'] = 59,
+	['can_engage_harm'] = true
+}	
+
+--[[
+
+--]]
+
+end
+
+
+
+do
+-- this file contains the definitions for the CurrentHill Russian Military Asset Pack: https://www.currenthill.com/russia
+
+samTypesDB['FlaRakRad'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_FlaRakRad'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_FlaRakRad'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'FlaRakRad',
+	},
+	['harm_detection_chance'] = 32,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Skynex SPAAG'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_SkynexHX'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_SkynexHX'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Skynex SPAAGM',
+	},
+	['harm_detection_chance'] = 22,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['Wiesel Ozelot'] = {
+	['type'] = 'single',
+	['launchers'] = {
+		['CH_Wiesel2Ozelot'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Ozelot',
+	},
+	['harm_detection_chance'] = 5,
+	['can_engage_harm'] = false
+	
+}
+
+samTypesDB['Boxer SPAAGM'] = {
+	['type'] = 'single',
+	['launchers'] = {
+		['CH_BoxerSkyranger'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Boxer SPAAGM',
+	},
+	['harm_detection_chance'] = 8,
+	['can_engage_harm'] = false
+	
+}
+
+samTypesDB['Skynex C-RAM'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_Skyshield_FCU'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_Skyshield_Gun'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'Skynex C-RAM'
+	},
+	['harm_detection_chance'] = 28,
+	['can_engage_harm'] = true
+}	
+
+samTypesDB['IRIS-T SML'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_TRML4D'] = {
+		},
+	},
+	['misc'] = {
+		['CH_IRIST_SLM_C2'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_IRIST_SLM'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'IRIS-T SLM'
+	},
+	['harm_detection_chance'] = 79,
+	['can_engage_harm'] = true
+}	
+
+samTypesDB['MIM-104_GER'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_MIM104_ANMPQ53_KAT1'] = {
+			['name'] = {
+				['NATO'] = 'Fire Finder',
+			},
+		},
+	},
+	['misc'] = {
+		['CH_MIM104_ECS_KAT1'] = {
+			['required'] = true,
+		},
+		['CH_MIM104_EPP_KAT1'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_MIM104_M901_PAC2_KAT1'] = {
+		},		
+	},
+	['name']  = {
+		['NATO'] = 'SAM-10 Guardian'
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}	
+
+--[[
+
+--]]
+
+end
+
+
+
+do
+-- this file contains the definitions for the CurrentHill Russian Military Asset Pack: https://www.currenthill.com/russia
+
+samTypesDB['PGL-625'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['PGL_625'] = {
+		},
+	},
+	['launchers'] = {
+		['PGL_625'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'PGL=625 SPAAGM',
+	},
+	['harm_detection_chance'] = 24,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['HQ-17A'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['HQ17A'] = {
+		},
+	},
+	['launchers'] = {
+		['HQ17A'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-22 Greyhound',
+	},
+	['harm_detection_chance'] = 56,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['PGZ-09'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_PGZ09'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_PGZ09'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'PGZ-09',
+	},
+	['harm_detection_chance'] = 14,
+	['can_engage_harm'] = true
+	
+}
+
+
+samTypesDB['PGZ-95'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_PGZ95'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_PGZ95'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'PGZ-95',
+	},
+	['harm_detection_chance'] = 16,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['LD-3000'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_LD3000'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_LD3000'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'LD-3000',
+	},
+	['harm_detection_chance'] = 22,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['LD-3000_stationery'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_LD3000_stationary'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_LD3000_stationary'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'LD-3000',
+	},
+	['harm_detection_chance'] = 22,
+	['can_engage_harm'] = true
+	
+}
+
+samTypesDB['HQ-22'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_HQ22_STR'] = {
+		},
+		['CH_HQ22_SR'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_HQ22_LN'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'HQ-22 (FK-3)'
+	},
+	['harm_detection_chance'] = 92,
+	['can_engage_harm'] = true
+}	
+
+samTypesDB['THAAD'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_THAAD_ANTPY2'] = {
+		},
+	},
+	['misc'] = {
+		['CH_THAAD_TFCC'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_THAAD_M1120'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'THAAD'
+	},
+	['harm_detection_chance'] = 98,
+	['can_engage_harm'] = true
+}	
+
+--[[
+
+--]]
+
 end
 
 
