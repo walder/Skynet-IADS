@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 1947Z ---")
+env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 2011Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -2875,8 +2875,11 @@ function SkynetIADSAbstractRadarElement:goLive()
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
 			cont:setOnOff(true)
-			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)
+			-- OPEN_FIRE (2), NOT WEAPON_FREE (0): WEAPON_FREE is an AIR-only ROE value; ground SAM ROE only
+			-- accepts OPEN_FIRE/RETURN_FIRE/WEAPON_HOLD, so WEAPON_FREE was an out-of-range no-op -> a SAM could
+			-- light its radar (alarm RED) yet stay weapon-held and never fire. OPEN_FIRE is valid for ground + air.
+			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.OPEN_FIRE)
 			self:getDCSRepresentation():enableEmission(true)
 			self.goLiveTime = timer.getTime()
 			self.aiState = true
@@ -3025,7 +3028,7 @@ function SkynetIADSAbstractRadarElement:jam(successProbability)
 					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
 				end
 			else
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.OPEN_FIRE)   -- OPEN_FIRE: valid for ground SAMs (WEAPON_FREE is air-only)
 				if self.iads:getDebugSettings().jammerProbability then
 					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon free")
 				end
