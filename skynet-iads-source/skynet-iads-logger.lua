@@ -112,7 +112,7 @@ function SkynetIADSLogger:printEarlyWarningRadarStatus()
 		for j = 1, #detectedTargets do
 			local contact = detectedTargets[j]
 			if firstRadar ~= nil and firstRadar:isExist() then
-				local distance = mist.utils.round(mist.utils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+				local distance = SkynetIADSUtils.round(SkynetIADSUtils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
 				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
 			end
 		end
@@ -203,7 +203,7 @@ function SkynetIADSLogger:printSAMSiteStatus()
 		for j = 1, #detectedTargets do
 			local contact = detectedTargets[j]
 			if firstRadar ~= nil and firstRadar:isExist() then
-				local distance = mist.utils.round(mist.utils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+				local distance = SkynetIADSUtils.round(SkynetIADSUtils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
 				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
 			end
 		end

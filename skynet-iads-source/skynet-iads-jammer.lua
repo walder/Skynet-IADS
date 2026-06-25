@@ -47,7 +47,7 @@ end
 
 function SkynetIADSJammer:masterArmOn()
 	self:masterArmSafe()
-	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
+	self.jammerTaskID = SkynetIADSUtils.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
 end
 
 function SkynetIADSJammer:addFunction(natoName, jammerFunction)
@@ -89,7 +89,7 @@ function SkynetIADSJammer:getSuccessProbability(distanceNauticalMiles, natoName)
 end
 
 function SkynetIADSJammer:getDistanceNMToRadarUnit(radarUnit)
-	return mist.utils.metersToNM(mist.utils.get3DDist(self.emitter:getPosition().p, radarUnit:getPosition().p))
+	return SkynetIADSUtils.metersToNM(SkynetIADSUtils.get3DDist(self.emitter:getPosition().p, radarUnit:getPosition().p))
 end
 
 function SkynetIADSJammer.runCycle(self)
@@ -131,7 +131,7 @@ function SkynetIADSJammer:hasLineOfSightToRadar(radar)
 end
 
 function SkynetIADSJammer:masterArmSafe()
-	mist.removeFunction(self.jammerTaskID)
+	SkynetIADSUtils.removeFunction(self.jammerTaskID)
 end
 
 --TODO: Remove Menu when emitter dies:

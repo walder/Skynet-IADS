@@ -12,7 +12,7 @@ function SkynetIADS:create(name)
 	iads.earlyWarningRadars = {}
 	iads.samSites = {}
 	iads.commandCenters = {}
-	iads.ewRadarScanMistTaskID = nil
+	iads.ewRadarScanTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
@@ -96,9 +96,9 @@ end
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
 	self:deactivateEarlyWarningRadars()
 	self.earlyWarningRadars = {}
-	for unitName, unit in pairs(mist.DBs.unitsByName) do
+	for unitName, _ in pairs(_DATABASE.UNITS) do   -- MOOSE unit DB (name-keyed); replaces mist.DBs.unitsByName
 		local pos = self:findSubString(unitName, prefix)
-		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
+		--the DB may key non-Unit objects, we check to see we only add Units
 		local unit = Unit.getByName(unitName)
 		if pos and pos == 1 and unit then
 			self:addEarlyWarningRadar(unitName)
@@ -124,7 +124,7 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	ewRadar:setupElements()
 	ewRadar:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())	
 	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
-	if self.ewRadarScanMistTaskID ~= nil then
+	if self.ewRadarScanTaskID ~= nil then
 		self:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 	end
 	ewRadar:setActAsEW(true)
@@ -161,10 +161,10 @@ end
 function SkynetIADS:addSAMSitesByPrefix(prefix)
 	self:deativateSAMSites()
 	self.samSites = {}
-	for groupName, groupData in pairs(mist.DBs.groupsByName) do
+	for groupName, _ in pairs(_DATABASE.GROUPS) do   -- MOOSE group DB (name-keyed); replaces mist.DBs.groupsByName
 		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
-			--mist returns groups, units and, StaticObjects
+			--the DB keys groups; resolve + verify the DCS group is active before adding
 			local dcsObject = Group.getByName(groupName)
 			if dcsObject and dcsObject:getUnits()[1]:isActive() then
 				self:addSAMSite(groupName)
@@ -209,7 +209,7 @@ function SkynetIADS:addSAMSite(samSiteName)
 			self:printOutputToLog("ADDED: "..samSite:getDescription())
 		end
 		-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
-		if self.ewRadarScanMistTaskID ~= nil then
+		if self.ewRadarScanTaskID ~= nil then
 			self:buildRadarCoverageForSAMSite(samSite)
 		end
 		return samSite
@@ -270,7 +270,7 @@ function SkynetIADS:addCommandCenter(commandCenter)
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
 	table.insert(self.commandCenters, comCenter)
 	-- when IADS is active the radars will be added to the new command center. If it not active this will happen when radar coverage is built
-	if self.ewRadarScanMistTaskID ~= nil then
+	if self.ewRadarScanTaskID ~= nil then
 		self:addRadarsToCommandCenters()
 	end
 	return comCenter
@@ -535,8 +535,8 @@ end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS.activate(self)
-	mist.removeFunction(self.ewRadarScanMistTaskID)
-	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+	SkynetIADSUtils.removeFunction(self.ewRadarScanTaskID)
+	self.ewRadarScanTaskID = SkynetIADSUtils.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 	self:buildRadarCoverage()
 end
 
@@ -546,8 +546,8 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 end
 
 function SkynetIADS:deactivate()
-	mist.removeFunction(self.ewRadarScanMistTaskID)
-	mist.removeFunction(self.samSetupMistTaskID)
+	SkynetIADSUtils.removeFunction(self.ewRadarScanTaskID)
+	SkynetIADSUtils.removeFunction(self.samSetupTaskID)
 	self:deativateSAMSites()
 	self:deactivateEarlyWarningRadars()
 	self:deactivateCommandCenters()

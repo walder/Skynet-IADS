@@ -77,8 +77,8 @@ function SkynetIADSAbstractRadarElement:cleanUp()
 		local pointDefence = self.pointDefences[i]
 		pointDefence:cleanUp()
 	end
-	mist.removeFunction(self.harmScanID)
-	mist.removeFunction(self.harmSilenceID)
+	SkynetIADSUtils.removeFunction(self.harmScanID)
+	SkynetIADSUtils.removeFunction(self.harmSilenceID)
 	--call method from super class
 	self:removeEventHandlers()
 end
@@ -530,8 +530,11 @@ function SkynetIADSAbstractRadarElement:goLive()
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
 			cont:setOnOff(true)
-			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)
+			-- OPEN_FIRE (2), NOT WEAPON_FREE (0): WEAPON_FREE is an AIR-only ROE value; ground SAM ROE only
+			-- accepts OPEN_FIRE/RETURN_FIRE/WEAPON_HOLD, so WEAPON_FREE was an out-of-range no-op -> a SAM could
+			-- light its radar (alarm RED) yet stay weapon-held and never fire. OPEN_FIRE is valid for ground + air.
+			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.OPEN_FIRE)
 			self:getDCSRepresentation():enableEmission(true)
 			self.goLiveTime = timer.getTime()
 			self.aiState = true
@@ -653,7 +656,7 @@ function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarE
 end
 
 function SkynetIADSAbstractRadarElement:getDistanceToUnit(unitPosA, unitPosB)
-	return mist.utils.round(mist.utils.get2DDist(unitPosA, unitPosB, 0))
+	return SkynetIADSUtils.round(SkynetIADSUtils.get2DDist(unitPosA, unitPosB, 0))
 end
 
 function SkynetIADSAbstractRadarElement:hasWorkingRadar()
@@ -680,7 +683,7 @@ function SkynetIADSAbstractRadarElement:jam(successProbability)
 					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
 				end
 			else
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.OPEN_FIRE)   -- OPEN_FIRE: valid for ground SAMs (WEAPON_FREE is air-only)
 				if self.iads:getDebugSettings().jammerProbability then
 					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon free")
 				end
@@ -691,7 +694,7 @@ end
 
 function SkynetIADSAbstractRadarElement:scanForHarms()
 	self:stopScanningForHARMs()
-	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
+	self.harmScanID = SkynetIADSUtils.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
 end
 
 function SkynetIADSAbstractRadarElement:isScanningForHARMs()
@@ -703,7 +706,7 @@ function SkynetIADSAbstractRadarElement:isDefendingHARM()
 end
 
 function SkynetIADSAbstractRadarElement:stopScanningForHARMs()
-	mist.removeFunction(self.harmScanID)
+	SkynetIADSUtils.removeFunction(self.harmScanID)
 	self.harmScanID = nil
 end
 
@@ -720,7 +723,7 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	if self.iads:getDebugSettings().harmDefence then
 		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
 	end
-	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
+	self.harmSilenceID = SkynetIADSUtils.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
 
@@ -734,7 +737,7 @@ function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 end
 
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
-	mist.removeFunction(self.harmSilenceID)
+	SkynetIADSUtils.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
 	self.harmShutdownTime = 0
 	
@@ -768,7 +771,7 @@ end
 function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)
 	local tti = 0
 	if speedKT > 0 then
-		tti = mist.utils.round((distanceNM / speedKT) * 3600, 0)
+		tti = SkynetIADSUtils.round((distanceNM / speedKT) * 3600, 0)
 		if tti < 0 then
 			tti = 0
 		end
@@ -777,7 +780,7 @@ function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)
 end
 
 function SkynetIADSAbstractRadarElement:getDistanceInMetersToContact(radarUnit, point)
-	return mist.utils.round(mist.utils.get3DDist(radarUnit:getPosition().p, point), 0)
+	return SkynetIADSUtils.round(SkynetIADSUtils.get3DDist(radarUnit:getPosition().p, point), 0)
 end
 
 function SkynetIADSAbstractRadarElement:calculateMinimalShutdownTimeInSeconds(timeToImpact)
@@ -785,7 +788,7 @@ function SkynetIADSAbstractRadarElement:calculateMinimalShutdownTimeInSeconds(ti
 end
 
 function SkynetIADSAbstractRadarElement:calculateMaximalShutdownTimeInSeconds(minShutdownTime)	
-	return minShutdownTime + mist.random(1, self.maxHarmPresetShutdownTime)
+	return minShutdownTime + SkynetIADSUtils.random(1, self.maxHarmPresetShutdownTime)
 end
 
 function SkynetIADSAbstractRadarElement:calculateImpactPoint(target, distanceInMeters)
@@ -814,8 +817,8 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 		for j = 1, #radars do
 			local radar = radars[j]
 			if radar:isExist() then
-				local distanceNM =  mist.utils.metersToNM(self:getDistanceInMetersToContact(radar, harmContact:getPosition().p))
-				local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(harmContact:getPosition().p, radar:getPosition().p))
+				local distanceNM =  SkynetIADSUtils.metersToNM(self:getDistanceInMetersToContact(radar, harmContact:getPosition().p))
+				local harmToSAMHeading = SkynetIADSUtils.toDegree(SkynetIADSUtils.getHeadingPoints(harmContact:getPosition().p, radar:getPosition().p))
 				local harmToSAMAspect = self:calculateAspectInDegrees(harmContact:getMagneticHeading(), harmToSAMHeading)
 				local speedKT = harmContact:getGroundSpeedInKnots(0)
 				local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
@@ -848,7 +851,7 @@ function SkynetIADSAbstractRadarElement:calculateAspectInDegrees(harmHeading, ha
 		if aspect > 180 then
 			aspect = 360 - aspect
 		end
-		return mist.utils.round(aspect)
+		return SkynetIADSUtils.round(aspect)
 end
 
 function SkynetIADSAbstractRadarElement:getNumberOfObjectsItentifiedAsHARMS()

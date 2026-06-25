@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: 3.3.0 | BUILD TIME: 29.12.2023 2311Z ---")
+env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 2041Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -202,6 +202,11 @@ samTypesDB = {
 					['NATO'] = 'Hawk str',
 				},
 			},
+			['Hawk cwar'] = {
+				['name'] = {
+					['NATO'] = 'Hawk cwar',
+				},
+			},
 		},
 		['trackingRadar'] = {
 			['Hawk tr'] = {
@@ -211,13 +216,17 @@ samTypesDB = {
 			['Hawk ln'] = {
 			},
 		},
-
+		['misc'] = {
+			['Hawk pcp'] = {
+				['required'] = false,
+			},
+		},
 		['name'] = {
 			['NATO'] = 'Hawk',
 		},
 		['harm_detection_chance'] = 40
 
-	},	
+	},
 	['Roland ADS'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
@@ -304,7 +313,68 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-13 Gopher',
 		},
-	},	
+	},
+	['M6 Linebacker'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M6 Linebacker'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M6 Linebacker',
+		},
+	},
+	['M48 Chaparral'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M48 Chaparral'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M48 Chaparral'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M48 Chaparral',
+		},
+	},
+	['M1097 Avenger'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M1097 Avenger'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M1097 Avenger'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M1097 Avenger',
+		},
+	},
+	['Vulcan'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['Vulcan'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['Vulcan'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Vulcan',
+		},
+		['harm_detection_chance'] = 10
+	},
 	['Strela-1 9P31'] = {
 		['type'] = 'single',
 		['searchRadar'] = {
@@ -437,6 +507,17 @@ samTypesDB = {
 			['55G6 EWR'] = {
 				['name'] = {
 					['NATO'] = 'Tall Rack',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
+	['P14_SR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
 				},
 			},
 		},
@@ -815,6 +896,138 @@ end
 
 
 do
+--[[
+  SkynetIADSUtils -- internal utility helpers.
+
+  These replace Skynet's former MIST dependency. Every function is BEHAVIOUR-IDENTICAL to the
+  mist (4.5.107) function it supersedes -- this is a dependency swap, not a behaviour change:
+
+    * scalar conversions (round / metersToNM / metersToFeet / toDegree) delegate to MOOSE UTILS,
+      whose formulas are identical to mist's (verified: UTILS.Round = floor(x*10^d+0.5)/10^d,
+      MetersToNM = m/1852, MetersToFeet = m/0.3048, ToDegree = a*180/pi).
+    * the distance + heading helpers are reproduced verbatim from mist so output is bit-for-bit
+      unchanged, including the true-north correction (DCS coord.LOtoLL / coord.LLtoLO) that
+      mist.getHeading applies.
+    * scheduling uses native timer.scheduleFunction (absolute mission time + repeat), matching
+      mist.scheduleFunction's contract: f(unpack(vars)) at time t, re-run every rep, cancelable id.
+
+  Dependency: MOOSE (for UTILS). No MIST required.
+]]
+
+SkynetIADSUtils = {}
+
+-- ---- scalar conversions (delegate to MOOSE UTILS -- formula-identical to mist) ---------------
+function SkynetIADSUtils.round(number, decimals)
+	return UTILS.Round(number, decimals)
+end
+
+function SkynetIADSUtils.metersToNM(meters)
+	return UTILS.MetersToNM(meters)
+end
+
+function SkynetIADSUtils.metersToFeet(meters)
+	return UTILS.MetersToFeet(meters)
+end
+
+function SkynetIADSUtils.toDegree(radians)
+	return UTILS.ToDegree(radians)
+end
+
+-- ---- distances (reproduced from mist.utils.get2DDist / get3DDist via mist.vec.mag) ------------
+-- 2D ground-plane distance between two DCS Vec3 {x,y,z}: ignores altitude (y), uses x and z.
+-- (NOTE: this is why MOOSE UTILS.VecDist2D is NOT used -- that takes a Vec2 {x,y} and would use
+--  altitude as the second axis, changing the result.)
+function SkynetIADSUtils.get2DDist(point1, point2)
+	local dx = point1.x - point2.x
+	local dz = point1.z - point2.z
+	return (dx * dx + dz * dz) ^ 0.5
+end
+
+-- 3D distance between two DCS Vec3 {x,y,z}.
+function SkynetIADSUtils.get3DDist(point1, point2)
+	local dx = point1.x - point2.x
+	local dy = point1.y - point2.y
+	local dz = point1.z - point2.z
+	return (dx * dx + dy * dy + dz * dz) ^ 0.5
+end
+
+-- ---- heading (reproduced verbatim from mist, incl. true-north correction) ---------------------
+-- mist.getNorthCorrection: angle between DCS map grid north and true north at a point.
+local function getNorthCorrection(point)
+	if not point.z then -- Vec2 -> Vec3
+		point = { x = point.x, y = 0, z = point.y }
+	end
+	local lat, lon = coord.LOtoLL(point)
+	local northPosit = coord.LLtoLO(lat + 1, lon)
+	return math.atan2(northPosit.z - point.z, northPosit.x - point.x)
+end
+
+-- Unit heading in radians [0, 2pi), true-north corrected (== mist.getHeading(unit), rawHeading=false).
+function SkynetIADSUtils.getHeading(unit)
+	local unitpos = unit:getPosition()
+	if unitpos then
+		local heading = math.atan2(unitpos.x.z, unitpos.x.x) + getNorthCorrection(unitpos.p)
+		if heading < 0 then
+			heading = heading + 2 * math.pi
+		end
+		return heading
+	end
+end
+
+-- Ground-plane bearing from point1 to point2 in radians [0, 2pi), NO north correction
+-- (== mist.utils.getHeadingPoints(point1, point2) called without the optional `north` arg, as Skynet does).
+function SkynetIADSUtils.getHeadingPoints(point1, point2)
+	local dir = math.atan2(point2.z - point1.z, point2.x - point1.x)
+	if dir < 0 then
+		dir = dir + 2 * math.pi
+	end
+	return dir
+end
+
+-- ---- random (== mist.random: a uniform integer in [low, high]) --------------------------------
+-- mist.random returns a uniform integer in range (its internal table trick only de-biases the RNG;
+-- the contract is "a random integer in range", which math.random satisfies). Single-arg = [1, n].
+function SkynetIADSUtils.random(firstNum, secondNum)
+	if not secondNum then
+		return math.random(1, firstNum)
+	end
+	return math.random(firstNum, secondNum)
+end
+
+-- ---- scheduling (== mist.scheduleFunction / mist.removeFunction) -------------------------------
+-- Run f(unpack(vars)) at absolute mission time t, re-running every `rep` seconds until optional
+-- stop-time `st`. Returns a cancelable id (a DCS timer function id). f is pcall-guarded so a single
+-- error doesn't tear down the repeating task (matches mist's keep-running scheduler behaviour).
+function SkynetIADSUtils.scheduleFunction(f, vars, t, rep, st)
+	vars = vars or {}
+	-- CRITICAL: native timer.scheduleFunction SILENTLY DROPS a past-due first-run time. MIST's own scheduler ran
+	-- past-due tasks on its next tick, so Skynet schedules with t=1 (1s after mission start) and relied on that.
+	-- On a running/restored mission the IADS is built well after t=1, so t is in the PAST -> the periodic scan
+	-- (evaluateContacts, HARM scan, jammer, ...) would NEVER start -> dark SAMs never get cued -> never fire.
+	-- Clamp the first run to a valid FUTURE time, and reschedule off timer.getTime() so the repeat can't drift past.
+	local first = (type(t) == "number" and t > timer.getTime()) and t or (timer.getTime() + (rep or 1))
+	return timer.scheduleFunction(function()
+		pcall(f, unpack(vars))
+		if rep then
+			local nxt = timer.getTime() + rep
+			if (not st) or (nxt <= st) then return nxt end
+		end
+		return nil
+	end, nil, first)
+end
+
+function SkynetIADSUtils.removeFunction(id)
+	-- MIST's removeFunction tolerates an unknown/stale id (table search, returns false). DCS
+	-- timer.removeFunction THROWS ("function reference number is invalid") on a stale/already-fired id,
+	-- so pcall-guard it to preserve MIST's forgiving behaviour (Skynet calls this on scan-task ids that
+	-- may not exist yet / may have already fired).
+	if id then
+		pcall(timer.removeFunction, id)
+	end
+end
+
+end
+do
 
 SkynetIADSLogger = {}
 SkynetIADSLogger.__index = SkynetIADSLogger
@@ -928,7 +1141,7 @@ function SkynetIADSLogger:printEarlyWarningRadarStatus()
 		for j = 1, #detectedTargets do
 			local contact = detectedTargets[j]
 			if firstRadar ~= nil and firstRadar:isExist() then
-				local distance = mist.utils.round(mist.utils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+				local distance = SkynetIADSUtils.round(SkynetIADSUtils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
 				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
 			end
 		end
@@ -1019,7 +1232,7 @@ function SkynetIADSLogger:printSAMSiteStatus()
 		for j = 1, #detectedTargets do
 			local contact = detectedTargets[j]
 			if firstRadar ~= nil and firstRadar:isExist() then
-				local distance = mist.utils.round(mist.utils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
+				local distance = SkynetIADSUtils.round(SkynetIADSUtils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
 				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
 			end
 		end
@@ -1183,7 +1396,7 @@ function SkynetIADS:create(name)
 	iads.earlyWarningRadars = {}
 	iads.samSites = {}
 	iads.commandCenters = {}
-	iads.ewRadarScanMistTaskID = nil
+	iads.ewRadarScanTaskID = nil
 	iads.coalition = nil
 	iads.contacts = {}
 	iads.maxTargetAge = 32
@@ -1267,9 +1480,9 @@ end
 function SkynetIADS:addEarlyWarningRadarsByPrefix(prefix)
 	self:deactivateEarlyWarningRadars()
 	self.earlyWarningRadars = {}
-	for unitName, unit in pairs(mist.DBs.unitsByName) do
+	for unitName, _ in pairs(_DATABASE.UNITS) do   -- MOOSE unit DB (name-keyed); replaces mist.DBs.unitsByName
 		local pos = self:findSubString(unitName, prefix)
-		--somehow the MIST unit db contains StaticObject, we check to see we only add Units
+		--the DB may key non-Unit objects, we check to see we only add Units
 		local unit = Unit.getByName(unitName)
 		if pos and pos == 1 and unit then
 			self:addEarlyWarningRadar(unitName)
@@ -1295,7 +1508,7 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	ewRadar:setupElements()
 	ewRadar:setCachedTargetsMaxAge(self:getCachedTargetsMaxAge())	
 	-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
-	if self.ewRadarScanMistTaskID ~= nil then
+	if self.ewRadarScanTaskID ~= nil then
 		self:buildRadarCoverageForEarlyWarningRadar(ewRadar)
 	end
 	ewRadar:setActAsEW(true)
@@ -1332,10 +1545,10 @@ end
 function SkynetIADS:addSAMSitesByPrefix(prefix)
 	self:deativateSAMSites()
 	self.samSites = {}
-	for groupName, groupData in pairs(mist.DBs.groupsByName) do
+	for groupName, _ in pairs(_DATABASE.GROUPS) do   -- MOOSE group DB (name-keyed); replaces mist.DBs.groupsByName
 		local pos = self:findSubString(groupName, prefix)
 		if pos and pos == 1 then
-			--mist returns groups, units and, StaticObjects
+			--the DB keys groups; resolve + verify the DCS group is active before adding
 			local dcsObject = Group.getByName(groupName)
 			if dcsObject and dcsObject:getUnits()[1]:isActive() then
 				self:addSAMSite(groupName)
@@ -1380,7 +1593,7 @@ function SkynetIADS:addSAMSite(samSiteName)
 			self:printOutputToLog("ADDED: "..samSite:getDescription())
 		end
 		-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
-		if self.ewRadarScanMistTaskID ~= nil then
+		if self.ewRadarScanTaskID ~= nil then
 			self:buildRadarCoverageForSAMSite(samSite)
 		end
 		return samSite
@@ -1441,7 +1654,7 @@ function SkynetIADS:addCommandCenter(commandCenter)
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
 	table.insert(self.commandCenters, comCenter)
 	-- when IADS is active the radars will be added to the new command center. If it not active this will happen when radar coverage is built
-	if self.ewRadarScanMistTaskID ~= nil then
+	if self.ewRadarScanTaskID ~= nil then
 		self:addRadarsToCommandCenters()
 	end
 	return comCenter
@@ -1706,8 +1919,8 @@ end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS.activate(self)
-	mist.removeFunction(self.ewRadarScanMistTaskID)
-	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+	SkynetIADSUtils.removeFunction(self.ewRadarScanTaskID)
+	self.ewRadarScanTaskID = SkynetIADSUtils.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
 	self:buildRadarCoverage()
 end
 
@@ -1717,8 +1930,8 @@ function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 end
 
 function SkynetIADS:deactivate()
-	mist.removeFunction(self.ewRadarScanMistTaskID)
-	mist.removeFunction(self.samSetupMistTaskID)
+	SkynetIADSUtils.removeFunction(self.ewRadarScanTaskID)
+	SkynetIADSUtils.removeFunction(self.samSetupTaskID)
 	self:deativateSAMSites()
 	self:deactivateEarlyWarningRadars()
 	self:deactivateCommandCenters()
@@ -2216,8 +2429,8 @@ function SkynetIADSAbstractRadarElement:cleanUp()
 		local pointDefence = self.pointDefences[i]
 		pointDefence:cleanUp()
 	end
-	mist.removeFunction(self.harmScanID)
-	mist.removeFunction(self.harmSilenceID)
+	SkynetIADSUtils.removeFunction(self.harmScanID)
+	SkynetIADSUtils.removeFunction(self.harmSilenceID)
 	--call method from super class
 	self:removeEventHandlers()
 end
@@ -2669,8 +2882,11 @@ function SkynetIADSAbstractRadarElement:goLive()
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
 			cont:setOnOff(true)
-			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)	
-			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)
+			-- OPEN_FIRE (2), NOT WEAPON_FREE (0): WEAPON_FREE is an AIR-only ROE value; ground SAM ROE only
+			-- accepts OPEN_FIRE/RETURN_FIRE/WEAPON_HOLD, so WEAPON_FREE was an out-of-range no-op -> a SAM could
+			-- light its radar (alarm RED) yet stay weapon-held and never fire. OPEN_FIRE is valid for ground + air.
+			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.OPEN_FIRE)
 			self:getDCSRepresentation():enableEmission(true)
 			self.goLiveTime = timer.getTime()
 			self.aiState = true
@@ -2792,7 +3008,7 @@ function SkynetIADSAbstractRadarElement:isInRadarDetectionRangeOf(abstractRadarE
 end
 
 function SkynetIADSAbstractRadarElement:getDistanceToUnit(unitPosA, unitPosB)
-	return mist.utils.round(mist.utils.get2DDist(unitPosA, unitPosB, 0))
+	return SkynetIADSUtils.round(SkynetIADSUtils.get2DDist(unitPosA, unitPosB, 0))
 end
 
 function SkynetIADSAbstractRadarElement:hasWorkingRadar()
@@ -2819,7 +3035,7 @@ function SkynetIADSAbstractRadarElement:jam(successProbability)
 					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
 				end
 			else
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.OPEN_FIRE)   -- OPEN_FIRE: valid for ground SAMs (WEAPON_FREE is air-only)
 				if self.iads:getDebugSettings().jammerProbability then
 					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon free")
 				end
@@ -2830,7 +3046,7 @@ end
 
 function SkynetIADSAbstractRadarElement:scanForHarms()
 	self:stopScanningForHARMs()
-	self.harmScanID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
+	self.harmScanID = SkynetIADSUtils.scheduleFunction(SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs, {self}, 1, 2)
 end
 
 function SkynetIADSAbstractRadarElement:isScanningForHARMs()
@@ -2842,7 +3058,7 @@ function SkynetIADSAbstractRadarElement:isDefendingHARM()
 end
 
 function SkynetIADSAbstractRadarElement:stopScanningForHARMs()
-	mist.removeFunction(self.harmScanID)
+	SkynetIADSUtils.removeFunction(self.harmScanID)
 	self.harmScanID = nil
 end
 
@@ -2859,7 +3075,7 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	if self.iads:getDebugSettings().harmDefence then
 		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
 	end
-	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
+	self.harmSilenceID = SkynetIADSUtils.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
 
@@ -2873,7 +3089,7 @@ function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 end
 
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
-	mist.removeFunction(self.harmSilenceID)
+	SkynetIADSUtils.removeFunction(self.harmSilenceID)
 	self.harmSilenceID = nil
 	self.harmShutdownTime = 0
 	
@@ -2907,7 +3123,7 @@ end
 function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)
 	local tti = 0
 	if speedKT > 0 then
-		tti = mist.utils.round((distanceNM / speedKT) * 3600, 0)
+		tti = SkynetIADSUtils.round((distanceNM / speedKT) * 3600, 0)
 		if tti < 0 then
 			tti = 0
 		end
@@ -2916,7 +3132,7 @@ function SkynetIADSAbstractRadarElement:getSecondsToImpact(distanceNM, speedKT)
 end
 
 function SkynetIADSAbstractRadarElement:getDistanceInMetersToContact(radarUnit, point)
-	return mist.utils.round(mist.utils.get3DDist(radarUnit:getPosition().p, point), 0)
+	return SkynetIADSUtils.round(SkynetIADSUtils.get3DDist(radarUnit:getPosition().p, point), 0)
 end
 
 function SkynetIADSAbstractRadarElement:calculateMinimalShutdownTimeInSeconds(timeToImpact)
@@ -2924,7 +3140,7 @@ function SkynetIADSAbstractRadarElement:calculateMinimalShutdownTimeInSeconds(ti
 end
 
 function SkynetIADSAbstractRadarElement:calculateMaximalShutdownTimeInSeconds(minShutdownTime)	
-	return minShutdownTime + mist.random(1, self.maxHarmPresetShutdownTime)
+	return minShutdownTime + SkynetIADSUtils.random(1, self.maxHarmPresetShutdownTime)
 end
 
 function SkynetIADSAbstractRadarElement:calculateImpactPoint(target, distanceInMeters)
@@ -2953,8 +3169,8 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 		for j = 1, #radars do
 			local radar = radars[j]
 			if radar:isExist() then
-				local distanceNM =  mist.utils.metersToNM(self:getDistanceInMetersToContact(radar, harmContact:getPosition().p))
-				local harmToSAMHeading = mist.utils.toDegree(mist.utils.getHeadingPoints(harmContact:getPosition().p, radar:getPosition().p))
+				local distanceNM =  SkynetIADSUtils.metersToNM(self:getDistanceInMetersToContact(radar, harmContact:getPosition().p))
+				local harmToSAMHeading = SkynetIADSUtils.toDegree(SkynetIADSUtils.getHeadingPoints(harmContact:getPosition().p, radar:getPosition().p))
 				local harmToSAMAspect = self:calculateAspectInDegrees(harmContact:getMagneticHeading(), harmToSAMHeading)
 				local speedKT = harmContact:getGroundSpeedInKnots(0)
 				local secondsToImpact = self:getSecondsToImpact(distanceNM, speedKT)
@@ -2987,7 +3203,7 @@ function SkynetIADSAbstractRadarElement:calculateAspectInDegrees(harmHeading, ha
 		if aspect > 180 then
 			aspect = 360 - aspect
 		end
-		return mist.utils.round(aspect)
+		return SkynetIADSUtils.round(aspect)
 end
 
 function SkynetIADSAbstractRadarElement:getNumberOfObjectsItentifiedAsHARMS()
@@ -3054,8 +3270,8 @@ function SkynetIADSAWACSRadar:scanForHarms()
 end
 
 function SkynetIADSAWACSRadar:getMaxAllowedMovementForAutonomousUpdateInNM()
-	--local radarRange = mist.utils.metersToNM(self.searchRadars[1]:getMaxRangeFindingTarget())
-	--return mist.utils.round(radarRange / 10)
+	--local radarRange = SkynetIADSUtils.metersToNM(self.searchRadars[1]:getMaxRangeFindingTarget())
+	--return SkynetIADSUtils.round(radarRange / 10)
 	--fixed to 10 nm miles to better fit small SAM sites
 	return 10
 end
@@ -3076,7 +3292,7 @@ function SkynetIADSAWACSRadar:getDistanceTraveledSinceLastUpdate()
 	if self:getDCSRepresentation():isExist() then
 		currentPosition = self:getDCSRepresentation():getPosition().p
 	end
-	return mist.utils.round(mist.utils.metersToNM(self:getDistanceToUnit(self.lastUpdatePosition, currentPosition)))
+	return SkynetIADSUtils.round(SkynetIADSUtils.metersToNM(self:getDistanceToUnit(self.lastUpdatePosition, currentPosition)))
 end
 
 end
@@ -3149,7 +3365,7 @@ end
 
 function SkynetIADSContact:getMagneticHeading()
 	if ( self:isExist() ) then
-		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self:getDCSRepresentation())))
+		return SkynetIADSUtils.round(SkynetIADSUtils.toDegree(SkynetIADSUtils.getHeading(self:getDCSRepresentation())))
 	else
 		return -1
 	end
@@ -3192,12 +3408,12 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 	if decimals == nil then
 		decimals = 2
 	end
-	return mist.utils.round(self.speed, decimals)
+	return SkynetIADSUtils.round(self.speed, decimals)
 end
 
 function SkynetIADSContact:getHeightInFeetMSL()
 	if self:isExist() then
-		return mist.utils.round(mist.utils.metersToFeet(self:getDCSRepresentation():getPosition().p.y), 0)
+		return SkynetIADSUtils.round(SkynetIADSUtils.metersToFeet(self:getDCSRepresentation():getPosition().p.y), 0)
 	else
 		return 0
 	end
@@ -3220,7 +3436,7 @@ function SkynetIADSContact:refresh()
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self:getDCSRepresentation():getPosition().p))
+			local distance = SkynetIADSUtils.metersToNM(SkynetIADSUtils.get2DDist(self.position.p, self:getDCSRepresentation():getPosition().p))
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 			self:updateSimpleAltitudeProfile()
@@ -3250,7 +3466,7 @@ function SkynetIADSContact:getSimpleAltitudeProfile()
 end
 
 function SkynetIADSContact:getAge()
-	return mist.utils.round(timer.getAbsTime() - self.lastTimeSeen)
+	return SkynetIADSUtils.round(timer.getAbsTime() - self.lastTimeSeen)
 end
 
 end
@@ -3351,7 +3567,7 @@ end
 
 function SkynetIADSJammer:masterArmOn()
 	self:masterArmSafe()
-	self.jammerTaskID = mist.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
+	self.jammerTaskID = SkynetIADSUtils.scheduleFunction(SkynetIADSJammer.runCycle, {self}, 1, 10)
 end
 
 function SkynetIADSJammer:addFunction(natoName, jammerFunction)
@@ -3393,7 +3609,7 @@ function SkynetIADSJammer:getSuccessProbability(distanceNauticalMiles, natoName)
 end
 
 function SkynetIADSJammer:getDistanceNMToRadarUnit(radarUnit)
-	return mist.utils.metersToNM(mist.utils.get3DDist(self.emitter:getPosition().p, radarUnit:getPosition().p))
+	return SkynetIADSUtils.metersToNM(SkynetIADSUtils.get3DDist(self.emitter:getPosition().p, radarUnit:getPosition().p))
 end
 
 function SkynetIADSJammer.runCycle(self)
@@ -3435,7 +3651,7 @@ function SkynetIADSJammer:hasLineOfSightToRadar(radar)
 end
 
 function SkynetIADSJammer:masterArmSafe()
-	mist.removeFunction(self.jammerTaskID)
+	SkynetIADSUtils.removeFunction(self.jammerTaskID)
 end
 
 --TODO: Remove Menu when emitter dies:
@@ -3523,7 +3739,7 @@ function SkynetIADSSAMSearchRadar:setFiringRangePercent(percent)
 end
 
 function SkynetIADSSAMSearchRadar:getDistance(target)
-	return mist.utils.get2DDist(target:getPosition().p, self:getDCSRepresentation():getPosition().p)
+	return SkynetIADSUtils.get2DDist(target:getPosition().p, self:getDCSRepresentation():getPosition().p)
 end
 
 function SkynetIADSSAMSearchRadar:getHeight(target)

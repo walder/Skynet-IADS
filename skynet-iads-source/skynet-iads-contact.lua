@@ -45,7 +45,7 @@ end
 
 function SkynetIADSContact:getMagneticHeading()
 	if ( self:isExist() ) then
-		return mist.utils.round(mist.utils.toDegree(mist.getHeading(self:getDCSRepresentation())))
+		return SkynetIADSUtils.round(SkynetIADSUtils.toDegree(SkynetIADSUtils.getHeading(self:getDCSRepresentation())))
 	else
 		return -1
 	end
@@ -88,12 +88,12 @@ function SkynetIADSContact:getGroundSpeedInKnots(decimals)
 	if decimals == nil then
 		decimals = 2
 	end
-	return mist.utils.round(self.speed, decimals)
+	return SkynetIADSUtils.round(self.speed, decimals)
 end
 
 function SkynetIADSContact:getHeightInFeetMSL()
 	if self:isExist() then
-		return mist.utils.round(mist.utils.metersToFeet(self:getDCSRepresentation():getPosition().p.y), 0)
+		return SkynetIADSUtils.round(SkynetIADSUtils.metersToFeet(self:getDCSRepresentation():getPosition().p.y), 0)
 	else
 		return 0
 	end
@@ -116,7 +116,7 @@ function SkynetIADSContact:refresh()
 		local timeDelta = (timer.getAbsTime() - self.lastTimeSeen)
 		if timeDelta > 0 then
 			self.numOfTimesRefreshed = self.numOfTimesRefreshed + 1
-			local distance = mist.utils.metersToNM(mist.utils.get2DDist(self.position.p, self:getDCSRepresentation():getPosition().p))
+			local distance = SkynetIADSUtils.metersToNM(SkynetIADSUtils.get2DDist(self.position.p, self:getDCSRepresentation():getPosition().p))
 			local hours = timeDelta / 3600
 			self.speed = (distance / hours)
 			self:updateSimpleAltitudeProfile()
@@ -146,7 +146,7 @@ function SkynetIADSContact:getSimpleAltitudeProfile()
 end
 
 function SkynetIADSContact:getAge()
-	return mist.utils.round(timer.getAbsTime() - self.lastTimeSeen)
+	return SkynetIADSUtils.round(timer.getAbsTime() - self.lastTimeSeen)
 end
 
 end

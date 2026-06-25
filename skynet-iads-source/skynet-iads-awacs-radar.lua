@@ -26,8 +26,8 @@ function SkynetIADSAWACSRadar:scanForHarms()
 end
 
 function SkynetIADSAWACSRadar:getMaxAllowedMovementForAutonomousUpdateInNM()
-	--local radarRange = mist.utils.metersToNM(self.searchRadars[1]:getMaxRangeFindingTarget())
-	--return mist.utils.round(radarRange / 10)
+	--local radarRange = SkynetIADSUtils.metersToNM(self.searchRadars[1]:getMaxRangeFindingTarget())
+	--return SkynetIADSUtils.round(radarRange / 10)
 	--fixed to 10 nm miles to better fit small SAM sites
 	return 10
 end
@@ -48,7 +48,7 @@ function SkynetIADSAWACSRadar:getDistanceTraveledSinceLastUpdate()
 	if self:getDCSRepresentation():isExist() then
 		currentPosition = self:getDCSRepresentation():getPosition().p
 	end
-	return mist.utils.round(mist.utils.metersToNM(self:getDistanceToUnit(self.lastUpdatePosition, currentPosition)))
+	return SkynetIADSUtils.round(SkynetIADSUtils.metersToNM(self:getDistanceToUnit(self.lastUpdatePosition, currentPosition)))
 end
 
 end
