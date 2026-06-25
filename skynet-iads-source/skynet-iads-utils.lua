@@ -113,8 +113,12 @@ function SkynetIADSUtils.scheduleFunction(f, vars, t, rep, st)
 end
 
 function SkynetIADSUtils.removeFunction(id)
+	-- MIST's removeFunction tolerates an unknown/stale id (table search, returns false). DCS
+	-- timer.removeFunction THROWS ("function reference number is invalid") on a stale/already-fired id,
+	-- so pcall-guard it to preserve MIST's forgiving behaviour (Skynet calls this on scan-task ids that
+	-- may not exist yet / may have already fired).
 	if id then
-		timer.removeFunction(id)
+		pcall(timer.removeFunction, id)
 	end
 end
 

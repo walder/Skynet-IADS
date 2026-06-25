@@ -145,9 +145,18 @@ function SkynetIADSUtils.scheduleFunction(f, vars, t, rep, st)
 end
 
 function SkynetIADSUtils.removeFunction(id)
-    if id then timer.removeFunction(id) end
+    -- MIST tolerates an unknown/stale id (table search -> returns false). DCS timer.removeFunction THROWS
+    -- ("function reference number is invalid") on a stale/already-fired id, so pcall-guard it to keep MIST's
+    -- forgiving behaviour (Skynet calls this on scan-task ids that may not exist yet / may have already fired).
+    if id then pcall(timer.removeFunction, id) end
 end
 ```
+
+> **Fidelity note (caught in the in-sim test):** the first cut used a bare `timer.removeFunction(id)`. MIST's
+> `removeFunction` never errors on a missing id; `timer.removeFunction` does. Skynet calls `removeFunction`
+> on scan-task ids during `addSAMSitesByPrefix` / `activate`, so the strict native call threw and IADS setup
+> failed. The `pcall` restores MIST's tolerant contract — the kind of behavioural difference a pure 1:1 swap
+> must preserve.
 
 ### 3f. Unit/Group enumeration → MOOSE `_DATABASE`
 
