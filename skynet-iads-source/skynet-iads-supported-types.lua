@@ -201,6 +201,11 @@ samTypesDB = {
 					['NATO'] = 'Hawk str',
 				},
 			},
+			['Hawk cwar'] = {
+				['name'] = {
+					['NATO'] = 'Hawk cwar',
+				},
+			},
 		},
 		['trackingRadar'] = {
 			['Hawk tr'] = {
@@ -210,13 +215,17 @@ samTypesDB = {
 			['Hawk ln'] = {
 			},
 		},
-
+		['misc'] = {
+			['Hawk pcp'] = {
+				['required'] = false,
+			},
+		},
 		['name'] = {
 			['NATO'] = 'Hawk',
 		},
 		['harm_detection_chance'] = 40
 
-	},	
+	},
 	['Roland ADS'] = {
 		['type'] = 'complex',
 		['searchRadar'] = {
@@ -318,6 +327,52 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'M6 Linebacker',
 		},
+	},
+	['M48 Chaparral'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M48 Chaparral'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M48 Chaparral'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M48 Chaparral',
+		},
+	},
+	['M1097 Avenger'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M1097 Avenger'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M1097 Avenger'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M1097 Avenger',
+		},
+	},
+	['Vulcan'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['Vulcan'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['Vulcan'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Vulcan',
+		},
+		['harm_detection_chance'] = 10
 	},
 	['Strela-1 9P31'] = {
 		['type'] = 'single',
@@ -451,6 +506,17 @@ samTypesDB = {
 			['55G6 EWR'] = {
 				['name'] = {
 					['NATO'] = 'Tall Rack',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
+	['P14_SR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
 				},
 			},
 		},
