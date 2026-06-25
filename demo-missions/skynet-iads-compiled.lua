@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 1915Z ---")
+env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 1939Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -304,7 +304,22 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-13 Gopher',
 		},
-	},	
+	},
+	['M6 Linebacker'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M6 Linebacker'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M6 Linebacker',
+		},
+	},
 	['Strela-1 9P31'] = {
 		['type'] = 'single',
 		['searchRadar'] = {

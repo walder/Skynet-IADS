@@ -303,7 +303,22 @@ samTypesDB = {
 		['name'] = {
 			['NATO'] = 'SA-13 Gopher',
 		},
-	},	
+	},
+	['M6 Linebacker'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M6 Linebacker'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'M6 Linebacker',
+		},
+	},
 	['Strela-1 9P31'] = {
 		['type'] = 'single',
 		['searchRadar'] = {
