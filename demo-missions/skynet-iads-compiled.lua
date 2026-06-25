@@ -1,4 +1,4 @@
-env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 2011Z ---")
+env.info("--- SKYNET VERSION: de-mist | BUILD TIME: 25.06.2026 2041Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -1000,13 +1000,20 @@ end
 -- error doesn't tear down the repeating task (matches mist's keep-running scheduler behaviour).
 function SkynetIADSUtils.scheduleFunction(f, vars, t, rep, st)
 	vars = vars or {}
-	return timer.scheduleFunction(function(_, now)
+	-- CRITICAL: native timer.scheduleFunction SILENTLY DROPS a past-due first-run time. MIST's own scheduler ran
+	-- past-due tasks on its next tick, so Skynet schedules with t=1 (1s after mission start) and relied on that.
+	-- On a running/restored mission the IADS is built well after t=1, so t is in the PAST -> the periodic scan
+	-- (evaluateContacts, HARM scan, jammer, ...) would NEVER start -> dark SAMs never get cued -> never fire.
+	-- Clamp the first run to a valid FUTURE time, and reschedule off timer.getTime() so the repeat can't drift past.
+	local first = (type(t) == "number" and t > timer.getTime()) and t or (timer.getTime() + (rep or 1))
+	return timer.scheduleFunction(function()
 		pcall(f, unpack(vars))
-		if rep and (not st or (now + rep) <= st) then
-			return now + rep
+		if rep then
+			local nxt = timer.getTime() + rep
+			if (not st) or (nxt <= st) then return nxt end
 		end
 		return nil
-	end, nil, t)
+	end, nil, first)
 end
 
 function SkynetIADSUtils.removeFunction(id)
