@@ -203,8 +203,19 @@ GEN  demo-missions/skynet-iads-compiled.lua            (rebuilt)
 
 - ✅ **Syntax:** every source file + the regenerated compiled bundle pass `luae` (DCS Lua 5.1 `loadfile`).
 - ✅ **No functional `mist.` references** remain in the engine (only heritage comments documenting the swap).
-- ⏳ **In-sim:** the project's unit tests are in-mission (luaunit + a test `.miz`). Run the test mission /
-  a SAM-vs-aircraft smoke pass on DCS 2.9 with MOOSE loaded to confirm runtime parity before release.
+- ✅ **In-sim (DCS 2.9, MOOSE loaded, dev server):** the regenerated compiled bundle loads cleanly and every
+  ported path was exercised live and behaves correctly:
+  - `SkynetIADSUtils` + `SkynetIADS` define; MOOSE `UTILS` / `_DATABASE` resolve.
+  - math faithful, incl. the **trap case**: `get2DDist` between two points 9999 m apart in *altitude*
+    returns the x/z ground distance (`5`), confirming altitude is ignored exactly like MIST (the
+    `UTILS.VecDist2D` Vec2 pitfall is avoided).
+  - the `mist.DBs` → `_DATABASE` enumeration finds the expected prefixed groups (e.g. 25 `Red_SAM`).
+  - `getHeading` (the true-north-correction path via `coord.LOtoLL`/`coord.LLtoLO`) returns a sane bearing.
+  - the native `scheduleFunction` returns a timer id and fires on schedule.
+  - *Non-intrusive test:* no `SkynetIADS` instance was activated, so nothing took control of SAMs.
+- ⏳ **Remaining before release:** full `SkynetIADS` instantiation parity — `addSAMSitesByPrefix` registering +
+  NATO-classifying live SAM sites and a SAM-vs-aircraft engagement pass (the in-mission luaunit suite is the
+  canonical check). This is the integration step, separate from the 1:1 dependency swap validated above.
 
 ---
 
