@@ -388,7 +388,7 @@ redIADS:getSAMSitesByPrefix('SAM-SECTOR-A')
 ```
 
 ### Act as EW radar
-Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recomended for long range systems like the S-300: 
+Will set the SAM site to act as an EW radar. This will result in the SAM site always having its radar on. Contacts the SAM site sees are reported to the IADS. This option is recommended for long range systems like the S-300: 
 ```lua
 samSite:setActAsEW(true)
 ```
@@ -712,7 +712,7 @@ iadsDebug.harmDefence = true
 --add all units with unit name beginning with 'EW' to the IADS:
 redIADS:addEarlyWarningRadarsByPrefix('EW')
 
---add all groups begining with group name 'SAM' to the IADS:
+--add all groups beginning with group name 'SAM' to the IADS:
 redIADS:addSAMSitesByPrefix('SAM')
 
 --add a command center:

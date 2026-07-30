@@ -22,7 +22,7 @@ Check the output of the dcs.log file for information whether the tests have pass
 
 
 # setting up your editor
-I recomend you use [notepad++](https://notepad-plus-plus.org/downloads/) to edit lua files.
+I recommend you use [notepad++](https://notepad-plus-plus.org/downloads/) to edit lua files.
 This [Post](https://community.notepad-plus-plus.org/topic/15662/help-function-list-doesn-t-support-my-language/12) has some information on how you can add a function list for LUA in notepad++
 
 # Build workflow
