@@ -13,13 +13,18 @@ samTypesDB = {
 				['name'] = {
 					['NATO'] = 'Flat Face',
 				},
-			},	
+			},
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
+				},
+			},
+			['EWR P-37 BAR LOCK'] = {
+				['name'] = {
+					['NATO'] = 'Bar Lock',
+				},
+			},
 		},
-        ['EWR P-37 BAR LOCK'] = {
-            ['Name'] = {
-              ['NATO'] = "Bar lock",
-            },   
-        },
         ['trackingRadar'] = {
             ['RPC_5N62V'] = {
             },
@@ -128,6 +133,11 @@ samTypesDB = {
 					['NATO'] = 'Flat Face',
 				},
 			},
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
+				},
+			},
 		},
 		['trackingRadar'] = {
 			['SNR_75V'] = {
@@ -135,6 +145,11 @@ samTypesDB = {
 		},
 		['launchers'] = {
 			['S_75M_Volhov'] = {
+			},
+		},
+		['misc'] = {
+			['RD_75'] = {
+				['required'] = false,
 			},
 		},
 		['name'] = {
@@ -324,9 +339,13 @@ samTypesDB = {
 		['searchRadar'] = {
 			['Tor 9A331'] = {
 			},
+			['CHAP_TorM2'] = {
+			},
 		},
 		['launchers'] = {
 			['Tor 9A331'] = {
+			},
+			['CHAP_TorM2'] = {
 			},
 		},
 		['name'] = {
@@ -335,6 +354,159 @@ samTypesDB = {
 		['harm_detection_chance'] = 90,
 		['can_engage_harm'] = true
 		
+	},
+	['Tor-M2'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['CHAP_TorM2'] = {
+			},
+		},
+		['launchers'] = {
+			['CHAP_TorM2'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'SA-15 Gauntlet',
+		},
+		['harm_detection_chance'] = 90,
+		['can_engage_harm'] = true
+	},
+	['Pantsir-S1'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['CHAP_PantsirS1'] = {
+			},
+		},
+		['launchers'] = {
+			['CHAP_PantsirS1'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'SA-22 Greyhound',
+		},
+		['harm_detection_chance'] = 90,
+		['can_engage_harm'] = true
+	},
+	['IRIS-T SLM'] = {
+		['type'] = 'complex',
+		['searchRadar'] = {
+			['CHAP_IRISTSLM_STR'] = {
+				['name'] = {
+					['NATO'] = 'IRIS-T SLM TRML-4D',
+				},
+			},
+		},
+		['launchers'] = {
+			['CHAP_IRISTSLM_LN'] = {
+			},
+		},
+		['misc'] = {
+			['CHAP_IRISTSLM_CP'] = {
+				['required'] = true,
+			},
+		},
+		['name'] = {
+			['NATO'] = 'IRIS-T SLM',
+		},
+		['harm_detection_chance'] = 95,
+		['can_engage_harm'] = true
+	},
+	['PGZ-09'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['CHAP_PGZ09'] = {
+			},
+		},
+		['launchers'] = {
+			['CHAP_PGZ09'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'PGZ-09',
+		},
+		['harm_detection_chance'] = 30
+	},
+	['SON-9'] = {
+		['type'] = 'complex',
+		['searchRadar'] = {
+			['SON_9'] = {
+				['name'] = {
+					['NATO'] = 'Fire Can',
+				},
+			},
+		},
+		['launchers'] = {
+			['KS-19'] = {
+			},
+			['S-60_Type59_Artillery'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Fire Can',
+		},
+		['harm_detection_chance'] = 15
+	},
+	['Chaparral'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M48 Chaparral'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M48 Chaparral'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Chaparral',
+		},
+		['harm_detection_chance'] = 10
+	},
+	['Linebacker'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['launchers'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Linebacker',
+		},
+		['harm_detection_chance'] = 20
+	},
+	['Vulcan'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M163 Vulcan'] = {
+			},
+		},
+		['launchers'] = {
+			['M163 Vulcan'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Vulcan',
+		},
+		['harm_detection_chance'] = 10
+	},
+	['Avenger'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M1097 Avenger'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M1097 Avenger'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Avenger',
+		},
+		['harm_detection_chance'] = 10
 	},
 	['Gepard'] = {
 		['type'] = 'single',
@@ -441,6 +613,17 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 60
 	},
+	['P-14 EWR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
 	['Dog Ear'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -451,6 +634,17 @@ samTypesDB = {
 			},
 		},
 		['harm_detection_chance'] = 20
+	},
+	['Roland EWR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['Roland Radar'] = {
+				['name'] = {
+					['NATO'] = 'Roland EWR',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
 	},
 -- Start of BLUE EW radars:
 	['FPS-117 Dome'] = {
@@ -471,6 +665,11 @@ samTypesDB = {
 				['name'] = {
 					['NATO'] = 'FPS-117',
 				},
+			},
+		},
+		['misc'] = {
+			['FPS-117 ECS'] = {
+				['required'] = false,
 			},
 		},
 		['harm_detection_chance'] = 80

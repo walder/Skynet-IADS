@@ -19,7 +19,11 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.position = instance:getDCSRepresentation():getPosition()
+	if instance:isExist() then
+		instance.position = instance:getDCSRepresentation():getPosition()
+	else
+		instance.position = {p = {x = 0, y = 0, z = 0}, x = {x = 1, y = 0, z = 0}}
+	end
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
 	instance.harmState = SkynetIADSContact.HARM_UNKNOWN
@@ -71,8 +75,8 @@ function SkynetIADSContact:getTypeName()
 	if self:isIdentifiedAsHARM() then
 		return SkynetIADSContact.HARM
 	end
-	if self:getDCSRepresentation() ~= nil then
-		local category = self:getDCSRepresentation():getCategory()
+	if self:isExist() and self:getDCSRepresentation() ~= nil then
+		local category = Object.getCategory(self:getDCSRepresentation())
 		if category == Object.Category.UNIT then
 			return self.typeName
 		end
