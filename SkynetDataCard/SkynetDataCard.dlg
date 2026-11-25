@@ -1,0 +1,198 @@
+dialog = {
+	["children"] = {
+		["sTop"] = {
+			["params"] = {
+				["angle"] = 0,
+				["bounds"] = {
+					["h"] = 75,
+					["w"] = 640,
+					["x"] = 0,
+					["y"] = 0,
+				},
+				["enabled"] = true,
+				["pivotPoint"] = {
+					["x"] = 0,
+					["y"] = 0,
+				},
+				["text"] = "",
+				["tooltip"] = "",
+				["visible"] = true,
+				["zindex"] = 1,
+			},
+			["skin"] = {
+				["params"] = {
+					["name"] = "staticSkin",
+				},
+				["states"] = {
+					["released"] = {
+						[1] = {
+							["bkg"] = {
+								["center_center"] = "0xffffffff",
+							},
+						},
+					},
+				},
+			},
+			["type"] = "Static",
+		},
+		["sMid"] = {
+			["params"] = {
+				["angle"] = 0,
+				["bounds"] = {
+					["h"] = 100,
+					["w"] = 640,
+					["x"] = 0,
+					["y"] = 75,
+				},
+				["enabled"] = true,
+				["pivotPoint"] = {
+					["x"] = 0,
+					["y"] = 0,
+				},
+				["text"] = "",
+				["tooltip"] = "",
+				["visible"] = true,
+				["zindex"] = 1,
+			},
+			["skin"] = {
+				["params"] = {
+					["name"] = "staticSkin",
+				},
+				["states"] = {
+					["released"] = {
+						[1] = {
+							["bkg"] = {
+								["center_center"] = "0xffffffff",
+							},
+						},
+					},
+				},
+			},
+			["type"] = "Static",
+		},
+		["sBot"] = {
+			["params"] = {
+				["angle"] = 0,
+				["bounds"] = {
+					["h"] = 51,
+					["w"] = 640,
+					["x"] = 0,
+					["y"] = 175,
+				},
+				["enabled"] = true,
+				["pivotPoint"] = {
+					["x"] = 0,
+					["y"] = 0,
+				},
+				["text"] = "",
+				["tooltip"] = "",
+				["visible"] = true,
+				["zindex"] = 1,
+			},
+			["skin"] = {
+				["params"] = {
+					["name"] = "staticSkin",
+				},
+				["states"] = {
+					["released"] = {
+						[1] = {
+							["bkg"] = {
+								["center_center"] = "0xffffffff",
+							},
+						},
+					},
+				},
+			},
+			["type"] = "Static",
+		},
+		["sText"] = {
+			["params"] = {
+				["angle"] = 0,
+				["bounds"] = {
+					["h"] = 120,
+					["w"] = 572,
+					["x"] = 36,
+					["y"] = 58,
+				},
+				["enabled"] = true,
+				["pivotPoint"] = {
+					["x"] = 0,
+					["y"] = 0,
+				},
+				["text"] = "",
+				["tooltip"] = "",
+				["visible"] = true,
+				["zindex"] = 5,
+			},
+			["skin"] = {
+				["params"] = {
+					["name"] = "staticSkin",
+					["textWrapping"] = false,
+				},
+				["states"] = {
+					["released"] = {
+						[1] = {
+							["bkg"] = {
+								["center_center"] = "0x00000000",
+							},
+							["text"] = {
+								["color"] = "0xf5f8ffff",
+								["font"] = "DejaVuLGCSansCondensed-Bold.ttf",
+								["fontSize"] = 12,
+								["horzAlign"] = {
+									["offset"] = 0,
+									["type"] = "min",
+								},
+								["lineHeight"] = 0,
+								["shadowColor"] = "0x000000ff",
+								["shadowOffset"] = {
+									["horz"] = 1,
+									["vert"] = 1,
+								},
+								["vertAlign"] = {
+									["offset"] = 0,
+									["type"] = "min",
+								},
+							},
+						},
+					},
+				},
+			},
+			["type"] = "Static",
+		},
+	},
+	["params"] = {
+		["bounds"] = {
+			["h"] = 300,
+			["w"] = 640,
+			["x"] = -3000,
+			["y"] = -3000,
+		},
+		["clipResizeCursor"] = false,
+		["draggable"] = false,
+		["enabled"] = true,
+		["hasCursor"] = false,
+		["lockFlow"] = false,
+		["modal"] = false,
+		["offscreen"] = false,
+		["resizable"] = false,
+		["text"] = "SkynetDataCard",
+		["zOrder"] = 15,
+	},
+	["skin"] = {
+		["params"] = {
+			["headerHeight"] = 0,
+			["name"] = "windowSkin",
+		},
+		["states"] = {
+			["released"] = {
+				[1] = {
+					["bkg"] = {
+						["center_center"] = "0x00000000",
+					},
+				},
+			},
+		},
+	},
+	["type"] = "Window",
+}

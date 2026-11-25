@@ -24,12 +24,16 @@ function SkynetIADSAbstractElement:cleanUp()
 end
 
 function SkynetIADSAbstractElement:isDestroyed()
-	return self:getDCSRepresentation():isExist() == false
+	return self:isExist() == false
 end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
-	table.insert(self.powerSources, powerSource)
-	self:informChildrenOfStateChange()
+	if powerSource then
+		table.insert(self.powerSources, powerSource)
+		local pName = (powerSource.getName and powerSource:getName()) or tostring(powerSource)
+		SkynetIADSLogger.writeGlobalLog("INFO", "POWER-LINKED", string.format("%s <- PowerSource: %s", self:getDescription(), tostring(pName)))
+		self:informChildrenOfStateChange()
+	end
 	return self
 end
 
@@ -38,8 +42,12 @@ function SkynetIADSAbstractElement:getPowerSources()
 end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
-	table.insert(self.connectionNodes, connectionNode)
-	self:informChildrenOfStateChange()
+	if connectionNode then
+		table.insert(self.connectionNodes, connectionNode)
+		local cName = (connectionNode.getName and connectionNode:getName()) or tostring(connectionNode)
+		SkynetIADSLogger.writeGlobalLog("INFO", "NODE-LINKED", string.format("%s <- ConnectionNode: %s", self:getDescription(), tostring(cName)))
+		self:informChildrenOfStateChange()
+	end
 	return self
 end
 
@@ -49,16 +57,32 @@ end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
-	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
-		self.iads:printOutput(self:getDescription().." no connection to Command Center")
+	if connectionNode == false then
+		if not self._loggedNoConn then
+			self._loggedNoConn = true
+			SkynetIADSLogger.writeGlobalLog("WARN", "CONNECTION-LOST", self:getDescription() .. " lost connection to Command Center / Connection Node!")
+		end
+		if self.iads:getDebugSettings().samNoConnection then
+			self.iads:printOutput(self:getDescription().." has no connection to Command Center")
+		end
+	else
+		self._loggedNoConn = false
 	end
 	return connectionNode
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
 	local power = self:genericCheckOneObjectIsAlive(self.powerSources)
-	if power == false and self.iads:getDebugSettings().hasNoPower then
-		self.iads:printOutput(self:getDescription().." has no power")
+	if power == false then
+		if not self._loggedNoPower then
+			self._loggedNoPower = true
+			SkynetIADSLogger.writeGlobalLog("WARN", "POWER-LOST", self:getDescription() .. " lost all power sources!")
+		end
+		if self.iads:getDebugSettings().hasNoPower then
+			self.iads:printOutput(self:getDescription().." has no power source")
+		end
+	else
+		self._loggedNoPower = false
 	end
 	return power
 end
@@ -73,7 +97,7 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	for i = 1, #objects do
 		local object = objects[i]
 		--if we find one object that is not fully destroyed we assume the IADS is still working
-		if object:isExist() then
+		if object and object:isExist() then
 			isAlive = true
 			break
 		end
@@ -86,23 +110,26 @@ function SkynetIADSAbstractElement:getNatoName()
 end
 
 function SkynetIADSAbstractElement:getDescription()
-	return "IADS ELEMENT: "..self:getDCSName().." | Type: "..tostring(self:getNatoName())
+	return "IADS ELEMENT: "..tostring(self:getDCSName()).." | Type: "..tostring(self:getNatoName())
 end
 
 function SkynetIADSAbstractElement:onEvent(event)
-	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
-	if event.id == world.event.S_EVENT_DEAD then
-		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
-			self:goDark()
-			self:informChildrenOfStateChange()
+	SkynetIADSLogger.safeCall("SkynetIADSAbstractElement:onEvent", function()
+		if not event then return end
+		--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
+		if event.id == world.event.S_EVENT_DEAD then
+			if self:hasWorkingPowerSource() == false or self:isDestroyed() then
+				self:goDark()
+				self:informChildrenOfStateChange()
+			end
+			if self:hasActiveConnectionNode() == false then
+				self:informChildrenOfStateChange()
+			end
 		end
-		if self:hasActiveConnectionNode() == false then
-			self:informChildrenOfStateChange()
+		if event.id == world.event.S_EVENT_SHOT then
+			self:weaponFired(event)
 		end
-	end
-	if event.id == world.event.S_EVENT_SHOT then
-		self:weaponFired(event)
-	end
+	end)
 end
 
 --placeholder method, can be implemented by subclasses

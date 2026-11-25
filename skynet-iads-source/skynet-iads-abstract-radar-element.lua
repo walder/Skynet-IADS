@@ -59,10 +59,12 @@ function SkynetIADSAbstractRadarElement:weaponFired(event)
 	if event.id == world.event.S_EVENT_SHOT then
 		local weapon = event.weapon
 		local launcherFired = event.initiator
-		for i = 1, #self.launchers do
-			local launcher = self.launchers[i]
-			if launcher:getDCSRepresentation() == launcherFired then
-				table.insert(self.missilesInFlight, weapon)
+		if weapon and launcherFired then
+			for i = 1, #self.launchers do
+				local launcher = self.launchers[i]
+				if launcher:getDCSRepresentation() == launcherFired then
+					table.insert(self.missilesInFlight, weapon)
+				end
 			end
 		end
 	end
@@ -94,8 +96,12 @@ function SkynetIADSAbstractRadarElement:getIsAPointDefence()
 end
 
 function SkynetIADSAbstractRadarElement:addPointDefence(pointDefence)
-	table.insert(self.pointDefences, pointDefence)
-	pointDefence:setIsAPointDefence(true)
+	if pointDefence then
+		table.insert(self.pointDefences, pointDefence)
+		pointDefence:setIsAPointDefence(true)
+		SkynetIADSLogger.writeGlobalLog("INFO", "POINT-DEFENCE-LINKED", string.format("Protected: %s (%s) <- Point Defence: %s (%s)",
+			tostring(self:getDCSName()), tostring(self:getNatoName()), tostring(pointDefence:getDCSName()), tostring(pointDefence:getNatoName())))
+	end
 	return self
 end
 
@@ -181,12 +187,23 @@ function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
 end
 
 function SkynetIADSAbstractRadarElement:resetAutonomousState()
+	local wasAuto = self.isAutonomous
 	self.isAutonomous = false
+	if wasAuto then
+		SkynetIADSLogger.writeGlobalLog("INFO", "IADS-CONNECTED", string.format("%s (%s) connected to IADS network (Autonomous=false)",
+			tostring(self:getDCSName()), tostring(self:getNatoName())))
+	end
 	self:goDark()
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
+	local wasAuto = self.isAutonomous
 	self.isAutonomous = true
+	if not wasAuto then
+		local modeStr = (self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK) and "DARK" or "DCS_AI"
+		self.iads.logger:recordEvent("AUTONOMOUS", string.format("%s (%s) switched to AUTONOMOUS mode (%s)",
+			tostring(self:getDCSName()), tostring(self:getNatoName()), modeStr), false, nil, "AUTONOMOUS-MODE")
+	end
 	if self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 	else
@@ -241,7 +258,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumb
 end
 
 function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
-	self.iads:printOutputToLog("DEPRECATED: setIgnoreHARMSWhilePointDefencesHaveAmmo SAM Site will stay live automaticall as long as itself or it's point defences can defend against a HARM")
+	self.iads:printOutputToLog("DEPRECATED: setIgnoreHARMSWhilePointDefencesHaveAmmo - SAM site will automatically stay live as long as it or its point defences can engage the HARM")
 	return self
 end
 
@@ -382,7 +399,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
-			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
+			or (hasSearchRadar and hasLauncher and hasTrackingRadar == false and #self.searchRadars > 0 and #self.launchers > 0) then
 			self:setHARMDetectionChance(dataType['harm_detection_chance'])
 			self.dataBaseSupportedTypesCanEngageHARM = dataType['can_engage_harm'] 
 			self:setCanEngageHARM(self.dataBaseSupportedTypesCanEngageHARM)
@@ -537,9 +554,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			self.aiState = true
 		end
 		self:pointDefencesStopActingAsEW()
-		if  self.iads:getDebugSettings().radarWentLive then
-			self.iads:printOutputToLog("GOING LIVE: "..self:getDescription())
-		end
+		self.iads.logger:recordEvent("RADAR LIVE", self:getDCSName().." ("..tostring(self:getNatoName())..")", self.iads:getDebugSettings().radarWentLive, nil, "RADAR-LIVE")
 		self:scanForHarms()
 	end
 end
@@ -556,6 +571,14 @@ function SkynetIADSAbstractRadarElement:goDark()
 	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	then
+		local reason = "NO_TARGETS"
+		if self:hasWorkingPowerSource() == false then
+			reason = "NO_POWER"
+		elseif self.harmSilenceID ~= nil then
+			reason = "HARM_DEFENCE"
+		elseif self:hasRemainingAmmo() == false then
+			reason = "OUT_OF_AMMO"
+		end
 		if self:isDestroyed() == false then
 			self:getDCSRepresentation():enableEmission(false)
 		end
@@ -571,9 +594,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 		self.aiState = false
 		self:stopScanningForHARMs()
 		self.cachedTargets = {}
-		if self.iads:getDebugSettings().radarWentDark then
-			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
-		end
+		self.iads.logger:recordEvent("RADAR DARK", self:getDCSName().." ("..tostring(self:getNatoName())..") [Reason: "..reason.."]", self.iads:getDebugSettings().radarWentDark, nil, "RADAR-DARK")
 	end
 end
 
@@ -668,25 +689,18 @@ function SkynetIADSAbstractRadarElement:hasWorkingRadar()
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)
-		if self:isDestroyed() == false then
-			local controller = self:getController()
-			local probability = math.random(1, 100)
-			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
-			end
-			if successProbability > probability then
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-				if self.iads:getDebugSettings().jammerProbability then
-					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
-				end
-			else
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-				if self.iads:getDebugSettings().jammerProbability then
-					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon free")
-				end
-			end
-			self.lastJammerUpdate = timer:getTime()
+	if self:isDestroyed() == false then
+		local controller = self:getController()
+		local probability = math.random(1, 100)
+		if successProbability > probability then
+			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			SkynetIADSLogger.writeGlobalLog("INFO", "JAMMER-EW", string.format("%s | Jammed (Prob:%.1f%% > Roll:%d) -> WEAPON_HOLD", self:getDescription(), tonumber(successProbability) or 0, probability))
+		else
+			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			SkynetIADSLogger.writeGlobalLog("INFO", "JAMMER-EW", string.format("%s | Resisted Jamming (Prob:%.1f%% <= Roll:%d) -> WEAPON_FREE", self:getDescription(), tonumber(successProbability) or 0, probability))
 		end
+		self.lastJammerUpdate = timer.getTime()
+	end
 end
 
 function SkynetIADSAbstractRadarElement:scanForHarms()
@@ -717,9 +731,8 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
 	
 	self.harmShutdownTime = self:calculateHARMShutdownTime()
-	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
-	end
+	self.harmSilenceEndTime = (timer and timer.getTime and timer.getTime() or 0) + self.harmShutdownTime
+	self.iads.logger:recordEvent("HARM DEFENCE", self:getDCSName().." -> shutting down for "..self.harmShutdownTime.."s (TTI: "..timeToImpact.."s)", self.iads:getDebugSettings().harmDefence, nil, "HARM-SHUTDOWN")
 	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
@@ -728,19 +741,36 @@ function SkynetIADSAbstractRadarElement:getHARMShutdownTime()
 	return self.harmShutdownTime
 end
 
+function SkynetIADSAbstractRadarElement:getRemainingHARMShutdownTime()
+	if self.harmSilenceEndTime and timer and timer.getTime then
+		local rem = math.ceil(self.harmSilenceEndTime - timer.getTime())
+		if rem > 0 then
+			return rem
+		end
+	end
+	return self.harmShutdownTime or 0
+end
+
 function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
 	return shutDownTime
 end
 
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
-	mist.removeFunction(self.harmSilenceID)
-	self.harmSilenceID = nil
-	self.harmShutdownTime = 0
-	
-	if ( self:getAutonomousState() == true ) then
-		self:goAutonomous()
-	end	
+	SkynetIADSLogger.safeCall("SkynetIADSAbstractRadarElement.finishHarmDefence", function()
+		local hadSilence = (self.harmSilenceID ~= nil)
+		mist.removeFunction(self.harmSilenceID)
+		self.harmSilenceID = nil
+		self.harmShutdownTime = 0
+		self.harmSilenceEndTime = nil
+		if hadSilence then
+			SkynetIADSLogger.writeGlobalLog("INFO", "HARM-SILENCE-END", string.format("%s (%s) HARM silence window expired",
+				tostring(self:getDCSName()), tostring(self:getNatoName())))
+		end
+		if ( self:getAutonomousState() == true ) then
+			self:goAutonomous()
+		end
+	end)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
@@ -752,7 +782,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 			for i = 1, #targets do
 				local target = targets[i]
 				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
-				if target.object then
+				if target.object and target.object:isExist() then
 					local iadsTarget = SkynetIADSContact:create(target, self)
 					iadsTarget:refresh()
 					if self:isTargetInRange(iadsTarget) then
@@ -823,13 +853,15 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 				-- when iterating through the radars, store shortest tti and work with that value??
 				if ( harmToSAMAspect < SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT and distanceNM < SkynetIADSAbstractRadarElement.HARM_LOOKAHEAD_NM ) then
 					self:addObjectIdentifiedAsHARM(harmContact)
-					if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
-							self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
+					if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true ) then
+						self.iads.logger:recordEvent("POINT DEFENCE", self:getDCSName().." point defence activated against HARM (TTI: "..secondsToImpact.."s)", self.iads:getDebugSettings().harmDefence, nil, "POINT-DEFENCE-ACTIVE")
 					end
-					--self.iads:printOutputToLog("Ignore HARM shutdown: "..tostring(self:shallIgnoreHARMShutdown()))
 					if ( self:getIsAPointDefence() == false and ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
 						self:goSilentToEvadeHARM(secondsToImpact)
 						break
+					elseif self:getIsAPointDefence() == false and self:shallIgnoreHARMShutdown() == true then
+						SkynetIADSLogger.writeGlobalLog("INFO", "HARM-STAY-LIVE", string.format("%s (%s) staying LIVE to intercept HARM (ActiveHARMs:%d, TTI:%ds)",
+							tostring(self:getDCSName()), tostring(self:getNatoName()), self:getNumberOfObjectsItentifiedAsHARMS(), secondsToImpact))
 					end
 				end
 			end
@@ -874,16 +906,17 @@ end
 
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
-
-	--if an emitter dies the SAM site being jammed will revert back to normal operation:
-	if self.lastJammerUpdate > 0 and ( timer:getTime() - self.lastJammerUpdate ) > 10 then
-		self:jam(0)
-		self.lastJammerUpdate = 0
-	end
-	
-	--we use the regular interval of this method to update to other states: 
-	self:updateMissilesInFlight()	
-	self:cleanUpOldObjectsIdentifiedAsHARMS()
+	SkynetIADSLogger.safeCall("SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs", function()
+		--if an emitter dies the SAM site being jammed will revert back to normal operation:
+		if self.lastJammerUpdate > 0 and ( timer.getTime() - self.lastJammerUpdate ) > 10 then
+			self:jam(0)
+			self.lastJammerUpdate = 0
+		end
+		
+		--we use the regular interval of this method to update to other states: 
+		self:updateMissilesInFlight()	
+		self:cleanUpOldObjectsIdentifiedAsHARMS()
+	end)
 end
 
 end

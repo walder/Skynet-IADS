@@ -1,4 +1,3 @@
-env.info("--- SKYNET VERSION: 3.3.0 | BUILD TIME: 29.12.2023 2311Z ---")
 do
 --this file contains the required units per sam type
 samTypesDB = {	
@@ -14,13 +13,18 @@ samTypesDB = {
 				['name'] = {
 					['NATO'] = 'Flat Face',
 				},
-			},	
+			},
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
+				},
+			},
+			['EWR P-37 BAR LOCK'] = {
+				['name'] = {
+					['NATO'] = 'Bar Lock',
+				},
+			},
 		},
-        ['EWR P-37 BAR LOCK'] = {
-            ['Name'] = {
-              ['NATO'] = "Bar lock",
-            },   
-        },
         ['trackingRadar'] = {
             ['RPC_5N62V'] = {
             },
@@ -129,6 +133,11 @@ samTypesDB = {
 					['NATO'] = 'Flat Face',
 				},
 			},
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
+				},
+			},
 		},
 		['trackingRadar'] = {
 			['SNR_75V'] = {
@@ -136,6 +145,11 @@ samTypesDB = {
 		},
 		['launchers'] = {
 			['S_75M_Volhov'] = {
+			},
+		},
+		['misc'] = {
+			['RD_75'] = {
+				['required'] = false,
 			},
 		},
 		['name'] = {
@@ -325,9 +339,13 @@ samTypesDB = {
 		['searchRadar'] = {
 			['Tor 9A331'] = {
 			},
+			['CHAP_TorM2'] = {
+			},
 		},
 		['launchers'] = {
 			['Tor 9A331'] = {
+			},
+			['CHAP_TorM2'] = {
 			},
 		},
 		['name'] = {
@@ -336,6 +354,159 @@ samTypesDB = {
 		['harm_detection_chance'] = 90,
 		['can_engage_harm'] = true
 		
+	},
+	['Tor-M2'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['CHAP_TorM2'] = {
+			},
+		},
+		['launchers'] = {
+			['CHAP_TorM2'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'SA-15 Gauntlet',
+		},
+		['harm_detection_chance'] = 90,
+		['can_engage_harm'] = true
+	},
+	['Pantsir-S1'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['CHAP_PantsirS1'] = {
+			},
+		},
+		['launchers'] = {
+			['CHAP_PantsirS1'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'SA-22 Greyhound',
+		},
+		['harm_detection_chance'] = 90,
+		['can_engage_harm'] = true
+	},
+	['IRIS-T SLM'] = {
+		['type'] = 'complex',
+		['searchRadar'] = {
+			['CHAP_IRISTSLM_STR'] = {
+				['name'] = {
+					['NATO'] = 'IRIS-T SLM TRML-4D',
+				},
+			},
+		},
+		['launchers'] = {
+			['CHAP_IRISTSLM_LN'] = {
+			},
+		},
+		['misc'] = {
+			['CHAP_IRISTSLM_CP'] = {
+				['required'] = true,
+			},
+		},
+		['name'] = {
+			['NATO'] = 'IRIS-T SLM',
+		},
+		['harm_detection_chance'] = 95,
+		['can_engage_harm'] = true
+	},
+	['PGZ-09'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['CHAP_PGZ09'] = {
+			},
+		},
+		['launchers'] = {
+			['CHAP_PGZ09'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'PGZ-09',
+		},
+		['harm_detection_chance'] = 30
+	},
+	['SON-9'] = {
+		['type'] = 'complex',
+		['searchRadar'] = {
+			['SON_9'] = {
+				['name'] = {
+					['NATO'] = 'Fire Can',
+				},
+			},
+		},
+		['launchers'] = {
+			['KS-19'] = {
+			},
+			['S-60_Type59_Artillery'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Fire Can',
+		},
+		['harm_detection_chance'] = 15
+	},
+	['Chaparral'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M48 Chaparral'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M48 Chaparral'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Chaparral',
+		},
+		['harm_detection_chance'] = 10
+	},
+	['Linebacker'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['launchers'] = {
+			['M6 Linebacker'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Linebacker',
+		},
+		['harm_detection_chance'] = 20
+	},
+	['Vulcan'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M163 Vulcan'] = {
+			},
+		},
+		['launchers'] = {
+			['M163 Vulcan'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Vulcan',
+		},
+		['harm_detection_chance'] = 10
+	},
+	['Avenger'] = {
+		['type'] = 'single',
+		['searchRadar'] = {
+			['M1097 Avenger'] = {
+				['trackingRadar'] = true,
+			},
+		},
+		['launchers'] = {
+			['M1097 Avenger'] = {
+			},
+		},
+		['name'] = {
+			['NATO'] = 'Avenger',
+		},
+		['harm_detection_chance'] = 10
 	},
 	['Gepard'] = {
 		['type'] = 'single',
@@ -442,6 +613,17 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 60
 	},
+	['P-14 EWR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['P14_SR'] = {
+				['name'] = {
+					['NATO'] = 'Tall King',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
 	['Dog Ear'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
@@ -452,6 +634,17 @@ samTypesDB = {
 			},
 		},
 		['harm_detection_chance'] = 20
+	},
+	['Roland EWR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['Roland Radar'] = {
+				['name'] = {
+					['NATO'] = 'Roland EWR',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
 	},
 -- Start of BLUE EW radars:
 	['FPS-117 Dome'] = {
@@ -472,6 +665,11 @@ samTypesDB = {
 				['name'] = {
 					['NATO'] = 'FPS-117',
 				},
+			},
+		},
+		['misc'] = {
+			['FPS-117 ECS'] = {
+				['required'] = false,
 			},
 		},
 		['harm_detection_chance'] = 80
@@ -512,12 +710,12 @@ samTypesDB['S-300PMU1'] = {
 		
 		['S-300PS 40B6MD sr'] = {
 			['name'] = {
-				['NATO'] = '',
+				['NATO'] = 'Clam Shell',
 			},
 		},
 		['S-300PS 64H6E sr'] = {
 			['name'] = {
-				['NATO'] = '',
+				['NATO'] = 'Big Bird',
 			},
 		},
 	},
@@ -619,13 +817,25 @@ samTypesDB['S-300PS'] = {
 				['NATO'] = 'Clam Shell',
 			},
 		},
+		['S-300PS SA-10B 76N6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Clam Shell',
+			},
+		},
 		['S-300PS 64H6E TRAILER sr'] = {
+		},
+		['S-300PS 64H6E MOD sr'] = {
+			['name'] = {
+				['NATO'] = 'Big Bird',
+			},
 		},
 	},
 	['trackingRadar'] = {
 		['S-300PS 30N6 TRAILER tr'] = {
 		},
 		['S-300PS SA-10B 40B6M MAST tr'] = {
+		},
+		['S-300PS SA-10B 30N6 MAST tr'] = {
 		},
 		['S-300PS 40B6M tr'] = {
 		},
@@ -740,8 +950,10 @@ samTypesDB['S-300V'] = {
 	},
 	['trackingRadar'] = {
 		['S-300V 9S32 tr'] = {
-			['NATO'] = 'Grill Pan',
+			['name'] = {
+				['NATO'] = 'Grill Pan',
 			},
+		},
 	},
 	['misc'] = {
 		['S-300V 9S457 cp'] = {
@@ -775,7 +987,7 @@ samTypesDB['S-300PMU2'] = {
 	['searchRadar'] = {
 		['S-300PMU2 64H6E2 sr'] = {
 			['name'] = {
-				['NATO'] = '',
+				['NATO'] = 'Big Bird',
 			},
 		},
 		['S-300PMU1 40B6MD sr'] = s300PMU140B6MDsr,
@@ -783,6 +995,10 @@ samTypesDB['S-300PMU2'] = {
 	},
 	['trackingRadar'] = {
 		['S-300PMU2 92H6E tr'] = {
+		},
+		['S-300PMU2 30N6E2 tr'] = {
+		},
+		['S-300PMU2 30N6E2 mast tr'] = {
 		},
 		['S-300PS 40B6M tr'] = {
 		},
@@ -807,24 +1023,1266 @@ samTypesDB['S-300PMU2'] = {
 	['can_engage_harm'] = true
 }
 
---[[
+-- SAMPack_S-300_Series: S-300V4 (SA-23B)
+samTypesDB['S-300V4'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-300V4 9S15MDE sr'] = {
+			['name'] = {
+				['NATO'] = 'Bill Board-M',
+			},
+		},
+		['S-300V4 9S19M-1E sr'] = {
+			['name'] = {
+				['NATO'] = 'High Screen-M',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-300V4 9S32M-1E tr'] = {
+			['name'] = {
+				['NATO'] = 'Grill Pan-M',
+			},
+		},
+	},
+	['misc'] = {
+		['S-300V4 9S457-2E cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-300V4 9A82M-2E ln'] = {
+		},
+		['S-300V4 9A83M-2E ln'] = {
+		},
+		['S-300V4 9A84M-2E ln'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-23B Antey-4000',
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}
 
---]]
+-- SAMPack_S-300_Series: S-400 (SA-21 Growler)
+samTypesDB['S-400'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['S-400 91N6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Big Bird-D',
+			},
+		},
+		['S-400 96L6E sr'] = {
+			['name'] = {
+				['NATO'] = 'Cheese Board',
+			},
+		},
+		['S-400 96L6E mast sr'] = {
+			['name'] = {
+				['NATO'] = 'Cheese Board',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['S-400 92N6E tr'] = {
+			['name'] = {
+				['NATO'] = 'Grave Stone',
+			},
+		},
+		['S-400 92N6E mast tr'] = {
+			['name'] = {
+				['NATO'] = 'Grave Stone',
+			},
+		},
+	},
+	['misc'] = {
+		['S-400 55K6 cp'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['S-400 51P6A ln'] = {
+		},
+		['S-400 51P6A (9M96E2) ln'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-21 Growler',
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}
+
+-- SAMPack_S-300_Series: Pantsir-SM
+samTypesDB['Pantsir-SM'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['Pantsir_SM'] = {
+		},
+	},
+	['launchers'] = {
+		['Pantsir_SM'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-22 Greyhound',
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}
+
+-- SAMSitesAssetPack EWRs & Radars:
+samTypesDB['S-75']['trackingRadar']['ERO_SA2_SNR75'] = {}
+
+samTypesDB['EWR 1L119 Nebo-SVU'] = {
+	['type'] = 'ewr',
+	['searchRadar'] = {
+		['EWR 1L119 Nebo-SVU'] = {
+			['name'] = {
+				['NATO'] = 'Nebo-SVU',
+			},
+		},
+	},
+	['harm_detection_chance'] = 85
+}
+
+samTypesDB['EWR 55G6U NEBO-U'] = {
+	['type'] = 'ewr',
+	['searchRadar'] = {
+		['EWR 55G6U NEBO-U'] = {
+			['name'] = {
+				['NATO'] = 'Tall Rack',
+			},
+		},
+	},
+	['harm_detection_chance'] = 85
+}
+
+samTypesDB['EWR P-37 BAR LOCK'] = {
+	['type'] = 'ewr',
+	['searchRadar'] = {
+		['EWR P-37 BAR LOCK'] = {
+			['name'] = {
+				['NATO'] = 'Bar Lock',
+			},
+		},
+	},
+	['harm_detection_chance'] = 60
+}
+
+samTypesDB['EWR Generic radar tower'] = {
+	['type'] = 'ewr',
+	['searchRadar'] = {
+		['EWR Generic radar tower'] = {
+			['name'] = {
+				['NATO'] = 'Generic EWR',
+			},
+		},
+	},
+	['harm_detection_chance'] = 70
+}
+
+-- Currenthill Military Asset Pack (Russia):
+samTypesDB['CH_S350'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_S350_96L6'] = {
+			['name'] = {
+				['NATO'] = 'Cheese Board',
+			},
+		},
+		['CH_S350_50N6'] = {
+			['name'] = {
+				['NATO'] = '50N6A',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['CH_S350_50N6'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_S350_50P6_9M96D'] = {
+		},
+		['CH_S350_50P6_9M100'] = {
+		},
+	},
+	['misc'] = {
+		['CH_S350_50K6'] = {
+			['required'] = true,
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-28 Vityaz',
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['CH_BukM3'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_BukM3_9S18M13'] = {
+			['name'] = {
+				['NATO'] = 'Snow Drift',
+			},
+		},
+		['CH_BukM3_9S36M'] = {
+			['name'] = {
+				['NATO'] = '9S36M',
+			},
+		},
+		['CH_BukM3_9A317M'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_BukM3_9A317M'] = {
+		},
+		['CH_BukM3_9A317MA'] = {
+		},
+	},
+	['misc'] = {
+		['CH_BukM3_9S510M'] = {
+			['required'] = false,
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-27 Gollum',
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['CH_PantsirS2'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_PantsirS2'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_PantsirS2'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-22 Greyhound',
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['CH_TorM2K'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_TorM2K'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_TorM2K'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'SA-15 Gauntlet',
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}
+samTypesDB['Tor']['searchRadar']['CH_TorM2K'] = {}
+samTypesDB['Tor']['launchers']['CH_TorM2K'] = {}
+
+samTypesDB['CH_2S38'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_2S38'] = {
+		},
+		['CH_2S38_LG'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_2S38'] = {
+		},
+		['CH_2S38_LG'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = '2S38 Derivatsiya',
+	},
+	['harm_detection_chance'] = 70,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['Strela-10M3']['searchRadar']['CH_9K35'] = { ['trackingRadar'] = true }
+samTypesDB['Strela-10M3']['launchers']['CH_9K35'] = {}
+samTypesDB['ZSU-23-4 Shilka']['searchRadar']['CH_ZSU234'] = {}
+samTypesDB['ZSU-23-4 Shilka']['launchers']['CH_ZSU234'] = {}
+
+-- Currenthill Military Asset Pack (USA & Germany):
+local patriotSR = samTypesDB['Patriot']['searchRadar']
+patriotSR['CH_MIM104_ANMPQ65'] = { ['name'] = { ['NATO'] = 'AN/MPQ-65' } }
+patriotSR['CH_MIM104_ANMPQ65A'] = { ['name'] = { ['NATO'] = 'AN/MPQ-65A' } }
+patriotSR['CH_MIM104_ANMPQ65_HEMTT'] = { ['name'] = { ['NATO'] = 'AN/MPQ-65' } }
+patriotSR['CH_MIM104_ANMPQ65A_HEMTT'] = { ['name'] = { ['NATO'] = 'AN/MPQ-65A' } }
+patriotSR['CH_MIM104_LTAMDS'] = { ['name'] = { ['NATO'] = 'LTAMDS' } }
+patriotSR['CH_MIM104_LTAMDS_HEMTT'] = { ['name'] = { ['NATO'] = 'LTAMDS' } }
+patriotSR['CH_MIM104_ANMPQ53_KAT1'] = { ['name'] = { ['NATO'] = 'AN/MPQ-53' } }
+
+local patriotLN = samTypesDB['Patriot']['launchers']
+patriotLN['CH_MIM104_M903_PAC2'] = {}
+patriotLN['CH_MIM104_M903_PAC2_HEMTT'] = {}
+patriotLN['CH_MIM104_M903_PAC3'] = {}
+patriotLN['CH_MIM104_M903_PAC3_HEMTT'] = {}
+patriotLN['CH_MIM104_M901_PAC2_KAT1'] = {}
+
+local patriotMisc = samTypesDB['Patriot']['misc']
+patriotMisc['CH_MIM104_ECS'] = { ['required'] = false }
+patriotMisc['CH_MIM104_EPP'] = { ['required'] = false }
+patriotMisc['CH_MIM104_ECS_KAT1'] = { ['required'] = false }
+patriotMisc['CH_MIM104_EPP_KAT1'] = { ['required'] = false }
+
+local nasamsSR = samTypesDB['NASAMS']['searchRadar']
+nasamsSR['CH_NASAMS3_SR'] = {}
+local nasamsLN = samTypesDB['NASAMS']['launchers']
+nasamsLN['CH_NASAMS3_LN_AIM9X2'] = {}
+nasamsLN['CH_NASAMS3_LN_AMRAAM_ER'] = {}
+samTypesDB['NASAMS']['misc']['CH_NASAMS3_CP'] = { ['required'] = false }
+
+samTypesDB['CH_THAAD'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_THAAD_ANTPY2'] = {
+			['name'] = {
+				['NATO'] = 'AN/TPY-2',
+			},
+		},
+	},
+	['launchers'] = {
+		['CH_THAAD_M1120'] = {
+		},
+	},
+	['misc'] = {
+		['CH_THAAD_TFCC'] = {
+			['required'] = false,
+		},
+	},
+	['name'] = {
+		['NATO'] = 'THAAD',
+	},
+	['harm_detection_chance'] = 95,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['Phalanx']['searchRadar']['CH_Centurion_C_RAM'] = {}
+samTypesDB['Phalanx']['launchers']['CH_Centurion_C_RAM'] = {}
+
+samTypesDB['CH_LAVAD'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_LAVAD'] = {
+			['trackingRadar'] = true,
+		},
+	},
+	['launchers'] = {
+		['CH_LAVAD'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'LAV-AD',
+	},
+	['harm_detection_chance'] = 20
+}
+
+samTypesDB['Roland ADS']['searchRadar']['CH_FlaRakRad'] = { ['name'] = { ['NATO'] = 'FlaRakRad' } }
+samTypesDB['Roland ADS']['launchers']['CH_FlaRakRad'] = {}
+
+samTypesDB['CH_Skyshield'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_Skyshield_FCU'] = {
+			['name'] = {
+				['NATO'] = 'Skyshield FCU',
+			},
+		},
+	},
+	['launchers'] = {
+		['CH_Skyshield_Gun'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Skyshield',
+	},
+	['harm_detection_chance'] = 80,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['CH_Skynex'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_SkynexHX'] = {
+		},
+		['CH_BoxerSkyranger'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_SkynexHX'] = {
+		},
+		['CH_BoxerSkyranger'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Skynex',
+	},
+	['harm_detection_chance'] = 80,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['CH_Wiesel2Ozelot'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['CH_Wiesel2Ozelot'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_Wiesel2Ozelot'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'Ozelot',
+	},
+	['harm_detection_chance'] = 20
+}
+
+-- Currenthill Military Asset Pack (China):
+samTypesDB['CH_HQ22'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_HQ22_SR'] = {
+			['name'] = {
+				['NATO'] = 'JSG-100',
+			},
+		},
+		['CH_HQ22_STR'] = {
+			['name'] = {
+				['NATO'] = 'H-200',
+			},
+		},
+	},
+	['trackingRadar'] = {
+		['CH_HQ22_STR'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_HQ22_LN'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'HQ-22',
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['HQ17A'] = {
+	['type'] = 'single',
+	['searchRadar'] = {
+		['HQ17A'] = {
+		},
+	},
+	['launchers'] = {
+		['HQ17A'] = {
+		},
+	},
+	['name'] = {
+		['NATO'] = 'HQ-17A',
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['PGZ-09']['searchRadar']['CH_PGZ09'] = {}
+samTypesDB['PGZ-09']['launchers']['CH_PGZ09'] = {}
+samTypesDB['PGZ-09']['searchRadar']['CH_PGZ95'] = {}
+samTypesDB['PGZ-09']['launchers']['CH_PGZ95'] = {}
+samTypesDB['PGZ-09']['searchRadar']['PGL_625'] = {}
+samTypesDB['PGZ-09']['launchers']['PGL_625'] = {}
+
+samTypesDB['Phalanx']['searchRadar']['CH_LD3000'] = {}
+samTypesDB['Phalanx']['launchers']['CH_LD3000'] = {}
+samTypesDB['Phalanx']['searchRadar']['CH_LD3000_stationary'] = {}
+samTypesDB['Phalanx']['launchers']['CH_LD3000_stationary'] = {}
+
+-- Turkish EW_Sistemi Mod:
+samTypesDB['KORAL'] = {
+	['type'] = 'ewr',
+	['searchRadar'] = {
+		['KORAL100'] = {
+			['name'] = {
+				['NATO'] = 'KORAL EW',
+			},
+		},
+		['KORAL200'] = {
+			['name'] = {
+				['NATO'] = 'KORAL EW',
+			},
+		},
+		['Ilgar'] = {
+			['name'] = {
+				['NATO'] = 'ILGAR EW',
+			},
+		},
+		['Vural'] = {
+			['name'] = {
+				['NATO'] = 'VURAL EW',
+			},
+		},
+	},
+	['harm_detection_chance'] = 90
+}
+
 end
 
 
 
 do
 
+_G.SKYNET_DEBUG_QUEUE = _G.SKYNET_DEBUG_QUEUE or {}
+
 SkynetIADSLogger = {}
 SkynetIADSLogger.__index = SkynetIADSLogger
+SkynetIADSLogger.activeLoggers = {}
+SkynetIADSLogger.liveTickerID = nil
+SkynetIADSLogger.cardPayloadText = ""
+SkynetIADSLogger.cardPayloadDuration = 0
+SkynetIADSLogger.cardPayloadSeq = 0
+SkynetIADSLogger.radioMenuOpen = false
+SkynetIADSLogger.radioPanelHooked = false
+
+-- Dedicated Debug & Error Tracking State (writes to SKYNET_IADS_DEBUG.log + dcs.log)
+SkynetIADSLogger.debugEnabled = true
+SkynetIADSLogger.maxQueueSize = 1000
+SkynetIADSLogger.maxErrorHistory = 50
+SkynetIADSLogger.errorHistory = {}
+SkynetIADSLogger.globalEventHistory = {}
+SkynetIADSLogger.maxGlobalEvents = 15
+SkynetIADSLogger.eventCounter = 0
+SkynetIADSLogger.totalErrorCount = 0
+SkynetIADSLogger.trackedUnitLookup = {}
+SkynetIADSLogger.directFileWriteAvailable = false
+SkynetIADSLogger.directLogPaths = {}
+
+pcall(function()
+	local wDir = (lfs and type(lfs.writedir) == "function" and lfs.writedir()) or nil
+	if wDir and wDir ~= "" then
+		table.insert(SkynetIADSLogger.directLogPaths, wDir .. "Logs\\SKYNET_IADS_DEBUG.log")
+	end
+	local uProf = (os and type(os.getenv) == "function" and os.getenv("USERPROFILE"))
+		or (wDir and string.match(wDir, "^([A-Za-z]:\\Users\\[^\\]+)"))
+	if uProf and uProf ~= "" then
+		table.insert(SkynetIADSLogger.directLogPaths, uProf .. "\\Desktop\\Scriptler\\SKYNET_IADS_DEBUG.log")
+		table.insert(SkynetIADSLogger.directLogPaths, uProf .. "\\Desktop\\SKYNET_IADS_DEBUG.log")
+	end
+end)
+
+-- Access Mode:
+-- "COMMANDER_ALL_BLUE_OWN" (Default):
+--   • Mission Commander sees both RED and BLUE IADS networks.
+--   • Blue team players only see friendly BLUE IADS network; never RED IADS.
+-- "COMMANDER_ONLY":
+--   • Only Mission Commander sees the IADS radio menu.
+SkynetIADSLogger.accessMode = "COMMANDER_ALL_BLUE_OWN"
+SkynetIADSLogger.autoPrimaryCommanderName = nil
+SkynetIADSLogger.groupSessions = {}
+SkynetIADSLogger.eventHandlerRegistered = false
+
+local COMMANDER_KEYWORDS = {
+	"KOMUTAN", "COMMANDER", "ADMIN", "GAMEMASTER", "GAME MASTER",
+	"TAKTIK", "TACTICAL", "KARARGAH", "HQ", "MASTER"
+}
+
+local function formatSimAndClockTime()
+	local simSec = (timer and timer.getTime and timer.getTime()) or 0
+	local absTime = (timer and timer.getAbsTime and timer.getAbsTime()) or 0
+	local totalSec = math.floor(absTime)
+	local hours = math.floor(totalSec / 3600) % 24
+	local mins = math.floor((totalSec % 3600) / 60)
+	local secs = totalSec % 60
+	return string.format("Sim:%.2fs | Clock:%02d:%02d:%02d", simSec, hours, mins, secs)
+end
+
+local function enqueueDebugLine(line)
+	if type(_G.SKYNET_DEBUG_QUEUE) ~= "table" then
+		_G.SKYNET_DEBUG_QUEUE = {}
+	end
+	local q = _G.SKYNET_DEBUG_QUEUE
+	if #q >= SkynetIADSLogger.maxQueueSize then
+		table.remove(q, 1)
+	end
+	table.insert(q, line)
+
+	-- If MissionScripting has io unsanitized and Hook hasn't claimed exclusive writing, also try direct append
+	if not _G.SKYNET_HOOK_LOG_ACTIVE and io and type(io.open) == "function" then
+		for i = 1, #SkynetIADSLogger.directLogPaths do
+			pcall(function()
+				local f = io.open(SkynetIADSLogger.directLogPaths[i], "a")
+				if f then
+					f:write(line .. "\n")
+					f:flush()
+					f:close()
+				end
+			end)
+		end
+	end
+end
+
+function SkynetIADSLogger.writeGlobalLog(level, category, message)
+	if not SkynetIADSLogger.debugEnabled then
+		return
+	end
+	SkynetIADSLogger.eventCounter = SkynetIADSLogger.eventCounter + 1
+	level = tostring(level or "INFO")
+	category = tostring(category or "GENERAL")
+	message = tostring(message or "")
+
+	local line = string.format("[SKYNET #%04d | %s] [%s] [%s] %s",
+		SkynetIADSLogger.eventCounter,
+		formatSimAndClockTime(),
+		level,
+		category,
+		message)
+
+	enqueueDebugLine(line)
+
+	local shortEntry = string.format("[%02d:%02d:%02d] [%s] %s",
+		math.floor(((timer and timer.getAbsTime and timer.getAbsTime()) or 0) / 3600) % 24,
+		math.floor((((timer and timer.getAbsTime and timer.getAbsTime()) or 0) % 3600) / 60),
+		math.floor(((timer and timer.getAbsTime and timer.getAbsTime()) or 0) % 60),
+		category,
+		message)
+	table.insert(SkynetIADSLogger.globalEventHistory, 1, shortEntry)
+	while #SkynetIADSLogger.globalEventHistory > SkynetIADSLogger.maxGlobalEvents do
+		table.remove(SkynetIADSLogger.globalEventHistory)
+	end
+
+	if env then
+		if level == "ERROR" and type(env.error) == "function" then
+			env.error("[SKYNET-DEBUG] " .. line, false)
+		elseif level == "WARN" and type(env.warning) == "function" then
+			env.warning("[SKYNET-DEBUG] " .. line, false)
+		elseif type(env.info) == "function" then
+			env.info("[SKYNET-DEBUG] " .. line, false)
+		end
+	end
+end
+
+function SkynetIADSLogger.logError(category, errMsg, stackTrace)
+	SkynetIADSLogger.totalErrorCount = SkynetIADSLogger.totalErrorCount + 1
+	local timeTxt = formatSimAndClockTime()
+	local fullMsg = tostring(errMsg or "Unknown Error")
+	if stackTrace and stackTrace ~= "" then
+		fullMsg = fullMsg .. " | STACK: " .. string.gsub(tostring(stackTrace), "[\r\n]+", " <- ")
+	end
+
+	local errRecord = {
+		id = SkynetIADSLogger.totalErrorCount,
+		time = timeTxt,
+		category = tostring(category or "EXCEPTION"),
+		message = tostring(errMsg or ""),
+		stack = tostring(stackTrace or "")
+	}
+	table.insert(SkynetIADSLogger.errorHistory, 1, errRecord)
+	while #SkynetIADSLogger.errorHistory > SkynetIADSLogger.maxErrorHistory do
+		table.remove(SkynetIADSLogger.errorHistory)
+	end
+
+	SkynetIADSLogger.writeGlobalLog("ERROR", category or "EXCEPTION", fullMsg)
+end
+
+-- Lua 5.1 compatible xpcall wrapper with stack trace capture
+function SkynetIADSLogger.safeCall(category, fn, ...)
+	if type(fn) ~= "function" then
+		SkynetIADSLogger.logError(category, "Target is not a function: " .. tostring(fn), "")
+		return false, nil
+	end
+	local nArgs = select("#", ...)
+	local args = { ... }
+	local traceStr = ""
+	local function errHandler(err)
+		if debug and type(debug.traceback) == "function" then
+			traceStr = debug.traceback(tostring(err), 2)
+		else
+			traceStr = tostring(err)
+		end
+		return err
+	end
+
+	local ok, r1, r2, r3, r4 = xpcall(function()
+		if nArgs == 0 then
+			return fn()
+		elseif nArgs == 1 then
+			return fn(args[1])
+		elseif nArgs == 2 then
+			return fn(args[1], args[2])
+		elseif nArgs == 3 then
+			return fn(args[1], args[2], args[3])
+		else
+			return fn(unpack(args, 1, nArgs))
+		end
+	end, errHandler)
+
+	if not ok then
+		SkynetIADSLogger.logError(category, r1, traceStr)
+		return false, nil
+	end
+	return true, r1, r2, r3, r4
+end
+
+local function hasCommanderKeyword(str)
+	if type(str) ~= "string" or str == "" then
+		return false
+	end
+	local up = string.upper(str)
+	for i = 1, #COMMANDER_KEYWORDS do
+		if string.find(up, COMMANDER_KEYWORDS[i], 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+function SkynetIADSLogger.isPlayerOrGroupCommander(grp, unit, playerName)
+	-- 1) Synced via Hook (Host / Server Owner / Tactical Commander / Game Master)
+	if type(_G.SKYNET_AUTO_COMMANDERS) == "table" and type(playerName) == "string" and playerName ~= "" then
+		if _G.SKYNET_AUTO_COMMANDERS[playerName] == true then
+			return true
+		end
+	end
+
+	-- 2) Singleplayer local player is always Mission Commander
+	if world and type(world.getPlayer) == "function" then
+		local okSp, spUnit = pcall(world.getPlayer)
+		if okSp and spUnit and spUnit.isExist and spUnit:isExist() then
+			if not unit or (unit.getName and spUnit:getName() == unit:getName()) then
+				return true
+			end
+		end
+	end
+
+	-- 3) Group name, unit name, or player name contains Commander/Admin keyword
+	local grpName = (grp and grp.getName and grp:getName()) or ""
+	local unitName = (unit and unit.getName and unit:getName()) or ""
+	if hasCommanderKeyword(grpName) or hasCommanderKeyword(unitName) or hasCommanderKeyword(playerName) then
+		return true
+	end
+
+	-- 4) First player on dedicated server without Hook
+	local hasHookCommanders = (type(_G.SKYNET_AUTO_COMMANDERS) == "table" and next(_G.SKYNET_AUTO_COMMANDERS) ~= nil)
+	if not hasHookCommanders and type(playerName) == "string" and playerName ~= "" then
+		if SkynetIADSLogger.autoPrimaryCommanderName == nil then
+			SkynetIADSLogger.autoPrimaryCommanderName = playerName
+			SkynetIADSLogger.writeGlobalLog("INFO", "COMMANDER-ASSIGN", "Primary Mission Commander automatically assigned: " .. tostring(playerName))
+		end
+		if SkynetIADSLogger.autoPrimaryCommanderName == playerName then
+			return true
+		end
+	end
+
+	return false
+end
+
+function SkynetIADSLogger.canSessionAccessIADS(session, iads)
+	if not session or not iads then
+		return false
+	end
+	if session.isCommander then
+		return true
+	end
+	if SkynetIADSLogger.accessMode == "COMMANDER_ONLY" then
+		return false
+	end
+	if session.coalitionID == coalition.side.BLUE and iads.coalitionID == coalition.side.BLUE then
+		return true
+	end
+	return false
+end
+
+function SkynetIADSLogger.getOrCreateGroupSession(groupId, grpName, coaSide, playerName, isCommander)
+	local s = SkynetIADSLogger.groupSessions[groupId]
+	if not s then
+		s = {
+			groupId = groupId,
+			groupName = grpName or tostring(groupId),
+			coalitionID = coaSide,
+			playerName = playerName or "",
+			isCommander = (isCommander == true),
+			menus = {},
+			menuSig = {},
+			views = {}
+		}
+		SkynetIADSLogger.groupSessions[groupId] = s
+	else
+		s.groupName = grpName or s.groupName
+		s.coalitionID = coaSide or s.coalitionID
+		s.playerName = playerName or s.playerName
+		s.isCommander = (isCommander == true)
+	end
+	return s
+end
+
+function SkynetIADSLogger.getGroupViewForIADS(groupId, iads)
+	local s = SkynetIADSLogger.groupSessions[groupId]
+	if not s then
+		return nil
+	end
+	local v = s.views[iads]
+	if not v then
+		v = {
+			IADSStatus = false,
+			samDetails = false,
+			contacts = false,
+			notifications = false,
+			debugScreen = false,
+			snapshotUntil = 0,
+			wasActive = false
+		}
+		s.views[iads] = v
+	end
+	return v
+end
+
+function SkynetIADSLogger.collectHumanGroups()
+	local found = {}
+	local function considerUnit(u, fallbackSide)
+		if not (u and u.isExist and u:isExist()) then
+			return
+		end
+		local pName = nil
+		if type(u.getPlayerName) == "function" then
+			local okP, pn = pcall(u.getPlayerName, u)
+			if okP and type(pn) == "string" and pn ~= "" then
+				pName = pn
+			end
+		end
+		if not pName and world and type(world.getPlayer) == "function" then
+			local okSp, sp = pcall(world.getPlayer)
+			if okSp and sp and sp.isExist and sp:isExist() and sp.getName and u.getName and sp:getName() == u:getName() then
+				pName = "SinglePlayer"
+			end
+		end
+		if not pName then
+			return
+		end
+		if type(u.getGroup) ~= "function" then
+			return
+		end
+		local okG, grp = pcall(u.getGroup, u)
+		if not (okG and grp and grp.isExist and grp:isExist() and type(grp.getID) == "function") then
+			return
+		end
+		local okId, gid = pcall(grp.getID, grp)
+		if not (okId and gid) then
+			return
+		end
+		local coa = fallbackSide
+		if type(grp.getCoalition) == "function" then
+			local okC, c = pcall(grp.getCoalition, grp)
+			if okC and c then coa = c end
+		elseif type(u.getCoalition) == "function" then
+			local okC, c = pcall(u.getCoalition, u)
+			if okC and c then coa = c end
+		end
+		local isCmd = SkynetIADSLogger.isPlayerOrGroupCommander(grp, u, pName)
+		if not found[gid] or (isCmd and not found[gid].isCommander) then
+			found[gid] = {
+				groupId = gid,
+				group = grp,
+				groupName = (grp.getName and grp:getName()) or tostring(gid),
+				unit = u,
+				playerName = pName,
+				coalitionID = coa,
+				isCommander = isCmd
+			}
+		end
+	end
+
+	if world and type(world.getPlayer) == "function" then
+		local okSp, spUnit = pcall(world.getPlayer)
+		if okSp and spUnit then
+			considerUnit(spUnit, nil)
+		end
+	end
+
+	if coalition and type(coalition.getGroups) == "function" then
+		local sides = { coalition.side.BLUE, coalition.side.RED, coalition.side.NEUTRAL }
+		local cats = { 0, 1, 2, 3 }
+		if Group and Group.Category then
+			cats = {
+				Group.Category.AIRPLANE or 0,
+				Group.Category.HELICOPTER or 1,
+				Group.Category.GROUND or 2,
+				Group.Category.SHIP or 3
+			}
+		end
+		for _, side in ipairs(sides) do
+			if side ~= nil then
+				for _, cat in ipairs(cats) do
+					local okGrps, grps = pcall(coalition.getGroups, side, cat)
+					if okGrps and type(grps) == "table" then
+						for i = 1, #grps do
+							local g = grps[i]
+							if g and g.isExist and g:isExist() and type(g.getUnits) == "function" then
+								local okU, units = pcall(g.getUnits, g)
+								if okU and type(units) == "table" then
+									for j = 1, #units do
+										considerUnit(units[j], side)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return found
+end
+
+function SkynetIADSLogger.syncGroupRadioMenus()
+	if not (missionCommands and type(missionCommands.addSubMenuForGroup) == "function" and type(missionCommands.addCommandForGroup) == "function") then
+		return
+	end
+	local humanGroups = SkynetIADSLogger.collectHumanGroups()
+	for gid, info in pairs(humanGroups) do
+		local session = SkynetIADSLogger.getOrCreateGroupSession(gid, info.groupName, info.coalitionID, info.playerName, info.isCommander)
+		for i = 1, #SkynetIADSLogger.activeLoggers do
+			local lg = SkynetIADSLogger.activeLoggers[i]
+			local iads = lg and lg.iads
+			if iads and iads.radioMenuEnabled then
+				local allowed = SkynetIADSLogger.canSessionAccessIADS(session, iads)
+				local sig = tostring(allowed) .. "|" .. tostring(session.isCommander) .. "|" .. tostring(session.playerName)
+				if session.menuSig[iads] ~= sig then
+					if session.menus[iads] and type(missionCommands.removeItemForGroup) == "function" then
+						pcall(missionCommands.removeItemForGroup, gid, session.menus[iads])
+						session.menus[iads] = nil
+					end
+					session.menuSig[iads] = sig
+					if allowed then
+						local prefix = session.isCommander and "SKYNET IADS [COMMANDER] " or "SKYNET IADS "
+						local subMenu = missionCommands.addSubMenuForGroup(gid, prefix .. iads:getCoalitionString())
+						session.menus[iads] = subMenu
+						missionCommands.addCommandForGroup(gid, 'Open Live IADS Dashboard (Continuous)', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = true, option = 'IADSStatus'})
+						missionCommands.addCommandForGroup(gid, 'Close Live IADS Dashboard', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = false, option = 'closeAll'})
+						missionCommands.addCommandForGroup(gid, 'Quick Status Snapshot (15 sec)', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = true, option = 'snapshot'})
+						missionCommands.addCommandForGroup(gid, 'Toggle SAM Battery Details', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = 'toggle', option = 'samDetails'})
+						missionCommands.addCommandForGroup(gid, 'Toggle Active Radar Contacts', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = 'toggle', option = 'contacts'})
+						missionCommands.addCommandForGroup(gid, 'Toggle Live Radar & HARM Alerts', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = 'toggle', option = 'notifications'})
+						missionCommands.addCommandForGroup(gid, 'Toggle Debug & Event Log Screen', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = 'toggle', option = 'debugScreen'})
+						missionCommands.addCommandForGroup(gid, 'Write Full Diagnostic Report to Log', subMenu, SkynetIADS.updateDisplay, {self = iads, groupId = gid, value = true, option = 'dumpDiagnostics'})
+					else
+						local v = session.views[iads]
+						if v then
+							v.IADSStatus = false
+							v.samDetails = false
+							v.contacts = false
+							v.notifications = false
+							v.debugScreen = false
+							v.snapshotUntil = 0
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+local function safeObjNameAndType(obj)
+	if not obj then
+		return "Unknown", "Unknown", "Unknown"
+	end
+	local uName, uType, gName = "Unknown", "Unknown", "Single/Static"
+	pcall(function()
+		if obj.getName then uName = tostring(obj:getName() or "Unknown") end
+		if obj.getTypeName then uType = tostring(obj:getTypeName() or "Unknown") end
+		if obj.getGroup then
+			local g = obj:getGroup()
+			if g and g.getName then
+				gName = tostring(g:getName() or "Single/Static")
+			end
+		end
+	end)
+	return uName, uType, gName
+end
+
+local function findIADSOwnerInfo(unitName, groupName)
+	for i = 1, #SkynetIADSLogger.activeLoggers do
+		local lg = SkynetIADSLogger.activeLoggers[i]
+		local iads = lg and lg.iads
+		if iads then
+			local netName = tostring(iads.name or iads:getCoalitionString())
+			local sams = iads.samSites or {}
+			for j = 1, #sams do
+				local sam = sams[j]
+				if sam and (sam:getDCSName() == groupName or sam:getDCSName() == unitName) then
+					return lg, string.format("SAM:%s (%s) [%s]", tostring(sam:getDCSName()), tostring(sam:getNatoName()), netName)
+				end
+				for _, pSrc in ipairs(sam:getPowerSources() or {}) do
+					if pSrc and pSrc:getName() == unitName then
+						return lg, string.format("PowerSource for SAM:%s [%s]", tostring(sam:getDCSName()), netName)
+					end
+				end
+				for _, cNode in ipairs(sam:getConnectionNodes() or {}) do
+					if cNode and cNode:getName() == unitName then
+						return lg, string.format("ConnectionNode for SAM:%s [%s]", tostring(sam:getDCSName()), netName)
+					end
+				end
+			end
+			local ewrs = iads.earlyWarningRadars or {}
+			for j = 1, #ewrs do
+				local ew = ewrs[j]
+				if ew and (ew:getDCSName() == unitName or ew:getDCSName() == groupName) then
+					return lg, string.format("EWR:%s (%s) [%s]", tostring(ew:getDCSName()), tostring(ew:getNatoName()), netName)
+				end
+				for _, pSrc in ipairs(ew:getPowerSources() or {}) do
+					if pSrc and pSrc:getName() == unitName then
+						return lg, string.format("PowerSource for EWR:%s [%s]", tostring(ew:getDCSName()), netName)
+					end
+				end
+				for _, cNode in ipairs(ew:getConnectionNodes() or {}) do
+					if cNode and cNode:getName() == unitName then
+						return lg, string.format("ConnectionNode for EWR:%s [%s]", tostring(ew:getDCSName()), netName)
+					end
+				end
+			end
+			local ccs = iads.commandCenters or {}
+			for j = 1, #ccs do
+				local cc = ccs[j]
+				if cc and (cc:getDCSName() == unitName or cc:getDCSName() == groupName) then
+					return lg, string.format("CommandCenter:%s [%s]", tostring(cc:getDCSName()), netName)
+				end
+				for _, pSrc in ipairs(cc:getPowerSources() or {}) do
+					if pSrc and pSrc:getName() == unitName then
+						return lg, string.format("PowerSource for CommandCenter:%s [%s]", tostring(cc:getDCSName()), netName)
+					end
+				end
+				for _, cNode in ipairs(cc:getConnectionNodes() or {}) do
+					if cNode and cNode:getName() == unitName then
+						return lg, string.format("ConnectionNode for CommandCenter:%s [%s]", tostring(cc:getDCSName()), netName)
+					end
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
+function SkynetIADSLogger.handleGlobalWorldEvent(event)
+	if not event or not world or not world.event then
+		return
+	end
+	local evId = event.id
+	if evId == world.event.S_EVENT_BIRTH or evId == world.event.S_EVENT_PLAYER_ENTER_UNIT then
+		local uName, uType, gName = safeObjNameAndType(event.initiator)
+		local evTag = (evId == world.event.S_EVENT_PLAYER_ENTER_UNIT) and "PLAYER-ENTER" or "UNIT-BIRTH"
+		SkynetIADSLogger.writeGlobalLog("INFO", evTag, string.format("Unit=%s | Type=%s | Group=%s", uName, uType, gName))
+		pcall(SkynetIADSLogger.syncGroupRadioMenus)
+	elseif evId == world.event.S_EVENT_SHOT then
+		local sName, sType, sGrp = safeObjNameAndType(event.initiator)
+		local wType = "UnknownWeapon"
+		local tName, tType, tGrp = "None", "None", "None"
+		pcall(function()
+			if event.weapon then
+				if event.weapon.getTypeName then wType = tostring(event.weapon:getTypeName() or "UnknownWeapon") end
+				if event.weapon.getTarget then
+					local tgt = event.weapon:getTarget()
+					if tgt then
+						tName, tType, tGrp = safeObjNameAndType(tgt)
+					end
+				end
+			end
+		end)
+		local ownerLg, ownerDesc = findIADSOwnerInfo(sName, sGrp)
+		local msg = string.format("Shooter=%s (%s, Grp:%s)%s | Weapon=%s | Target=%s (%s, Grp:%s)",
+			sName, sType, sGrp, ownerDesc and (" [" .. ownerDesc .. "]") or "", wType, tName, tType, tGrp)
+		SkynetIADSLogger.writeGlobalLog("INFO", "WEAPON-SHOT", msg)
+		if ownerLg then
+			ownerLg:appendHistoryOnly("SAM SHOT", string.format("%s fired %s -> %s", sGrp, wType, tName))
+		end
+	elseif evId == world.event.S_EVENT_HIT then
+		local tName, tType, tGrp = safeObjNameAndType(event.target)
+		local aName, aType, aGrp = safeObjNameAndType(event.initiator)
+		local wType = "UnknownWeapon"
+		local hpStr = ""
+		pcall(function()
+			if event.weapon and event.weapon.getTypeName then
+				wType = tostring(event.weapon:getTypeName() or "UnknownWeapon")
+			end
+			if event.target and event.target.getLife and event.target.getLife0 then
+				local l = tonumber(event.target:getLife()) or 0
+				local l0 = tonumber(event.target:getLife0()) or 0
+				if l0 > 0 then
+					hpStr = string.format(" | RemainingHP:%.1f/%.1f (%.0f%%)", l, l0, (l / l0) * 100)
+				end
+			end
+		end)
+		local ownerLg, ownerDesc = findIADSOwnerInfo(tName, tGrp)
+		local msg = string.format("Target=%s (%s, Grp:%s)%s | HitBy=%s | Attacker=%s (%s)%s",
+			tName, tType, tGrp, ownerDesc and (" [" .. ownerDesc .. "]") or "", wType, aName, aType, hpStr)
+		SkynetIADSLogger.writeGlobalLog("WARN", "UNIT-HIT", msg)
+		if ownerLg then
+			ownerLg:appendHistoryOnly("UNIT HIT", string.format("%s (%s) hit by %s%s", tName, tType, wType, hpStr))
+		end
+	elseif evId == world.event.S_EVENT_DEAD or evId == world.event.S_EVENT_UNIT_LOST then
+		local dName, dType, dGrp = safeObjNameAndType(event.initiator)
+		local ownerLg, ownerDesc = findIADSOwnerInfo(dName, dGrp)
+		local msg = string.format("Destroyed=%s | Type=%s | Group=%s%s",
+			dName, dType, dGrp, ownerDesc and (" | IADS-Role=" .. ownerDesc) or "")
+		SkynetIADSLogger.writeGlobalLog("WARN", "UNIT-DESTROYED", msg)
+		if ownerLg then
+			ownerLg:appendHistoryOnly("DESTROYED", string.format("%s (%s) [%s]", dName, dType, ownerDesc or dGrp))
+		end
+	end
+end
+
+function SkynetIADSLogger.ensureWorldEventHandler()
+	if SkynetIADSLogger.eventHandlerRegistered then
+		return
+	end
+	if world and type(world.addEventHandler) == "function" then
+		SkynetIADSLogger.eventHandlerRegistered = true
+		world.addEventHandler({
+			onEvent = function(_, event)
+				SkynetIADSLogger.safeCall("WorldEventHandler", SkynetIADSLogger.handleGlobalWorldEvent, event)
+			end
+		})
+	end
+end
+
+function SkynetIADSLogger.emitCardTextForGroup(groupId, text, duration)
+	local payload = tostring(text or "")
+	local dur = tonumber(duration) or 5
+	if groupId and trigger and trigger.action and type(trigger.action.outTextForGroup) == "function" then
+		if payload == "__CLOSE__" then
+			trigger.action.outTextForGroup(groupId, "__CLOSE__", 1, true)
+		else
+			trigger.action.outTextForGroup(groupId, payload, dur, true)
+		end
+	else
+		SkynetIADSLogger.emitCardText(payload, dur)
+	end
+end
+
+function SkynetIADSLogger.checkRadioMenuState()
+	local rcdp = _G and _G.RadioCommandDialogsPanel
+	if type(rcdp) == "table" then
+		if not SkynetIADSLogger.radioPanelHooked and type(rcdp.setShowMenu) == "function" then
+			SkynetIADSLogger.radioPanelHooked = true
+			local origSetShowMenu = rcdp.setShowMenu
+			rcdp.setShowMenu = function(on, ...)
+				local res = origSetShowMenu(on, ...)
+				local isOpen = (on == true)
+				if SkynetIADSLogger.radioMenuOpen ~= isOpen then
+					SkynetIADSLogger.radioMenuOpen = isOpen
+					if SkynetIADSLogger.isAnyDashboardActive() then
+						SkynetIADSLogger.renderGlobalDashboard(2)
+					elseif SkynetIADSLogger.cardPayloadText ~= "" and SkynetIADSLogger.cardPayloadText ~= "__CLOSE__" then
+						SkynetIADSLogger.emitCardText(SkynetIADSLogger.cardPayloadText, 3)
+					end
+				end
+				return res
+			end
+		end
+		if type(rcdp.isVisible) == "function" then
+			local okV, vis = pcall(rcdp.isVisible)
+			if okV and type(vis) == "boolean" then
+				SkynetIADSLogger.radioMenuOpen = vis
+			end
+		elseif type(rcdp.showMenu) == "boolean" then
+			SkynetIADSLogger.radioMenuOpen = rcdp.showMenu
+		end
+	end
+	return SkynetIADSLogger.radioMenuOpen and 1 or 0
+end
+
+function SkynetIADSLogger.emitCardText(text, duration)
+	SkynetIADSLogger.cardPayloadText = tostring(text or "")
+	SkynetIADSLogger.cardPayloadDuration = tonumber(duration) or 5
+	SkynetIADSLogger.cardPayloadSeq = (SkynetIADSLogger.cardPayloadSeq or 0) + 1
+	SkynetIADSLogger.checkRadioMenuState()
+	if SkynetIADSLogger.cardPayloadText == "__CLOSE__" then
+		trigger.action.outText("__CLOSE__", 1, true)
+	else
+		trigger.action.outText(SkynetIADSLogger.cardPayloadText, SkynetIADSLogger.cardPayloadDuration, true)
+	end
+end
+
+local CHAR_WIDTHS = {
+	[" "]=313, ["!"]=410, ["\""]=469, ["#"]=754, ["$"]=626, ["%"]=901, ["&"]=785, ["'"]=275,
+	["("]=411, [")"]=411, ["*"]=470, ["+"]=754, [","]=342, ["-"]=374, ["."]=342, ["/"]=329,
+	["0"]=626, ["1"]=626, ["2"]=626, ["3"]=626, ["4"]=626, ["5"]=626, ["6"]=626, ["7"]=626,
+	["8"]=626, ["9"]=626, [":"]=360, [";"]=360, ["<"]=754, ["="]=754, [">"]=754, ["?"]=522,
+	["@"]=900, ["A"]=696, ["B"]=686, ["C"]=660, ["D"]=747, ["E"]=615, ["F"]=615, ["G"]=738,
+	["H"]=753, ["I"]=334, ["J"]=334, ["K"]=697, ["L"]=573, ["M"]=896, ["N"]=753, ["O"]=765,
+	["P"]=659, ["Q"]=765, ["R"]=693, ["S"]=648, ["T"]=614, ["U"]=730, ["V"]=696, ["W"]=993,
+	["X"]=694, ["Y"]=651, ["Z"]=652, ["["]=411, ["\\"]=329, ["]"]=411, ["^"]=754, ["_"]=450,
+	["`"]=450, ["a"]=607, ["b"]=644, ["c"]=533, ["d"]=644, ["e"]=610, ["f"]=391, ["g"]=644,
+	["h"]=641, ["i"]=308, ["j"]=308, ["k"]=598, ["l"]=308, ["m"]=938, ["n"]=641, ["o"]=618,
+	["p"]=644, ["q"]=644, ["r"]=444, ["s"]=536, ["t"]=430, ["u"]=641, ["v"]=586, ["w"]=831,
+	["x"]=580, ["y"]=586, ["z"]=523, ["{"]=641, ["|"]=329, ["}"]=641, ["~"]=754,
+	["Ç"]=660, ["Ğ"]=738, ["İ"]=334, ["Ö"]=765, ["Ş"]=648, ["Ü"]=730,
+	["ç"]=533, ["ğ"]=644, ["ı"]=308, ["ö"]=618, ["ş"]=536, ["ü"]=641,
+	["•"]=575, ["▶"]=692, ["–"]=450, ["—"]=900
+}
+
+local SPACE_W = 313
+
+local function visualWidth(str)
+	str = tostring(str or "")
+	local total = 0
+	for ch in string.gmatch(str, "[%z\1-\127\194-\244][\128-\191]*") do
+		total = total + (CHAR_WIDTHS[ch] or 630)
+	end
+	return total
+end
+
+local function padToVisualTab(str, targetUnits)
+	str = tostring(str or "")
+	local w = visualWidth(str)
+	if w >= targetUnits then
+		return str .. " "
+	end
+	local spaces = math.floor(((targetUnits - w) + (SPACE_W / 2)) / SPACE_W)
+	if spaces < 1 then
+		spaces = 1
+	end
+	return str .. string.rep(" ", spaces)
+end
+
+local BOX_VISUAL_WIDTH = 43732
+local RULE_DOUBLE = string.rep("=", 58)
+local RULE_SINGLE = string.rep("-", 117)
+
+local TAB_COLON = 14250
+local TAB_PIPE1 = 21780
+local TAB_PIPE2 = 29010
+local TAB_PIPE3 = 36240
+local TAB_EVENT_COLON = 16650
+
+local function formatFourColumnRow(leftText, c1, c2, c3, c4)
+	local line = padToVisualTab(leftText, TAB_COLON) .. ":  " .. tostring(c1)
+	line = padToVisualTab(line, TAB_PIPE1) .. "|  " .. tostring(c2)
+	line = padToVisualTab(line, TAB_PIPE2) .. "|  " .. tostring(c3)
+	line = padToVisualTab(line, TAB_PIPE3) .. "|  " .. tostring(c4)
+	return line
+end
 
 function SkynetIADSLogger:create(iads)
 	local logger = {}
 	setmetatable(logger, SkynetIADSLogger)
 	logger.debugOutput = {}
 	logger.debugOutput.IADSStatus = false
+	logger.debugOutput.samDetails = false
 	logger.debugOutput.samWentDark = false
+	logger.debugOutput.radarWentDark = false
 	logger.debugOutput.contacts = false
 	logger.debugOutput.radarWentLive = false
 	logger.debugOutput.jammerProbability = false
@@ -835,7 +2293,27 @@ function SkynetIADSLogger:create(iads)
 	logger.debugOutput.samSiteStatusEnvOutput = false
 	logger.debugOutput.earlyWarningRadarStatusEnvOutput = false
 	logger.debugOutput.commandCenterStatusEnvOutput = false
+	logger.debugOutput.debugScreen = false
 	logger.iads = iads
+	logger.eventHistory = {}
+	logger.maxEvents = 10
+	logger.snapshotUntil = 0
+
+	local alreadyRegistered = false
+	for i = 1, #SkynetIADSLogger.activeLoggers do
+		if SkynetIADSLogger.activeLoggers[i].iads == iads then
+			SkynetIADSLogger.activeLoggers[i] = logger
+			alreadyRegistered = true
+			break
+		end
+	end
+	if not alreadyRegistered then
+		table.insert(SkynetIADSLogger.activeLoggers, logger)
+	end
+
+	SkynetIADSLogger.ensureWorldEventHandler()
+	SkynetIADSLogger.writeGlobalLog("INFO", "IADS-CREATE", "SkynetIADS instance created: " .. tostring(iads and iads.name or "Unnamed"))
+
 	return logger
 end
 
@@ -843,22 +2321,517 @@ function SkynetIADSLogger:getDebugSettings()
 	return self.debugOutput
 end
 
-function SkynetIADSLogger:printOutput(output, typeWarning)
-	if typeWarning == true and self:getDebugSettings().warnings or typeWarning == nil then
-		if typeWarning == true then
-			output = "WARNING: "..output
-		end
-		trigger.action.outText(output, 4)
+function SkynetIADSLogger:formatMissionTime()
+	local absTime = timer and timer.getAbsTime and timer.getAbsTime() or 0
+	local totalSec = math.floor(absTime)
+	local hours = math.floor(totalSec / 3600) % 24
+	local mins = math.floor((totalSec % 3600) / 60)
+	local secs = totalSec % 60
+	return string.format("%02d:%02d:%02d", hours, mins, secs)
+end
+
+function SkynetIADSLogger:appendHistoryOnly(tag, message)
+	local timeStr = self:formatMissionTime()
+	local prefix = padToVisualTab("  • [" .. timeStr .. "] " .. tostring(tag), TAB_EVENT_COLON)
+	local entry = prefix .. ":  " .. tostring(message)
+	table.insert(self.eventHistory, 1, entry)
+	while #self.eventHistory > self.maxEvents do
+		table.remove(self.eventHistory)
 	end
 end
 
-function SkynetIADSLogger:printOutputToLog(output)
-	env.info("SKYNET: "..output, 4)
+function SkynetIADSLogger.isViewActive(v, now)
+	if not v then
+		return false
+	end
+	now = now or (timer and timer.getTime and timer.getTime() or 0)
+	if (v.snapshotUntil or 0) > now then
+		return true
+	end
+	return (v.IADSStatus == true) or (v.contacts == true) or (v.samDetails == true) or (v.debugScreen == true)
+end
+
+function SkynetIADSLogger.isGroupDashboardActive(groupId)
+	local s = SkynetIADSLogger.groupSessions[groupId]
+	if not s then
+		return false
+	end
+	local now = timer and timer.getTime and timer.getTime() or 0
+	for i = 1, #SkynetIADSLogger.activeLoggers do
+		local lg = SkynetIADSLogger.activeLoggers[i]
+		local iads = lg and lg.iads
+		if iads and SkynetIADSLogger.canSessionAccessIADS(s, iads) then
+			local v = s.views[iads]
+			if SkynetIADSLogger.isViewActive(v, now) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function SkynetIADSLogger.renderGroupDashboard(groupId, overrideDuration)
+	SkynetIADSLogger.ensureLiveTicker()
+	local s = SkynetIADSLogger.groupSessions[groupId]
+	if not s then
+		return false
+	end
+	local now = timer and timer.getTime and timer.getTime() or 0
+	local activeSections = {}
+
+	for i = 1, #SkynetIADSLogger.activeLoggers do
+		local lg = SkynetIADSLogger.activeLoggers[i]
+		local iads = lg and lg.iads
+		if iads and SkynetIADSLogger.canSessionAccessIADS(s, iads) then
+			local v = s.views[iads]
+			if SkynetIADSLogger.isViewActive(v, now) then
+				v.wasActive = true
+				table.insert(activeSections, lg:buildCoalitionSection(v))
+			end
+		end
+	end
+
+	if #activeSections == 0 then
+		return false
+	end
+
+	local title = "SKYNET INTEGRATED AIR DEFENSE (IADS) LIVE DASHBOARD"
+	local leftPadUnits = math.max(0, math.floor((BOX_VISUAL_WIDTH - visualWidth(title)) / 2))
+	local centeredTitle = padToVisualTab("", leftPadUnits) .. title
+
+	local panelLines = {
+		RULE_DOUBLE,
+		centeredTitle,
+		RULE_DOUBLE,
+		table.concat(activeSections, "\n" .. RULE_DOUBLE .. "\n"),
+		RULE_DOUBLE
+	}
+
+	local duration = overrideDuration or 3
+	SkynetIADSLogger.emitCardTextForGroup(groupId, table.concat(panelLines, "\n"), duration)
+	return true
+end
+
+function SkynetIADSLogger.liveTickerTick()
+	SkynetIADSLogger.safeCall("liveTickerTick", function()
+		SkynetIADSLogger.checkRadioMenuState()
+		pcall(SkynetIADSLogger.syncGroupRadioMenus)
+
+		for gid, session in pairs(SkynetIADSLogger.groupSessions) do
+			local rendered = SkynetIADSLogger.renderGroupDashboard(gid, 2)
+			if not rendered then
+				local hadActive = false
+				for _, v in pairs(session.views) do
+					if v.wasActive then
+						v.wasActive = false
+						hadActive = true
+					end
+				end
+				if hadActive then
+					SkynetIADSLogger.emitCardTextForGroup(gid, "__CLOSE__", 1)
+				end
+			end
+		end
+
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard(2)
+		end
+	end)
+end
+
+function SkynetIADSLogger.ensureLiveTicker()
+	SkynetIADSLogger.ensureWorldEventHandler()
+	if SkynetIADSLogger.liveTickerID == nil and mist and mist.scheduleFunction and timer and timer.getTime then
+		SkynetIADSLogger.liveTickerID = mist.scheduleFunction(SkynetIADSLogger.liveTickerTick, {}, timer.getTime() + 1, 1)
+	end
+end
+
+function SkynetIADSLogger:recordEvent(tag, message, isEnabled, targetGroupId, category)
+	local coaLabel = (self.iads and (self.iads.name or self.iads:getCoalitionString())) or "IADS"
+	-- Always write every event to the dedicated SKYNET_IADS_DEBUG.log file and dcs.log!
+	SkynetIADSLogger.writeGlobalLog("INFO", tostring(category or tag or "IADS-EVENT"), "[" .. tostring(coaLabel) .. "] " .. tostring(message))
+
+	if self.iads and self.iads.ewRadarScanMistTaskID == nil and tag ~= "NOTIFICATION" and tag ~= "DIAGNOSTIC" then
+		return
+	end
+	self:appendHistoryOnly(tag, message)
+	local entry = self.eventHistory[1]
+
+	local popup = RULE_DOUBLE .. "\n"
+		.. "  SKYNET IADS TACTICAL ALERT  [" .. tostring(coaLabel) .. "]\n"
+		.. RULE_SINGLE .. "\n"
+		.. tostring(entry) .. "\n"
+		.. RULE_DOUBLE
+
+	if targetGroupId then
+		local s = SkynetIADSLogger.groupSessions[targetGroupId]
+		if s and SkynetIADSLogger.canSessionAccessIADS(s, self.iads) then
+			if SkynetIADSLogger.isGroupDashboardActive(targetGroupId) then
+				SkynetIADSLogger.renderGroupDashboard(targetGroupId, 2)
+			else
+				SkynetIADSLogger.emitCardTextForGroup(targetGroupId, popup, 6)
+			end
+		end
+		return
+	end
+
+	for gid, s in pairs(SkynetIADSLogger.groupSessions) do
+		if SkynetIADSLogger.canSessionAccessIADS(s, self.iads) then
+			local v = s.views[self.iads]
+			if v and (v.notifications or v.debugScreen) then
+				if SkynetIADSLogger.isGroupDashboardActive(gid) then
+					SkynetIADSLogger.renderGroupDashboard(gid, 2)
+				elseif v.notifications then
+					SkynetIADSLogger.emitCardTextForGroup(gid, popup, 6)
+				end
+			end
+		end
+	end
+
+	if isEnabled and next(SkynetIADSLogger.groupSessions) == nil then
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard(2)
+		else
+			SkynetIADSLogger.emitCardText(popup, 6)
+		end
+	end
+end
+
+function SkynetIADSLogger:printOutput(output, typeWarning)
+	local coaLabel = (self.iads and (self.iads.name or self.iads:getCoalitionString())) or "IADS"
+	if typeWarning == true then
+		SkynetIADSLogger.writeGlobalLog("WARN", "IADS-WARNING", "[" .. tostring(coaLabel) .. "] " .. tostring(output))
+	else
+		SkynetIADSLogger.writeGlobalLog("INFO", "IADS-OUTPUT", "[" .. tostring(coaLabel) .. "] " .. tostring(output))
+	end
+end
+
+function SkynetIADSLogger:printOutputToLog(output, typeWarning)
+	local coaLabel = (self.iads and (self.iads.name or self.iads:getCoalitionString())) or "IADS"
+	if typeWarning == true then
+		SkynetIADSLogger.writeGlobalLog("WARN", "IADS-WARNING", "[" .. tostring(coaLabel) .. "] " .. tostring(output))
+	else
+		SkynetIADSLogger.writeGlobalLog("INFO", "IADS-LOG", "[" .. tostring(coaLabel) .. "] " .. tostring(output))
+	end
+end
+
+function SkynetIADSLogger:dumpFullDiagnosticReport(triggerReason)
+	local iads = self.iads
+	if not iads then
+		return
+	end
+	local lines = {}
+	local netName = tostring(iads.name or iads:getCoalitionString())
+	table.insert(lines, "==================== SKYNET-IADS FULL DIAGNOSTIC REPORT ====================")
+	table.insert(lines, string.format("Network: %s | Coalition: %s | Trigger: %s | %s",
+		netName, tostring(iads:getCoalitionString()), tostring(triggerReason or "Manual/Startup"), formatSimAndClockTime()))
+	table.insert(lines, string.format("Caught Runtime Exceptions: %d | Total Logged Events: %d",
+		SkynetIADSLogger.totalErrorCount, SkynetIADSLogger.eventCounter))
+	table.insert(lines, "MIST Version: " .. ((_G.mist and _G.mist.majorVersion) and string.format("v%s.%s.%s", tostring(_G.mist.majorVersion), tostring(_G.mist.minorVersion), tostring(_G.mist.build)) or "Not Loaded"))
+
+	local ccs = iads:getCommandCenters() or {}
+	local ewrs = iads:getEarlyWarningRadars() or {}
+	local sams = iads:getSAMSites() or {}
+	table.insert(lines, string.format("Summary -> Command Centers: %d (Usable: %s) | Early Warning Radars: %d | SAM Sites: %d | Active Contacts: %d",
+		#ccs, tostring(iads:isCommandCenterUsable()), #ewrs, #sams, #(iads:getContacts() or {})))
+
+	for i = 1, #ccs do
+		local cc = ccs[i]
+		table.insert(lines, string.format("  [CC #%d] Name=%s | Destroyed=%s | HasPower=%s (PowerSources=%d) | HasConnection=%s (Nodes=%d)",
+			i, tostring(cc:getDCSName()), tostring(cc:isDestroyed()), tostring(cc:hasWorkingPowerSource()), #(cc:getPowerSources() or {}),
+			tostring(cc:hasActiveConnectionNode()), #(cc:getConnectionNodes() or {})))
+	end
+
+	for i = 1, #ewrs do
+		local ew = ewrs[i]
+		table.insert(lines, string.format("  [EWR #%d] Name=%s | NATO=%s | Active=%s | Destroyed=%s | Autonomous=%s | HARM-Chance=%d%% | DefendingHARM=%s | ChildSAMs=%d | Power=%d | Nodes=%d",
+			i, tostring(ew:getDCSName()), tostring(ew:getNatoName()), tostring(ew:isActive()), tostring(ew:isDestroyed()),
+			tostring(ew:getAutonomousState()), tonumber(ew:getHARMDetectionChance()) or 0, tostring(ew:isDefendingHARM()),
+			#(ew:getChildRadars() or {}), #(ew:getPowerSources() or {}), #(ew:getConnectionNodes() or {})))
+	end
+
+	for i = 1, #sams do
+		local sam = sams[i]
+		local zoneStr = (sam:getEngagementZone() == SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_SEARCH_RANGE) and "SEARCH_RANGE" or "KILL_ZONE"
+		local autoModeStr = (sam:getAutonomousBehaviour() == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK) and "DARK" or "DCS_AI"
+		table.insert(lines, string.format("  [SAM #%d] Group=%s | NATO=%s | Active=%s | Destroyed=%s | WorkingRadar=%s | Autonomous=%s (Mode:%s) | Zone=%s (%d%%) | ActAsEW=%s | PointDefRole=%s |AttachedPDs=%d | Missiles=%d/%d (InFlight:%d) | HARM-Chance=%d%% (EngageHARM:%s, Defending:%s) | Parents=%d | Children=%d | Power=%d | Nodes=%d",
+			i, tostring(sam:getDCSName()), tostring(sam:getNatoName()), tostring(sam:isActive()), tostring(sam:isDestroyed()),
+			tostring(sam:hasWorkingRadar()), tostring(sam:getAutonomousState()), autoModeStr,
+			zoneStr, tonumber(sam:getGoLiveRangeInPercent()) or 100, tostring(sam:getActAsEW()),
+			tostring(sam:getIsAPointDefence()), #(sam:getPointDefences() or {}),
+			tonumber(sam:getRemainingNumberOfMissiles()) or 0, tonumber(sam:getInitialNumberOfMissiles()) or 0,
+			tonumber(sam:getNumberOfMissilesInFlight()) or 0,
+			tonumber(sam:getHARMDetectionChance()) or 0, tostring(sam:getCanEngageHARM()), tostring(sam:isDefendingHARM()),
+			#(sam:getParentRadars() or {}), #(sam:getChildRadars() or {}),
+			#(sam:getPowerSources() or {}), #(sam:getConnectionNodes() or {})))
+	end
+
+	if #SkynetIADSLogger.errorHistory > 0 then
+		table.insert(lines, "-------------------- CAUGHT RUNTIME EXCEPTIONS --------------------")
+		for i = 1, math.min(#SkynetIADSLogger.errorHistory, 10) do
+			local e = SkynetIADSLogger.errorHistory[i]
+			table.insert(lines, string.format("  [ERROR #%d | %s | %s] %s", e.id, e.time, e.category, e.message))
+			if e.stack and e.stack ~= "" then
+				table.insert(lines, "    Stack: " .. string.gsub(e.stack, "[\r\n]+", " <- "))
+			end
+		end
+	else
+		table.insert(lines, "Caught Runtime Exceptions: NONE (0 Errors)")
+	end
+	table.insert(lines, "============================================================================")
+
+	for i = 1, #lines do
+		SkynetIADSLogger.writeGlobalLog("INFO", "DIAGNOSTIC-REPORT", lines[i])
+	end
+	return lines
+end
+
+function SkynetIADSLogger:isDashboardActive()
+	local now = timer and timer.getTime and timer.getTime() or 0
+	if self.snapshotUntil > now then
+		return true
+	end
+	local dbg = self:getDebugSettings()
+	return dbg.IADSStatus or dbg.contacts or dbg.samDetails or dbg.debugScreen
+end
+
+function SkynetIADSLogger.isAnyDashboardActive()
+	for i = 1, #SkynetIADSLogger.activeLoggers do
+		local lg = SkynetIADSLogger.activeLoggers[i]
+		if lg and lg.iads and lg:isDashboardActive() then
+			return true
+		end
+	end
+	return false
+end
+
+function SkynetIADSLogger:buildCoalitionSection(viewOverride)
+	local now = timer and timer.getTime and timer.getTime() or 0
+	local dbg = viewOverride or self:getDebugSettings()
+	local snapUntil = (viewOverride and viewOverride.snapshotUntil) or self.snapshotUntil or 0
+	local isSnapshot = (snapUntil > now)
+	local showDebugScreen = (dbg.debugScreen == true)
+	local showEvents = showDebugScreen or (viewOverride and viewOverride.notifications) or (not viewOverride and (dbg.radarWentLive or dbg.radarWentDark or dbg.harmDefence)) or isSnapshot
+	local lines = {}
+
+	local coaStr = "RED"
+	if self.iads.coalitionID == coalition.side.BLUE then
+		coaStr = "BLUE"
+	elseif self.iads.coalitionID == coalition.side.NEUTRAL then
+		coaStr = "NEUTRAL"
+	end
+	local netName = self.iads.name and string.len(self.iads.name) > 0 and self.iads.name or coaStr
+
+	local hdrLine = padToVisualTab("▶ " .. netName, TAB_PIPE1)
+		.. "|  Side: " .. coaStr
+	hdrLine = padToVisualTab(hdrLine, TAB_PIPE2)
+		.. "|  Time: " .. self:formatMissionTime()
+	if isSnapshot then
+		local remSnap = math.max(1, math.ceil(snapUntil - now))
+		hdrLine = padToVisualTab(hdrLine, TAB_PIPE3) .. "|  Snap: " .. remSnap .. "s"
+	elseif showDebugScreen then
+		hdrLine = padToVisualTab(hdrLine, TAB_PIPE3) .. "|  Err: " .. tostring(SkynetIADSLogger.totalErrorCount)
+	else
+		hdrLine = padToVisualTab(hdrLine, TAB_PIPE3) .. "|  Mode: LIVE"
+	end
+	table.insert(lines, hdrLine)
+	table.insert(lines, RULE_SINGLE)
+
+	if dbg.IADSStatus or isSnapshot or showDebugScreen then
+		-- 1) Command Centers
+		local commandCenters = self.iads:getCommandCenters()
+		local numComCenters = #commandCenters
+		local numComCentersNoPower = 0
+		local numIntactComCenters = 0
+		for i = 1, #commandCenters do
+			local cc = commandCenters[i]
+			if cc:hasWorkingPowerSource() == false then numComCentersNoPower = numComCentersNoPower + 1 end
+			if cc:isDestroyed() == false then numIntactComCenters = numIntactComCenters + 1 end
+		end
+		local numDestroyedComCenters = numComCenters - numIntactComCenters
+
+		-- 2) Early Warning Radars
+		local earlyWarningRadars = self.iads:getEarlyWarningRadars()
+		local ewTotal = #earlyWarningRadars
+		local ewActive = 0
+		for i = 1, #earlyWarningRadars do
+			local ew = earlyWarningRadars[i]
+			if ew:isActive() then ewActive = ewActive + 1 end
+		end
+		local numEWRadarsDestroyed = #self.iads:getDestroyedEarlyWarningRadars()
+		local ewRadarsInactive = math.max(0, ewTotal - ewActive - numEWRadarsDestroyed)
+
+		-- 3) SAM Sites
+		local samSites = self.iads:getSAMSites()
+		local samSitesTotal = #samSites
+		local samSitesActive = 0
+		local samSitesOutOfAmmo = 0
+		local samSiteAutonomous = 0
+		local samSiteRadarDestroyed = 0
+		local samSiteDefendingHarm = 0
+		for i = 1, #samSites do
+			local sam = samSites[i]
+			if sam:isActive() then samSitesActive = samSitesActive + 1 end
+			if sam:hasRemainingAmmo() == false then samSitesOutOfAmmo = samSitesOutOfAmmo + 1 end
+			if sam:getAutonomousState() == true then samSiteAutonomous = samSiteAutonomous + 1 end
+			if sam:hasWorkingRadar() == false then samSiteRadarDestroyed = samSiteRadarDestroyed + 1 end
+			if sam:isDefendingHARM() then samSiteDefendingHarm = samSiteDefendingHarm + 1 end
+		end
+		local samSitesInactive = math.max(0, samSitesTotal - samSitesActive)
+		local samSitesReady = math.max(0, samSitesTotal - samSiteRadarDestroyed - samSitesOutOfAmmo)
+
+		table.insert(lines, formatFourColumnRow("  • Command Center",
+			"Total: " .. numComCenters,
+			"Intact: " .. numIntactComCenters,
+			"Dead: " .. numDestroyedComCenters,
+			"NoPwr: " .. numComCentersNoPower))
+
+		table.insert(lines, formatFourColumnRow("  • Early Warning",
+			"Total: " .. ewTotal,
+			"Live: " .. ewActive,
+			"Dark: " .. ewRadarsInactive,
+			"Dead: " .. numEWRadarsDestroyed))
+
+		table.insert(lines, formatFourColumnRow("  • SAM Batteries",
+			"Total: " .. samSitesTotal,
+			"Live: " .. samSitesActive,
+			"Dark: " .. samSitesInactive,
+			"Auton: " .. samSiteAutonomous))
+
+		table.insert(lines, formatFourColumnRow("  • SAM Readiness",
+			"Ready: " .. samSitesReady,
+			"HARM: " .. samSiteDefendingHarm,
+			"RdrDead: " .. samSiteRadarDestroyed,
+			"NoAmmo: " .. samSitesOutOfAmmo))
+	end
+
+	-- Optional Per-Battery SAM Detail List
+	if dbg.samDetails or isSnapshot then
+		local samSites = self.iads:getSAMSites()
+		if #samSites > 0 then
+			table.insert(lines, RULE_SINGLE)
+			table.insert(lines, "  [ SAM BATTERY LIST (" .. #samSites .. ") ]")
+			for i = 1, #samSites do
+				local sam = samSites[i]
+				local stateStr = "DARK"
+				if sam:isDestroyed() or sam:hasWorkingRadar() == false then
+					stateStr = "RADAR DEAD"
+				elseif sam:isDefendingHARM() then
+					local remHarm = sam.getRemainingHARMShutdownTime and sam:getRemainingHARMShutdownTime() or sam:getHARMShutdownTime()
+					stateStr = "HARM (" .. tostring(remHarm) .. "s)"
+				elseif sam:hasRemainingAmmo() == false then
+					stateStr = "NO AMMO"
+				elseif sam:isActive() then
+					stateStr = "LIVE"
+				end
+				local roleStr = sam:getIsAPointDefence() and "PointDef" or "MainSAM"
+				local remMsl = sam:getRemainingNumberOfMissiles()
+				local initMsl = sam:getInitialNumberOfMissiles()
+				local ammoTxt = string.format("Msl: %d/%d", remMsl, initMsl)
+				table.insert(lines, formatFourColumnRow("  • " .. tostring(sam:getDCSName()),
+					"Type: " .. tostring(sam:getNatoName()),
+					stateStr,
+					"Role: " .. roleStr,
+					ammoTxt))
+			end
+		end
+	end
+
+	-- Optional Active Radar Contacts
+	if dbg.contacts or isSnapshot then
+		local contacts = self.iads:getContacts()
+		local numContacts = contacts and #contacts or 0
+		table.insert(lines, RULE_SINGLE)
+		table.insert(lines, "  [ ACTIVE RADAR CONTACTS (" .. numContacts .. ") ]")
+		if numContacts == 0 then
+			table.insert(lines, "  • No active radar contacts detected.")
+		else
+			local maxShow = math.min(numContacts, 8)
+			for i = 1, maxShow do
+				local c = contacts[i]
+				local spdTxt = string.format("Spd: %d kt", tonumber(c:getGroundSpeedInKnots(0)) or 0)
+				local hdgTxt = string.format("Hdg: %03d", tonumber(c:getMagneticHeading()) or 0)
+				local ageTxt = string.format("Age: %ds", tonumber(c:getAge()) or 0)
+				table.insert(lines, formatFourColumnRow("  • " .. tostring(c:getName()),
+					"Type: " .. tostring(c:getTypeName()),
+					spdTxt,
+					hdgTxt,
+					ageTxt))
+			end
+			if numContacts > maxShow then
+				table.insert(lines, string.format("  ... and %d more contacts", numContacts - maxShow))
+			end
+		end
+	end
+
+	-- Dedicated Debug & Error Monitor Screen Section
+	if showDebugScreen then
+		table.insert(lines, RULE_SINGLE)
+		table.insert(lines, formatFourColumnRow("  • Debug Logger",
+			"File: SKYNET_IADS_DEBUG.log",
+			"Events: " .. tostring(SkynetIADSLogger.eventCounter),
+			"Errors: " .. tostring(SkynetIADSLogger.totalErrorCount),
+			"Queue: " .. tostring(#(_G.SKYNET_DEBUG_QUEUE or {}))))
+		if #SkynetIADSLogger.errorHistory > 0 then
+			table.insert(lines, "  [ CAUGHT RUNTIME ERRORS (" .. #SkynetIADSLogger.errorHistory .. ") ]")
+			for i = 1, math.min(#SkynetIADSLogger.errorHistory, 4) do
+				local err = SkynetIADSLogger.errorHistory[i]
+				table.insert(lines, string.format("  ! [#%d | %s] %s", err.id, err.category, err.message))
+			end
+		else
+			table.insert(lines, "  • Runtime Exceptions: NONE (0 Errors Caught)")
+		end
+	end
+
+	-- Recent Events Feed inside panel when notifications, debugScreen, or snapshot active
+	if showEvents and #self.eventHistory > 0 then
+		table.insert(lines, RULE_SINGLE)
+		table.insert(lines, "  [ RECENT IADS & COMBAT EVENTS ]")
+		local maxEv = showDebugScreen and math.min(#self.eventHistory, 8) or math.min(#self.eventHistory, 5)
+		for i = 1, maxEv do
+			table.insert(lines, self.eventHistory[i])
+		end
+	end
+
+	return table.concat(lines, "\n")
+end
+
+function SkynetIADSLogger.renderGlobalDashboard(overrideDuration)
+	SkynetIADSLogger.ensureLiveTicker()
+
+	local activeSections = {}
+	local minInterval = 2
+
+	for i = 1, #SkynetIADSLogger.activeLoggers do
+		local lg = SkynetIADSLogger.activeLoggers[i]
+		if lg and lg.iads and lg:isDashboardActive() then
+			table.insert(activeSections, lg:buildCoalitionSection())
+		end
+	end
+
+	if #activeSections == 0 then
+		return
+	end
+
+	local title = "SKYNET INTEGRATED AIR DEFENSE (IADS) LIVE DASHBOARD"
+	local leftPadUnits = math.max(0, math.floor((BOX_VISUAL_WIDTH - visualWidth(title)) / 2))
+	local centeredTitle = padToVisualTab("", leftPadUnits) .. title
+
+	local panelLines = {
+		RULE_DOUBLE,
+		centeredTitle,
+		RULE_DOUBLE,
+		table.concat(activeSections, "\n" .. RULE_DOUBLE .. "\n"),
+		RULE_DOUBLE
+	}
+
+	local duration = overrideDuration or (minInterval + 1)
+	SkynetIADSLogger.emitCardText(table.concat(panelLines, "\n"), duration)
 end
 
 function SkynetIADSLogger:printEarlyWarningRadarStatus()
 	local ewRadars = self.iads:getEarlyWarningRadars()
-	self:printOutputToLog("------------------------------------------ EW RADAR STATUS: "..self.iads:getCoalitionString().." -------------------------------")
+	self:printOutputToLog("------------------------------------------ EARLY WARNING RADAR STATUS: "..self.iads:getCoalitionString().." -------------------------------")
 	for i = 1, #ewRadars do
 		local ewRadar = ewRadars[i]
 		local numConnectionNodes = #ewRadar:getConnectionNodes()
@@ -868,17 +2841,13 @@ function SkynetIADSLogger:printEarlyWarningRadarStatus()
 		local firstRadar = nil
 		local radars = ewRadar:getRadars()
 		
-		--get the first existing radar to prevent issues in calculating the distance later on:
-		for i = 1, #radars do
-			if radars[i]:isExist() then
-				firstRadar = radars[i]
+		for j = 1, #radars do
+			if radars[j]:isExist() then
+				firstRadar = radars[j]
 				break
 			end
-		
 		end
 		local numDamagedConnectionNodes = 0
-		
-		
 		for j = 1, #connectionNodes do
 			local connectionNode = connectionNodes[j]
 			if connectionNode:isExist() == false then
@@ -901,22 +2870,21 @@ function SkynetIADSLogger:printEarlyWarningRadarStatus()
 		local samSitesInCoveredArea = ewRadar:getChildRadars()
 		
 		local unitName = "DESTROYED"
-		
 		if ewRadar:getDCSRepresentation():isExist() then
 			unitName = ewRadar:getDCSName()
 		end
 		
 		self:printOutputToLog("UNIT: "..unitName.." | TYPE: "..ewRadar:getNatoName())
-		self:printOutputToLog("ACTIVE: "..tostring(isActive).."| DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(ewRadar:isDefendingHARM()))
+		self:printOutputToLog("ACTIVE: "..tostring(isActive).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(ewRadar:isDefendingHARM()))
 		if numConnectionNodes > 0 then
 			self:printOutputToLog("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
 		else
-			self:printOutputToLog("NO CONNECTION NODES SET")
+			self:printOutputToLog("NO CONNECTION NODES CONFIGURED")
 		end
 		if numPowerSources > 0 then
-			self:printOutputToLog("POWER SOURCES : "..numPowerSources.." | DAMAGED:"..numDamagedPowerSources.." | INTACT: "..intactPowerSources)
+			self:printOutputToLog("POWER SOURCES: "..numPowerSources.." | DAMAGED: "..numDamagedPowerSources.." | INTACT: "..intactPowerSources)
 		else
-			self:printOutputToLog("NO POWER SOURCES SET")
+			self:printOutputToLog("NO POWER SOURCES CONFIGURED")
 		end
 		
 		self:printOutputToLog("SAM SITES IN COVERED AREA: "..#samSitesInCoveredArea)
@@ -929,14 +2897,12 @@ function SkynetIADSLogger:printEarlyWarningRadarStatus()
 			local contact = detectedTargets[j]
 			if firstRadar ~= nil and firstRadar:isExist() then
 				local distance = mist.utils.round(mist.utils.metersToNM(ewRadar:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
-				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE (NM): "..distance)
 			end
 		end
 		
 		self:printOutputToLog("---------------------------------------------------")
-		
 	end
-
 end
 
 function SkynetIADSLogger:getMetaInfo(abstractElementSupport)
@@ -957,7 +2923,7 @@ end
 function SkynetIADSLogger:printSAMSiteStatus()
 	local samSites = self.iads:getSAMSites()
 	
-	self:printOutputToLog("------------------------------------------ SAM STATUS: "..self.iads:getCoalitionString().." -------------------------------")
+	self:printOutputToLog("------------------------------------------ SAM SITE STATUS: "..self.iads:getCoalitionString().." -------------------------------")
 	for i = 1, #samSites do
 		local samSite = samSites[i]
 		local numConnectionNodes = #samSite:getConnectionNodes()
@@ -987,27 +2953,23 @@ function SkynetIADSLogger:printSAMSiteStatus()
 		local intactPowerSources = numPowerSources - numDamagedPowerSources 
 		
 		local detectedTargets = samSite:getDetectedTargets()
-		
 		local samSitesInCoveredArea = samSite:getChildRadars()
-		
 		local engageAirWeapons = samSite:getCanEngageAirWeapons()
-		
 		local engageHARMS = samSite:getCanEngageHARM()
-		
 		local hasAmmo = samSite:hasRemainingAmmo()
 		
 		self:printOutputToLog("GROUP: "..samSite:getDCSName().." | TYPE: "..samSite:getNatoName())
-		self:printOutputToLog("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | IS ACTING AS EW: "..tostring(samSite:getActAsEW()).." | CAN ENGAGE AIR WEAPONS : "..tostring(engageAirWeapons).." | CAN ENGAGE HARMS : "..tostring(engageHARMS).." | HAS AMMO: "..tostring(hasAmmo).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT: "..tostring(samSite:getNumberOfMissilesInFlight()))
+		self:printOutputToLog("ACTIVE: "..tostring(isActive).." | AUTONOMOUS: "..tostring(isAutonomous).." | ACT AS EW: "..tostring(samSite:getActAsEW()).." | ENGAGE AIR WEAPONS: "..tostring(engageAirWeapons).." | ENGAGE HARM: "..tostring(engageHARMS).." | HAS AMMO: "..tostring(hasAmmo).." | DETECTED TARGETS: "..#detectedTargets.." | DEFENDING HARM: "..tostring(samSite:isDefendingHARM()).." | MISSILES IN FLIGHT: "..tostring(samSite:getNumberOfMissilesInFlight()))
 		
 		if numConnectionNodes > 0 then
 			self:printOutputToLog("CONNECTION NODES: "..numConnectionNodes.." | DAMAGED: "..numDamagedConnectionNodes.." | INTACT: "..intactConnectionNodes)
 		else
-			self:printOutputToLog("NO CONNECTION NODES SET")
+			self:printOutputToLog("NO CONNECTION NODES CONFIGURED")
 		end
 		if numPowerSources > 0 then
-			self:printOutputToLog("POWER SOURCES : "..numPowerSources.." | DAMAGED:"..numDamagedPowerSources.." | INTACT: "..intactPowerSources)
+			self:printOutputToLog("POWER SOURCES: "..numPowerSources.." | DAMAGED: "..numDamagedPowerSources.." | INTACT: "..intactPowerSources)
 		else
-			self:printOutputToLog("NO POWER SOURCES SET")
+			self:printOutputToLog("NO POWER SOURCES CONFIGURED")
 		end
 		
 		self:printOutputToLog("SAM SITES IN COVERED AREA: "..#samSitesInCoveredArea)
@@ -1020,7 +2982,7 @@ function SkynetIADSLogger:printSAMSiteStatus()
 			local contact = detectedTargets[j]
 			if firstRadar ~= nil and firstRadar:isExist() then
 				local distance = mist.utils.round(mist.utils.metersToNM(samSite:getDistanceInMetersToContact(firstRadar:getDCSRepresentation(), contact:getPosition().p)), 2)
-				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE NM: "..distance)
+				self:printOutputToLog("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | DISTANCE (NM): "..distance)
 			end
 		end
 		
@@ -1034,124 +2996,26 @@ function SkynetIADSLogger:printCommandCenterStatus()
 	
 	for i = 1, #commandCenters do
 		local commandCenter = commandCenters[i]
-		local numConnectionNodes = #commandCenter:getConnectionNodes()
 		local powerSourceInfo = self:getMetaInfo(commandCenter:getPowerSources())
 		local connectionNodeInfo = self:getMetaInfo(commandCenter:getConnectionNodes())
-		self:printOutputToLog("GROUP: "..commandCenter:getDCSName().." | TYPE: "..commandCenter:getNatoName())
+		self:printOutputToLog("OBJECT: "..commandCenter:getDCSName().." | TYPE: "..commandCenter:getNatoName())
 		if connectionNodeInfo.numSources > 0 then
 			self:printOutputToLog("CONNECTION NODES: "..connectionNodeInfo.numSources.." | DAMAGED: "..connectionNodeInfo.numDamagedSources.." | INTACT: "..connectionNodeInfo.numIntactSources)
 		else
-			self:printOutputToLog("NO CONNECTION NODES SET")
+			self:printOutputToLog("NO CONNECTION NODES CONFIGURED")
 		end
 		if powerSourceInfo.numSources > 0 then
-			self:printOutputToLog("POWER SOURCES : "..powerSourceInfo.numSources.." | DAMAGED: "..powerSourceInfo.numDamagedSources.." | INTACT: "..powerSourceInfo.numIntactSources)
+			self:printOutputToLog("POWER SOURCES: "..powerSourceInfo.numSources.." | DAMAGED: "..powerSourceInfo.numDamagedSources.." | INTACT: "..powerSourceInfo.numIntactSources)
 		else
-			self:printOutputToLog("NO POWER SOURCES SET")
+			self:printOutputToLog("NO POWER SOURCES CONFIGURED")
 		end
 		self:printOutputToLog("---------------------------------------------------")
 	end
 end
 
-function SkynetIADSLogger:printSystemStatus()	
-
-	if self:getDebugSettings().IADSStatus or self:getDebugSettings().contacts then
-		local coalitionStr = self.iads:getCoalitionString()
-		self:printOutput("---- IADS: "..coalitionStr.." ------")
-	end
-	
-	if self:getDebugSettings().IADSStatus then
-
-		local commandCenters = self.iads:getCommandCenters()
-		local numComCenters = #commandCenters
-		local numDestroyedComCenters = 0
-		local numComCentersNoPower = 0
-		local numComCentersNoConnectionNode = 0
-		local numIntactComCenters = 0
-		for i = 1, #commandCenters do
-			local commandCenter = commandCenters[i]
-			if commandCenter:hasWorkingPowerSource() == false then
-				numComCentersNoPower = numComCentersNoPower + 1
-			end
-			if commandCenter:hasActiveConnectionNode() == false then
-				numComCentersNoConnectionNode = numComCentersNoConnectionNode + 1
-			end
-			if commandCenter:isDestroyed() == false then
-				numIntactComCenters = numIntactComCenters + 1
-			end
-		end
-		
-		numDestroyedComCenters = numComCenters - numIntactComCenters
-		
-		
-		self:printOutput("COMMAND CENTERS: "..numComCenters.." | Destroyed: "..numDestroyedComCenters.." | NoPowr: "..numComCentersNoPower.." | NoCon: "..numComCentersNoConnectionNode)
-	
-		local ewNoPower = 0
-		local earlyWarningRadars = self.iads:getEarlyWarningRadars()
-		local ewTotal = #earlyWarningRadars
-		local ewNoConnectionNode = 0
-		local ewActive = 0
-		local ewRadarsInactive = 0
-
-		for i = 1, #earlyWarningRadars do
-			local ewRadar = earlyWarningRadars[i]
-			if ewRadar:hasWorkingPowerSource() == false then
-				ewNoPower = ewNoPower + 1
-			end
-			if ewRadar:hasActiveConnectionNode() == false then
-				ewNoConnectionNode = ewNoConnectionNode + 1
-			end
-			if ewRadar:isActive() then
-				ewActive = ewActive + 1
-			end
-		end
-		
-		ewRadarsInactive = ewTotal - ewActive	
-		local numEWRadarsDestroyed = #self.iads:getDestroyedEarlyWarningRadars()
-		self:printOutput("EW: "..ewTotal.." | On: "..ewActive.." | Off: "..ewRadarsInactive.." | Destroyed: "..numEWRadarsDestroyed.." | NoPowr: "..ewNoPower.." | NoCon: "..ewNoConnectionNode)
-		
-		local samSitesInactive = 0
-		local samSitesActive = 0
-		local samSites = self.iads:getSAMSites()
-		local samSitesTotal = #samSites
-		local samSitesNoPower = 0
-		local samSitesNoConnectionNode = 0
-		local samSitesOutOfAmmo = 0
-		local samSiteAutonomous = 0
-		local samSiteRadarDestroyed = 0
-		for i = 1, #samSites do
-			local samSite = samSites[i]
-			if samSite:hasWorkingPowerSource() == false then
-				samSitesNoPower = samSitesNoPower + 1
-			end
-			if samSite:hasActiveConnectionNode() == false then
-				samSitesNoConnectionNode = samSitesNoConnectionNode + 1
-			end
-			if samSite:isActive() then
-				samSitesActive = samSitesActive + 1
-			end
-			if samSite:hasRemainingAmmo() == false then
-				samSitesOutOfAmmo = samSitesOutOfAmmo + 1
-			end
-			if samSite:getAutonomousState() == true then
-				samSiteAutonomous = samSiteAutonomous + 1
-			end
-			if samSite:hasWorkingRadar() == false then
-				samSiteRadarDestroyed = samSiteRadarDestroyed + 1
-			end
-		end
-		
-		samSitesInactive = samSitesTotal - samSitesActive
-		self:printOutput("SAM: "..samSitesTotal.." | On: "..samSitesActive.." | Off: "..samSitesInactive.." | Autonm: "..samSiteAutonomous.." | Raddest: "..samSiteRadarDestroyed.." | NoPowr: "..samSitesNoPower.." | NoCon: "..samSitesNoConnectionNode.." | NoAmmo: "..samSitesOutOfAmmo)
-	end
-	
-	if self:getDebugSettings().contacts then
-		local contacts = self.iads:getContacts()
-		if contacts then
-			for i = 1, #contacts do
-				local contact = contacts[i]
-					self:printOutput("CONTACT: "..contact:getName().." | TYPE: "..contact:getTypeName().." | GS: "..tostring(contact:getGroundSpeedInKnots()).." | LAST SEEN: "..contact:getAge())
-			end
-		end
+function SkynetIADSLogger:printSystemStatus()
+	if self:isDashboardActive() then
+		SkynetIADSLogger.renderGlobalDashboard()
 	end
 	
 	if self:getDebugSettings().commandCenterStatusEnvOutput then
@@ -1165,7 +3029,6 @@ function SkynetIADSLogger:printSystemStatus()
 	if self:getDebugSettings().samSiteStatusEnvOutput then
 		self:printSAMSiteStatus()
 	end
-
 end
 
 end
@@ -1199,10 +3062,12 @@ function SkynetIADS:create(name)
 end
 
 function SkynetIADS:onEvent(event)
-	if (event.id == world.event.S_EVENT_BIRTH ) then
-		env.info("New Object Spawned")
-	--	self:addSAMSite(event.initiator:getGroup():getName());
-	end
+	SkynetIADSLogger.safeCall("SkynetIADS:onEvent", function()
+		if (event and event.id == world.event.S_EVENT_BIRTH) then
+			local initName = (event.initiator and event.initiator.getName and event.initiator:getName()) or "Unknown"
+			self:printOutputToLog("S_EVENT_BIRTH detected: " .. tostring(initName))
+		end
+	end)
 end
 
 function SkynetIADS:setUpdateInterval(interval)
@@ -1302,8 +3167,10 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	ewRadar:setToCorrectAutonomousState()
 	ewRadar:goLive()
 	table.insert(self.earlyWarningRadars, ewRadar)
+	SkynetIADSLogger.writeGlobalLog("INFO", "EWR-ADDED", string.format("[%s] Added EWR: %s (NATO: %s, HARM-Chance: %d%%)",
+		tostring(self.name or self:getCoalitionString()), tostring(ewRadar:getDCSName()), tostring(ewRadar:getNatoName()), tonumber(ewRadar:getHARMDetectionChance()) or 0))
 	if self:getDebugSettings().addedEWRadar then
-			self:printOutputToLog("ADDED: "..ewRadar:getDescription())
+		self:printOutput("ADDED: "..ewRadar:getDescription())
 	end
 	return ewRadar
 end
@@ -1337,8 +3204,11 @@ function SkynetIADS:addSAMSitesByPrefix(prefix)
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
-			if dcsObject and dcsObject:getUnits()[1]:isActive() then
-				self:addSAMSite(groupName)
+			if dcsObject and dcsObject:isExist() then
+				local units = dcsObject:getUnits()
+				if units and units[1] and units[1]:isExist() and units[1]:isActive() then
+					self:addSAMSite(groupName)
+				end
 			end
 		end
 	end
@@ -1376,8 +3246,12 @@ function SkynetIADS:addSAMSite(samSiteName)
 	else
 		samSite:goDark()
 		table.insert(self.samSites, samSite)
+		SkynetIADSLogger.writeGlobalLog("INFO", "SAM-ADDED", string.format("[%s] Added SAM Site: %s (NATO: %s, Launchers: %d, Radars: %d, Missiles: %d, HARM-Chance: %d%%)",
+			tostring(self.name or self:getCoalitionString()), tostring(samSite:getDCSName()), tostring(samSite:getNatoName()),
+			#(samSite:getLaunchers() or {}), #(samSite:getRadars() or {}), tonumber(samSite:getInitialNumberOfMissiles()) or 0,
+			tonumber(samSite:getHARMDetectionChance()) or 0))
 		if self:getDebugSettings().addedSAMSite then
-			self:printOutputToLog("ADDED: "..samSite:getDescription())
+			self:printOutput("ADDED: "..samSite:getDescription())
 		end
 		-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
 		if self.ewRadarScanMistTaskID ~= nil then
@@ -1437,9 +3311,15 @@ function SkynetIADS:getSAMSitesByNatoName(natoName)
 end
 
 function SkynetIADS:addCommandCenter(commandCenter)
+	if commandCenter == nil then
+		self:printOutputToLog("You added a Command Center that does not exist, check name in Setup and Mission Editor", true)
+		return
+	end
 	self:setCoalition(commandCenter)
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
 	table.insert(self.commandCenters, comCenter)
+	SkynetIADSLogger.writeGlobalLog("INFO", "CC-ADDED", string.format("[%s] Added Command Center: %s",
+		tostring(self.name or self:getCoalitionString()), tostring(comCenter:getDCSName())))
 	-- when IADS is active the radars will be added to the new command center. If it not active this will happen when radar coverage is built
 	if self.ewRadarScanMistTaskID ~= nil then
 		self:addRadarsToCommandCenters()
@@ -1461,6 +3341,12 @@ end
 
 
 function SkynetIADS.evaluateContacts(self)
+	SkynetIADSLogger.safeCall("SkynetIADS.evaluateContacts", function()
+		SkynetIADS.evaluateContactsInternal(self)
+	end)
+end
+
+function SkynetIADS.evaluateContactsInternal(self)
 
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
@@ -1519,7 +3405,7 @@ function SkynetIADS.evaluateContacts(self)
 			-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
 			-- currently every type of object in the air is handed of to the SAM site, including missiles
 			local description = contact:getDesc()
-			local category = description.category
+			local category = description and description.category or nil
 			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
 				samToTrigger:informOfContact(contact)
 			end
@@ -1706,14 +3592,22 @@ end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS.activate(self)
-	mist.removeFunction(self.ewRadarScanMistTaskID)
-	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
-	self:buildRadarCoverage()
+	SkynetIADSLogger.safeCall("SkynetIADS.activate", function()
+		mist.removeFunction(self.ewRadarScanMistTaskID)
+		self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+		self:buildRadarCoverage()
+		if SkynetIADSLogger and SkynetIADSLogger.ensureLiveTicker then
+			SkynetIADSLogger.ensureLiveTicker()
+		end
+		if self.logger and self.logger.dumpFullDiagnosticReport then
+			self.logger:dumpFullDiagnosticReport("IADS Activated")
+		end
+	end)
 end
 
 function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	self:activate()
-	self.logger:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
+	self.logger:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate is no longer required, calling activate() directly")
 end
 
 function SkynetIADS:deactivate()
@@ -1746,25 +3640,215 @@ function SkynetIADS:deactivateEarlyWarningRadars()
 end	
 
 function SkynetIADS:addRadioMenu()
-	self.radioMenu = missionCommands.addSubMenu('SKYNET IADS '..self:getCoalitionString())
-	local displayIADSStatus = missionCommands.addCommand('show IADS Status', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
-	local displayIADSStatus = missionCommands.addCommand('hide IADS Status', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'IADSStatus'})
-	local displayIADSStatus = missionCommands.addCommand('show contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'contacts'})
-	local displayIADSStatus = missionCommands.addCommand('hide contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'contacts'})
+	self.radioMenuEnabled = true
+	if SkynetIADSLogger and SkynetIADSLogger.ensureLiveTicker then
+		SkynetIADSLogger.ensureLiveTicker()
+	end
+	if missionCommands and type(missionCommands.addSubMenuForGroup) == "function" and SkynetIADSLogger and SkynetIADSLogger.syncGroupRadioMenus then
+		pcall(SkynetIADSLogger.syncGroupRadioMenus)
+	elseif missionCommands and type(missionCommands.addSubMenu) == "function" then
+		self.radioMenu = missionCommands.addSubMenu('SKYNET IADS '..self:getCoalitionString())
+		missionCommands.addCommand('Open Live IADS Dashboard (Continuous)', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
+		missionCommands.addCommand('Close Live IADS Dashboard', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'closeAll'})
+		missionCommands.addCommand('Quick Status Snapshot (15 sec)', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'snapshot'})
+		missionCommands.addCommand('Toggle SAM Battery Details', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'samDetails'})
+		missionCommands.addCommand('Toggle Active Radar Contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'contacts'})
+		missionCommands.addCommand('Toggle Live Radar & HARM Alerts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'notifications'})
+		missionCommands.addCommand('Toggle Debug & Event Log Screen', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'debugScreen'})
+		missionCommands.addCommand('Write Full Diagnostic Report to Log', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'dumpDiagnostics'})
+	end
 end
 
 function SkynetIADS:removeRadioMenu()
-	missionCommands.removeItem(self.radioMenu)
+	self.radioMenuEnabled = false
+	if SkynetIADSLogger and SkynetIADSLogger.groupSessions and missionCommands and type(missionCommands.removeItemForGroup) == "function" then
+		for gid, s in pairs(SkynetIADSLogger.groupSessions) do
+			if s.menus and s.menus[self] then
+				pcall(missionCommands.removeItemForGroup, gid, s.menus[self])
+				s.menus[self] = nil
+				s.menuSig[self] = nil
+			end
+		end
+	end
+	if self.radioMenu and missionCommands and type(missionCommands.removeItem) == "function" then
+		missionCommands.removeItem(self.radioMenu)
+		self.radioMenu = nil
+	end
 end
 
 function SkynetIADS.updateDisplay(params)
 	local option = params.option
 	local self = params.self
 	local value = params.value
+	local groupId = params.groupId
+	local dbg = self:getDebugSettings()
+
+	if groupId and SkynetIADSLogger and SkynetIADSLogger.groupSessions then
+		local session = SkynetIADSLogger.groupSessions[groupId]
+		if not (session and SkynetIADSLogger.canSessionAccessIADS(session, self)) then
+			return
+		end
+		local v = SkynetIADSLogger.getGroupViewForIADS(groupId, self)
+		if not v then
+			return
+		end
+
+		if option == 'IADSStatus' then
+			v.IADSStatus = value
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'closeAll' then
+			v.IADSStatus = false
+			v.samDetails = false
+			v.contacts = false
+			v.debugScreen = false
+			v.snapshotUntil = 0
+			v.wasActive = false
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'snapshot' then
+			local now = timer and timer.getTime and timer.getTime() or 0
+			v.snapshotUntil = now + 15
+			SkynetIADSLogger.renderGroupDashboard(groupId, 2)
+		elseif option == 'samDetails' then
+			if value == 'toggle' then
+				v.samDetails = not v.samDetails
+			else
+				v.samDetails = value
+			end
+			if v.samDetails then
+				v.IADSStatus = true
+			end
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'contacts' then
+			if value == 'toggle' then
+				v.contacts = not v.contacts
+			else
+				v.contacts = value
+			end
+			if v.contacts then
+				v.IADSStatus = true
+			end
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'debugScreen' then
+			if value == 'toggle' then
+				v.debugScreen = not v.debugScreen
+			else
+				v.debugScreen = value
+			end
+			if v.debugScreen then
+				v.IADSStatus = true
+			end
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'dumpDiagnostics' then
+			self.logger:dumpFullDiagnosticReport("F10 Radio Menu Request")
+			self.logger:recordEvent("DIAGNOSTIC", "Full diagnostic report written to SKYNET_IADS_DEBUG.log", true, groupId, "DIAGNOSTIC-DUMP")
+		elseif option == 'notifications' then
+			local newState = value
+			if value == 'toggle' then
+				newState = not v.notifications
+			end
+			v.notifications = newState
+			if newState then
+				dbg.radarWentLive = true
+				dbg.radarWentDark = true
+				dbg.harmDefence = true
+			end
+			local statusTxt = newState and "ENABLED" or "DISABLED"
+			self.logger:recordEvent("NOTIFICATION", "Live Radar & HARM Alerts " .. statusTxt, true, groupId)
+		end
+		return
+	end
+
 	if option == 'IADSStatus' then
-		self:getDebugSettings()[option] = value
+		dbg.IADSStatus = value
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'closeAll' then
+		dbg.IADSStatus = false
+		dbg.samDetails = false
+		dbg.contacts = false
+		dbg.debugScreen = false
+		self.logger.snapshotUntil = 0
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'snapshot' then
+		local now = timer and timer.getTime and timer.getTime() or 0
+		self.logger.snapshotUntil = now + 15
+		SkynetIADSLogger.renderGlobalDashboard(2)
+	elseif option == 'samDetails' then
+		if value == 'toggle' then
+			dbg.samDetails = not dbg.samDetails
+		else
+			dbg.samDetails = value
+		end
+		if dbg.samDetails then
+			dbg.IADSStatus = true
+		end
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
 	elseif option == 'contacts' then
-		self:getDebugSettings()[option] = value
+		if value == 'toggle' then
+			dbg.contacts = not dbg.contacts
+		else
+			dbg.contacts = value
+		end
+		if dbg.contacts then
+			dbg.IADSStatus = true
+		end
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'debugScreen' then
+		if value == 'toggle' then
+			dbg.debugScreen = not dbg.debugScreen
+		else
+			dbg.debugScreen = value
+		end
+		if dbg.debugScreen then
+			dbg.IADSStatus = true
+		end
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'dumpDiagnostics' then
+		self.logger:dumpFullDiagnosticReport("F10 Radio Menu Request")
+		self.logger:recordEvent("DIAGNOSTIC", "Full diagnostic report written to SKYNET_IADS_DEBUG.log", true)
+	elseif option == 'notifications' then
+		local newState = value
+		if value == 'toggle' then
+			newState = not dbg.harmDefence
+		end
+		dbg.radarWentLive = newState
+		dbg.radarWentDark = newState
+		dbg.harmDefence = newState
+		local statusTxt = newState and "ENABLED" or "DISABLED"
+		self.logger:recordEvent("NOTIFICATION", "Live Radar & HARM Alerts " .. statusTxt, true)
 	end
 end
 
@@ -1777,7 +3861,7 @@ function SkynetIADS:getCoalitionString()
 	end
 		
 	if self.name then
-		coalitionStr = "COALITION: "..coalitionStr.." | NAME: "..self.name
+		coalitionStr = "COALITION: "..coalitionStr.." | IADS: "..self.name
 	end
 	
 	return coalitionStr
@@ -1899,7 +3983,7 @@ function SkynetIADSAbstractDCSObjectWrapper:create(dcsRepresentation)
 	instance.dcsName = ""
 	instance.typeName = ""
 	instance:setDCSRepresentation(dcsRepresentation)
-	if getmetatable(dcsRepresentation) ~= Group then
+	if dcsRepresentation and getmetatable(dcsRepresentation) ~= Group and dcsRepresentation:isExist() then
 		instance.typeName = dcsRepresentation:getTypeName()
 	end
 	return instance
@@ -1907,7 +3991,7 @@ end
 
 function SkynetIADSAbstractDCSObjectWrapper:setDCSRepresentation(representation)
 	self.dcsRepresentation = representation
-	if self.dcsRepresentation then
+	if self.dcsRepresentation and self.dcsRepresentation:isExist() then
 		self.dcsName = self.dcsRepresentation:getName()
 		if (self.dcsName == nil or string.len(self.dcsName) == 0) and self.dcsRepresentation.id_ then
 			self.dcsName = self.dcsRepresentation.id_
@@ -1928,7 +4012,10 @@ function SkynetIADSAbstractDCSObjectWrapper:getTypeName()
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:getPosition()
-	return self.dcsRepresentation:getPosition()
+	if self:isExist() then
+		return self.dcsRepresentation:getPosition()
+	end
+	return {p = {x = 0, y = 0, z = 0}, x = {x = 1, y = 0, z = 0}, y = {x = 0, y = 1, z = 0}, z = {x = 0, y = 0, z = 1}}
 end
 
 function SkynetIADSAbstractDCSObjectWrapper:isExist()
@@ -2030,12 +4117,16 @@ function SkynetIADSAbstractElement:cleanUp()
 end
 
 function SkynetIADSAbstractElement:isDestroyed()
-	return self:getDCSRepresentation():isExist() == false
+	return self:isExist() == false
 end
 
 function SkynetIADSAbstractElement:addPowerSource(powerSource)
-	table.insert(self.powerSources, powerSource)
-	self:informChildrenOfStateChange()
+	if powerSource then
+		table.insert(self.powerSources, powerSource)
+		local pName = (powerSource.getName and powerSource:getName()) or tostring(powerSource)
+		SkynetIADSLogger.writeGlobalLog("INFO", "POWER-LINKED", string.format("%s <- PowerSource: %s", self:getDescription(), tostring(pName)))
+		self:informChildrenOfStateChange()
+	end
 	return self
 end
 
@@ -2044,8 +4135,12 @@ function SkynetIADSAbstractElement:getPowerSources()
 end
 
 function SkynetIADSAbstractElement:addConnectionNode(connectionNode)
-	table.insert(self.connectionNodes, connectionNode)
-	self:informChildrenOfStateChange()
+	if connectionNode then
+		table.insert(self.connectionNodes, connectionNode)
+		local cName = (connectionNode.getName and connectionNode:getName()) or tostring(connectionNode)
+		SkynetIADSLogger.writeGlobalLog("INFO", "NODE-LINKED", string.format("%s <- ConnectionNode: %s", self:getDescription(), tostring(cName)))
+		self:informChildrenOfStateChange()
+	end
 	return self
 end
 
@@ -2055,16 +4150,32 @@ end
 
 function SkynetIADSAbstractElement:hasActiveConnectionNode()
 	local connectionNode = self:genericCheckOneObjectIsAlive(self.connectionNodes)
-	if connectionNode == false and self.iads:getDebugSettings().samNoConnection then
-		self.iads:printOutput(self:getDescription().." no connection to Command Center")
+	if connectionNode == false then
+		if not self._loggedNoConn then
+			self._loggedNoConn = true
+			SkynetIADSLogger.writeGlobalLog("WARN", "CONNECTION-LOST", self:getDescription() .. " lost connection to Command Center / Connection Node!")
+		end
+		if self.iads:getDebugSettings().samNoConnection then
+			self.iads:printOutput(self:getDescription().." has no connection to Command Center")
+		end
+	else
+		self._loggedNoConn = false
 	end
 	return connectionNode
 end
 
 function SkynetIADSAbstractElement:hasWorkingPowerSource()
 	local power = self:genericCheckOneObjectIsAlive(self.powerSources)
-	if power == false and self.iads:getDebugSettings().hasNoPower then
-		self.iads:printOutput(self:getDescription().." has no power")
+	if power == false then
+		if not self._loggedNoPower then
+			self._loggedNoPower = true
+			SkynetIADSLogger.writeGlobalLog("WARN", "POWER-LOST", self:getDescription() .. " lost all power sources!")
+		end
+		if self.iads:getDebugSettings().hasNoPower then
+			self.iads:printOutput(self:getDescription().." has no power source")
+		end
+	else
+		self._loggedNoPower = false
 	end
 	return power
 end
@@ -2079,7 +4190,7 @@ function SkynetIADSAbstractElement:genericCheckOneObjectIsAlive(objects)
 	for i = 1, #objects do
 		local object = objects[i]
 		--if we find one object that is not fully destroyed we assume the IADS is still working
-		if object:isExist() then
+		if object and object:isExist() then
 			isAlive = true
 			break
 		end
@@ -2092,23 +4203,26 @@ function SkynetIADSAbstractElement:getNatoName()
 end
 
 function SkynetIADSAbstractElement:getDescription()
-	return "IADS ELEMENT: "..self:getDCSName().." | Type: "..tostring(self:getNatoName())
+	return "IADS ELEMENT: "..tostring(self:getDCSName()).." | Type: "..tostring(self:getNatoName())
 end
 
 function SkynetIADSAbstractElement:onEvent(event)
-	--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
-	if event.id == world.event.S_EVENT_DEAD then
-		if self:hasWorkingPowerSource() == false or self:isDestroyed() then
-			self:goDark()
-			self:informChildrenOfStateChange()
+	SkynetIADSLogger.safeCall("SkynetIADSAbstractElement:onEvent", function()
+		if not event then return end
+		--if a unit is destroyed we check to see if its a power plant powering the unit or a connection node
+		if event.id == world.event.S_EVENT_DEAD then
+			if self:hasWorkingPowerSource() == false or self:isDestroyed() then
+				self:goDark()
+				self:informChildrenOfStateChange()
+			end
+			if self:hasActiveConnectionNode() == false then
+				self:informChildrenOfStateChange()
+			end
 		end
-		if self:hasActiveConnectionNode() == false then
-			self:informChildrenOfStateChange()
+		if event.id == world.event.S_EVENT_SHOT then
+			self:weaponFired(event)
 		end
-	end
-	if event.id == world.event.S_EVENT_SHOT then
-		self:weaponFired(event)
-	end
+	end)
 end
 
 --placeholder method, can be implemented by subclasses
@@ -2198,10 +4312,12 @@ function SkynetIADSAbstractRadarElement:weaponFired(event)
 	if event.id == world.event.S_EVENT_SHOT then
 		local weapon = event.weapon
 		local launcherFired = event.initiator
-		for i = 1, #self.launchers do
-			local launcher = self.launchers[i]
-			if launcher:getDCSRepresentation() == launcherFired then
-				table.insert(self.missilesInFlight, weapon)
+		if weapon and launcherFired then
+			for i = 1, #self.launchers do
+				local launcher = self.launchers[i]
+				if launcher:getDCSRepresentation() == launcherFired then
+					table.insert(self.missilesInFlight, weapon)
+				end
 			end
 		end
 	end
@@ -2233,8 +4349,12 @@ function SkynetIADSAbstractRadarElement:getIsAPointDefence()
 end
 
 function SkynetIADSAbstractRadarElement:addPointDefence(pointDefence)
-	table.insert(self.pointDefences, pointDefence)
-	pointDefence:setIsAPointDefence(true)
+	if pointDefence then
+		table.insert(self.pointDefences, pointDefence)
+		pointDefence:setIsAPointDefence(true)
+		SkynetIADSLogger.writeGlobalLog("INFO", "POINT-DEFENCE-LINKED", string.format("Protected: %s (%s) <- Point Defence: %s (%s)",
+			tostring(self:getDCSName()), tostring(self:getNatoName()), tostring(pointDefence:getDCSName()), tostring(pointDefence:getNatoName())))
+	end
 	return self
 end
 
@@ -2320,12 +4440,23 @@ function SkynetIADSAbstractRadarElement:getAutonomousBehaviour()
 end
 
 function SkynetIADSAbstractRadarElement:resetAutonomousState()
+	local wasAuto = self.isAutonomous
 	self.isAutonomous = false
+	if wasAuto then
+		SkynetIADSLogger.writeGlobalLog("INFO", "IADS-CONNECTED", string.format("%s (%s) connected to IADS network (Autonomous=false)",
+			tostring(self:getDCSName()), tostring(self:getNatoName())))
+	end
 	self:goDark()
 end
 
 function SkynetIADSAbstractRadarElement:goAutonomous()
+	local wasAuto = self.isAutonomous
 	self.isAutonomous = true
+	if not wasAuto then
+		local modeStr = (self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK) and "DARK" or "DCS_AI"
+		self.iads.logger:recordEvent("AUTONOMOUS", string.format("%s (%s) switched to AUTONOMOUS mode (%s)",
+			tostring(self:getDCSName()), tostring(self:getNatoName()), modeStr), false, nil, "AUTONOMOUS-MODE")
+	end
 	if self.autonomousBehaviour == SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DARK then
 		self:goDark()
 	else
@@ -2380,7 +4511,7 @@ function SkynetIADSAbstractRadarElement:pointDefencesHaveEnoughLaunchers(minNumb
 end
 
 function SkynetIADSAbstractRadarElement:setIgnoreHARMSWhilePointDefencesHaveAmmo(state)
-	self.iads:printOutputToLog("DEPRECATED: setIgnoreHARMSWhilePointDefencesHaveAmmo SAM Site will stay live automaticall as long as itself or it's point defences can defend against a HARM")
+	self.iads:printOutputToLog("DEPRECATED: setIgnoreHARMSWhilePointDefencesHaveAmmo - SAM site will automatically stay live as long as it or its point defences can engage the HARM")
 	return self
 end
 
@@ -2521,7 +4652,7 @@ function SkynetIADSAbstractRadarElement:setupElements()
 		
 		--this check ensures a unit or group has all required elements for the specific sam or ew type:
 		if (hasLauncher and hasSearchRadar and hasTrackingRadar and #self.launchers > 0 and #self.searchRadars > 0  and #self.trackingRadars > 0 ) 
-			or (hasSearchRadar and hasLauncher and #self.searchRadars > 0 and #self.launchers > 0) then
+			or (hasSearchRadar and hasLauncher and hasTrackingRadar == false and #self.searchRadars > 0 and #self.launchers > 0) then
 			self:setHARMDetectionChance(dataType['harm_detection_chance'])
 			self.dataBaseSupportedTypesCanEngageHARM = dataType['can_engage_harm'] 
 			self:setCanEngageHARM(self.dataBaseSupportedTypesCanEngageHARM)
@@ -2676,9 +4807,7 @@ function SkynetIADSAbstractRadarElement:goLive()
 			self.aiState = true
 		end
 		self:pointDefencesStopActingAsEW()
-		if  self.iads:getDebugSettings().radarWentLive then
-			self.iads:printOutputToLog("GOING LIVE: "..self:getDescription())
-		end
+		self.iads.logger:recordEvent("RADAR LIVE", self:getDCSName().." ("..tostring(self:getNatoName())..")", self.iads:getDebugSettings().radarWentLive, nil, "RADAR-LIVE")
 		self:scanForHarms()
 	end
 end
@@ -2695,6 +4824,14 @@ function SkynetIADSAbstractRadarElement:goDark()
 	if (self:hasWorkingPowerSource() == false) or ( self.aiState == true ) 
 	and (self.harmSilenceID ~= nil or ( self.harmSilenceID == nil and #self:getDetectedTargets() == 0 and self:hasMissilesInFlight() == false) or ( self.harmSilenceID == nil and #self:getDetectedTargets() > 0 and self:hasMissilesInFlight() == false and self:hasRemainingAmmo() == false ) )	
 	then
+		local reason = "NO_TARGETS"
+		if self:hasWorkingPowerSource() == false then
+			reason = "NO_POWER"
+		elseif self.harmSilenceID ~= nil then
+			reason = "HARM_DEFENCE"
+		elseif self:hasRemainingAmmo() == false then
+			reason = "OUT_OF_AMMO"
+		end
 		if self:isDestroyed() == false then
 			self:getDCSRepresentation():enableEmission(false)
 		end
@@ -2710,9 +4847,7 @@ function SkynetIADSAbstractRadarElement:goDark()
 		self.aiState = false
 		self:stopScanningForHARMs()
 		self.cachedTargets = {}
-		if self.iads:getDebugSettings().radarWentDark then
-			self.iads:printOutputToLog("GOING DARK: "..self:getDescription())
-		end
+		self.iads.logger:recordEvent("RADAR DARK", self:getDCSName().." ("..tostring(self:getNatoName())..") [Reason: "..reason.."]", self.iads:getDebugSettings().radarWentDark, nil, "RADAR-DARK")
 	end
 end
 
@@ -2807,25 +4942,18 @@ function SkynetIADSAbstractRadarElement:hasWorkingRadar()
 end
 
 function SkynetIADSAbstractRadarElement:jam(successProbability)
-		if self:isDestroyed() == false then
-			local controller = self:getController()
-			local probability = math.random(1, 100)
-			if self.iads:getDebugSettings().jammerProbability then
-				self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": Probability: "..successProbability)
-			end
-			if successProbability > probability then
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
-				if self.iads:getDebugSettings().jammerProbability then
-					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon hold")
-				end
-			else
-				controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
-				if self.iads:getDebugSettings().jammerProbability then
-					self.iads:printOutputToLog("JAMMER: "..self:getDescription()..": jammed, setting to weapon free")
-				end
-			end
-			self.lastJammerUpdate = timer:getTime()
+	if self:isDestroyed() == false then
+		local controller = self:getController()
+		local probability = math.random(1, 100)
+		if successProbability > probability then
+			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_HOLD)
+			SkynetIADSLogger.writeGlobalLog("INFO", "JAMMER-EW", string.format("%s | Jammed (Prob:%.1f%% > Roll:%d) -> WEAPON_HOLD", self:getDescription(), tonumber(successProbability) or 0, probability))
+		else
+			controller:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
+			SkynetIADSLogger.writeGlobalLog("INFO", "JAMMER-EW", string.format("%s | Resisted Jamming (Prob:%.1f%% <= Roll:%d) -> WEAPON_FREE", self:getDescription(), tonumber(successProbability) or 0, probability))
 		end
+		self.lastJammerUpdate = timer.getTime()
+	end
 end
 
 function SkynetIADSAbstractRadarElement:scanForHarms()
@@ -2856,9 +4984,8 @@ function SkynetIADSAbstractRadarElement:goSilentToEvadeHARM(timeToImpact)
 	self.maxHarmShutDownTime = self:calculateMaximalShutdownTimeInSeconds(self.minHarmShutdownTime)
 	
 	self.harmShutdownTime = self:calculateHARMShutdownTime()
-	if self.iads:getDebugSettings().harmDefence then
-		self.iads:printOutputToLog("HARM DEFENCE SHUTTING DOWN: "..self:getDCSName().." | FOR: "..self.harmShutdownTime.." seconds | TTI: "..timeToImpact)
-	end
+	self.harmSilenceEndTime = (timer and timer.getTime and timer.getTime() or 0) + self.harmShutdownTime
+	self.iads.logger:recordEvent("HARM DEFENCE", self:getDCSName().." -> shutting down for "..self.harmShutdownTime.."s (TTI: "..timeToImpact.."s)", self.iads:getDebugSettings().harmDefence, nil, "HARM-SHUTDOWN")
 	self.harmSilenceID = mist.scheduleFunction(SkynetIADSAbstractRadarElement.finishHarmDefence, {self}, timer.getTime() + self.harmShutdownTime, 1)
 	self:goDark()
 end
@@ -2867,19 +4994,36 @@ function SkynetIADSAbstractRadarElement:getHARMShutdownTime()
 	return self.harmShutdownTime
 end
 
+function SkynetIADSAbstractRadarElement:getRemainingHARMShutdownTime()
+	if self.harmSilenceEndTime and timer and timer.getTime then
+		local rem = math.ceil(self.harmSilenceEndTime - timer.getTime())
+		if rem > 0 then
+			return rem
+		end
+	end
+	return self.harmShutdownTime or 0
+end
+
 function SkynetIADSAbstractRadarElement:calculateHARMShutdownTime()
 	local shutDownTime = math.random(self.minHarmShutdownTime, self.maxHarmShutDownTime)
 	return shutDownTime
 end
 
 function SkynetIADSAbstractRadarElement.finishHarmDefence(self)
-	mist.removeFunction(self.harmSilenceID)
-	self.harmSilenceID = nil
-	self.harmShutdownTime = 0
-	
-	if ( self:getAutonomousState() == true ) then
-		self:goAutonomous()
-	end	
+	SkynetIADSLogger.safeCall("SkynetIADSAbstractRadarElement.finishHarmDefence", function()
+		local hadSilence = (self.harmSilenceID ~= nil)
+		mist.removeFunction(self.harmSilenceID)
+		self.harmSilenceID = nil
+		self.harmShutdownTime = 0
+		self.harmSilenceEndTime = nil
+		if hadSilence then
+			SkynetIADSLogger.writeGlobalLog("INFO", "HARM-SILENCE-END", string.format("%s (%s) HARM silence window expired",
+				tostring(self:getDCSName()), tostring(self:getNatoName())))
+		end
+		if ( self:getAutonomousState() == true ) then
+			self:goAutonomous()
+		end
+	end)
 end
 
 function SkynetIADSAbstractRadarElement:getDetectedTargets()
@@ -2891,7 +5035,7 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 			for i = 1, #targets do
 				local target = targets[i]
 				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
-				if target.object then
+				if target.object and target.object:isExist() then
 					local iadsTarget = SkynetIADSContact:create(target, self)
 					iadsTarget:refresh()
 					if self:isTargetInRange(iadsTarget) then
@@ -2962,13 +5106,15 @@ function SkynetIADSAbstractRadarElement:informOfHARM(harmContact)
 				-- when iterating through the radars, store shortest tti and work with that value??
 				if ( harmToSAMAspect < SkynetIADSAbstractRadarElement.HARM_TO_SAM_ASPECT and distanceNM < SkynetIADSAbstractRadarElement.HARM_LOOKAHEAD_NM ) then
 					self:addObjectIdentifiedAsHARM(harmContact)
-					if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true and self.iads:getDebugSettings().harmDefence ) then
-							self.iads:printOutputToLog("POINT DEFENCES GOING LIVE FOR: "..self:getDCSName().." | TTI: "..secondsToImpact)
+					if ( #self:getPointDefences() > 0 and self:pointDefencesGoLive() == true ) then
+						self.iads.logger:recordEvent("POINT DEFENCE", self:getDCSName().." point defence activated against HARM (TTI: "..secondsToImpact.."s)", self.iads:getDebugSettings().harmDefence, nil, "POINT-DEFENCE-ACTIVE")
 					end
-					--self.iads:printOutputToLog("Ignore HARM shutdown: "..tostring(self:shallIgnoreHARMShutdown()))
 					if ( self:getIsAPointDefence() == false and ( self:isDefendingHARM() == false or ( self:getHARMShutdownTime() < secondsToImpact ) ) and self:shallIgnoreHARMShutdown() == false) then
 						self:goSilentToEvadeHARM(secondsToImpact)
 						break
+					elseif self:getIsAPointDefence() == false and self:shallIgnoreHARMShutdown() == true then
+						SkynetIADSLogger.writeGlobalLog("INFO", "HARM-STAY-LIVE", string.format("%s (%s) staying LIVE to intercept HARM (ActiveHARMs:%d, TTI:%ds)",
+							tostring(self:getDCSName()), tostring(self:getNatoName()), self:getNumberOfObjectsItentifiedAsHARMS(), secondsToImpact))
 					end
 				end
 			end
@@ -3013,16 +5159,17 @@ end
 
 
 function SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs(self)
-
-	--if an emitter dies the SAM site being jammed will revert back to normal operation:
-	if self.lastJammerUpdate > 0 and ( timer:getTime() - self.lastJammerUpdate ) > 10 then
-		self:jam(0)
-		self.lastJammerUpdate = 0
-	end
-	
-	--we use the regular interval of this method to update to other states: 
-	self:updateMissilesInFlight()	
-	self:cleanUpOldObjectsIdentifiedAsHARMS()
+	SkynetIADSLogger.safeCall("SkynetIADSAbstractRadarElement.evaluateIfTargetsContainHARMs", function()
+		--if an emitter dies the SAM site being jammed will revert back to normal operation:
+		if self.lastJammerUpdate > 0 and ( timer.getTime() - self.lastJammerUpdate ) > 10 then
+			self:jam(0)
+			self.lastJammerUpdate = 0
+		end
+		
+		--we use the regular interval of this method to update to other states: 
+		self:updateMissilesInFlight()	
+		self:cleanUpOldObjectsIdentifiedAsHARMS()
+	end)
 end
 
 end
@@ -3123,7 +5270,11 @@ function SkynetIADSContact:create(dcsRadarTarget, abstractRadarElementDetected)
 	instance.firstContactTime = timer.getAbsTime()
 	instance.lastTimeSeen = 0
 	instance.dcsRadarTarget = dcsRadarTarget
-	instance.position = instance:getDCSRepresentation():getPosition()
+	if instance:isExist() then
+		instance.position = instance:getDCSRepresentation():getPosition()
+	else
+		instance.position = {p = {x = 0, y = 0, z = 0}, x = {x = 1, y = 0, z = 0}}
+	end
 	instance.numOfTimesRefreshed = 0
 	instance.speed = 0
 	instance.harmState = SkynetIADSContact.HARM_UNKNOWN
@@ -3175,8 +5326,8 @@ function SkynetIADSContact:getTypeName()
 	if self:isIdentifiedAsHARM() then
 		return SkynetIADSContact.HARM
 	end
-	if self:getDCSRepresentation() ~= nil then
-		local category = self:getDCSRepresentation():getCategory()
+	if self:isExist() and self:getDCSRepresentation() ~= nil then
+		local category = Object.getCategory(self:getDCSRepresentation())
 		if category == Object.Category.UNIT then
 			return self.typeName
 		end
@@ -3271,19 +5422,23 @@ end
 function SkynetIADSEWRadar:setupElements()
 	local unit = self:getDCSRepresentation()
 	local unitType = unit:getTypeName()
-	for typeName, dataType in pairs(SkynetIADS.database) do
-		for entry, unitData in pairs(dataType) do
-			if entry == 'searchRadar' then
-				--buildSingleUnit checks to make sure the EW radar is defined in the Skynet database. If it is not, self.searchRadars will be 0 so no ew radar will be added
-				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
-				if #self.searchRadars > 0 then
-					local harmDetection = dataType['harm_detection_chance']
-					self:setHARMDetectionChance(harmDetection)
-					if unitData[unitType]['name'] then
-						local natoName = unitData[unitType]['name']['NATO']
-						self:buildNatoName(natoName)
+	for pass = 1, 2 do
+		for typeName, dataType in pairs(SkynetIADS.database) do
+			if (pass == 1 and dataType['type'] == 'ewr') or (pass == 2 and dataType['type'] ~= 'ewr') then
+				for entry, unitData in pairs(dataType) do
+					if entry == 'searchRadar' then
+						--buildSingleUnit checks to make sure the EW radar is defined in the Skynet database. If it is not, self.searchRadars will be 0 so no ew radar will be added
+						self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
+						if #self.searchRadars > 0 then
+							local harmDetection = dataType['harm_detection_chance']
+							self:setHARMDetectionChance(harmDetection)
+							if unitData[unitType]['name'] and unitData[unitType]['name']['NATO'] and string.len(unitData[unitType]['name']['NATO']) > 0 then
+								local natoName = unitData[unitType]['name']['NATO']
+								self:buildNatoName(natoName)
+							end
+							return
+						end
 					end
-					return
 				end
 			end
 		end
@@ -3397,34 +5552,33 @@ function SkynetIADSJammer:getDistanceNMToRadarUnit(radarUnit)
 end
 
 function SkynetIADSJammer.runCycle(self)
+	SkynetIADSLogger.safeCall("SkynetIADSJammer.runCycle", function()
+		if self.emitter:isExist() == false then
+			self:masterArmSafe()
+			return
+		end
 
-	if self.emitter:isExist() == false then
-		self:masterArmSafe()
-		return
-	end
-
-	for i = 1, #self.iads do
-		local iads = self.iads[i]
-		local samSites = iads:getActiveSAMSites()	
-		for j = 1, #samSites do
-			local samSite = samSites[j]
-			local radars = samSite:getRadars()
-			local hasLOS = false
-			local distance = 0
-			local natoName = samSite:getNatoName()
-			for l = 1, #radars do
-				local radar = radars[l]
-				distance = self:getDistanceNMToRadarUnit(radar)
-				-- I try to emulate the system as it would work in real life, so a jammer can only jam a SAM site if has line of sight to at least one radar in the group
-				if self:isKnownRadarEmitter(natoName) and self:hasLineOfSightToRadar(radar) and distance <= self.maximumEffectiveDistanceNM then
-					if iads:getDebugSettings().jammerProbability then
-						iads:printOutput("JAMMER: Distance: "..distance)
+		for i = 1, #self.iads do
+			local iads = self.iads[i]
+			local samSites = iads:getActiveSAMSites()	
+			for j = 1, #samSites do
+				local samSite = samSites[j]
+				local radars = samSite:getRadars()
+				local distance = 0
+				local natoName = samSite:getNatoName()
+				for l = 1, #radars do
+					local radar = radars[l]
+					distance = self:getDistanceNMToRadarUnit(radar)
+					if self:isKnownRadarEmitter(natoName) and self:hasLineOfSightToRadar(radar) and distance <= self.maximumEffectiveDistanceNM then
+						if iads:getDebugSettings().jammerProbability then
+							iads:printOutput("EW JAMMER | Distance (NM): "..distance)
+						end
+						samSite:jam(self:getSuccessProbability(distance, natoName))
 					end
-					samSite:jam(self:getSuccessProbability(distance, natoName))
 				end
 			end
 		end
-	end
+	end)
 end
 
 function SkynetIADSJammer:hasLineOfSightToRadar(radar)
@@ -3796,38 +5950,32 @@ function SkynetIADSHARMDetection:evaluateContacts()
 		local contact = self.contacts[i]	
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
 		--if a contact has only been hit by a radar once it's speed is 0
-		if groundSpeed == 0 then
-			return
-		end
-		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
-		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
-		--self.iads:printOutputToLog(contact:getName().." new Radars to evaluate: "..#newRadarsToEvaluate)
-		--self.iads:printOutputToLog(contact:getName().." ground speed: "..groundSpeed)
-		if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
-			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
-			--self.iads:printOutputToLog("DETECTION PROB: "..detectionProbability)
-			if ( self:shallReactToHARM(detectionProbability) ) then
-				contact:setHARMState(SkynetIADSContact.HARM)
-				if (self.iads:getDebugSettings().harmDefence ) then
-					self.iads:printOutputToLog("HARM IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
-				end
-			else
-				contact:setHARMState(SkynetIADSContact.NOT_HARM)
-				if (self.iads:getDebugSettings().harmDefence ) then
-					self.iads:printOutputToLog("HARM NOT IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+		if groundSpeed > 0 then
+			local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
+			local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
+			--self.iads:printOutputToLog(contact:getName().." new Radars to evaluate: "..#newRadarsToEvaluate)
+			--self.iads:printOutputToLog(contact:getName().." ground speed: "..groundSpeed)
+			if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
+				local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
+				if ( self:shallReactToHARM(detectionProbability) ) then
+					contact:setHARMState(SkynetIADSContact.HARM)
+					self.iads.logger:recordEvent("HARM DETECTED", string.format("%s detected (Speed:%d kt, Prob:%d%%)", tostring(contact:getTypeName()), groundSpeed, detectionProbability), self.iads:getDebugSettings().harmDefence, nil, "HARM-DETECTED")
+				else
+					contact:setHARMState(SkynetIADSContact.NOT_HARM)
+					SkynetIADSLogger.writeGlobalLog("WARN", "HARM-MISSED", string.format("[%s] Failed to detect high-speed weapon %s (Speed:%d kt, Prob:%d%%)",
+						tostring(self.iads.name or self.iads:getCoalitionString()), tostring(contact:getTypeName()), groundSpeed, detectionProbability))
 				end
 			end
-		end
-		
-		if ( #simpleAltitudeProfile > 2 and contact:isIdentifiedAsHARM() ) then
-			contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
-			if (self.iads:getDebugSettings().harmDefence ) then
-				self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())
+			
+			if ( #simpleAltitudeProfile > 2 and contact:isIdentifiedAsHARM() ) then
+				contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
+				SkynetIADSLogger.writeGlobalLog("INFO", "HARM-CLEARED", string.format("[%s] Contact %s (%s) reclassified as non-HARM",
+					tostring(self.iads.name or self.iads:getCoalitionString()), tostring(contact:getName()), tostring(contact:getTypeName())))
 			end
-		end
-		
-		if ( contact:isIdentifiedAsHARM() ) then
-			self:informRadarsOfHARM(contact)
+			
+			if ( contact:isIdentifiedAsHARM() ) then
+				self:informRadarsOfHARM(contact)
+			end
 		end
 	end
 end
@@ -3908,3 +6056,5 @@ end
 end
 
 
+
+env.info("--- SKYNET VERSION: 3.4.0 | BUILD TIME (UTC): 25.11.2026 1737Z ---")

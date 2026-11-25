@@ -28,10 +28,12 @@ function SkynetIADS:create(name)
 end
 
 function SkynetIADS:onEvent(event)
-	if (event.id == world.event.S_EVENT_BIRTH ) then
-		env.info("New Object Spawned")
-	--	self:addSAMSite(event.initiator:getGroup():getName());
-	end
+	SkynetIADSLogger.safeCall("SkynetIADS:onEvent", function()
+		if (event and event.id == world.event.S_EVENT_BIRTH) then
+			local initName = (event.initiator and event.initiator.getName and event.initiator:getName()) or "Unknown"
+			self:printOutputToLog("S_EVENT_BIRTH detected: " .. tostring(initName))
+		end
+	end)
 end
 
 function SkynetIADS:setUpdateInterval(interval)
@@ -131,8 +133,10 @@ function SkynetIADS:addEarlyWarningRadar(earlyWarningRadarUnitName)
 	ewRadar:setToCorrectAutonomousState()
 	ewRadar:goLive()
 	table.insert(self.earlyWarningRadars, ewRadar)
+	SkynetIADSLogger.writeGlobalLog("INFO", "EWR-ADDED", string.format("[%s] Added EWR: %s (NATO: %s, HARM-Chance: %d%%)",
+		tostring(self.name or self:getCoalitionString()), tostring(ewRadar:getDCSName()), tostring(ewRadar:getNatoName()), tonumber(ewRadar:getHARMDetectionChance()) or 0))
 	if self:getDebugSettings().addedEWRadar then
-			self:printOutputToLog("ADDED: "..ewRadar:getDescription())
+		self:printOutput("ADDED: "..ewRadar:getDescription())
 	end
 	return ewRadar
 end
@@ -166,8 +170,11 @@ function SkynetIADS:addSAMSitesByPrefix(prefix)
 		if pos and pos == 1 then
 			--mist returns groups, units and, StaticObjects
 			local dcsObject = Group.getByName(groupName)
-			if dcsObject and dcsObject:getUnits()[1]:isActive() then
-				self:addSAMSite(groupName)
+			if dcsObject and dcsObject:isExist() then
+				local units = dcsObject:getUnits()
+				if units and units[1] and units[1]:isExist() and units[1]:isActive() then
+					self:addSAMSite(groupName)
+				end
 			end
 		end
 	end
@@ -205,8 +212,12 @@ function SkynetIADS:addSAMSite(samSiteName)
 	else
 		samSite:goDark()
 		table.insert(self.samSites, samSite)
+		SkynetIADSLogger.writeGlobalLog("INFO", "SAM-ADDED", string.format("[%s] Added SAM Site: %s (NATO: %s, Launchers: %d, Radars: %d, Missiles: %d, HARM-Chance: %d%%)",
+			tostring(self.name or self:getCoalitionString()), tostring(samSite:getDCSName()), tostring(samSite:getNatoName()),
+			#(samSite:getLaunchers() or {}), #(samSite:getRadars() or {}), tonumber(samSite:getInitialNumberOfMissiles()) or 0,
+			tonumber(samSite:getHARMDetectionChance()) or 0))
 		if self:getDebugSettings().addedSAMSite then
-			self:printOutputToLog("ADDED: "..samSite:getDescription())
+			self:printOutput("ADDED: "..samSite:getDescription())
 		end
 		-- for performance improvement, if iads is not scanning no update coverage update needs to be done, will be executed once when iads activates
 		if self.ewRadarScanMistTaskID ~= nil then
@@ -266,9 +277,15 @@ function SkynetIADS:getSAMSitesByNatoName(natoName)
 end
 
 function SkynetIADS:addCommandCenter(commandCenter)
+	if commandCenter == nil then
+		self:printOutputToLog("You added a Command Center that does not exist, check name in Setup and Mission Editor", true)
+		return
+	end
 	self:setCoalition(commandCenter)
 	local comCenter = SkynetIADSCommandCenter:create(commandCenter, self)
 	table.insert(self.commandCenters, comCenter)
+	SkynetIADSLogger.writeGlobalLog("INFO", "CC-ADDED", string.format("[%s] Added Command Center: %s",
+		tostring(self.name or self:getCoalitionString()), tostring(comCenter:getDCSName())))
 	-- when IADS is active the radars will be added to the new command center. If it not active this will happen when radar coverage is built
 	if self.ewRadarScanMistTaskID ~= nil then
 		self:addRadarsToCommandCenters()
@@ -290,6 +307,12 @@ end
 
 
 function SkynetIADS.evaluateContacts(self)
+	SkynetIADSLogger.safeCall("SkynetIADS.evaluateContacts", function()
+		SkynetIADS.evaluateContactsInternal(self)
+	end)
+end
+
+function SkynetIADS.evaluateContactsInternal(self)
 
 	local ewRadars = self:getUsableEarlyWarningRadars()
 	local samSites = self:getUsableSAMSites()
@@ -348,7 +371,7 @@ function SkynetIADS.evaluateContacts(self)
 			-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
 			-- currently every type of object in the air is handed of to the SAM site, including missiles
 			local description = contact:getDesc()
-			local category = description.category
+			local category = description and description.category or nil
 			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
 				samToTrigger:informOfContact(contact)
 			end
@@ -535,14 +558,22 @@ end
 
 -- will start going through the Early Warning Radars and SAM sites to check what targets they have detected
 function SkynetIADS.activate(self)
-	mist.removeFunction(self.ewRadarScanMistTaskID)
-	self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
-	self:buildRadarCoverage()
+	SkynetIADSLogger.safeCall("SkynetIADS.activate", function()
+		mist.removeFunction(self.ewRadarScanMistTaskID)
+		self.ewRadarScanMistTaskID = mist.scheduleFunction(SkynetIADS.evaluateContacts, {self}, 1, self.contactUpdateInterval)
+		self:buildRadarCoverage()
+		if SkynetIADSLogger and SkynetIADSLogger.ensureLiveTicker then
+			SkynetIADSLogger.ensureLiveTicker()
+		end
+		if self.logger and self.logger.dumpFullDiagnosticReport then
+			self.logger:dumpFullDiagnosticReport("IADS Activated")
+		end
+	end)
 end
 
 function SkynetIADS:setupSAMSitesAndThenActivate(setupTime)
 	self:activate()
-	self.logger:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate, no longer needed since using enableEmission instead of AI on / off allows for the Ground units to setup with their radars turned off")
+	self.logger:printOutputToLog("DEPRECATED: setupSAMSitesAndThenActivate is no longer required, calling activate() directly")
 end
 
 function SkynetIADS:deactivate()
@@ -575,25 +606,215 @@ function SkynetIADS:deactivateEarlyWarningRadars()
 end	
 
 function SkynetIADS:addRadioMenu()
-	self.radioMenu = missionCommands.addSubMenu('SKYNET IADS '..self:getCoalitionString())
-	local displayIADSStatus = missionCommands.addCommand('show IADS Status', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
-	local displayIADSStatus = missionCommands.addCommand('hide IADS Status', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'IADSStatus'})
-	local displayIADSStatus = missionCommands.addCommand('show contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'contacts'})
-	local displayIADSStatus = missionCommands.addCommand('hide contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'contacts'})
+	self.radioMenuEnabled = true
+	if SkynetIADSLogger and SkynetIADSLogger.ensureLiveTicker then
+		SkynetIADSLogger.ensureLiveTicker()
+	end
+	if missionCommands and type(missionCommands.addSubMenuForGroup) == "function" and SkynetIADSLogger and SkynetIADSLogger.syncGroupRadioMenus then
+		pcall(SkynetIADSLogger.syncGroupRadioMenus)
+	elseif missionCommands and type(missionCommands.addSubMenu) == "function" then
+		self.radioMenu = missionCommands.addSubMenu('SKYNET IADS '..self:getCoalitionString())
+		missionCommands.addCommand('Open Live IADS Dashboard (Continuous)', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'IADSStatus'})
+		missionCommands.addCommand('Close Live IADS Dashboard', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = false, option = 'closeAll'})
+		missionCommands.addCommand('Quick Status Snapshot (15 sec)', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'snapshot'})
+		missionCommands.addCommand('Toggle SAM Battery Details', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'samDetails'})
+		missionCommands.addCommand('Toggle Active Radar Contacts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'contacts'})
+		missionCommands.addCommand('Toggle Live Radar & HARM Alerts', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'notifications'})
+		missionCommands.addCommand('Toggle Debug & Event Log Screen', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = 'toggle', option = 'debugScreen'})
+		missionCommands.addCommand('Write Full Diagnostic Report to Log', self.radioMenu, SkynetIADS.updateDisplay, {self = self, value = true, option = 'dumpDiagnostics'})
+	end
 end
 
 function SkynetIADS:removeRadioMenu()
-	missionCommands.removeItem(self.radioMenu)
+	self.radioMenuEnabled = false
+	if SkynetIADSLogger and SkynetIADSLogger.groupSessions and missionCommands and type(missionCommands.removeItemForGroup) == "function" then
+		for gid, s in pairs(SkynetIADSLogger.groupSessions) do
+			if s.menus and s.menus[self] then
+				pcall(missionCommands.removeItemForGroup, gid, s.menus[self])
+				s.menus[self] = nil
+				s.menuSig[self] = nil
+			end
+		end
+	end
+	if self.radioMenu and missionCommands and type(missionCommands.removeItem) == "function" then
+		missionCommands.removeItem(self.radioMenu)
+		self.radioMenu = nil
+	end
 end
 
 function SkynetIADS.updateDisplay(params)
 	local option = params.option
 	local self = params.self
 	local value = params.value
+	local groupId = params.groupId
+	local dbg = self:getDebugSettings()
+
+	if groupId and SkynetIADSLogger and SkynetIADSLogger.groupSessions then
+		local session = SkynetIADSLogger.groupSessions[groupId]
+		if not (session and SkynetIADSLogger.canSessionAccessIADS(session, self)) then
+			return
+		end
+		local v = SkynetIADSLogger.getGroupViewForIADS(groupId, self)
+		if not v then
+			return
+		end
+
+		if option == 'IADSStatus' then
+			v.IADSStatus = value
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'closeAll' then
+			v.IADSStatus = false
+			v.samDetails = false
+			v.contacts = false
+			v.debugScreen = false
+			v.snapshotUntil = 0
+			v.wasActive = false
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'snapshot' then
+			local now = timer and timer.getTime and timer.getTime() or 0
+			v.snapshotUntil = now + 15
+			SkynetIADSLogger.renderGroupDashboard(groupId, 2)
+		elseif option == 'samDetails' then
+			if value == 'toggle' then
+				v.samDetails = not v.samDetails
+			else
+				v.samDetails = value
+			end
+			if v.samDetails then
+				v.IADSStatus = true
+			end
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'contacts' then
+			if value == 'toggle' then
+				v.contacts = not v.contacts
+			else
+				v.contacts = value
+			end
+			if v.contacts then
+				v.IADSStatus = true
+			end
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'debugScreen' then
+			if value == 'toggle' then
+				v.debugScreen = not v.debugScreen
+			else
+				v.debugScreen = value
+			end
+			if v.debugScreen then
+				v.IADSStatus = true
+			end
+			if not SkynetIADSLogger.renderGroupDashboard(groupId, 2) then
+				v.wasActive = false
+				SkynetIADSLogger.emitCardTextForGroup(groupId, "__CLOSE__", 1)
+			end
+		elseif option == 'dumpDiagnostics' then
+			self.logger:dumpFullDiagnosticReport("F10 Radio Menu Request")
+			self.logger:recordEvent("DIAGNOSTIC", "Full diagnostic report written to SKYNET_IADS_DEBUG.log", true, groupId, "DIAGNOSTIC-DUMP")
+		elseif option == 'notifications' then
+			local newState = value
+			if value == 'toggle' then
+				newState = not v.notifications
+			end
+			v.notifications = newState
+			if newState then
+				dbg.radarWentLive = true
+				dbg.radarWentDark = true
+				dbg.harmDefence = true
+			end
+			local statusTxt = newState and "ENABLED" or "DISABLED"
+			self.logger:recordEvent("NOTIFICATION", "Live Radar & HARM Alerts " .. statusTxt, true, groupId)
+		end
+		return
+	end
+
 	if option == 'IADSStatus' then
-		self:getDebugSettings()[option] = value
+		dbg.IADSStatus = value
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'closeAll' then
+		dbg.IADSStatus = false
+		dbg.samDetails = false
+		dbg.contacts = false
+		dbg.debugScreen = false
+		self.logger.snapshotUntil = 0
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'snapshot' then
+		local now = timer and timer.getTime and timer.getTime() or 0
+		self.logger.snapshotUntil = now + 15
+		SkynetIADSLogger.renderGlobalDashboard(2)
+	elseif option == 'samDetails' then
+		if value == 'toggle' then
+			dbg.samDetails = not dbg.samDetails
+		else
+			dbg.samDetails = value
+		end
+		if dbg.samDetails then
+			dbg.IADSStatus = true
+		end
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
 	elseif option == 'contacts' then
-		self:getDebugSettings()[option] = value
+		if value == 'toggle' then
+			dbg.contacts = not dbg.contacts
+		else
+			dbg.contacts = value
+		end
+		if dbg.contacts then
+			dbg.IADSStatus = true
+		end
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'debugScreen' then
+		if value == 'toggle' then
+			dbg.debugScreen = not dbg.debugScreen
+		else
+			dbg.debugScreen = value
+		end
+		if dbg.debugScreen then
+			dbg.IADSStatus = true
+		end
+		if SkynetIADSLogger.isAnyDashboardActive() then
+			SkynetIADSLogger.renderGlobalDashboard()
+		else
+			SkynetIADSLogger.emitCardText("__CLOSE__", 0)
+		end
+	elseif option == 'dumpDiagnostics' then
+		self.logger:dumpFullDiagnosticReport("F10 Radio Menu Request")
+		self.logger:recordEvent("DIAGNOSTIC", "Full diagnostic report written to SKYNET_IADS_DEBUG.log", true)
+	elseif option == 'notifications' then
+		local newState = value
+		if value == 'toggle' then
+			newState = not dbg.harmDefence
+		end
+		dbg.radarWentLive = newState
+		dbg.radarWentDark = newState
+		dbg.harmDefence = newState
+		local statusTxt = newState and "ENABLED" or "DISABLED"
+		self.logger:recordEvent("NOTIFICATION", "Live Radar & HARM Alerts " .. statusTxt, true)
 	end
 end
 
@@ -606,7 +827,7 @@ function SkynetIADS:getCoalitionString()
 	end
 		
 	if self.name then
-		coalitionStr = "COALITION: "..coalitionStr.." | NAME: "..self.name
+		coalitionStr = "COALITION: "..coalitionStr.." | IADS: "..self.name
 	end
 	
 	return coalitionStr

@@ -14,19 +14,23 @@ end
 function SkynetIADSEWRadar:setupElements()
 	local unit = self:getDCSRepresentation()
 	local unitType = unit:getTypeName()
-	for typeName, dataType in pairs(SkynetIADS.database) do
-		for entry, unitData in pairs(dataType) do
-			if entry == 'searchRadar' then
-				--buildSingleUnit checks to make sure the EW radar is defined in the Skynet database. If it is not, self.searchRadars will be 0 so no ew radar will be added
-				self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
-				if #self.searchRadars > 0 then
-					local harmDetection = dataType['harm_detection_chance']
-					self:setHARMDetectionChance(harmDetection)
-					if unitData[unitType]['name'] then
-						local natoName = unitData[unitType]['name']['NATO']
-						self:buildNatoName(natoName)
+	for pass = 1, 2 do
+		for typeName, dataType in pairs(SkynetIADS.database) do
+			if (pass == 1 and dataType['type'] == 'ewr') or (pass == 2 and dataType['type'] ~= 'ewr') then
+				for entry, unitData in pairs(dataType) do
+					if entry == 'searchRadar' then
+						--buildSingleUnit checks to make sure the EW radar is defined in the Skynet database. If it is not, self.searchRadars will be 0 so no ew radar will be added
+						self:buildSingleUnit(unit, SkynetIADSSAMSearchRadar, self.searchRadars, unitData)
+						if #self.searchRadars > 0 then
+							local harmDetection = dataType['harm_detection_chance']
+							self:setHARMDetectionChance(harmDetection)
+							if unitData[unitType]['name'] and unitData[unitType]['name']['NATO'] and string.len(unitData[unitType]['name']['NATO']) > 0 then
+								local natoName = unitData[unitType]['name']['NATO']
+								self:buildNatoName(natoName)
+							end
+							return
+						end
 					end
-					return
 				end
 			end
 		end
